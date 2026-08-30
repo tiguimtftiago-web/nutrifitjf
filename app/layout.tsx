@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Nutrifit | Marmitas em Juiz de Fora",
-  description: "Marmitas Nutrifit para uma rotina mais prática em Juiz de Fora. Veja o cardápio e peça pelo WhatsApp.",
+  description: "Marmitas Fit, Performance, Tradicional e Premium da Nutrifit. Peça pelo WhatsApp em Juiz de Fora.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
