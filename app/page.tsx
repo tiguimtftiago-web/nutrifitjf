@@ -150,7 +150,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d] shadow-2xl">
-            <img src="/images/capa-nutrifit.png" alt="Nutrifit — comida de verdade para todos os estilos de vida" className="aspect-[4/3] w-full object-cover" />
+            <img src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png" alt="Nutrifit — comida de verdade para todos os estilos de vida" className="aspect-[4/3] w-full object-cover" />
             <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/10 bg-black/70 p-5 backdrop-blur-md">
               <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Fit</div>
               <div className="mt-1 flex items-end justify-between gap-4"><div><div className="text-2xl font-black">350 g</div><div className="text-sm text-white/55">Patinho com Abóbora</div></div><div className="text-2xl font-black text-[#ef7d18]">R$ 23,97</div></div>
