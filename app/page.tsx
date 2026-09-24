@@ -628,24 +628,6 @@ export default function Home() {
 
           <ComboBuilder />
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {comboHighlights.map((item) => (
-              <article key={item.line} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0e09] shadow-xl">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
-                  <div className="absolute left-4 top-4 rounded-full bg-[#a7b86a] px-3 py-1.5 text-[10px] font-black tracking-[.15em] text-black">{item.line} • {item.weight}</div>
-                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/85 to-transparent" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-black">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{item.text}</p>
-                  <div className="mt-5 text-lg font-black text-[#ef7d18]">{item.price}</div>
-                  <a href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${item.line} ${item.weight} — ${item.price}. Quero escolher os sabores deste combo.`)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">Escolher este combo <ArrowRight size={16} /></a>
-                </div>
-              </article>
-            ))}
-          </div>
-
           <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
             <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
               <div>
