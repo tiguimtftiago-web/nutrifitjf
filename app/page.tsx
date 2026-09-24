@@ -165,31 +165,16 @@ export default function Home() {
         </div>
       </header>
 
-      <section id="inicio" className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_30%,rgba(167,184,106,.18),transparent_35%),radial-gradient(circle_at_15%_80%,rgba(239,125,24,.10),transparent_30%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-[1.05fr_.95fr] md:items-center md:px-8 md:py-24">
-          <div>
-            <div className="mb-6 inline-flex rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-4 py-2 text-xs font-black uppercase tracking-[.18em] text-[#cbd99a]">Juiz de Fora • comida de verdade</div>
-            <h1 className="max-w-3xl text-5xl font-black leading-[.92] tracking-[-.04em] md:text-7xl">Praticidade, sabor e qualidade<span className="block text-[#a7b86a]">todos os dias.</span></h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-white/60">Cardápio completo Nutrifit 2026: Linha Fit, Performance, Saladas, Tradicional e Sucos.</p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <a href="#combos" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-7 py-4 font-black text-black">Ver combos <ArrowRight size={18} /></a>
-              <a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-7 py-4 font-bold">Pedir pelo WhatsApp <MessageCircle size={18} /></a>
-            </div>
-            <div className="mt-9 grid max-w-xl grid-cols-3 gap-3">
-              {[["350 g","Fit / Saladas"],["450 g","Performance"],["500 g","Tradicional"]].map(([value,label]) => <div key={value} className="rounded-2xl border border-white/10 bg-white/[.035] p-4"><div className="text-xl font-black">{value}</div><div className="mt-1 text-xs text-white/45">{label}</div></div>)}
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d] shadow-2xl">
-            <img src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png" alt="Nutrifit — comida de verdade para todos os estilos de vida" className="aspect-[4/3] w-full object-cover" />
-            <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/10 bg-black/70 p-5 backdrop-blur-md">
-              <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Fit</div>
-              <div className="mt-1 flex items-end justify-between gap-4"><div><div className="text-2xl font-black">350 g</div><div className="text-sm text-white/55">Patinho com Abóbora</div></div><div className="text-2xl font-black text-[#ef7d18]">R$ 23,97</div></div>
-            </div>
-          </div>
+      <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
+        <div className="w-full overflow-hidden">
+          <img
+            src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png"
+            alt="Nutrifit — comida de verdade para todos os estilos de vida"
+            className="block h-auto w-full"
+            fetchPriority="high"
+          />
         </div>
       </section>
-
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} />
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
