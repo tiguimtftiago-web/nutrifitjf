@@ -230,7 +230,6 @@ function ComboBuilder() {
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
 
@@ -497,7 +496,6 @@ function ComboBuilder() {
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
           <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-          <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} type="email" autoComplete="email" placeholder="Seu melhor e-mail" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
         </div>
       </div>
 
