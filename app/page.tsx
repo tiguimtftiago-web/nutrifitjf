@@ -626,7 +626,9 @@ export default function Home() {
             <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
           </div>
 
-          <ComboBuilder />\n\n          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <ComboBuilder />
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
             {comboHighlights.map((item) => (
               <article key={item.line} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0e09] shadow-xl">
                 <div className="relative aspect-[4/3] overflow-hidden">
