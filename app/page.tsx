@@ -406,31 +406,57 @@ function ComboBuilder() {
 
       <div className="mt-7 rounded-2xl border border-white/10 bg-[#0f120d] p-5">
         <div className="flex items-center gap-2">
-          <Truck size={18} className="text-[#a7b86a]" />
-          <div className="font-black">Como você quer receber?</div>
+          <Truck size={20} className="text-[#a7b86a]" />
+          <div>
+            <div className="font-black text-lg">Como você quer receber?</div>
+            <div className="text-sm text-white/45">Escolha uma das opções para continuar.</div>
+          </div>
         </div>
-        <p className="mt-1 text-sm text-white/45">Escolha entrega ou retirada antes de finalizar o pedido.</p>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={`rounded-2xl border p-4 text-left transition ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
-            <div className="flex items-center gap-2 font-black"><Truck size={17} className="text-[#a7b86a]" /> Entrega</div>
-            <div className="mt-1 text-sm text-white/50">Calcule a taxa pelo seu CEP.</div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => chooseDeliveryMode("delivery")}
+            className={`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}
+          >
+            {deliveryMode === "delivery" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3} /></div>}
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]">
+              <Truck size={24} />
+            </div>
+            <div className="mt-4 text-xl font-black">🚚 Receber em casa</div>
+            <div className="mt-1 text-sm text-white/55">Digite seu CEP e veja a taxa de entrega da sua região.</div>
+            <div className="mt-4 inline-flex rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#cbd99a]">CALCULAR PELO CEP</div>
           </button>
-          <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={`rounded-2xl border p-4 text-left transition ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
-            <div className="flex items-center gap-2 font-black"><MapPin size={17} className="text-[#ef7d18]" /> Retirar no local</div>
-            <div className="mt-1 text-sm text-white/50">Sem taxa de entrega.</div>
+
+          <button
+            type="button"
+            onClick={() => chooseDeliveryMode("pickup")}
+            className={`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}
+          >
+            {deliveryMode === "pickup" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#ef7d18] text-black"><Check size={16} strokeWidth={3} /></div>}
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]">
+              <MapPin size={24} />
+            </div>
+            <div className="mt-4 text-xl font-black">📍 Retirar na Nutrifit</div>
+            <div className="mt-1 text-sm text-white/55">Retire seu pedido no endereço da Nutrifit, sem taxa de entrega.</div>
+            <div className="mt-4 inline-flex rounded-full bg-[#ef7d18]/15 px-3 py-1 text-xs font-black text-[#ef9b55]">SEM TAXA</div>
           </button>
         </div>
 
         {deliveryMode === "pickup" ? (
-          <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4">
-            <div className="font-black text-white">📍 Retirada na Nutrifit</div>
-            <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
-            <div className="mt-2 text-xs font-bold text-[#ef7d18]">Taxa de entrega: R$ 0,00</div>
+          <div className="mt-5 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-5">
+            <div className="flex items-start gap-3">
+              <MapPin size={20} className="mt-0.5 shrink-0 text-[#ef7d18]" />
+              <div>
+                <div className="font-black text-white">Retirada na Nutrifit</div>
+                <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
+                <div className="mt-2 text-sm font-black text-[#ef7d18]">Taxa de entrega: R$ 0,00</div>
+              </div>
+            </div>
           </div>
         ) : (
           <>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]" />
               <button type="button" onClick={calculateDelivery} disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                 {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
