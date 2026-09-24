@@ -251,7 +251,7 @@ export default function Home() {
             {[
               ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
               ["02","Peça","Clique no WhatsApp e envie seu pedido já com a opção escolhida."],
-              ["03","Receba","Combine entrega e pagamento diretamente com a Nutrifit."]
+              ["03","Receba","Após a confirmação do pagamento, combinamos a entrega do seu pedido."]
             ].map(([number,title,text]) => (
               <div key={number} className="rounded-3xl border border-white/10 bg-white/[.03] p-7">
                 <div className="text-sm font-black text-[#ef7d18]">{number}</div>
@@ -281,7 +281,7 @@ export default function Home() {
                 <h2 className="text-2xl font-black">Pedido e pagamento</h2>
               </div>
               <p className="mt-3 leading-7 text-white/55">
-                Escolha seus produtos e fale diretamente com a equipe para confirmar disponibilidade, entrega e forma de pagamento.
+                Escolha seus produtos, confirme o pedido e realize o pagamento antes da entrega. Após a confirmação do pagamento, a Nutrifit prepara e entrega seu pedido.
               </p>
               <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
                 Falar com a Nutrifit <MessageCircle size={16} />
@@ -321,7 +321,8 @@ export default function Home() {
                 ["Saladas entram nos combos?","O catálogo informa as saladas como vendidas por unidade."],
                 ["Os sucos entram nos combos?","Os sucos são vendidos por unidade; consulte disponibilidade pelo WhatsApp."],
                 ["Como faço meu pedido?","Escolha suas opções no cardápio e clique em qualquer botão de pedido para falar com a Nutrifit."],
-                ["Como funciona a entrega?","A disponibilidade e a taxa de entrega devem ser confirmadas pelo WhatsApp."]
+                ["Como funciona a entrega?","A disponibilidade e a taxa de entrega devem ser confirmadas pelo WhatsApp."],
+                ["Quando faço o pagamento?","O pagamento é realizado antecipadamente. Após a confirmação do pagamento, a Nutrifit prepara e realiza a entrega do pedido."]
               ].map(([question,answer]) => (
                 <details key={question} className="group rounded-2xl border border-white/10 bg-white/[.025] p-5">
                   <summary className="cursor-pointer list-none font-black marker:hidden">{question}</summary>
