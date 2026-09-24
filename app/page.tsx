@@ -278,7 +278,6 @@ function ComboBuilder() {
     setDelivery(null);
     setDeliveryStatus("idle");
     setCustomerName("");
-    setCustomerEmail("");
     setCustomerPhone("");
     setPaymentStatus("idle");
   };
