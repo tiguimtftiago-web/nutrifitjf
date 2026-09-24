@@ -1,7 +1,12 @@
-import { ArrowRight, Check, MessageCircle, ShoppingBag } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, Instagram, MapPin, Truck, Building2, HelpCircle } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
+
+const whatsappOrder = (text: string) =>
+  `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
+
+const instagram = "https://www.instagram.com/nutrifit_jf/";
 
 type Product = {
   name: string;
@@ -124,7 +129,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <h3 className="mt-4 text-xl font-black">{product.name}</h3>
         <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></a>
+        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`)} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></a>
       </div>
     </article>
   );
@@ -242,12 +247,119 @@ export default function Home() {
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-          <div className="grid gap-5 md:grid-cols-3">{[["01","Escolha","Veja o cardápio e escolha suas marmitas."],["02","Peça","Clique no WhatsApp e envie seu pedido."],["03","Receba","Combine entrega e pagamento com a Nutrifit."]].map(([number,title,text]) => <div key={number} className="rounded-3xl border border-white/10 bg-white/[.03] p-7"><div className="text-sm font-black text-[#ef7d18]">{number}</div><h3 className="mt-3 text-2xl font-black">{title}</h3><p className="mt-3 leading-7 text-white/50">{text}</p></div>)}</div>
-          <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-8 md:p-10"><div className="flex flex-col justify-between gap-7 md:flex-row md:items-center"><div><h2 className="text-3xl font-black">Peça já a sua marmita</h2><p className="mt-2 text-white/50">Praticidade, sabor e qualidade — todos os dias.</p><p className="mt-4 text-sm text-white/60">Juiz de Fora / MG • @nutrifit_jf • (32) 99803-0038</p><p className="mt-1 text-sm text-white/40">iFood • Facebook • Atendimento B2B</p></div><a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black"><ShoppingBag size={18} /> Fazer pedido</a></div></div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
+              ["02","Peça","Clique no WhatsApp e envie seu pedido já com a opção escolhida."],
+              ["03","Receba","Combine entrega e pagamento diretamente com a Nutrifit."]
+            ].map(([number,title,text]) => (
+              <div key={number} className="rounded-3xl border border-white/10 bg-white/[.03] p-7">
+                <div className="text-sm font-black text-[#ef7d18]">{number}</div>
+                <h3 className="mt-3 text-2xl font-black">{title}</h3>
+                <p className="mt-3 leading-7 text-white/50">{text}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-7 md:p-9">
+              <div className="flex items-center gap-3">
+                <Truck className="text-[#a7b86a]" size={22} />
+                <h2 className="text-2xl font-black">Entrega em Juiz de Fora</h2>
+              </div>
+              <p className="mt-3 leading-7 text-white/55">
+                Consulte pelo WhatsApp a disponibilidade, a taxa e o horário de entrega para o seu endereço.
+              </p>
+              <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
+                Consultar entrega <ArrowRight size={16} />
+              </a>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-white/[.03] p-7 md:p-9">
+              <div className="flex items-center gap-3">
+                <MessageCircle className="text-[#ef7d18]" size={22} />
+                <h2 className="text-2xl font-black">Pedido e pagamento</h2>
+              </div>
+              <p className="mt-3 leading-7 text-white/55">
+                Escolha seus produtos e fale diretamente com a equipe para confirmar disponibilidade, entrega e forma de pagamento.
+              </p>
+              <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
+                Falar com a Nutrifit <MessageCircle size={16} />
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-7 md:p-9">
+            <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
+              <div>
+                <div className="flex items-center gap-3">
+                  <Building2 className="text-[#ef7d18]" size={22} />
+                  <h2 className="text-2xl font-black">Nutrifit para empresas</h2>
+                </div>
+                <p className="mt-3 max-w-2xl leading-7 text-white/55">
+                  Atendimento B2B para empresas e pedidos corporativos. Fale com a equipe para conhecer as possibilidades.
+                </p>
+              </div>
+              <a href={whatsappOrder("Olá, Nutrifit! Tenho interesse em atendimento B2B para minha empresa.")} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 font-black text-black">
+                Atendimento B2B <ArrowRight size={16} />
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-3">
+                <HelpCircle className="text-[#a7b86a]" size={22} />
+                <h2 className="text-3xl font-black">Perguntas frequentes</h2>
+              </div>
+              <p className="mt-2 text-white/45">As informações abaixo seguem o catálogo Nutrifit.</p>
+            </div>
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              {[
+                ["Posso misturar sabores no combo?","Sim. Os combos podem misturar sabores dentro da mesma linha."],
+                ["Quais são os tamanhos das marmitas?","Fit e Saladas: 350 g. Performance: 450 g. Tradicional: 500 g."],
+                ["Saladas entram nos combos?","O catálogo informa as saladas como vendidas por unidade."],
+                ["Os sucos entram nos combos?","Os sucos são vendidos por unidade; consulte disponibilidade pelo WhatsApp."],
+                ["Como faço meu pedido?","Escolha suas opções no cardápio e clique em qualquer botão de pedido para falar com a Nutrifit."],
+                ["Como funciona a entrega?","A disponibilidade e a taxa de entrega devem ser confirmadas pelo WhatsApp."]
+              ].map(([question,answer]) => (
+                <details key={question} className="group rounded-2xl border border-white/10 bg-white/[.025] p-5">
+                  <summary className="cursor-pointer list-none font-black marker:hidden">{question}</summary>
+                  <p className="mt-3 leading-6 text-white/50">{answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-8 md:p-10">
+            <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
+              <div>
+                <h2 className="text-3xl font-black">Peça já a sua marmita</h2>
+                <p className="mt-2 text-white/50">Praticidade, sabor e qualidade — todos os dias.</p>
+                <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm text-white/60">
+                  <span className="inline-flex items-center gap-2"><MessageCircle size={16} className="text-[#a7b86a]" />(32) 99803-0038</span>
+                  <span className="inline-flex items-center gap-2"><MapPin size={16} className="text-[#a7b86a]" />Juiz de Fora / MG</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <a href={instagram} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 font-bold">
+                  <Instagram size={18} /> @nutrifit_jf
+                </a>
+                <a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black">
+                  <ShoppingBag size={18} /> Fazer pedido
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-white/10"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-8 text-sm text-white/40 md:flex-row md:items-center md:justify-between md:px-8"><span>© 2026 Nutrifit • Juiz de Fora - MG</span><span>@nutrifit_jf • (32) 99803-0038</span></div></footer>
-    </main>
-  );
-}
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
+          <span>© 2026 Nutrifit • Juiz de Fora - MG</span>
+          <div className="flex flex-wrap gap-4">
+            <a href={instagram} target="_blank" rel="noreferrer" className="hover:text-white">Instagram @nutrifit_jf</a>
+            <a href={whatsapp} className="hover:text-white">WhatsApp (32) 99803-0038</a>
+          </div>
+        </div>
+      </footer>
