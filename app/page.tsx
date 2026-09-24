@@ -4,7 +4,7 @@ const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
 
 const whatsappOrder = (text: string) =>
-  `https://api.whatsapp.com/send?phone=5532998030038&text=${encodeURIComponent(text)}`;
+  `https://web.whatsapp.com/send?phone=5532998030038&text=${encodeURIComponent(text)}`;
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
 
@@ -129,7 +129,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <h3 className="mt-4 text-xl font-black">{product.name}</h3>
         <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <button type="button" onClick={() => { window.location.href = whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`); }} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></button>
+        <button type="button" onClick={() => { window.open(whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`), "_blank", "noopener,noreferrer"); }} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></button>
       </div>
     </article>
   );
