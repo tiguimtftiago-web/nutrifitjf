@@ -70,8 +70,19 @@ const combos = [
   ["Tradicional 500 g","20 marmitas","R$ 529,90","R$ 26,50/un"],
 ];
 
-const functionalJuices = ["Energy","Green","Pink","Sun","Purple","Glow"];
-const naturalJuices = ["Suco de Laranja","Laranja com Acerola","Abacaxi com Hortelã"];
+const functionalJuices = [
+  ["Energy","/images/page-36.jpg"],
+  ["Green","/images/page-37.jpg"],
+  ["Pink","/images/page-38.jpg"],
+  ["Sun","/images/page-39.jpg"],
+  ["Purple","/images/page-40.jpg"],
+  ["Glow","/images/page-41.jpg"],
+];
+const naturalJuices = [
+  ["Suco de Laranja","/images/page-42.jpg"],
+  ["Laranja com Acerola","/images/page-43.jpg"],
+  ["Abacaxi com Hortelã","/images/page-44.jpg"],
+];
 
 function ProductCard({ product }: { product: Product }) {
   return (
@@ -139,7 +150,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d] shadow-2xl">
-            <img src={fit[0].image} alt="Nutrifit - Patinho com Abóbora" className="aspect-[4/3] w-full object-cover" />
+            <img src="/images/capa-nutrifit.png" alt="Nutrifit — comida de verdade para todos os estilos de vida" className="aspect-[4/3] w-full object-cover" />
             <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/10 bg-black/70 p-5 backdrop-blur-md">
               <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Fit</div>
               <div className="mt-1 flex items-end justify-between gap-4"><div><div className="text-2xl font-black">350 g</div><div className="text-sm text-white/55">Patinho com Abóbora</div></div><div className="text-2xl font-black text-[#ef7d18]">R$ 23,97</div></div>
@@ -168,8 +179,8 @@ export default function Home() {
       <section id="sucos" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
           <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Nutrifit Mulher • 500 ml • R$ 12,90</p></div>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">{functionalJuices.map(j => <a href={whatsapp} key={j} className="rounded-2xl border border-white/10 bg-black/20 p-5 text-center hover:border-[#a7b86a]/40"><div className="font-black">{j}</div><div className="mt-2 text-xs text-white/40">500 ml</div><div className="mt-3 font-black text-[#ef7d18]">R$ 12,90</div></a>)}</div>
-          <div className="mt-10 border-t border-white/10 pt-8"><div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos Nutrifit • 500 ml • R$ 12,00</div><div className="mt-4 grid gap-3 sm:grid-cols-3">{naturalJuices.map(j => <a href={whatsapp} key={j} className="rounded-2xl border border-white/10 bg-black/20 p-5 font-black hover:border-[#a7b86a]/40">{j}</a>)}</div></div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">{functionalJuices.map(([name,image]) => <a href={whatsapp} key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-1 text-xs text-white/40">500 ml</div><div className="mt-2 font-black text-[#ef7d18]">R$ 12,90</div></div></a>)}</div>
+          <div className="mt-10 border-t border-white/10 pt-8"><div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos Nutrifit • 500 ml • R$ 12,00</div><div className="mt-4 grid gap-4 sm:grid-cols-3">{naturalJuices.map(([name,image]) => <a href={whatsapp} key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-1 text-xs text-white/40">500 ml</div><div className="mt-2 font-black text-[#ef7d18]">R$ 12,00</div></div></a>)}</div></div>
         </div>
       </section>
 
