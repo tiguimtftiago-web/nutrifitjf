@@ -205,7 +205,7 @@ export default function Home() {
                   <h3 className="text-2xl font-black">{item.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-white/50">{item.text}</p>
                   <div className="mt-5 text-lg font-black text-[#ef7d18]">{item.price}</div>
-                  <a href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${item.line} ${item.weight} — ${item.price}.`)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">Escolher este combo <ArrowRight size={16} /></a>
+                  <a href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${item.line} ${item.weight} — ${item.price}. Quero escolher os sabores deste combo.`)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">Escolher este combo <ArrowRight size={16} /></a>
                 </div>
               </article>
             ))}
@@ -221,7 +221,7 @@ export default function Home() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {combos.map(([line,quantity,price,average]) => (
-                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}.`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
+                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
                   <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
                   <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
                   <div className="mt-1 text-2xl font-black">{price}</div>
