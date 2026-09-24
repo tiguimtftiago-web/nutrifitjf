@@ -334,63 +334,44 @@ function ComboBuilder() {
     }
   };
 
-  const startPayment = async () => {
-    if (total !== quantity || !delivery || !customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) return;
+  const sendOrder = () => {
+    if (total !== quantity || !delivery || !customerName.trim() || !customerPhone.trim()) return;
 
     setPaymentStatus("loading");
 
     const items = option.products
       .filter((product) => selected[product.name])
-      .map((product) => \`\${selected[product.name]}x \${product.name}\`)
+      .map((product) => `${selected[product.name]}x ${product.name}`)
       .join(", ");
 
     const deliveryText =
       deliveryMode === "pickup"
-        ? "Retirada no local — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
+        ? "Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : delivery.fee === 0
-          ? \`Entrega grátis — CEP \${cep}\`
-          : \`Entrega \${money(delivery.fee)} — CEP \${cep}\`;
+          ? `Entrega grátis — CEP ${cep}`
+          : `Entrega ${money(delivery.fee)} — CEP ${cep}`;
 
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer: {
-            name: customerName.trim(),
-            email: customerEmail.trim(),
-            phone: customerPhone.trim(),
-          },
-          line: option.line,
-          weight: option.weight,
-          quantity,
-          price,
-          selectedItems: items,
-          subtotal,
-          deliveryFee,
-          deliveryMode,
-          deliveryText,
-          neighborhood: delivery.neighborhood,
-          cep,
-          total: grandTotal,
-        }),
-      });
+    const message = [
+      "Olá, Nutrifit! Quero fazer este pedido:",
+      "",
+      `Combo: ${option.line} — ${option.weight} — ${quantity} marmitas`,
+      `Sabores: ${items}`,
+      `Subtotal: ${money(subtotal)}`,
+      `Recebimento: ${deliveryText}`,
+      `Taxa de entrega: ${money(deliveryFee)}`,
+      `Total: ${money(grandTotal)}`,
+      "",
+      `Cliente: ${customerName.trim()}`,
+      `WhatsApp: ${customerPhone.trim()}`,
+      "",
+      "Pagamento: combinar pelo WhatsApp.",
+    ].join("\\n");
 
-      const data = await response.json();
-
-      if (!response.ok || !data.checkoutUrl) {
-        throw new Error(data.error || "Não foi possível iniciar o pagamento.");
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch (error) {
-      console.error(error);
-      setPaymentStatus("error");
-    }
+    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+    setPaymentStatus("idle");
   };
-
   const deliveryReady = deliveryMode === "pickup" || subtotal >= DELIVERY_FREE_FROM || Boolean(delivery);
-  const customerReady = Boolean(customerName.trim() && customerEmail.trim() && customerPhone.trim());
+  const customerReady = Boolean(customerName.trim() && customerPhone.trim());
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
 
   return (
@@ -400,7 +381,7 @@ function ComboBuilder() {
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte e pague seu pedido no site</div>
           <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
-            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e pague com segurança pelo Mercado Pago.
+            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e envie o pedido pelo WhatsApp para combinar o pagamento.
           </p>
         </div>
         <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
@@ -510,10 +491,10 @@ function ComboBuilder() {
           <MessageCircle size={20} className="text-[#ef7d18]" />
           <div>
             <div className="font-black text-lg">Seus dados para o pedido</div>
-            <div className="text-sm text-white/45">Esses dados serão usados para identificar o pagamento e confirmar o pedido.</div>
+            <div className="text-sm text-white/45">Esses dados serão usados para identificar você e confirmar o pedido pelo WhatsApp.</div>
           </div>
         </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
           <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
           <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
           <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} type="email" autoComplete="email" placeholder="Seu melhor e-mail" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
@@ -534,14 +515,14 @@ function ComboBuilder() {
               : !deliveryReady
                 ? "Escolha como receber o pedido para liberar o pagamento."
                 : !customerReady
-                  ? "Preencha nome, WhatsApp e e-mail para continuar."
-                  : "Pedido completo. Você será levado ao Mercado Pago para finalizar o pagamento."}
+                  ? "Preencha nome e WhatsApp para continuar."
+                  : "Pedido completo. Clique para enviar os detalhes pelo WhatsApp e combinar o pagamento."}
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
-          <button type="button" onClick={startPayment} disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
-            {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Preparando pagamento...</> : <><ShoppingBag size={17} /> Pagar e finalizar pedido</>}
+          <button type="button" onClick={sendOrder} disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+            {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando pedido...</> : <><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</>}
           </button>
         </div>
       </div>
@@ -553,7 +534,7 @@ function ComboBuilder() {
       )}
 
       <div className="mt-4 text-center text-xs text-white/35">
-        Pagamento processado com segurança pelo Mercado Pago. O pedido só será considerado confirmado após a confirmação do pagamento.
+        O pagamento fica combinado diretamente pelo WhatsApp. O pedido é confirmado após a confirmação do pagamento.
       </div>
     </div>
   );
