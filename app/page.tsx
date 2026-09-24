@@ -129,7 +129,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <h3 className="mt-4 text-xl font-black">{product.name}</h3>
         <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`)} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></a>
+        <button type="button" onClick={() => { window.location.href = whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`); }} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></button>
       </div>
     </article>
   );
