@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -120,6 +120,75 @@ const naturalJuices = [
 ];
 
 
+
+const DELIVERY_FREE_FROM = 200;
+
+type DeliveryResult = {
+  zone: string;
+  fee: number;
+  neighborhood: string;
+};
+
+const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] }> = [
+  {
+    zone: "Zona 1",
+    fee: 5,
+    neighborhoods: [
+      "monte castelo","fabrica","francisco bernardino","carlos chagas","ceramica","sao dimas",
+      "esplanada","mariano procopio","centenario","democrata","bonfim","jardim natal",
+      "morro da gloria","jardim gloria","santa helena"
+    ],
+  },
+  {
+    zone: "Zona 2",
+    fee: 7,
+    neighborhoods: [
+      "borboleta","vale do ipe","santa catarina","sao geraldo","poeta","centro",
+      "benfica","nova era","santa terezinha","manoel honorio","bairu","progresso",
+      "vitorino braga","poço rico","poco rico","santa luzia","nossa senhora aparecida",
+      "paina","paines","paines","jardim santa helena"
+    ],
+  },
+  {
+    zone: "Zona 3",
+    fee: 10,
+    neighborhoods: [
+      "sao pedro","aeroporto","teixeiras","cascatinha","sao mateus","alto dos passos",
+      "granbery","bom pastor","estrela sul","ipiranga","santo antonio","milho branco",
+      "jardim america","jardim leopoldina","nova califórnia","nova california",
+      "salvaterra","retiro","santa efigenia","marumbi","linhares","sao benedito"
+    ],
+  },
+  {
+    zone: "Zona 4",
+    fee: 13,
+    neighborhoods: [
+      "barreira do triunfo","bandeirantes","filgueiras","grande jardim gloria","granjas betania",
+      "jardim gaúcho","jardim gaucho","igreja da gloria","parque das aguas","vale verde",
+      "sarapiranga","sao judas tadeu","caiçaras","caicaras","serra d'agua","sao judas",
+      "remonta","chacara das flores","recanto dos brincos","recanto da mata"
+    ],
+  },
+];
+
+const normalizeText = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\\u0300-\\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const findDelivery = (neighborhood: string): DeliveryResult | null => {
+  const normalized = normalizeText(neighborhood);
+  const match = deliveryZones.find((item) =>
+    item.neighborhoods.some((name) => normalizeText(name) === normalized)
+  );
+  return match ? { zone: match.zone, fee: match.fee, neighborhood } : null;
+};
+
+const money = (value: number) =>
+  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
 const comboOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
@@ -130,20 +199,30 @@ function ComboBuilder() {
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [cep, setCep] = useState("");
+  const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
+  const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
 
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
+  const subtotal = Number(price.replace("R$ ", "").replace(".", "").replace(",", "."));
+  const deliveryFee = subtotal >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
+  const grandTotal = subtotal + deliveryFee;
 
   const changeLine = (index: number) => {
     setLineIndex(index);
     setSelected({});
     setQuantity(5);
+    setDelivery(null);
+    setDeliveryStatus("idle");
   };
 
   const changeQuantity = (value: 5 | 7 | 10 | 14 | 20) => {
     setQuantity(value);
     setSelected({});
+    setDelivery(null);
+    setDeliveryStatus("idle");
   };
 
   const addProduct = (name: string) => {
@@ -161,17 +240,72 @@ function ComboBuilder() {
     });
   };
 
-  const reset = () => setSelected({});
+  const reset = () => {
+    setSelected({});
+    setCep("");
+    setDelivery(null);
+    setDeliveryStatus("idle");
+  };
+
+  const calculateDelivery = async () => {
+    const cleanCep = cep.replace(/\\D/g, "");
+    if (cleanCep.length !== 8) {
+      setDelivery(null);
+      setDeliveryStatus("error");
+      return;
+    }
+
+    if (subtotal >= DELIVERY_FREE_FROM) {
+      setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: "" });
+      setDeliveryStatus("idle");
+      return;
+    }
+
+    setDeliveryStatus("loading");
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+
+      if (data.erro || !data.bairro) {
+        setDelivery(null);
+        setDeliveryStatus("error");
+        return;
+      }
+
+      const result = findDelivery(data.bairro);
+      if (!result) {
+        setDelivery(null);
+        setDeliveryStatus("error");
+        return;
+      }
+
+      setDelivery(result);
+      setDeliveryStatus("idle");
+    } catch {
+      setDelivery(null);
+      setDeliveryStatus("error");
+    }
+  };
 
   const sendOrder = () => {
-    if (total !== quantity) return;
+    if (total !== quantity || !delivery) return;
+
     const items = option.products
       .filter((product) => selected[product.name])
       .map((product) => `${selected[product.name]}x ${product.name}`)
       .join(", ");
-    const message = `Olá, Nutrifit! Quero montar meu combo ${option.line} ${option.weight}: ${quantity} marmitas — ${price}. Sabores: ${items}.`;
+
+    const deliveryText = delivery.fee === 0 ? "Frete grátis" : money(delivery.fee);
+    const neighborhoodText = delivery.neighborhood ? `Bairro: ${delivery.neighborhood}. ` : "";
+    const message =
+      `Olá, Nutrifit! Quero montar meu combo ${option.line} ${option.weight}: ${quantity} marmitas — ${price}. ` +
+      `Sabores: ${items}. Subtotal: ${money(subtotal)}. ${deliveryText}. ${neighborhoodText}Total: ${money(grandTotal)}. CEP: ${cep}.`;
+
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
   };
+
+  const deliveryReady = subtotal >= DELIVERY_FREE_FROM ? true : Boolean(delivery);
+  const canSend = total === quantity && deliveryReady;
 
   return (
     <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
@@ -179,7 +313,9 @@ function ComboBuilder() {
         <div>
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
           <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">Escolha a linha, o tamanho do combo e quantas unidades de cada sabor você quer. Quando completar o combo, envie tudo de uma vez pelo WhatsApp.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
+            Escolha a linha, o tamanho do combo e os sabores. Depois informe seu CEP para calcular a entrega antes de enviar o pedido.
+          </p>
         </div>
         <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
           <div className="text-xs font-black uppercase tracking-wider text-white/45">Selecionadas</div>
@@ -220,276 +356,77 @@ function ComboBuilder() {
         ))}
       </div>
 
+      <div className="mt-7 rounded-2xl border border-white/10 bg-[#0f120d] p-5">
+        <div className="flex items-center gap-2">
+          <Truck size={18} className="text-[#a7b86a]" />
+          <div className="font-black">Calcule sua entrega</div>
+        </div>
+        <p className="mt-1 text-sm text-white/45">Digite seu CEP. O site identifica o bairro e calcula a taxa da sua região.</p>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <input
+            value={cep}
+            onChange={(event) => {
+              const value = event.target.value.replace(/\\D/g, "").slice(0, 8);
+              setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value);
+              setDelivery(null);
+              setDeliveryStatus("idle");
+            }}
+            inputMode="numeric"
+            autoComplete="postal-code"
+            placeholder="00000-000"
+            aria-label="CEP para calcular a entrega"
+            className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]"
+          />
+          <button
+            type="button"
+            onClick={calculateDelivery}
+            disabled={deliveryStatus === "loading"}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60"
+          >
+            {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
+          </button>
+        </div>
+
+        {subtotal >= DELIVERY_FREE_FROM ? (
+          <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
+            <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
+            <div className="mt-1 text-sm text-white/55">Seu combo atingiu R$ 200,00 ou mais.</div>
+          </div>
+        ) : delivery ? (
+          <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
+            <div className="font-black text-[#cbd99a]">📍 {delivery.neighborhood}</div>
+            <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#ef7d18]">{money(delivery.fee)}</span></div>
+          </div>
+        ) : deliveryStatus === "error" ? (
+          <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">
+            Não conseguimos identificar uma área de entrega cadastrada para esse CEP. Confira o CEP ou fale com a Nutrifit pelo WhatsApp.
+          </div>
+        ) : null}
+      </div>
+
       <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
-          <div className="mt-1 text-2xl font-black text-[#ef7d18]">{price}</div>
-          <div className="mt-1 text-xs text-white/45">{total === quantity ? "Combo completo. Você já pode enviar o pedido." : `Escolha mais ${quantity - total} marmita(s) para completar o combo.`}</div>
+          <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-white/55">
+            <span>Subtotal</span><strong className="text-white">{money(subtotal)}</strong>
+            <span>Entrega</span><strong className="text-white">{deliveryReady ? (deliveryFee === 0 ? "Grátis" : money(deliveryFee)) : "Informe o CEP"}</strong>
+          </div>
+          <div className="mt-2 text-2xl font-black text-[#ef7d18]">Total {money(grandTotal)}</div>
+          <div className="mt-1 text-xs text-white/45">
+            {total !== quantity
+              ? `Escolha mais ${quantity - total} marmita(s) para completar o combo.`
+              : !deliveryReady
+                ? "Calcule a entrega para liberar o pedido."
+                : "Pedido completo. Confira o total e envie pelo WhatsApp."}
+          </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
-          <button type="button" onClick={sendOrder} disabled={total !== quantity} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30"><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</button>
+          <button type="button" onClick={sendOrder} disabled={!canSend} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30"><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</button>
         </div>
       </div>
     </div>
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
-  return (
-    <article className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] overflow-hidden bg-black">
-        <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-      </div>
-      <div className="p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
-          <span className="font-black text-[#ef7d18]">{product.price}</span>
-        </div>
-        <h3 className="mt-4 text-xl font-black">{product.name}</h3>
-        <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-sm font-black text-black transition hover:scale-[1.01]">Pedir esta opção <ArrowRight size={15} /></a>
-      </div>
-    </article>
-  );
-}
-
-function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[] }) {
-  return (
-    <section id={id} className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-      <div className="max-w-3xl">
-        <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
-        <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
-        <p className="mt-3 text-white/50">{subtitle}</p>
-      </div>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => <ProductCard key={product.name} product={product} />)}
-      </div>
-    </section>
-  );
-}
-
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-[#080a07] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-          <a href="#inicio" aria-label="Nutrifit — início" className="block h-11 w-28 overflow-hidden rounded-lg bg-black">
-              <img src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png" alt="Nutrifit" className="h-full w-full object-cover object-[50%_40%]" />
-            </a>
-          <nav aria-label="Navegação principal" className="hidden gap-6 text-sm font-semibold text-white/65 lg:flex">
-            <a href="#cardapio" className="hover:text-white">Cardápio</a>
-            <a href="#combos" className="hover:text-white">Combos</a>
-            <a href="#sucos" className="hover:text-white">Sucos</a>
-            <a href="#como-pedir" className="hover:text-white">Como pedir</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <a href="#cardapio" className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-black text-white/75 lg:hidden">Cardápio</a>
-            <a href="#combos" className="inline-flex rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-4 py-2 text-xs font-black text-[#cbd99a] lg:hidden">Combos</a>
-            <a href={whatsapp} className="inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> <span className="hidden sm:inline">Pedir agora</span><span className="sm:hidden">Pedir</span></a>
-          </div>
-        </div>
-      </header>
-
-      <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
-        <div className="w-full overflow-hidden">
-          <img
-            src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png"
-            alt="Nutrifit — comida de verdade para todos os estilos de vida"
-            className="block h-auto w-full"
-            fetchPriority="high"
-          />
-        </div>
-      </section>
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} />
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Bovina R$ 29,90 • Demais R$ 26,90." products={traditional} />
-
-      <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
-            <h2 className="mt-2 text-4xl font-black md:text-6xl">Escolha seu combo</h2>
-            <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
-          </div>
-
-          <ComboBuilder />\n\n          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {comboHighlights.map((item) => (
-              <article key={item.line} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0e09] shadow-xl">
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
-                  <div className="absolute left-4 top-4 rounded-full bg-[#a7b86a] px-3 py-1.5 text-[10px] font-black tracking-[.15em] text-black">{item.line} • {item.weight}</div>
-                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/85 to-transparent" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-black">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/50">{item.text}</p>
-                  <div className="mt-5 text-lg font-black text-[#ef7d18]">{item.price}</div>
-                  <a href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${item.line} ${item.weight} — ${item.price}. Quero escolher os sabores deste combo.`)} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">Escolher este combo <ArrowRight size={16} /></a>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
-            <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Todos os tamanhos</div>
-                <h3 className="mt-1 text-2xl font-black">Combos por linha</h3>
-              </div>
-              <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {combos.map(([line,quantity,price,average]) => (
-                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
-                  <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
-                  <div className="mt-1 text-2xl font-black">{price}</div>
-                  <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[["Combos dentro da linha","Misture sabores sem sair da mesma linha."],["Praticidade","Organize várias refeições de uma vez."],["Atendimento direto","Faça seu pedido pelo WhatsApp."]].map(([title,text]) => <div key={title} className="flex gap-3 rounded-2xl border border-white/10 p-5"><Check className="mt-0.5 shrink-0 text-[#a7b86a]" size={19} /><div><div className="font-black">{title}</div><div className="mt-1 text-sm text-white/45">{text}</div></div></div>)}
-          </div>
-        </div>
-      </section>
-
-      <section id="sucos" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
-          <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Sucos funcionais • 500 ml R$ 12,90 • 300 ml R$ 9,90</p></div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">{functionalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 500 ml — R$ 12,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,90</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div>
-          <div className="mt-10 border-t border-white/10 pt-8"><div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos Nutrifit • 500 ml R$ 12,00 • 300 ml R$ 9,90</div><div className="mt-4 grid gap-4 sm:grid-cols-3">{naturalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 500 ml — R$ 12,00.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,00</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div></div>
-        </div>
-      </section>
-
-      <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-          <div className="grid gap-5 md:grid-cols-3">
-            {[
-              ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
-              ["02","Peça","Clique no WhatsApp e envie seu pedido já com a opção escolhida."],
-              ["03","Receba","Após a confirmação do pagamento, combinamos a entrega do seu pedido."]
-            ].map(([number,title,text]) => (
-              <div key={number} className="rounded-3xl border border-white/10 bg-white/[.03] p-7">
-                <div className="text-sm font-black text-[#ef7d18]">{number}</div>
-                <h3 className="mt-3 text-2xl font-black">{title}</h3>
-                <p className="mt-3 leading-7 text-white/50">{text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-7 md:p-9">
-              <div className="flex items-center gap-3">
-                <Truck className="text-[#a7b86a]" size={22} />
-                <h2 className="text-2xl font-black">Entrega em Juiz de Fora</h2>
-              </div>
-              <p className="mt-3 leading-7 text-white/55">
-                Consulte pelo WhatsApp a disponibilidade, a taxa e o horário de entrega para o seu endereço.
-              </p>
-              <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
-                Consultar entrega <ArrowRight size={16} />
-              </a>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/[.03] p-7 md:p-9">
-              <div className="flex items-center gap-3">
-                <MessageCircle className="text-[#ef7d18]" size={22} />
-                <h2 className="text-2xl font-black">Pedido e pagamento</h2>
-              </div>
-              <p className="mt-3 leading-7 text-white/55">
-                Escolha seus produtos, confirme o pedido e realize o pagamento antes da entrega. Após a confirmação do pagamento, a Nutrifit prepara e entrega seu pedido.
-              </p>
-              <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
-                Falar com a Nutrifit <MessageCircle size={16} />
-              </a>
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-7 md:p-9">
-            <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
-              <div>
-                <div className="flex items-center gap-3">
-                  <Building2 className="text-[#ef7d18]" size={22} />
-                  <h2 className="text-2xl font-black">Nutrifit para empresas</h2>
-                </div>
-                <p className="mt-3 max-w-2xl leading-7 text-white/55">
-                  Atendimento B2B para empresas e pedidos corporativos. Fale com a equipe para conhecer as possibilidades.
-                </p>
-              </div>
-              <a href={whatsappOrder("Olá, Nutrifit! Tenho interesse em atendimento B2B para minha empresa.")} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 font-black text-black">
-                Atendimento B2B <ArrowRight size={16} />
-              </a>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <div className="max-w-3xl">
-              <div className="flex items-center gap-3">
-                <HelpCircle className="text-[#a7b86a]" size={22} />
-                <h2 className="text-3xl font-black">Perguntas frequentes</h2>
-              </div>
-              <p className="mt-2 text-white/45">As informações abaixo seguem o catálogo Nutrifit.</p>
-            </div>
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              {[
-                ["Posso misturar sabores no combo?","Sim. Os combos podem misturar sabores dentro da mesma linha."],
-                ["Quais são os tamanhos das marmitas?","Fit e Saladas: 350 g. Performance: 450 g. Tradicional: 500 g."],
-                ["Saladas entram nos combos?","O catálogo informa as saladas como vendidas por unidade."],
-                ["Os sucos entram nos combos?","Os sucos são vendidos por unidade; consulte disponibilidade pelo WhatsApp."],
-                ["Como faço meu pedido?","Escolha suas opções no cardápio e clique em qualquer botão de pedido para falar com a Nutrifit."],
-                ["Como funciona a entrega?","A disponibilidade e a taxa de entrega devem ser confirmadas pelo WhatsApp."],
-                ["Quando faço o pagamento?","O pagamento é realizado antecipadamente. Após a confirmação do pagamento, a Nutrifit prepara e realiza a entrega do pedido."]
-              ].map(([question,answer]) => (
-                <details key={question} className="group rounded-2xl border border-white/10 bg-white/[.025] p-5">
-                  <summary className="cursor-pointer list-none font-black marker:hidden">{question}</summary>
-                  <p className="mt-3 leading-6 text-white/50">{answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-8 md:p-10">
-            <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
-              <div>
-                <h2 className="text-3xl font-black">Peça já a sua marmita</h2>
-                <p className="mt-2 text-white/50">Praticidade, sabor e qualidade — todos os dias em Juiz de Fora.</p>
-                <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm text-white/60">
-                  <span className="inline-flex items-center gap-2"><MessageCircle size={16} className="text-[#a7b86a]" />(32) 99803-0038</span>
-                  <span className="inline-flex items-center gap-2"><MapPin size={16} className="text-[#a7b86a]" />Juiz de Fora / MG</span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <a href={instagram} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 font-bold">
-                  @nutrifit_jf
-                </a>
-                <a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black">
-                  <ShoppingBag size={18} /> Fazer pedido
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
-          <span>© 2026 Nutrifit • Juiz de Fora - MG</span>
-          <div className="flex flex-wrap gap-4">
-            <a href={instagram} target="_blank" rel="noreferrer" className="hover:text-white">Instagram @nutrifit_jf</a>
-            <a href={whatsapp} className="hover:text-white">WhatsApp (32) 99803-0038</a>
-          </div>
-        </div>
-      </footer>
-
-      <a href={whatsapp} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
-        <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
-      </a>
-
-    </main>
-  );
-}
