@@ -134,39 +134,65 @@ const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] 
     zone: "Zona 1",
     fee: 5,
     neighborhoods: [
-      "monte castelo","fabrica","francisco bernardino","carlos chagas","ceramica","sao dimas",
-      "esplanada","mariano procopio","centenario","democrata","bonfim","jardim natal",
-      "morro da gloria","jardim gloria","santa helena"
+      // Base Monte Castelo + eixo norte imediato
+      "Monte Castelo","Carlos Chagas","Cerâmica","Francisco Bernardino","Fábrica","Esplanada",
+      "São Dimas","Centenário","Mariano Procópio","Jardim Glória","Morro da Glória",
+      "Santa Catarina","Santa Helena","Democrata","Vale do Ipê","Jardim Paineiras",
+      "Jardim Santa Helena","Poço Rico","Vitorino Braga","Nossa Senhora Aparecida"
     ],
   },
   {
     zone: "Zona 2",
     fee: 7,
     neighborhoods: [
-      "borboleta","vale do ipe","santa catarina","sao geraldo","poeta","centro",
-      "benfica","nova era","santa terezinha","manoel honorio","bairu","progresso",
-      "vitorino braga","poço rico","poco rico","santa luzia","nossa senhora aparecida",
-      "paina","paines","paines","jardim santa helena"
+      // Eixos central, leste e norte ainda próximos da base
+      "Centro","Boa Vista","Granbery","Bom Pastor","São Mateus","Alto dos Passos",
+      "Teixeiras","Bairu","Bonfim","Botanágua","Cesário Alvim","Grajaú","Manoel Honório",
+      "Linhares","Marumbi","Progresso","Santa Rita","Santa Cândida","São Benedito",
+      "São Bernardo","Santa Terezinha","Eldorado","Jardim Bom Clima","Vale dos Bandeirantes",
+      "Granjas Betânia","Jardim Emaús","Parque Independência","Grama","Jardim Natal",
+      "Nova Era","Benfica","Nova Benfica","Milho Branco","Industrial","Jóquei Clube",
+      "Barbosa Lage","Santa Cruz","Represa","Jardim dos Alfineiros","Bandeirantes",
+      "Parque Guarani","Nossa Senhora das Graças","Quintas das Avenidas","Santa Paula"
     ],
   },
   {
     zone: "Zona 3",
     fee: 10,
     neighborhoods: [
-      "sao pedro","aeroporto","teixeiras","cascatinha","sao mateus","alto dos passos",
-      "granbery","bom pastor","estrela sul","ipiranga","santo antonio","milho branco",
-      "jardim america","jardim leopoldina","nova califórnia","nova california",
-      "salvaterra","retiro","santa efigenia","marumbi","linhares","sao benedito"
+      // Cidade Alta/Oeste + Sul/Sudeste
+      "São Pedro","Aeroporto","Borboleta","Cruzeiro Santo Antônio","Martelos",
+      "Morro do Imperador","Nova Califórnia","Novo Horizonte","Serro Azul",
+      "Portal da Torre","Caiçaras","Marilândia","Santos Dumont","Alto dos Pinheiros",
+      "Adolfo Vireque","Bosque do Imperador","Granville","Viña Del Mar","Vina Del Mar",
+      "Nova Germânia","Parque das Águas","Spinaville","Via do Sol","Residencial Alvim",
+      "Dom Bosco","Cascatinha","Graminha","Ipiranga","Sagrado Coração de Jesus",
+      "Salvaterra","Santa Efigênia","Santa Luzia","Santa Cecília","Bomba de Fogo",
+      "Jardim Laranjeiras","Cruzeiro do Sul","Barão do Retiro","Floresta",
+      "Nossa Senhora de Lourdes","Santo Antônio","Vila Furtado de Menezes","Vila Ideal",
+      "Vila Olavo Costa","Costa Carvalho","Jardim Gaúcho","São Geraldo","Previdenciários",
+      "Jardim América","Bela Aurora","Estrela Sul","Jardim Casablanca","Nossa Senhora de Fátima"
     ],
   },
   {
     zone: "Zona 4",
     fee: 13,
     neighborhoods: [
-      "barreira do triunfo","bandeirantes","filgueiras","grande jardim gloria","granjas betania",
-      "jardim gaúcho","jardim gaucho","igreja da gloria","parque das aguas","vale verde",
-      "sarapiranga","sao judas tadeu","caiçaras","caicaras","serra d'agua","sao judas",
-      "remonta","chacara das flores","recanto dos brincos","recanto da mata"
+      // Áreas mais afastadas / periferia / localidades com maior deslocamento
+      "Barreira do Triunfo","Filgueiras","Granjas Bethel","Vale dos Bandeirantes",
+      "Paula Lima","Remonta","Vila Esperança","Jardim Europa","Jardim Olímpia",
+      "Cidade do Sol","Cidade Jardim","Fontesville","Fontesville II","Igrejinha",
+      "Parque das Palmeiras","Parque das Torres","Parque Guadalajara","Parque Guarua",
+      "Parque Imperial","Parque Jardim da Serra","Parque Serra Verde","Jardim da Serra",
+      "Chalés do Imperador","Chalés do Algarve","Colinas do Imperador","Mandala",
+      "Portal do Aeroporto","Morada do Serro","Bosque Imperial","Conjunto Flamboyants",
+      "São Clemente","São Lucas","Santana","Neo Residencial","Spinaville II",
+      "Mirante","Residencial Alvim","Cidade Universitária","Tiguera","Três Moinhos",
+      "Terras Altas","Retiro","Pedras Preciosas","Jardim Esperança","Jardim do Sol",
+      "Santos Anjos","Vila Alpina","São Sebastião","Aracy","Jardim das Flores",
+      "Solidariedade","Granjas Primavera","Granjas Santo Antônio","Guaruá","Granjas do Bosque",
+      "Vivendas da Serra","Vivendas das Fontes","Vale Verde","Serra D'Água","Serra Dagua",
+      "Tupã","Tiguera","Parque Serra Verde","Spina Ville II","Vila Ozanan"
     ],
   },
 ];
