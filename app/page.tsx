@@ -20,7 +20,7 @@ const fit: Product[] = [
   ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado temperado com legumes assados."],
   ["Patinho com Batata-doce","FIT","350 g","R$ 23,97","Patinho moído refogado com purê de batata-doce cremoso."],
   ["Patinho com Legumes","FIT","350 g","R$ 23,97","Patinho moído refogado com temperos naturais e legumes."]
-].map(([name,line,weight,price,description]) => ({name,line,weight,price,description,image:"https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=88"}));
+].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[4,5,6,7,8,9,10][i]}.jpg`}));
 
 const performance: Product[] = [
   ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, molho de tomate artesanal, queijo parmesão, arroz integral e legumes."],
@@ -31,7 +31,7 @@ const performance: Product[] = [
   ["Patinho Strong","PERFORMANCE","450 g","R$ 29,90","Patinho moído temperado, purê de abóbora e arroz branco."],
   ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, arroz branco e legumes salteados."],
   ["Beef Pasta","PERFORMANCE","450 g","R$ 29,90","Patinho em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
-].map(([name,line,weight,price,description]) => ({name,line,weight,price,description,image:"https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=1200&q=88"}));
+].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[12,13,14,15,16,17,18,19][i]}.jpg`}));
 
 const salads: Product[] = [
   ["Mango Fresh","SALADAS","350 g","R$ 21,90","Mix de folhas, manga, tomate-cereja, pepino, castanhas, amêndoas, 100 g de frango e molho de maracujá."],
@@ -40,7 +40,7 @@ const salads: Product[] = [
   ["Avocado Chicken","SALADAS","350 g","R$ 21,90","Mix de folhas, frango grelhado, abacate, tomate-cereja, pepino, cenoura, cebola roxa e molho."],
   ["Caesar Chicken","SALADAS","350 g","R$ 21,90","Mix de alface americana, frango grelhado, tomate-cereja, cenoura, croutons e queijo."],
   ["Summer Salad","SALADAS","350 g","R$ 21,90","Mix de alface, tomate-cereja, pepino, repolho roxo, cenoura, acompanhado de frango grelhado."]
-].map(([name,line,weight,price,description]) => ({name,line,weight,price,description,image:"https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1200&q=88"}));
+].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
 const traditional: Product[] = [
   ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
@@ -50,7 +50,7 @@ const traditional: Product[] = [
   ["Churrasco Fit Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
   ["Executivo Saudável","TRADICIONAL","500 g","R$ 26,90","Lombo suíno grelhado, macarrão alho e óleo, molho cremoso leve e brócolis."]
-].map(([name,line,weight,price,description]) => ({name,line,weight,price,description,image:"https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=1200&q=88"}));
+].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[28,29,30,31,32,33,34][i]}.jpg`}));
 
 const combos = [
   ["Fit 350 g","5 marmitas","R$ 117,00","R$ 23,40/un"],
