@@ -70,6 +70,33 @@ const combos = [
   ["Tradicional 500 g","20 marmitas","R$ 529,90","R$ 26,50/un"],
 ];
 
+const comboHighlights = [
+  {
+    line: "FIT",
+    weight: "350 g",
+    title: "Patinho com Abóbora",
+    image: "/images/page-4.jpg",
+    price: "a partir de R$ 117,00",
+    text: "Escolha seus sabores e monte seu combo com 5, 7, 10, 14 ou 20 marmitas."
+  },
+  {
+    line: "PERFORMANCE",
+    weight: "450 g",
+    title: "Chicken Parmesão",
+    image: "/images/page-12.jpg",
+    price: "a partir de R$ 139,90",
+    text: "Mais proteína e refeições maiores para sua rotina. Combine os sabores da linha."
+  },
+  {
+    line: "TRADICIONAL",
+    weight: "500 g",
+    title: "Parmegiana Cremosa",
+    image: "/images/page-29.jpg",
+    price: "a partir de R$ 139,90",
+    text: "Comida com sabor caseiro em combos de 5, 7, 10, 14 ou 20 marmitas."
+  },
+];
+
 const functionalJuices = [
   ["Energy","/images/page-36.jpg"],
   ["Green","/images/page-37.jpg"],
@@ -124,13 +151,17 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
           <a href="#inicio" className="text-2xl font-black tracking-tight">nutri<span className="text-[#a7b86a]">fit</span></a>
-          <nav className="hidden gap-7 text-sm font-semibold text-white/65 md:flex">
+          <nav className="hidden gap-6 text-sm font-semibold text-white/65 lg:flex">
             <a href="#cardapio" className="hover:text-white">Cardápio</a>
             <a href="#combos" className="hover:text-white">Combos</a>
             <a href="#sucos" className="hover:text-white">Sucos</a>
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
-          <a href={whatsapp} className="inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> Pedir agora</a>
+          <div className="flex items-center gap-2">
+            <a href="#cardapio" className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-black text-white/75 lg:hidden">Cardápio</a>
+            <a href="#combos" className="inline-flex rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-4 py-2 text-xs font-black text-[#cbd99a] lg:hidden">Combos</a>
+            <a href={whatsapp} className="inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> <span className="hidden sm:inline">Pedir agora</span><span className="sm:hidden">Pedir</span></a>
+          </div>
         </div>
       </header>
 
@@ -166,10 +197,50 @@ export default function Home() {
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
-          <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div><h2 className="mt-2 text-4xl font-black md:text-5xl">Combos Nutrifit</h2><p className="mt-4 text-white/50">Os combos podem misturar sabores dentro da mesma linha.</p></div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {combos.map(([line,quantity,price,average]) => <a key={line+quantity} href={whatsapp} className="rounded-3xl border border-white/10 bg-white/[.035] p-6 transition hover:-translate-y-1 hover:border-[#a7b86a]/40"><div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">{line}</div><div className="mt-3 text-sm font-bold text-white/55">{quantity}</div><div className="mt-2 text-3xl font-black">{price}</div><div className="mt-2 text-xs text-[#ef7d18]">{average}</div><div className="mt-5 text-sm font-bold text-white/60">Escolher combo →</div></a>)}
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
+            <h2 className="mt-2 text-4xl font-black md:text-6xl">Escolha seu combo</h2>
+            <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
           </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {comboHighlights.map((item) => (
+              <article key={item.line} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0e09] shadow-xl">
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
+                  <div className="absolute left-4 top-4 rounded-full bg-[#a7b86a] px-3 py-1.5 text-[10px] font-black tracking-[.15em] text-black">{item.line} • {item.weight}</div>
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/85 to-transparent" />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-2xl font-black">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{item.text}</p>
+                  <div className="mt-5 text-lg font-black text-[#ef7d18]">{item.price}</div>
+                  <a href={whatsapp} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">Escolher este combo <ArrowRight size={16} /></a>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
+            <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
+              <div>
+                <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Todos os tamanhos</div>
+                <h3 className="mt-1 text-2xl font-black">Combos por linha</h3>
+              </div>
+              <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {combos.map(([line,quantity,price,average]) => (
+                <a key={line+quantity} href={whatsapp} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
+                  <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
+                  <div className="mt-1 text-2xl font-black">{price}</div>
+                  <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[["Combos dentro da linha","Misture sabores sem sair da mesma linha."],["Praticidade","Organize várias refeições de uma vez."],["Atendimento direto","Faça seu pedido pelo WhatsApp."]].map(([title,text]) => <div key={title} className="flex gap-3 rounded-2xl border border-white/10 p-5"><Check className="mt-0.5 shrink-0 text-[#a7b86a]" size={19} /><div><div className="font-black">{title}</div><div className="mt-1 text-sm text-white/45">{text}</div></div></div>)}
           </div>
