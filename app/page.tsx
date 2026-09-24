@@ -248,7 +248,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <h3 className="mt-4 text-xl font-black">{product.name}</h3>
         <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}).`)} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#cbd99a]">Pedir esta opção <ArrowRight size={15} /></a>
+        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-sm font-black text-black transition hover:scale-[1.01]">Pedir esta opção <ArrowRight size={15} /></a>
       </div>
     </article>
   );
@@ -274,8 +274,10 @@ export default function Home() {
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-          <a href="#inicio" className="text-2xl font-black tracking-tight">nutri<span className="text-[#a7b86a]">fit</span></a>
-          <nav className="hidden gap-6 text-sm font-semibold text-white/65 lg:flex">
+          <a href="#inicio" aria-label="Nutrifit — início" className="block h-11 w-28 overflow-hidden rounded-lg bg-black">
+              <img src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png" alt="Nutrifit" className="h-full w-full object-cover object-[50%_40%]" />
+            </a>
+          <nav aria-label="Navegação principal" className="hidden gap-6 text-sm font-semibold text-white/65 lg:flex">
             <a href="#cardapio" className="hover:text-white">Cardápio</a>
             <a href="#combos" className="hover:text-white">Combos</a>
             <a href="#sucos" className="hover:text-white">Sucos</a>
@@ -358,7 +360,7 @@ export default function Home() {
 
       <section id="sucos" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
-          <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Nutrifit Mulher • 500 ml R$ 12,90 • 300 ml R$ 9,90</p></div>
+          <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Sucos funcionais • 500 ml R$ 12,90 • 300 ml R$ 9,90</p></div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">{functionalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 500 ml — R$ 12,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,90</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div>
           <div className="mt-10 border-t border-white/10 pt-8"><div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos Nutrifit • 500 ml R$ 12,00 • 300 ml R$ 9,90</div><div className="mt-4 grid gap-4 sm:grid-cols-3">{naturalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 500 ml — R$ 12,00.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,00</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div></div>
         </div>
@@ -455,7 +457,7 @@ export default function Home() {
             <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
               <div>
                 <h2 className="text-3xl font-black">Peça já a sua marmita</h2>
-                <p className="mt-2 text-white/50">Praticidade, sabor e qualidade — todos os dias.</p>
+                <p className="mt-2 text-white/50">Praticidade, sabor e qualidade — todos os dias em Juiz de Fora.</p>
                 <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 text-sm text-white/60">
                   <span className="inline-flex items-center gap-2"><MessageCircle size={16} className="text-[#a7b86a]" />(32) 99803-0038</span>
                   <span className="inline-flex items-center gap-2"><MapPin size={16} className="text-[#a7b86a]" />Juiz de Fora / MG</span>
@@ -483,6 +485,10 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <a href={whatsapp} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
+        <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
+      </a>
 
     </main>
   );
