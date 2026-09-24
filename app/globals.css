@@ -4,3 +4,10 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; background: #0b0d0a; font-family: Arial, Helvetica, sans-serif; }
 * { box-sizing: border-box; }
+
+
+/* Acabamento global */
+::selection { background: #a7b86a; color: #080a07; }
+a, button { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid #ef7d18; outline-offset: 3px; }
+img { max-width: 100%; }
