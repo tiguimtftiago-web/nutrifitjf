@@ -10,7 +10,7 @@ const whatsappOrder = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
 
 // Preencha com a chave Pix oficial da Nutrifit quando estiver definida.
-const PIX_KEY = "COLOQUE_SUA_CHAVE_PIX_AQUI";
+const PIX_KEY = "64.776.469/0001-08";
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
 
