@@ -363,7 +363,7 @@ function ComboBuilder() {
       `WhatsApp: ${customerPhone.trim()}`,
       "",
       "Pagamento: combinar pelo WhatsApp.",
-    ].join("\\n");
+    ].join("\n");
 
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
     setPaymentStatus("idle");
