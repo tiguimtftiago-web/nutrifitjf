@@ -1,4 +1,7 @@
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -116,6 +119,122 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
+
+const comboOptions = [
+  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
+  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 269,90", 14: "R$ 379,90", 20: "R$ 529,90" } },
+] as const;
+
+function ComboBuilder() {
+  const [lineIndex, setLineIndex] = useState(0);
+  const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
+  const [selected, setSelected] = useState<Record<string, number>>({});
+
+  const option = comboOptions[lineIndex];
+  const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
+  const price = option.prices[quantity];
+
+  const changeLine = (index: number) => {
+    setLineIndex(index);
+    setSelected({});
+    setQuantity(5);
+  };
+
+  const changeQuantity = (value: 5 | 7 | 10 | 14 | 20) => {
+    setQuantity(value);
+    setSelected({});
+  };
+
+  const addProduct = (name: string) => {
+    if (total >= quantity) return;
+    setSelected((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
+  };
+
+  const removeProduct = (name: string) => {
+    setSelected((current) => {
+      const next = { ...current };
+      if (!next[name]) return current;
+      if (next[name] === 1) delete next[name];
+      else next[name] -= 1;
+      return next;
+    });
+  };
+
+  const reset = () => setSelected({});
+
+  const sendOrder = () => {
+    if (total !== quantity) return;
+    const items = option.products
+      .filter((product) => selected[product.name])
+      .map((product) => `${selected[product.name]}x ${product.name}`)
+      .join(", ");
+    const message = `Olá, Nutrifit! Quero montar meu combo ${option.line} ${option.weight}: ${quantity} marmitas — ${price}. Sabores: ${items}.`;
+    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+  };
+
+  return (
+    <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
+          <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">Escolha a linha, o tamanho do combo e quantas unidades de cada sabor você quer. Quando completar o combo, envie tudo de uma vez pelo WhatsApp.</p>
+        </div>
+        <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
+          <div className="text-xs font-black uppercase tracking-wider text-white/45">Selecionadas</div>
+          <div className="mt-1 text-3xl font-black"><span className="text-[#a7b86a]">{total}</span>/{quantity}</div>
+        </div>
+      </div>
+
+      <div className="mt-7 grid gap-3 md:grid-cols-3">
+        {comboOptions.map((item, index) => (
+          <button key={item.line} type="button" onClick={() => changeLine(index)} className={`rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+            <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
+            <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {([5, 7, 10, 14, 20] as const).map((value) => (
+          <button key={value} type="button" onClick={() => changeQuantity(value)} className={`rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+            {value} marmitas
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {option.products.map((product) => (
+          <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+            <div className="min-w-0">
+              <div className="font-black">{product.name}</div>
+              <div className="mt-1 text-xs text-white/40">{product.weight}</div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
+              <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
+          <div className="mt-1 text-2xl font-black text-[#ef7d18]">{price}</div>
+          <div className="mt-1 text-xs text-white/45">{total === quantity ? "Combo completo. Você já pode enviar o pedido." : `Escolha mais ${quantity - total} marmita(s) para completar o combo.`}</div>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
+          <button type="button" onClick={sendOrder} disabled={total !== quantity} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30"><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProductCard({ product }: { product: Product }) {
   return (
     <article className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
@@ -193,7 +312,7 @@ export default function Home() {
             <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <ComboBuilder />\n\n          <div className="mt-10 grid gap-5 md:grid-cols-3">
             {comboHighlights.map((item) => (
               <article key={item.line} className="group overflow-hidden rounded-[2rem] border border-white/10 bg-[#0b0e09] shadow-xl">
                 <div className="relative aspect-[4/3] overflow-hidden">
