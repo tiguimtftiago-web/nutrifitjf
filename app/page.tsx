@@ -9,6 +9,9 @@ const whatsapp =
 const whatsappOrder = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
 
+// Preencha com a chave Pix oficial da Nutrifit quando estiver definida.
+const PIX_KEY = "COLOQUE_SUA_CHAVE_PIX_AQUI";
+
 const instagram = "https://www.instagram.com/nutrifit_jf/";
 
 type Product = {
@@ -339,8 +342,8 @@ function ComboBuilder() {
 
     const items = option.products
       .filter((product) => selected[product.name])
-      .map((product) => `${selected[product.name]}x ${product.name}`)
-      .join(", ");
+      .map((product) => `${selected[product.name]}x ${product.name} — ${money((subtotal / quantity) * selected[product.name])}`)
+      .join("\n");
 
     const deliveryText =
       deliveryMode === "pickup"
@@ -350,19 +353,26 @@ function ComboBuilder() {
           : `Entrega ${money(delivery.fee)} — CEP ${cep}`;
 
     const message = [
-      "Olá, Nutrifit! Quero fazer este pedido:",
-      "",
-      `Combo: ${option.line} — ${option.weight} — ${quantity} marmitas`,
-      `Sabores: ${items}`,
-      `Subtotal: ${money(subtotal)}`,
-      `Recebimento: ${deliveryText}`,
-      `Taxa de entrega: ${money(deliveryFee)}`,
-      `Total: ${money(grandTotal)}`,
+      "🥗 PEDIDO NUTRIFIT",
       "",
       `Cliente: ${customerName.trim()}`,
       `WhatsApp: ${customerPhone.trim()}`,
       "",
-      "Pagamento: combinar pelo WhatsApp.",
+      "📦 ITENS DO PEDIDO",
+      "",
+      items,
+      "",
+      `Quantidade: ${quantity} marmitas`,
+      `Subtotal: ${money(subtotal)}`,
+      `Frete: ${money(deliveryFee)}`,
+      `TOTAL A PAGAR: ${money(grandTotal)}`,
+      "",
+      "📍 RECEBIMENTO",
+      deliveryText,
+      "",
+      "💳 PAGAMENTO VIA PIX",
+      `Chave Pix: ${PIX_KEY}`,
+      "Após realizar o Pix, envie o comprovante por aqui para confirmarmos o pedido.",
     ].join("\n");
 
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
