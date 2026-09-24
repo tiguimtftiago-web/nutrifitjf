@@ -4,7 +4,7 @@ const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
 
 const whatsappOrder = (text: string) =>
-  `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
+  `https://api.whatsapp.com/send?phone=5532998030038&text=${encodeURIComponent(text)}`;
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
 
