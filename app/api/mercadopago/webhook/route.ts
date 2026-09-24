@@ -1,4 +1,33 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
+
+function validateSignature(request: Request, dataId: string) {
+  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  if (!secret) return false;
+
+  const xSignature = request.headers.get("x-signature") || "";
+  const xRequestId = request.headers.get("x-request-id") || "";
+  const parts = xSignature.split(",");
+  let ts = "";
+  let hash = "";
+
+  for (const part of parts) {
+    const pair = part.split("=", 2);
+    if (pair.length !== 2) continue;
+    const key = pair[0].trim();
+    const value = pair[1].trim();
+    if (key === "ts") ts = value;
+    if (key === "v1") hash = value;
+  }
+
+  if (!ts || !hash || !xRequestId || !dataId) return false;
+
+  const manifest = "id:" + dataId.toLowerCase() + ";request-id:" + xRequestId + ";ts:" + ts + ";";
+  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+
+  if (expected.length !== hash.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(hash));
+}
 
 async function sendOwnerEmail(order: any) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -34,9 +63,16 @@ export async function POST(request: Request) {
   if (!token) return NextResponse.json({ ok: false }, { status: 503 });
 
   try {
+    const url = new URL(request.url);
+    const dataId = url.searchParams.get("data.id") || "";
     const body = await request.json();
-    const orderId = body?.data?.id;
+    const orderId = dataId || body?.data?.id;
+
     if (!orderId) return NextResponse.json({ ok: true });
+
+    if (!validateSignature(request, orderId)) {
+      return NextResponse.json({ ok: false, error: "Assinatura inválida." }, { status: 401 });
+    }
 
     const response = await fetch("https://api.mercadopago.com/v1/orders/" + encodeURIComponent(orderId), {
       headers: { Accept: "application/json", Authorization: "Bearer " + token },
@@ -46,6 +82,8 @@ export async function POST(request: Request) {
     if (!response.ok) return NextResponse.json({ ok: false }, { status: 502 });
 
     const order = await response.json();
+
+    // Só tratamos como pedido pago quando o Mercado Pago informa processed/accredited.
     if (order.status === "processed" && order.status_detail === "accredited") {
       await sendOwnerEmail(order);
     }
