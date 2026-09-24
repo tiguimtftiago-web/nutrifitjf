@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowRight, Check, MessageCircle, ShoppingBag, Instagram, MapPin, Truck, Building2, HelpCircle } from "lucide-react";
 
 const whatsapp =
