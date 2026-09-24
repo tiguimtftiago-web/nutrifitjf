@@ -229,6 +229,10 @@ function ComboBuilder() {
   const [cep, setCep] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
 
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
@@ -274,6 +278,10 @@ function ComboBuilder() {
     setDeliveryMode("delivery");
     setDelivery(null);
     setDeliveryStatus("idle");
+    setCustomerName("");
+    setCustomerEmail("");
+    setCustomerPhone("");
+    setPaymentStatus("idle");
   };
 
   const chooseDeliveryMode = (mode: "delivery" | "pickup") => {
@@ -287,7 +295,7 @@ function ComboBuilder() {
   };
 
   const calculateDelivery = async () => {
-    const cleanCep = cep.replace(/\\D/g, "");
+    const cleanCep = cep.replace(/\D/g, "");
     if (cleanCep.length !== 8) {
       setDelivery(null);
       setDeliveryStatus("error");
@@ -302,7 +310,7 @@ function ComboBuilder() {
 
     setDeliveryStatus("loading");
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const response = await fetch(\`https://viacep.com.br/ws/\${cleanCep}/json/\`);
       const data = await response.json();
 
       if (data.erro || !data.bairro) {
@@ -326,43 +334,73 @@ function ComboBuilder() {
     }
   };
 
-  const sendOrder = () => {
-    if (total !== quantity || !delivery) return;
+  const startPayment = async () => {
+    if (total !== quantity || !delivery || !customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) return;
+
+    setPaymentStatus("loading");
 
     const items = option.products
       .filter((product) => selected[product.name])
-      .map((product) => `${selected[product.name]}x ${product.name}`)
+      .map((product) => \`\${selected[product.name]}x \${product.name}\`)
       .join(", ");
 
     const deliveryText =
       deliveryMode === "pickup"
-        ? "Retirada no local — taxa R$ 0,00"
+        ? "Retirada no local — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : delivery.fee === 0
-          ? "Frete grátis"
-          : `Entrega ${money(delivery.fee)}`;
-    const neighborhoodText = delivery.neighborhood ? `Bairro: ${delivery.neighborhood}. ` : "";
-    const pickupText =
-      deliveryMode === "pickup"
-        ? " Retirada: Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG."
-        : ` CEP: ${cep}.`;
-    const message =
-      `Olá, Nutrifit! Quero montar meu combo ${option.line} ${option.weight}: ${quantity} marmitas — ${price}. ` +
-      `Sabores: ${items}. Subtotal: ${money(subtotal)}. ${deliveryText}. ${neighborhoodText}Total: ${money(grandTotal)}.${pickupText}`;
+          ? \`Entrega grátis — CEP \${cep}\`
+          : \`Entrega \${money(delivery.fee)} — CEP \${cep}\`;
 
-    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: {
+            name: customerName.trim(),
+            email: customerEmail.trim(),
+            phone: customerPhone.trim(),
+          },
+          line: option.line,
+          weight: option.weight,
+          quantity,
+          price,
+          selectedItems: items,
+          subtotal,
+          deliveryFee,
+          deliveryMode,
+          deliveryText,
+          neighborhood: delivery.neighborhood,
+          cep,
+          total: grandTotal,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.checkoutUrl) {
+        throw new Error(data.error || "Não foi possível iniciar o pagamento.");
+      }
+
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      console.error(error);
+      setPaymentStatus("error");
+    }
   };
 
   const deliveryReady = deliveryMode === "pickup" || subtotal >= DELIVERY_FREE_FROM || Boolean(delivery);
-  const canSend = total === quantity && deliveryReady;
+  const customerReady = Boolean(customerName.trim() && customerEmail.trim() && customerPhone.trim());
+  const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
 
   return (
     <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte e pague seu pedido no site</div>
           <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
-            Escolha a linha, o tamanho do combo e os sabores. Depois informe seu CEP para calcular a entrega antes de enviar o pedido.
+            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e pague com segurança pelo Mercado Pago.
           </p>
         </div>
         <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
@@ -373,7 +411,7 @@ function ComboBuilder() {
 
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" onClick={() => changeLine(index)} className={`rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+          <button key={item.line} type="button" onClick={() => changeLine(index)} className={\`rounded-2xl border p-4 text-left transition \${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}\`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
             <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
           </button>
@@ -382,7 +420,7 @@ function ComboBuilder() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" onClick={() => changeQuantity(value)} className={`rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+          <button key={value} type="button" onClick={() => changeQuantity(value)} className={\`rounded-full px-5 py-2.5 text-sm font-black transition \${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}\`}>
             {value} marmitas
           </button>
         ))}
@@ -396,9 +434,9 @@ function ComboBuilder() {
               <div className="mt-1 text-xs text-white/40">{product.weight}</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={\`Remover \${product.name}\`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
               <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+              <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={\`Adicionar \${product.name}\`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
             </div>
           </div>
         ))}
@@ -414,29 +452,17 @@ function ComboBuilder() {
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => chooseDeliveryMode("delivery")}
-            className={`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}
-          >
+          <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={\`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all \${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}\`}>
             {deliveryMode === "delivery" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3} /></div>}
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]">
-              <Truck size={24} />
-            </div>
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={24} /></div>
             <div className="mt-4 text-xl font-black">🚚 Receber em casa</div>
             <div className="mt-1 text-sm text-white/55">Digite seu CEP e veja a taxa de entrega da sua região.</div>
             <div className="mt-4 inline-flex rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#cbd99a]">CALCULAR PELO CEP</div>
           </button>
 
-          <button
-            type="button"
-            onClick={() => chooseDeliveryMode("pickup")}
-            className={`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}
-          >
+          <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={\`group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all \${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}\`}>
             {deliveryMode === "pickup" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#ef7d18] text-black"><Check size={16} strokeWidth={3} /></div>}
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]">
-              <MapPin size={24} />
-            </div>
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={24} /></div>
             <div className="mt-4 text-xl font-black">📍 Retirar na Nutrifit</div>
             <div className="mt-1 text-sm text-white/55">Retire seu pedido no endereço da Nutrifit, sem taxa de entrega.</div>
             <div className="mt-4 inline-flex rounded-full bg-[#ef7d18]/15 px-3 py-1 text-xs font-black text-[#ef9b55]">SEM TAXA</div>
@@ -457,7 +483,7 @@ function ComboBuilder() {
         ) : (
           <>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]" />
+              <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? \`\${value.slice(0, 5)}-\${value.slice(5)}\` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]" />
               <button type="button" onClick={calculateDelivery} disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                 {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
               </button>
@@ -479,6 +505,21 @@ function ComboBuilder() {
         )}
       </div>
 
+      <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.025] p-5">
+        <div className="flex items-center gap-2">
+          <MessageCircle size={20} className="text-[#ef7d18]" />
+          <div>
+            <div className="font-black text-lg">Seus dados para o pedido</div>
+            <div className="text-sm text-white/45">Esses dados serão usados para identificar o pagamento e confirmar o pedido.</div>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+          <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+          <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} type="email" autoComplete="email" placeholder="Seu melhor e-mail" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+        </div>
+      </div>
+
       <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
@@ -489,23 +530,34 @@ function ComboBuilder() {
           <div className="mt-2 text-2xl font-black text-[#ef7d18]">Total {money(grandTotal)}</div>
           <div className="mt-1 text-xs text-white/45">
             {total !== quantity
-              ? `Escolha mais ${quantity - total} marmita(s) para completar o combo.`
+              ? \`Escolha mais \${quantity - total} marmita(s) para completar o combo.\`
               : !deliveryReady
-                ? "Escolha como receber o pedido para liberar o envio."
-                : deliveryMode === "pickup"
-                  ? "Retirada selecionada. Confira o total e envie pelo WhatsApp."
-                  : "Pedido completo. Confira o total e envie pelo WhatsApp."}
+                ? "Escolha como receber o pedido para liberar o pagamento."
+                : !customerReady
+                  ? "Preencha nome, WhatsApp e e-mail para continuar."
+                  : "Pedido completo. Você será levado ao Mercado Pago para finalizar o pagamento."}
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
-          <button type="button" onClick={sendOrder} disabled={!canSend} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30"><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</button>
+          <button type="button" onClick={startPayment} disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+            {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Preparando pagamento...</> : <><ShoppingBag size={17} /> Pagar e finalizar pedido</>}
+          </button>
         </div>
+      </div>
+
+      {paymentStatus === "error" && (
+        <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
+          Não foi possível iniciar o pagamento agora. Confira seus dados e tente novamente. Se o problema continuar, fale com a Nutrifit pelo WhatsApp.
+        </div>
+      )}
+
+      <div className="mt-4 text-center text-xs text-white/35">
+        Pagamento processado com segurança pelo Mercado Pago. O pedido só será considerado confirmado após a confirmação do pagamento.
       </div>
     </div>
   );
 }
-
 
 function ProductCard({ product }: { product: Product }) {
   return (
