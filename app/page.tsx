@@ -1,4 +1,4 @@
-import { ArrowRight, Check, MessageCircle, ShoppingBag, Instagram, MapPin, Truck, Building2, HelpCircle } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -344,7 +344,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <a href={instagram} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 font-bold">
-                  <Instagram size={18} /> @nutrifit_jf
+                  @nutrifit_jf
                 </a>
                 <a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black">
                   <ShoppingBag size={18} /> Fazer pedido
