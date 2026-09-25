@@ -549,18 +549,50 @@ function ComboBuilder() {
 
 function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] overflow-hidden bg-black">
-        <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
+      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
       </div>
-      <div className="p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
-          <span className="font-black text-[#ef7d18]">{product.price}</span>
+
+      <div className="flex flex-1 flex-col p-3 sm:p-5">
+        <div className="flex min-h-5 items-center">
+          <span className="rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black sm:px-3 sm:text-[10px]">
+            {product.line} • {product.weight}
+          </span>
         </div>
-        <h3 className="mt-4 text-xl font-black">{product.name}</h3>
-        <p className="mt-2 text-sm leading-6 text-white/50">{product.description}</p>
-        <a href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-sm font-black text-black transition hover:scale-[1.01]">Pedir esta opção <ArrowRight size={15} /></a>
+
+        <h3 className="mt-3 min-h-[3.25rem] text-base font-black leading-tight sm:mt-4 sm:min-h-[3.5rem] sm:text-xl">
+          {product.name}
+        </h3>
+
+        <p
+          className="mt-2 min-h-[3.9rem] text-xs leading-5 text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6"
+          style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+        >
+          {product.description}
+        </p>
+
+        <div className="mt-auto pt-4">
+          <div className="text-lg font-black text-[#ef7d18] sm:text-xl">
+            {product.price}
+          </div>
+
+          <a
+            href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2.5 text-xs font-black text-black transition hover:scale-[1.01] sm:px-4 sm:text-sm"
+          >
+            <span className="sm:hidden">Pedir</span>
+            <span className="hidden sm:inline">Pedir esta opção</span>
+            <ArrowRight size={14} />
+          </a>
+        </div>
       </div>
     </article>
   );
