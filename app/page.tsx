@@ -717,7 +717,7 @@ export default function Home() {
                   Atendimento B2B para empresas e pedidos corporativos. Fale com a equipe para conhecer as possibilidades.
                 </p>
               </div>
-              <a href={whatsappOrder("Olá, Nutrifit! Tenho interesse em atendimento B2B para minha empresa.")} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 font-black text-black">
+              <a href="/b2b" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 font-black text-black">
                 Atendimento B2B <ArrowRight size={16} />
               </a>
             </div>
