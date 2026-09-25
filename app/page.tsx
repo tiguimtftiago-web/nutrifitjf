@@ -574,7 +574,7 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
         <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
         <p className="mt-3 text-white/50">{subtitle}</p>
       </div>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
         {products.map((product) => <ProductCard key={product.name} product={product} />)}
       </div>
     </section>
