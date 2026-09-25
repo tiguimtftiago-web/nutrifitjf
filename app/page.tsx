@@ -189,7 +189,7 @@ const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] 
       "Chalés do Imperador","Chalés do Algarve","Colinas do Imperador","Mandala",
       "Portal do Aeroporto","Morada do Serro","Bosque Imperial","Conjunto Flamboyants",
       "São Clemente","São Lucas","Santana","Neo Residencial","Spinaville II",
-      "Mirante","Residencial Alvim","Cidade Universitária","Tiguera","Três Moinhos",
+      "Mirante","Residencial Alvim","Cidade Universitária","Três Moinhos",
       "Terras Altas","Retiro","Pedras Preciosas","Jardim Esperança","Jardim do Sol",
       "Santos Anjos","Vila Alpina","São Sebastião","Aracy","Jardim das Flores",
       "Solidariedade","Granjas Primavera","Granjas Santo Antônio","Guaruá","Granjas do Bosque",
@@ -386,10 +386,10 @@ function ComboBuilder() {
     <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte e pague seu pedido no site</div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
           <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
-            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e envie o pedido pelo WhatsApp para combinar o pagamento.
+            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e envie o pedido pelo WhatsApp para finalizar o pagamento.
           </p>
         </div>
         <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
@@ -541,7 +541,7 @@ function ComboBuilder() {
       )}
 
       <div className="mt-4 text-center text-xs text-white/35">
-        O pagamento fica combinado diretamente pelo WhatsApp. O pedido é confirmado após a confirmação do pagamento.
+        O pagamento é finalizado diretamente pelo WhatsApp. O pedido é confirmado após a confirmação do pagamento.
       </div>
     </div>
   );
@@ -734,7 +734,7 @@ export default function Home() {
                 <h2 className="text-2xl font-black">Pedido e pagamento</h2>
               </div>
               <p className="mt-3 leading-7 text-white/55">
-                Escolha seus produtos, confirme o pedido e realize o pagamento. Você pode receber em casa ou retirar seu pedido na Nutrifit, em Monte Castelo.
+                Escolha seus produtos, confirme o pedido e finalize o pagamento pelo WhatsApp. Você pode receber em casa ou retirar seu pedido na Nutrifit, em Monte Castelo.
               </p>
               <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
                 Falar com a Nutrifit <MessageCircle size={16} />
