@@ -235,15 +235,15 @@ function ComboBuilder() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  // Compatibilidade de toque: Safari/iPhone pode não disparar o click como esperado em controles dinâmicos.
-  // O pointerup aciona imediatamente e o click subsequente é ignorado para evitar dupla ação.
-  const lastPointerAction = useRef(0);
-  const runPointerAction = (action: () => void) => {
-    lastPointerAction.current = Date.now();
+  // Compatibilidade de toque: no Safari/iPhone usamos touchstart como caminho principal
+  // e mantemos click apenas como fallback. O bloqueio temporal evita ação duplicada.
+  const lastTouchAction = useRef(0);
+  const runTouchAction = (action: () => void) => {
+    lastTouchAction.current = Date.now();
     action();
   };
   const runClickAction = (action: () => void) => {
-    if (Date.now() - lastPointerAction.current < 700) return;
+    if (Date.now() - lastTouchAction.current < 700) return;
     action();
   };
 
@@ -411,7 +411,7 @@ function ComboBuilder() {
 
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" onPointerUp={() => runPointerAction(() => changeLine(index))} onClick={() => runClickAction(() => changeLine(index))} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+          <button key={item.line} type="button" onPointerUp={() => runPointerAction(() => changeLine(index))} onClick={() => runClickAction(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
             <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
           </button>
@@ -420,7 +420,7 @@ function ComboBuilder() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" onPointerUp={() => runPointerAction(() => changeQuantity(value))} onClick={() => runClickAction(() => changeQuantity(value))} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+          <button key={value} type="button" onPointerUp={() => runPointerAction(() => changeQuantity(value))} onClick={() => runClickAction(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
             {value} marmitas
           </button>
         ))}
@@ -452,7 +452,7 @@ function ComboBuilder() {
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}>
+          <button type="button" onClick={() => chooseDeliveryMode("delivery")} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}>
             {deliveryMode === "delivery" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3} /></div>}
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={24} /></div>
             <div className="mt-4 text-xl font-black">🚚 Receber em casa</div>
@@ -460,7 +460,7 @@ function ComboBuilder() {
             <div className="mt-4 inline-flex rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#cbd99a]">CALCULAR PELO CEP</div>
           </button>
 
-          <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}>
+          <button type="button" onClick={() => chooseDeliveryMode("pickup")} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}>
             {deliveryMode === "pickup" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#ef7d18] text-black"><Check size={16} strokeWidth={3} /></div>}
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={24} /></div>
             <div className="mt-4 text-xl font-black">📍 Retirar na Nutrifit</div>
