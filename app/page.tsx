@@ -9,7 +9,7 @@ const money = (value: number) => value.toLocaleString("pt-BR", { style: "currenc
 
 type Product = { id: string; name: string; line: string; weight: string; price: number | null; description: string; image?: string };
 
-type Combo = { id: string; line: string; weight: string; quantity: number; price: number };
+type Combo = { id: string; name: string; line: string; weight: string; quantity: number; price: number };
 
 const products: Product[] = [
   { id: "fit-abobora", name: "Patinho com Abóbora", line: "Linha Fit", weight: "350 g", price: 19.9, description: "Patinho moído temperado com purê cremoso de abóbora.", image: "/images/hero.jpg" },
@@ -47,9 +47,9 @@ const juices = ["Pink", "Energy", "Green", "Sun", "Purple", "Glow"];
 const traditionalJuices = ["Laranja", "Laranja com Acerola", "Abacaxi com Hortelã"];
 
 const combos: Combo[] = [
-  ...[[5, 106.9], [7, 149.9], [10, 214.9], [14, 299.9], [20, 419.9]].map(([q, p]) => ({ id: `fit-${q}`, line: "Fit", weight: "350 g", quantity: q as number, price: p as number })),
-  ...[[5, 139.9], [7, 194.9], [10, 274.9], [14, 384.9], [20, 539.9]].map(([q, p]) => ({ id: `perf-${q}`, line: "Performance", weight: "450 g", quantity: q as number, price: p as number })),
-  ...[[5, 139.9], [7, 194.9], [10, 269.9], [14, 379.9], [20, 529.9]].map(([q, p]) => ({ id: `trad-${q}`, line: "Tradicional", weight: "500 g", quantity: q as number, price: p as number })),
+  ...[[5, 106.9], [7, 149.9], [10, 214.9], [14, 299.9], [20, 419.9]].map(([q, p]) => ({ id: `fit-${q}`, name: `${q} marmitas Fit`, line: "Fit", weight: "350 g", quantity: q as number, price: p as number })),
+  ...[[5, 139.9], [7, 194.9], [10, 274.9], [14, 384.9], [20, 539.9]].map(([q, p]) => ({ id: `perf-${q}`, name: `${q} marmitas Performance`, line: "Performance", weight: "450 g", quantity: q as number, price: p as number })),
+  ...[[5, 139.9], [7, 194.9], [10, 269.9], [14, 379.9], [20, 529.9]].map(([q, p]) => ({ id: `trad-${q}`, name: `${q} marmitas Tradicional`, line: "Tradicional", weight: "500 g", quantity: q as number, price: p as number })),
 ];
 
 export default function Home() {
