@@ -702,7 +702,6 @@ export default function Home() {
               <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Saladas 350 g</a>
               <a href="#tradicional" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Tradicionais 500 g</a>
             </div>
-            <a href={whatsapp} className="inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> <span className="hidden sm:inline">Pedir agora</span><span className="sm:hidden">Pedir</span></a>
           </div>
         </div>
       </header>
