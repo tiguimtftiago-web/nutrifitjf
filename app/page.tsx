@@ -96,32 +96,6 @@ const combos = [
   ["Tradicional 500 g","20 marmitas","R$ 529,90","R$ 26,50/un"],
 ];
 
-const comboHighlights = [
-  {
-    line: "FIT",
-    weight: "350 g",
-    title: "Patinho com Abóbora",
-    images: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg"],
-    price: "a partir de R$ 117,00",
-    text: "Escolha seus sabores e monte seu combo com 5, 7, 10, 14 ou 20 marmitas."
-  },
-  {
-    line: "PERFORMANCE",
-    weight: "450 g",
-    title: "Chicken Parmesão",
-    images: ["/images/page-12.jpg","/images/page-13.jpg","/images/page-14.jpg"],
-    price: "a partir de R$ 139,90",
-    text: "Mais proteína e refeições maiores para sua rotina. Combine os sabores da linha."
-  },
-  {
-    line: "TRADICIONAL",
-    weight: "500 g",
-    title: "Parmegiana Cremosa",
-    images: ["/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg"],
-    price: "a partir de R$ 139,90",
-    text: "Comida com sabor caseiro em combos de 5, 7, 10, 14 ou 20 marmitas."
-  },
-];
 
 const functionalJuices = [
   ["Energy","/images/page-36.jpg"],
@@ -766,10 +740,6 @@ export default function Home() {
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
           <div className="flex items-center gap-2">
-            <a href="/adm" aria-label="Área administrativa" className="inline-flex items-center gap-2 rounded-full border border-[#ef7d18]/35 bg-[#ef7d18]/10 px-3.5 py-2.5 text-xs font-black text-[#f5ad72] transition hover:bg-[#ef7d18]/20">
-              <Building2 size={16} />
-              <span>Admin</span>
-            </a>
             <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackClick("whatsapp_click", "header")} className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
               <MessageCircle size={16} />
               <span className="hidden sm:inline">WhatsApp</span>
@@ -789,40 +759,47 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Acesso rápido ao pedido" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="hidden sm:block">
-              <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Comece por aqui</div>
-              <div className="mt-1 text-sm text-white/45">Encontre sua opção e faça seu pedido rapidamente.</div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-1 sm:justify-end">
-              <a href="#cardapio" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-3 text-xs font-black text-black transition hover:scale-[1.01]">
-                🍱 <span>Marmitas</span>
-              </a>
-              <a href="#combos" className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-3 py-3 text-xs font-black text-[#f2a05d] transition hover:bg-[#ef7d18]/20">
-                📦 <span>Combos</span>
-              </a>
-              <a href="#sucos" className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-3 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">
-                🥤 <span>Sucos</span>
-              </a>
-            </div>
+      <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
+          <div className="text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Qual é o seu jeito hoje?</div>
+            <p className="mt-1 text-sm text-white/45">Escolha uma opção e vá direto para o que você quer comprar.</p>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <a href="#cardapio" className="group rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15">
+              <div className="text-xl">🥗</div>
+              <div className="mt-2 font-black">Quero algo leve</div>
+              <div className="mt-0.5 text-xs text-white/45">Fit 350 g e Saladas</div>
+            </a>
+            <a href="#performance" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/35">
+              <div className="text-xl">💪</div>
+              <div className="mt-2 font-black">Quero mais proteína</div>
+              <div className="mt-0.5 text-xs text-white/45">Performance 450 g</div>
+            </a>
+            <a href="#tradicional" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18]/35">
+              <div className="text-xl">🍛</div>
+              <div className="mt-2 font-black">Quero comida de verdade</div>
+              <div className="mt-0.5 text-xs text-white/45">Tradicionais 500 g</div>
+            </a>
+            <a href="#combos" className="group rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15">
+              <div className="text-xl">📦</div>
+              <div className="mt-2 font-black">Quero economizar</div>
+              <div className="mt-0.5 text-xs text-white/45">Combos de 5 a 20 marmitas</div>
+            </a>
           </div>
         </div>
       </section>
 
       <section aria-label="Categorias do cardápio" className="sticky top-[73px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
-          <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Navegue pelo cardápio</div>
-            <p className="mt-1 text-sm text-white/50">Escolha uma categoria para encontrar sua próxima refeição.</p>
-          </div>
-          <div className="mt-4 flex flex-nowrap justify-start gap-2.5 overflow-x-auto scrollbar-hide pb-1 lg:flex-wrap lg:justify-center">
-            <a href="#cardapio" className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Fit 350 g</a>
-            <a href="#performance" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Performance 450 g</a>
-            <a href="#saladas" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Saladas 350 g</a>
-            <a href="#tradicional" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Tradicionais 500 g</a>
-            <a href="#sucos" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Sucos</a>
+        <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <span className="shrink-0 px-1 text-[10px] font-black uppercase tracking-[.16em] text-white/35">Escolha sua opção</span>
+            <a href="#cardapio" className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2 text-xs font-black text-black">Fit 350 g</a>
+            <a href="#performance" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Performance 450 g</a>
+            <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Saladas</a>
+            <a href="#tradicional" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#ef7d18]/40">Tradicionais 500 g</a>
+            <a href="#combos" className="shrink-0 rounded-full border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-4 py-2 text-xs font-black text-[#f2a05d] transition hover:bg-[#ef7d18]/20">Combos</a>
+            <a href="#sucos" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Sucos</a>
           </div>
         </div>
       </section>
@@ -831,96 +808,53 @@ export default function Home() {
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} />
 
-      <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
-            <h2 className="mt-2 text-3xl font-black md:text-5xl">Por que pedir na Nutrifit?</h2>
-            <p className="mt-3 text-sm leading-6 text-white/50 md:text-base">Você escolhe as refeições, confere o pedido e finaliza o pagamento pelo WhatsApp.</p>
-          </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["🍱", "Porções padronizadas", "Fit 350 g • Performance 450 g • Tradicional 500 g."],
-              ["🥗", "Opções para sua rotina", "Marmitas, saladas e sucos em um só lugar."],
-              ["🚚", "Entrega em Juiz de Fora", "Consulte a taxa pelo CEP ou escolha retirar na Nutrifit."],
-              ["💬", "Atendimento direto", "Seu pedido segue para o WhatsApp com os detalhes já organizados."],
-            ].map(([icon, title, text]) => (
-              <div key={title} className="rounded-3xl border border-white/10 bg-white/[.025] p-6">
-                <div className="text-2xl">{icon}</div>
-                <h3 className="mt-4 font-black">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-white/45">{text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
-          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.28)] md:p-10">
-            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
-                <h2 className="mt-2 text-4xl font-black md:text-6xl">Monte seu combo do seu jeito</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Escolha 5, 7, 10, 14 ou 20 marmitas e misture os sabores dentro da mesma linha. Você organiza várias refeições de uma vez e recebe tudo em um pedido.</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {["5 marmitas","7 marmitas","10 marmitas","14 marmitas","20 marmitas"].map((item) => (
-                    <span key={item} className="rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/10 px-3 py-1.5 text-[11px] font-black text-[#cbd99a]">{item}</span>
-                  ))}
-                </div>
+        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.24)] md:p-9">
+            <div className="max-w-4xl">
+              <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
+              <h2 className="mt-2 text-3xl font-black md:text-5xl">Monte seu combo do seu jeito</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Escolha sua linha, a quantidade de marmitas e depois monte os sabores. Você resolve várias refeições de uma vez.</p>
+            </div>
+
+            <div className="mt-7">
+              <div className="mb-3 text-sm font-black text-white/80">Escolha sua linha</div>
+              <div className="grid gap-2 md:grid-cols-3">
+                {[
+                  ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
+                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
+                  ["TRADICIONAL","500 g","R$ 139,90","Sabor caseiro"],
+                ].map(([line,weight,price,description]) => (
+                  <button
+                    key={line}
+                    type="button"
+                    onClick={() => openComboBuilder(line)}
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10"
+                  >
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#a7b86a]">{line}</div>
+                      <div className="mt-1 font-black">{description}</div>
+                      <div className="mt-0.5 text-xs text-white/40">{weight}</div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-[9px] font-black uppercase tracking-wider text-white/35">a partir de</div>
+                      <div className="mt-0.5 text-sm font-black text-[#ef7d18]">{price}</div>
+                      <div className="mt-1 text-[11px] font-black text-white/70 group-hover:text-white">Escolher →</div>
+                    </div>
+                  </button>
+                ))}
               </div>
-              <button type="button" onClick={() => openComboBuilder()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-7 py-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.02]">
-                Montar meu combo <ArrowRight size={17} />
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="font-black">Já sabe que quer um combo?</div>
+                <div className="mt-0.5 text-xs text-white/40">Escolha 5, 7, 10, 14 ou 20 marmitas no montador.</div>
+              </div>
+              <button type="button" onClick={() => openComboBuilder()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3 text-xs font-black text-black shadow-lg transition hover:scale-[1.01]">
+                Montar meu combo <ArrowRight size={15} />
               </button>
             </div>
-          </div>
-
-          <div className="mt-10 text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Escolha sua linha</div>
-            <h3 className="mt-2 text-3xl font-black md:text-4xl">Combos Nutrifit</h3>
-            <p className="mt-2 text-sm text-white/45">Veja as opções e entre no montador para escolher seus sabores.</p>
-          </div>
-
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {comboHighlights.map((item) => (
-              <button
-                key={item.line}
-                type="button"
-                onClick={() => openComboBuilder(item.line)}
-                className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0e09] p-6 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/40"
-              >
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#a7b86a]/10 blur-2xl transition group-hover:bg-[#a7b86a]/20" />
-                <div className="relative">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="text-[11px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Nutrifit</div>
-                      <div className="mt-2 text-3xl font-black">{item.line}</div>
-                    </div>
-                    <div className="rounded-xl border border-white/10 bg-white/[.04] px-3 py-2 text-center">
-                      <div className="text-[9px] font-black uppercase tracking-wider text-white/40">Peso</div>
-                      <div className="mt-0.5 text-sm font-black text-[#ef7d18]">{item.weight}</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 grid grid-cols-5 gap-1.5">
-                    {["5","7","10","14","20"].map((qty) => (
-                      <div key={qty} className="rounded-lg border border-white/10 bg-white/[.025] py-2 text-center">
-                        <div className="text-sm font-black">{qty}</div>
-                        <div className="text-[8px] uppercase tracking-wider text-white/35">marm.</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-7 flex items-end justify-between gap-3">
-                    <div>
-                      <div className="text-[10px] font-black uppercase tracking-wider text-white/35">A partir de</div>
-                      <div className="mt-1 text-xl font-black text-[#ef7d18]">{item.price}</div>
-                    </div>
-                    <span className="rounded-full bg-white/10 px-4 py-2.5 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Ver opções →</span>
-                  </div>
-                </div>
-              </button>
-            ))}
           </div>
 
           {comboOpen && (
@@ -931,9 +865,7 @@ export default function Home() {
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador de combos</div>
                     <div className="mt-1 text-sm text-white/50">Escolha a quantidade, os sabores e a forma de recebimento.</div>
                   </div>
-                  <button type="button" onClick={() => setComboOpen(false)} className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white/70 transition hover:border-white/30 hover:text-white">
-                    Fechar montador
-                  </button>
+                  <button type="button" onClick={() => setComboOpen(false)} className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white/70 transition hover:border-white/30 hover:text-white">Fechar montador</button>
                 </div>
                 <ComboBuilder />
               </div>
@@ -963,6 +895,30 @@ export default function Home() {
               </div>
             </>
           )}
+        </div>
+      </section>
+
+      <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
+        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
+            <h2 className="mt-2 text-3xl font-black md:text-5xl">Por que pedir na Nutrifit?</h2>
+            <p className="mt-3 text-sm leading-6 text-white/50 md:text-base">Você escolhe as refeições, confere o pedido e finaliza o pagamento pelo WhatsApp.</p>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["🍱", "Porções padronizadas", "Fit 350 g • Performance 450 g • Tradicional 500 g."],
+              ["🥗", "Opções para sua rotina", "Marmitas, saladas e sucos em um só lugar."],
+              ["🚚", "Entrega em Juiz de Fora", "Consulte a taxa pelo CEP ou escolha retirar na Nutrifit."],
+              ["💬", "Atendimento direto", "Seu pedido segue para o WhatsApp com os detalhes já organizados."],
+            ].map(([icon, title, text]) => (
+              <div key={title} className="rounded-3xl border border-white/10 bg-white/[.025] p-6">
+                <div className="text-2xl">{icon}</div>
+                <h3 className="mt-4 font-black">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/45">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
