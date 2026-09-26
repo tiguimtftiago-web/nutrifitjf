@@ -245,9 +245,16 @@ function ComboBuilder() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  // Controles do combo usam um único caminho de clique/toque.
-  // O elemento <button> nativo do Safari/Android trata o toque como click.
-  const runAction = (action: () => void) => action();
+  // iPhone/Safari: executa no início do toque e bloqueia o click sintético duplicado.
+  const lastPress = useRef(0);
+  const runPress = (action: () => void) => {
+    lastPress.current = Date.now();
+    action();
+  };
+  const runClickFallback = (action: () => void) => {
+    if (Date.now() - lastPress.current < 700) return;
+    action();
+  };
 
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
@@ -422,7 +429,7 @@ function ComboBuilder() {
 
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" onClick={() => runAction(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+          <button key={item.line} type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => changeLine(index)); }} onClick={() => runClickFallback(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
             <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
           </button>
@@ -431,7 +438,7 @@ function ComboBuilder() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" onClick={() => runAction(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+          <button key={value} type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => changeQuantity(value)); }} onClick={() => runClickFallback(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
             {value} marmitas
           </button>
         ))}
@@ -445,9 +452,9 @@ function ComboBuilder() {
               <div className="mt-1 text-xs text-white/40">{product.weight}</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onClick={() => runAction(() => removeProduct(product.name))} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <button type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => removeProduct(product.name)); }} onClick={() => runClickFallback(() => removeProduct(product.name))} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
               <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" onClick={() => runAction(() => addProduct(product.name))} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+              <button type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => addProduct(product.name)); }} onClick={() => runClickFallback(() => addProduct(product.name))} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
             </div>
           </div>
         ))}
