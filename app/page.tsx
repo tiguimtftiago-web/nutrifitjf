@@ -902,7 +902,7 @@ export default function Home() {
                 ["Saladas entram nos combos?","O catálogo informa as saladas como vendidas por unidade."],
                 ["Os sucos entram nos combos?","Os sucos são vendidos por unidade; consulte disponibilidade pelo WhatsApp."],
                 ["Como faço meu pedido?","Escolha suas opções no cardápio e clique em qualquer botão de pedido para falar com a Nutrifit."],
-                ["Como funciona a entrega?","A disponibilidade e a taxa de entrega devem ser confirmadas pelo WhatsApp."],
+                ["Como funciona a entrega?","Para pedidos com menos de 20 marmitas, informe o CEP no montador de combos para calcular a taxa. A partir de 20 marmitas, o frete é grátis. Também é possível retirar na Nutrifit."],
                 ["Quando faço o pagamento?","O pagamento é realizado antecipadamente. Após a confirmação do pagamento, a Nutrifit prepara e realiza a entrega do pedido."]
               ].map(([question,answer]) => (
                 <details key={question} className="group rounded-2xl border border-white/10 bg-white/[.025] p-5">
