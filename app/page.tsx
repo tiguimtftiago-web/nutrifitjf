@@ -245,15 +245,15 @@ function ComboBuilder() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  // Compatibilidade iPhone/Safari: pointerup é o caminho principal e click é fallback.
-  // O bloqueio temporal impede que o mesmo toque execute duas vezes.
-  const lastPointerAction = useRef(0);
-  const runPointerAction = (action: () => void) => {
-    lastPointerAction.current = Date.now();
+  // iPhone/Safari: toque físico é tratado por touchend; click fica apenas como fallback.
+  // Isso evita depender do pointerup e também impede o mesmo toque de executar duas vezes.
+  const lastTouchAction = useRef(0);
+  const runTouchAction = (action: () => void) => {
+    lastTouchAction.current = Date.now();
     action();
   };
   const runClickAction = (action: () => void) => {
-    if (Date.now() - lastPointerAction.current < 700) return;
+    if (Date.now() - lastTouchAction.current < 800) return;
     action();
   };
 
