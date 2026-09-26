@@ -744,6 +744,14 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
 }
 
 export default function Home() {
+  const [comboOpen, setComboOpen] = useState(false);
+
+  const openComboBuilder = (line?: string) => {
+    setComboOpen(true);
+    if (line) trackClick("combo_builder_start", line);
+    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
+  };
+
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
@@ -826,19 +834,24 @@ export default function Home() {
       </section>
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
             <h2 className="mt-2 text-4xl font-black md:text-6xl">Escolha seu combo</h2>
-            <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
+            <p className="mt-3 text-sm text-white/50 md:text-base">Escolha a linha, veja o preço inicial e monte seu combo quando quiser.</p>
           </div>
 
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="mt-7 grid gap-3 md:grid-cols-3">
             {comboHighlights.map((item) => (
-              <a key={item.line} href="#combo-montar" onClick={() => trackClick("combo_builder_start", item.line)} className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/25 transition hover:-translate-y-1 hover:border-[#a7b86a]/40">
-                <div className="relative aspect-[16/10] overflow-hidden bg-black">
+              <button
+                key={item.line}
+                type="button"
+                onClick={() => openComboBuilder(item.line)}
+                className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/25 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/40"
+              >
+                <div className="relative aspect-[16/8] overflow-hidden bg-black">
                   <div className="grid h-full grid-cols-3 gap-1">
-                    {item.images.map((image, index) => (
+                    {item.images.map((image) => (
                       <div key={image} className="overflow-hidden">
                         <img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                       </div>
@@ -846,42 +859,71 @@ export default function Home() {
                   </div>
                   <div className="absolute left-3 top-3 rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{item.line} • {item.weight}</div>
                 </div>
-                <div className="p-5">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo com sabores à sua escolha</div>
-                  <div className="mt-4 flex items-end justify-between gap-3">
-                    <div><div className="text-[10px] uppercase tracking-wider text-white/35">Preço inicial</div><div className="text-lg font-black text-[#ef7d18]">{item.price}</div></div>
+                <div className="p-4">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo à sua escolha</div>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <div className="text-base font-black text-[#ef7d18]">{item.price}</div>
                     <span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Montar →</span>
                   </div>
                 </div>
-              </a>
+              </button>
             ))}
           </div>
 
-          <div id="combo-montar" className="scroll-mt-24"><ComboBuilder /></div>
+          {!comboOpen && (
+            <div className="mt-5 rounded-[1.5rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 text-center">
+              <div className="text-sm font-black text-white">Monte seu combo do seu jeito</div>
+              <p className="mt-1 text-xs text-white/45">Escolha 5, 7, 10, 14 ou 20 marmitas e misture os sabores da mesma linha.</p>
+              <button
+                type="button"
+                onClick={() => openComboBuilder()}
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-[#a7b86a] px-6 py-3 text-sm font-black text-black transition hover:scale-[1.02]"
+              >
+                Montar meu combo
+              </button>
+            </div>
+          )}
 
-          <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
-            <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Todos os tamanhos</div>
-                <h3 className="mt-1 text-2xl font-black">Combos por linha</h3>
+          {comboOpen && (
+            <>
+              <div id="combo-montar" className="scroll-mt-24 pt-6">
+                <div className="mb-4 flex flex-col justify-between gap-3 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 sm:flex-row sm:items-center">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador de combos</div>
+                    <div className="mt-1 text-sm text-white/50">Escolha a quantidade, os sabores e a forma de recebimento.</div>
+                  </div>
+                  <button type="button" onClick={() => setComboOpen(false)} className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white/70 transition hover:border-white/30 hover:text-white">
+                    Fechar montador
+                  </button>
+                </div>
+                <ComboBuilder />
               </div>
-              <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {combos.map(([line,quantity,price,average]) => (
-                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${line}-${quantity}`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
-                  <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
-                  <div className="mt-1 text-2xl font-black">{price}</div>
-                  <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
-                </a>
-              ))}
-            </div>
-          </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[["Combos dentro da linha","Misture sabores sem sair da mesma linha."],["Praticidade","Organize várias refeições de uma vez."],["Atendimento direto","Faça seu pedido pelo WhatsApp."]].map(([title,text]) => <div key={title} className="flex gap-3 rounded-2xl border border-white/10 p-5"><Check className="mt-0.5 shrink-0 text-[#a7b86a]" size={19} /><div><div className="font-black">{title}</div><div className="mt-1 text-sm text-white/45">{text}</div></div></div>)}
-          </div>
+              <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
+                <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Todos os tamanhos</div>
+                    <h3 className="mt-1 text-2xl font-black">Combos por linha</h3>
+                  </div>
+                  <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                  {combos.map(([line,quantity,price,average]) => (
+                    <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${line}-${quantity}`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
+                      <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">${line}</div>
+                      <div className="mt-2 text-sm font-bold text-white/55">${quantity}</div>
+                      <div className="mt-1 text-2xl font-black">${price}</div>
+                      <div className="mt-1 text-xs text-[#ef7d18]">${average}</div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {[[`Combos dentro da linha`,`Misture sabores sem sair da mesma linha.`],[`Praticidade`,`Organize várias refeições de uma vez.`],[`Atendimento direto`,`Faça seu pedido pelo WhatsApp.`]].map(([title,text]) => <div key={title} className="flex gap-3 rounded-2xl border border-white/10 p-5"><Check className="mt-0.5 shrink-0 text-[#a7b86a]" size={19} /><div><div className="font-black">{title}</div><div className="mt-1 text-sm text-white/45">{text}</div></div></div>)}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
