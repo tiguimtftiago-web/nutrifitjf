@@ -409,6 +409,15 @@ function ComboBuilder() {
         </div>
       </div>
 
+      <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+        <div className="grid grid-cols-5 gap-2 text-center">
+          {[["1","Linha"],["2","Quantidade"],["3","Sabores"],["4","Entrega"],["5","Dados"]].map(([step,label], index) => {
+            const active = index === 0 ? true : index === 1 ? quantity !== 5 || total > 0 : index === 2 ? total > 0 : index === 3 ? deliveryReady : customerReady;
+            return <div key={step} className="min-w-0"><div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${active ? "bg-[#a7b86a] text-black" : "bg-white/10 text-white/45"}`}>{step}</div><div className={`mt-1 truncate text-[9px] font-bold uppercase tracking-wider sm:text-[10px] ${active ? "text-white/80" : "text-white/35"}`}>{label}</div></div>;
+          })}
+        </div>
+      </div>
+
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
           <button key={item.line} type="button" onTouchStart={() => runTouchAction(() => changeLine(index))} onClick={() => runClickAction(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
@@ -519,7 +528,7 @@ function ComboBuilder() {
         </div>
       </div>
 
-      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 md:flex-row md:items-center md:justify-between">
+      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 shadow-[0_12px_40px_rgba(0,0,0,.18)] md:flex-row md:items-center md:justify-between">
         <div>
           <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
           <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-white/55">
