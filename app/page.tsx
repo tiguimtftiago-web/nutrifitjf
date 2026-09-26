@@ -60,8 +60,18 @@ const traditional: Product[] = [
   ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga."],
   ["Churrasco Fit Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
-  ["Executivo Saudável","TRADICIONAL","500 g","R$ 26,90","Lombo suíno grelhado, macarrão alho e óleo, molho cremoso leve e brócolis."]
-].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[28,29,30,31,32,33,34][i]}.jpg`}));
+  ["Executivo Saudável","TRADICIONAL","500 g","R$ 26,90","Lombo suíno grelhado, macarrão alho e óleo, molho cremoso leve e brócolis."],
+  ["Carne de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco."],
+  ["Cupim com Mandioca","TRADICIONAL","500 g","R$ 29,90","Cupim macio ao molho, mandioca e arroz com brócolis."],
+  ["Panqueca de Frango ao Molho de Tomate","TRADICIONAL","500 g","R$ 27,00","Panquecas recheadas com frango desfiado, molho de tomate artesanal e ervas."],
+  ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel, acompanhada de arroz primavera."]
+].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:[
+  "/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg","/images/page-31.jpg","/images/page-32.jpg","/images/page-33.jpg","/images/page-34.jpg",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(1).jpeg",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(2).jpeg",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02.jpeg",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.03.jpeg"
+][i]}));
 
 const combos = [
   ["Fit 350 g","5 marmitas","R$ 117,00","R$ 23,40/un"],
