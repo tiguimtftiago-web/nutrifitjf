@@ -453,7 +453,7 @@ function ComboBuilder() {
         </div>
       </div>
 
-      <div className="mt-7 grid gap-3 md:grid-cols-3">
+      <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
           <button key={item.line} type="button" data-combo-action="line" data-index={index} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
@@ -793,7 +793,7 @@ export default function Home() {
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Qual é o seu jeito hoje?</div>
             <p className="mt-1 text-sm text-white/45">Escolha uma opção e vá direto para o que você quer comprar.</p>
           </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             <a href="#cardapio" className="group rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15">
               <div className="text-xl">🥗</div>
               <div className="mt-2 font-black">Quero algo leve</div>
