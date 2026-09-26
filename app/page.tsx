@@ -776,6 +776,17 @@ export default function Home() {
         </div>
       </section>
 
+      <div className="border-b border-white/10 bg-[#080a07] px-5 py-4 md:px-8">
+        <div className="mx-auto flex max-w-2xl flex-col gap-2.5 sm:flex-row sm:justify-center">
+          <a href="#cardapio" onClick={() => trackClick("hero_cta_click", "ver_cardapio")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">
+            🍱 Ver cardápio <ArrowRight size={16} />
+          </a>
+          <a href="#cardapio" onClick={() => trackClick("hero_cta_click", "montar_pedido")} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-black transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
+            🛒 Montar meu pedido
+          </a>
+        </div>
+      </div>
+
       <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
           <div className="text-center">
