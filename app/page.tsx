@@ -133,7 +133,7 @@ const naturalJuices = [
 ];
 
 
-const DELIVERY_FREE_FROM = 200;
+const DELIVERY_FREE_FROM = 20;
 
 type DeliveryResult = {
   zone: string;
@@ -260,7 +260,7 @@ function ComboBuilder() {
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
   const subtotal = Number(price.replace("R$ ", "").replace(".", "").replace(",", "."));
-  const deliveryFee = subtotal >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
+  const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const grandTotal = subtotal + deliveryFee;
 
   const changeLine = (index: number) => {
@@ -509,7 +509,7 @@ function ComboBuilder() {
             {subtotal >= DELIVERY_FREE_FROM ? (
               <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
                 <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
-                <div className="mt-1 text-sm text-white/55">Seu combo atingiu R$ 200,00 ou mais.</div>
+                <div className="mt-1 text-sm text-white/55">Seu combo tem 20 marmitas ou mais.</div>
               </div>
             ) : delivery ? (
               <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
