@@ -67,10 +67,10 @@ const traditional: Product[] = [
   ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel, acompanhada de arroz primavera."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:[
   "/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg","/images/page-31.jpg","/images/page-32.jpg","/images/page-33.jpg","/images/page-34.jpg",
-  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(1).jpeg?v=3",
-  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.03.jpeg?v=3",
-  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02.jpeg?v=3",
-  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(2).jpeg?v=3"
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(1).jpeg?v=4",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.03.jpeg?v=4",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(2).jpeg?v=4",
+  "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02.jpeg?v=4"
 ][i]}));
 
 const combos = [
