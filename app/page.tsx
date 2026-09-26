@@ -228,6 +228,128 @@ const comboOptions = [
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 269,90", 14: "R$ 379,90", 20: "R$ 529,90" } },
 ] as const;
 
+const monthlyPlanOptions = [
+  { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
+  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 795,00", 60: "R$ 1.590,00" } },
+] as const;
+
+function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => void }) {
+  const [lineIndex, setLineIndex] = useState(0);
+  const [quantity, setQuantity] = useState<30 | 60>(30);
+  const [selected, setSelected] = useState<Record<string, number>>({});
+  const option = monthlyPlanOptions[lineIndex];
+  const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
+  const totalPrice = parseMoney(option.prices[quantity]);
+  const unitPrice = totalPrice / quantity;
+  const remaining = quantity - total;
+
+  const changeLine = (index: number) => {
+    setLineIndex(index);
+    setSelected({});
+  };
+
+  const changeQuantity = (value: 30 | 60) => {
+    setQuantity(value);
+    setSelected({});
+  };
+
+  const addProduct = (name: string) => {
+    if (total >= quantity) return;
+    setSelected((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
+  };
+
+  const removeProduct = (name: string) => {
+    setSelected((current) => {
+      const next = { ...current };
+      if (!next[name]) return current;
+      if (next[name] === 1) delete next[name];
+      else next[name] -= 1;
+      return next;
+    });
+  };
+
+  const addToCart = () => {
+    if (total !== quantity) return;
+    const items: OrderItem[] = option.products
+      .filter((product) => selected[product.name])
+      .map((product) => ({
+        name: product.name + ` — Plano ${quantity}`,
+        line: `PLANO ${option.line}`,
+        weight: product.weight,
+        price: unitPrice,
+        quantity: selected[product.name],
+      }));
+    onAddPlan(items);
+    setSelected({});
+  };
+
+  return (
+    <div className="mt-7 rounded-[2rem] border border-[#a7b86a]/20 bg-[#10130d] p-5 md:p-7">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Quantidade</div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            {[30, 60].map((value) => (
+              <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-xl border px-4 py-3 text-left text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
+                {value} marmitas
+                <span className="mt-1 block text-xs font-normal text-white/40">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha</div>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {monthlyPlanOptions.map((item, index) => (
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`rounded-xl border px-2 py-3 text-xs font-black transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
+                {item.line}<span className="mt-1 block text-[10px] font-normal text-white/40">{item.weight}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="text-sm font-black">Monte seu mês escolhendo os sabores</div>
+          <div className="mt-1 text-xs text-white/45">Misture sabores dentro da mesma linha. O preço por unidade é o mesmo do combo de 20.</div>
+        </div>
+        <div className="shrink-0 text-left sm:text-right">
+          <div className="text-xs text-white/45">{total}/{quantity} selecionadas</div>
+          <div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
+          <div className="text-[11px] text-white/40">{money(unitPrice)} por marmita • frete grátis</div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
+        {option.products.map((product) => (
+          <div key={product.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
+            <div className="min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
+            <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
+              <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
+              <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <span className="text-white/55">Faltam</span>
+          <span className="font-black">{remaining} marmitas</span>
+        </div>
+        <button type="button" onClick={addToCart} disabled={total !== quantity} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-35">
+          Adicionar plano ao pedido <ShoppingBag size={17} />
+        </button>
+        <div className="mt-2 text-center text-[11px] text-white/40">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
+      </div>
+    </div>
+  );
+}
+
 function ComboBuilder() {
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
@@ -707,6 +829,18 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
 export default function Home() {
   const [comboOpen, setComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const addPlanToOrder = (items: OrderItem[]) => {
+    setOrderItems((current) => {
+      const next = [...current];
+      for (const item of items) {
+        const found = next.find((existing) => existing.name === item.name);
+        if (found) found.quantity += item.quantity;
+        else next.push(item);
+      }
+      return next;
+    });
+    setOrderOpen(true);
+  };
   const [orderOpen, setOrderOpen] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -947,6 +1081,17 @@ export default function Home() {
               </div>
             </>
           )}
+        </div>
+      </section>
+
+      <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
+        <div className="rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-7 md:p-10">
+          <div className="max-w-3xl">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal Nutrifit</div>
+            <h2 className="mt-2 text-3xl font-black md:text-4xl">Organize suas refeições do mês</h2>
+            <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e monte os sabores dentro da mesma linha. O preço por marmita é o mesmo do combo de 20 — sem desconto adicional.</p>
+          </div>
+          <MonthlyPlanBuilder onAddPlan={addPlanToOrder} />
         </div>
       </section>
 
