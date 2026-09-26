@@ -696,11 +696,11 @@ export default function Home() {
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
           <div className="flex items-center gap-2">
-            <div className="flex max-w-[58vw] gap-1 overflow-x-auto scrollbar-hide lg:hidden">
-              <a href="#cardapio" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-black text-white/75">Fit</a>
-              <a href="#performance" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-black text-white/75">Performance</a>
-              <a href="#saladas" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-black text-white/75">Saladas</a>
-              <a href="#tradicional" className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-black text-white/75">Tradicional</a>
+            <div className="flex max-w-[60vw] gap-1.5 overflow-x-auto scrollbar-hide lg:hidden py-0.5">
+              <a href="#cardapio" className="shrink-0 rounded-full border border-[#a7b86a]/30 bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black shadow-[0_2px_10px_rgba(167,184,106,.12)]">Fit 350 g</a>
+              <a href="#performance" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Performance 450 g</a>
+              <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Saladas 350 g</a>
+              <a href="#tradicional" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Tradicionais 500 g</a>
             </div>
             <a href={whatsapp} className="inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> <span className="hidden sm:inline">Pedir agora</span><span className="sm:hidden">Pedir</span></a>
           </div>
