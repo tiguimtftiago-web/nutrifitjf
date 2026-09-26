@@ -747,8 +747,12 @@ export default function Home() {
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-          <a href="#inicio" aria-label="Nutrifit — início" className="block h-11 w-28 overflow-hidden rounded-lg bg-black">
-              <img src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png" alt="Nutrifit" className="h-full w-full object-cover object-[50%_40%]" />
+          <a href="#inicio" aria-label="Nutrifit — início" className="inline-flex items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black ring-1 ring-white/10">
+                <span className="text-lg font-black tracking-tight text-[#a7b86a]">N</span>
+                <span className="-ml-1 text-lg font-black tracking-tight text-[#ef7d18]">F</span>
+              </span>
+              <span className="hidden text-base font-black tracking-tight text-white sm:inline">Nutrifit</span>
             </a>
           <nav aria-label="Navegação principal" className="hidden gap-6 text-sm font-semibold text-white/65 lg:flex">
             <a href="#cardapio" className="hover:text-white">Cardápio</a>
