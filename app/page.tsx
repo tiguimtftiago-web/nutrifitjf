@@ -430,7 +430,7 @@ function ComboBuilder() {
 
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" onPointerUp={() => runPointerAction(() => changeLine(index))} onClick={() => runClickAction(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+          <button key={item.line} type="button" onTouchEnd={() => runTouchAction(() => changeLine(index))} onClick={() => runClickAction(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
             <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
           </button>
@@ -439,7 +439,7 @@ function ComboBuilder() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" onPointerUp={() => runPointerAction(() => changeQuantity(value))} onClick={() => runClickAction(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+          <button key={value} type="button" onTouchEnd={() => runTouchAction(() => changeQuantity(value))} onClick={() => runClickAction(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
             {value} marmitas
           </button>
         ))}
@@ -453,9 +453,9 @@ function ComboBuilder() {
               <div className="mt-1 text-xs text-white/40">{product.weight}</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onPointerUp={() => runPointerAction(() => removeProduct(product.name))} onClick={() => runClickAction(() => removeProduct(product.name))} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <button type="button" onTouchEnd={() => runTouchAction(() => removeProduct(product.name))} onClick={() => runClickAction(() => removeProduct(product.name))} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
               <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" onPointerUp={() => runPointerAction(() => addProduct(product.name))} onClick={() => runClickAction(() => addProduct(product.name))} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+              <button type="button" onTouchEnd={() => runTouchAction(() => addProduct(product.name))} onClick={() => runClickAction(() => addProduct(product.name))} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
             </div>
           </div>
         ))}
