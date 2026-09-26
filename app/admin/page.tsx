@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Building2, LogOut, MessageCircle, RefreshCw, Search, X } from "lucide-react";
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
+const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
 const statuses = ["Novo lead","Contato realizado","Entendendo necessidade","Proposta enviada","Negociação","Cliente ativo","Sem retorno","Perdido","Reativar depois"];
 
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; segment:string|null; estimated_meals:string|null; frequency:string|null; service_type:string|null; notes:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null };
