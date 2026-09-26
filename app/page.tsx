@@ -609,12 +609,12 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
       <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black"><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div>
-      <div className="flex flex-1 flex-col p-3 sm:p-5">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-5">
         <span className="w-fit rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
-        <h3 className="mt-3 min-h-[3.25rem] text-base font-black leading-tight sm:text-xl">{product.name}</h3>
-        <p className="mt-2 min-h-[3.9rem] text-xs leading-5 text-white/50 sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
-        <div className="mt-auto pt-4"><div className="text-lg font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2.5 text-xs font-black text-black sm:text-sm"><ShoppingBag size={14} /> Adicionar ao pedido</button>
+        <h3 className="mt-2.5 min-h-[3.25rem] text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
+        <p className="mt-2 min-h-[4.5rem] text-[11px] leading-[1.35rem] text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <div className="mt-auto pt-3.5 sm:pt-4"><div className="text-base font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} className="mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2 py-2.5 text-[11px] font-black text-black sm:mt-3 sm:gap-1.5 sm:px-3 sm:text-sm"><ShoppingBag size={14} /> Adicionar ao pedido</button>
         </div>
       </div>
     </article>
@@ -627,14 +627,14 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
   const hiddenCount = Math.max(products.length - 4, 0);
 
   return (
-    <section id={id} className="mx-auto max-w-7xl px-5 py-12 md:px-8">
+    <section id={id} className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8">
       <div className="max-w-3xl">
         <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
         <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
         <p className="mt-3 text-white/50">{subtitle}</p>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+      <div className="mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 lg:grid-cols-3">
         {visibleProducts.map((product) => <ProductCard key={product.name} product={product} onAdd={onAdd} />)}
       </div>
 
@@ -1054,10 +1054,10 @@ export default function Home() {
         </div>
       </section>
 
-      {orderItems.length > 0 && <div className="fixed bottom-5 left-5 right-5 z-50 mx-auto max-w-3xl">
-        <div className="rounded-2xl border border-[#a7b86a]/40 bg-[#10130d]/95 p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3">
+      {orderItems.length > 0 && <div className="fixed bottom-3 left-3 right-3 z-50 mx-auto max-w-3xl sm:bottom-5 sm:left-5 sm:right-5">
+        <div className="rounded-2xl border border-[#a7b86a]/40 bg-[#10130d]/95 p-3.5 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3">
           <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu pedido</div><div className="text-sm font-black">{orderCount} item(ns) • {money(orderSubtotal)}</div></div>
-          <button type="button" onClick={() => setOrderOpen(true)} className="rounded-full bg-[#a7b86a] px-4 py-2 text-xs font-black text-black">Revisar pedido</button>
+          <button type="button" onClick={() => setOrderOpen(true)} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Revisar pedido</button>
         </div>
       </div>}
       {orderOpen && <div className="fixed inset-0 z-[60] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setOrderOpen(false)}>
