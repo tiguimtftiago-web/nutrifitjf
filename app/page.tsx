@@ -695,14 +695,10 @@ export default function Home() {
             <a href="#sucos" className="hover:text-white">Sucos</a>
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <div className="flex max-w-[60vw] gap-1.5 overflow-x-auto scrollbar-hide lg:hidden py-0.5">
-              <a href="#cardapio" className="shrink-0 rounded-full border border-[#a7b86a]/30 bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black shadow-[0_2px_10px_rgba(167,184,106,.12)]">Fit 350 g</a>
-              <a href="#performance" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Performance 450 g</a>
-              <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Saladas 350 g</a>
-              <a href="#tradicional" className="shrink-0 rounded-full border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-black text-white/90">Tradicionais 500 g</a>
-            </div>
-          </div>
+          <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
+            <MessageCircle size={16} />
+            <span className="hidden sm:inline">WhatsApp</span>
+          </a>
         </div>
       </header>
 
@@ -719,8 +715,12 @@ export default function Home() {
 
       <section aria-label="Categorias do cardápio" className="border-b border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-5 py-6 md:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <a href="#cardapio" className="rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Fit 350 g</a>
+          <div className="text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Navegue pelo cardápio</div>
+            <p className="mt-1 text-sm text-white/50">Escolha uma categoria para encontrar sua próxima refeição.</p>
+          </div>
+          <div className="mt-4 flex flex-nowrap justify-start gap-2.5 overflow-x-auto scrollbar-hide pb-1 lg:flex-wrap lg:justify-center">
+            <a href="#cardapio" className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Fit 350 g</a>
             <a href="#performance" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Performance 450 g</a>
             <a href="#saladas" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Saladas 350 g</a>
             <a href="#tradicional" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Tradicionais 500 g</a>
