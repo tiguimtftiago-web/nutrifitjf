@@ -528,9 +528,12 @@ function ComboBuilder() {
         </div>
       </div>
 
-      <div className="mt-7 flex flex-col gap-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 shadow-[0_12px_40px_rgba(0,0,0,.18)] md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
+      <div className="sticky bottom-3 z-20 mt-7 rounded-2xl border border-[#a7b86a]/30 bg-[#11160d]/95 p-4 shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur-md md:static md:flex md:flex-row md:items-center md:justify-between md:gap-4 md:p-5">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
+            <div className="shrink-0 rounded-full bg-[#ef7d18]/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#ef9b55]">Resumo</div>
+          </div>
           <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-white/55">
             <span>Subtotal</span><strong className="text-white">{money(subtotal)}</strong>
             <span>Entrega</span><strong className="text-white">{deliveryReady ? (deliveryFee === 0 ? "Grátis" : money(deliveryFee)) : "Informe o CEP"}</strong>
@@ -546,7 +549,7 @@ function ComboBuilder() {
                   : "Pedido completo. Confira o resumo e envie pelo WhatsApp para finalizar o pagamento."}
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
           <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
           <button type="button" onClick={sendOrder} disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
             {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando pedido...</> : <><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</>}
