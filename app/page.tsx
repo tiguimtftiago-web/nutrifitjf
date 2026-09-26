@@ -392,6 +392,15 @@ function ComboBuilder() {
   // Isso evita inconsistências do WebKit em alguns aparelhos ao combinar pointerdown/preventDefault/click.
   const comboRootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "auto", block: "start" });
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const root = comboRootRef.current;
     if (!root) return;
 
@@ -965,11 +974,72 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sucos" className="mx-auto max-w-7xl px-5 py-14 md:px-8">
+      <section id="sucos" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
-          <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Sucos funcionais • 500 ml R$ 12,90 • 300 ml R$ 9,90</p></div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">{functionalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 500 ml — R$ 12,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,90</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div>
-          <div className="mt-10 border-t border-white/10 pt-8"><div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos Nutrifit • 500 ml R$ 12,90 • 300 ml R$ 9,90</div><div className="mt-4 grid gap-4 sm:grid-cols-3">{naturalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 500 ml — R$ 12,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,90</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div></div>
+          <div className="max-w-3xl">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div>
+            <h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2>
+            <p className="mt-3 text-white/50">Escolha o sabor e o tamanho. Tudo entra no mesmo pedido das suas marmitas e saladas.</p>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {functionalJuices.map(([name, image]) => (
+              <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40">
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                </div>
+                <div className="p-4">
+                  <div className="font-black">{name}</div>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    {[["500 ml","R$ 12,90"],["300 ml","R$ 9,90"]].map(([size, price]) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => {
+                          const product = juiceProducts.find((item) => item.name === `${name} — ${size}`);
+                          if (product) addToOrder(product);
+                        }}
+                        className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10"
+                      >
+                        {size} <b className="mt-0.5 block text-sm text-[#ef7d18]">{price}</b>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 border-t border-white/10 pt-8">
+            <div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos naturais</div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {naturalJuices.map(([name, image]) => (
+                <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40">
+                  <div className="aspect-[4/3] overflow-hidden">
+                    <img src={image} alt={name} className="h-full w-full object-cover transition duration-500" loading="lazy" />
+                  </div>
+                  <div className="p-4">
+                    <div className="font-black">{name}</div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      {[["500 ml","R$ 12,90"],["300 ml","R$ 9,90"]].map(([size, price]) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => {
+                            const product = juiceProducts.find((item) => item.name === `${name} — ${size}`);
+                            if (product) addToOrder(product);
+                          }}
+                          className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10"
+                        >
+                          {size} <b className="mt-0.5 block text-sm text-[#ef7d18]">{price}</b>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
