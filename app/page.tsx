@@ -323,7 +323,7 @@ function ComboBuilder() {
       return;
     }
 
-    if (subtotal >= DELIVERY_FREE_FROM) {
+    if (quantity >= DELIVERY_FREE_FROM) {
       setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: "" });
       setDeliveryStatus("idle");
       return;
@@ -400,7 +400,7 @@ function ComboBuilder() {
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
     setPaymentStatus("idle");
   };
-  const deliveryReady = deliveryMode === "pickup" || subtotal >= DELIVERY_FREE_FROM || Boolean(delivery);
+  const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
   const customerReady = Boolean(customerName.trim() && customerPhone.trim());
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
 
@@ -508,7 +508,7 @@ function ComboBuilder() {
                 {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
               </button>
             </div>
-            {subtotal >= DELIVERY_FREE_FROM ? (
+            {quantity >= DELIVERY_FREE_FROM ? (
               <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
                 <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
                 <div className="mt-1 text-sm text-white/55">Seu combo tem 20 marmitas ou mais.</div>
