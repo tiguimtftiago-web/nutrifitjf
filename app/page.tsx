@@ -857,54 +857,71 @@ export default function Home() {
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-12 md:px-8">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
-            <h2 className="mt-2 text-4xl font-black md:text-6xl">Escolha seu combo</h2>
-            <p className="mt-3 text-sm text-white/50 md:text-base">Escolha a linha, veja o preço inicial e monte seu combo quando quiser.</p>
+          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.28)] md:p-10">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
+                <h2 className="mt-2 text-4xl font-black md:text-6xl">Monte seu combo do seu jeito</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Escolha 5, 7, 10, 14 ou 20 marmitas e misture os sabores dentro da mesma linha. Você organiza várias refeições de uma vez e recebe tudo em um pedido.</p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {["5 marmitas","7 marmitas","10 marmitas","14 marmitas","20 marmitas"].map((item) => (
+                    <span key={item} className="rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/10 px-3 py-1.5 text-[11px] font-black text-[#cbd99a]">{item}</span>
+                  ))}
+                </div>
+              </div>
+              <button type="button" onClick={() => openComboBuilder()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-7 py-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.02]">
+                Montar meu combo <ArrowRight size={17} />
+              </button>
+            </div>
           </div>
 
-          <div className="mt-7 grid gap-3 md:grid-cols-3">
+          <div className="mt-10 text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Escolha sua linha</div>
+            <h3 className="mt-2 text-3xl font-black md:text-4xl">Combos Nutrifit</h3>
+            <p className="mt-2 text-sm text-white/45">Veja as opções e entre no montador para escolher seus sabores.</p>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
             {comboHighlights.map((item) => (
               <button
                 key={item.line}
                 type="button"
                 onClick={() => openComboBuilder(item.line)}
-                className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/25 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/40"
+                className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0e09] p-6 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/40"
               >
-                <div className="relative aspect-[16/8] overflow-hidden bg-black">
-                  <div className="grid h-full grid-cols-3 gap-1">
-                    {item.images.map((image) => (
-                      <div key={image} className="overflow-hidden">
-                        <img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#a7b86a]/10 blur-2xl transition group-hover:bg-[#a7b86a]/20" />
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-[11px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Nutrifit</div>
+                      <div className="mt-2 text-3xl font-black">{item.line}</div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/[.04] px-3 py-2 text-center">
+                      <div className="text-[9px] font-black uppercase tracking-wider text-white/40">Peso</div>
+                      <div className="mt-0.5 text-sm font-black text-[#ef7d18]">{item.weight}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-5 gap-1.5">
+                    {["5","7","10","14","20"].map((qty) => (
+                      <div key={qty} className="rounded-lg border border-white/10 bg-white/[.025] py-2 text-center">
+                        <div className="text-sm font-black">{qty}</div>
+                        <div className="text-[8px] uppercase tracking-wider text-white/35">marm.</div>
                       </div>
                     ))}
                   </div>
-                  <div className="absolute left-3 top-3 rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{item.line} • {item.weight}</div>
-                </div>
-                <div className="p-4">
-                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo à sua escolha</div>
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <div className="text-base font-black text-[#ef7d18]">{item.price}</div>
-                    <span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Montar →</span>
+
+                  <div className="mt-7 flex items-end justify-between gap-3">
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-wider text-white/35">A partir de</div>
+                      <div className="mt-1 text-xl font-black text-[#ef7d18]">{item.price}</div>
+                    </div>
+                    <span className="rounded-full bg-white/10 px-4 py-2.5 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Ver opções →</span>
                   </div>
                 </div>
               </button>
             ))}
           </div>
-
-          {!comboOpen && (
-            <div className="mt-5 rounded-[1.5rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 text-center">
-              <div className="text-sm font-black text-white">Monte seu combo do seu jeito</div>
-              <p className="mt-1 text-xs text-white/45">Escolha 5, 7, 10, 14 ou 20 marmitas e misture os sabores da mesma linha.</p>
-              <button
-                type="button"
-                onClick={() => openComboBuilder()}
-                className="mt-4 inline-flex items-center justify-center rounded-full bg-[#a7b86a] px-6 py-3 text-sm font-black text-black transition hover:scale-[1.02]"
-              >
-                Montar meu combo
-              </button>
-            </div>
-          )}
 
           {comboOpen && (
             <>
@@ -932,10 +949,10 @@ export default function Home() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                   {combos.map(([line,quantity,price,average]) => (
                     <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${line}-${quantity}`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
-                      <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">${line}</div>
-                      <div className="mt-2 text-sm font-bold text-white/55">${quantity}</div>
-                      <div className="mt-1 text-2xl font-black">${price}</div>
-                      <div className="mt-1 text-xs text-[#ef7d18]">${average}</div>
+                      <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
+                      <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
+                      <div className="mt-1 text-2xl font-black">{price}</div>
+                      <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
                     </a>
                   ))}
                 </div>
