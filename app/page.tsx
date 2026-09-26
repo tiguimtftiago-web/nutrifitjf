@@ -743,10 +743,16 @@ export default function Home() {
             <a href="#sucos" className="hover:text-white">Sucos</a>
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
-          <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackClick("whatsapp_click", "header")} className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
-            <MessageCircle size={16} />
-            <span className="hidden sm:inline">WhatsApp</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <a href="/adm" aria-label="Área administrativa" className="inline-flex items-center gap-2 rounded-full border border-[#ef7d18]/35 bg-[#ef7d18]/10 px-3.5 py-2.5 text-xs font-black text-[#f5ad72] transition hover:bg-[#ef7d18]/20">
+              <Building2 size={16} />
+              <span>Admin</span>
+            </a>
+            <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackClick("whatsapp_click", "header")} className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
+              <MessageCircle size={16} />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </a>
+          </div>
         </div>
       </header>
 
@@ -998,5 +1004,3 @@ export default function Home() {
       </a>
 
     </main>
-  );
-}
