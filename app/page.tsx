@@ -754,6 +754,7 @@ export default function Home() {
             <a href="#cardapio" className="hover:text-white">Cardápio</a>
             <a href="#combos" className="hover:text-white">Combos</a>
             <a href="#sucos" className="hover:text-white">Sucos</a>
+            <a href="#b2b" className="hover:text-white">Para Empresas</a>
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
           <div className="flex items-center gap-2">
@@ -814,6 +815,23 @@ export default function Home() {
               <div className="mt-2 font-black">Quero economizar</div>
               <div className="mt-0.5 text-xs text-white/45">Combos de 5 a 20 marmitas</div>
             </a>
+          </div>
+
+          <div id="b2b" className="mt-5 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-6 md:p-7">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+              <div>
+                <div className="flex items-center gap-3">
+                  <Building2 className="text-[#ef7d18]" size={22} />
+                  <h2 className="text-xl font-black md:text-2xl">Nutrifit para empresas</h2>
+                </div>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+                  Refeições práticas para equipes, empresas e pedidos corporativos. Fale com a Nutrifit para conhecer as possibilidades.
+                </p>
+              </div>
+              <a href="/b2b" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black">
+                Quero atender minha empresa <ArrowRight size={16} />
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -998,23 +1016,6 @@ export default function Home() {
               </p>
               <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
                 Falar com a Nutrifit <MessageCircle size={16} />
-              </a>
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-7 md:p-9">
-            <div className="flex flex-col justify-between gap-7 md:flex-row md:items-center">
-              <div>
-                <div className="flex items-center gap-3">
-                  <Building2 className="text-[#ef7d18]" size={22} />
-                  <h2 className="text-2xl font-black">Nutrifit para empresas</h2>
-                </div>
-                <p className="mt-3 max-w-2xl leading-7 text-white/55">
-                  Atendimento B2B para empresas e pedidos corporativos. Fale com a equipe para conhecer as possibilidades.
-                </p>
-              </div>
-              <a href="/b2b" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 font-black text-black">
-                Atendimento B2B <ArrowRight size={16} />
               </a>
             </div>
           </div>
