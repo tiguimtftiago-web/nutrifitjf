@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
 
 const whatsapp =
@@ -13,6 +14,10 @@ const whatsappOrder = (text: string) =>
 const PIX_KEY = "64.776.469/0001-08";
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
+
+const trackClick = (event: string, source: string) => {
+  track(event, { source });
+};
 
 type Product = {
   name: string;
@@ -357,6 +362,7 @@ function ComboBuilder() {
 
   const sendOrder = () => {
     if (total !== quantity || (!delivery && quantity < DELIVERY_FREE_FROM) || !customerName.trim() || !customerPhone.trim()) return;
+    trackClick("combo_order_click", `${option.line}-${quantity}`);
 
     setPaymentStatus("loading");
 
@@ -618,6 +624,7 @@ function ProductCard({ product }: { product: Product }) {
 
           <a
             href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)}
+            onClick={() => trackClick("product_order_click", product.name)}
             target="_blank"
             rel="noreferrer"
             className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2.5 text-xs font-black text-black transition hover:scale-[1.01] sm:px-4 sm:text-sm"
@@ -696,7 +703,7 @@ export default function Home() {
             <a href="#sucos" className="hover:text-white">Sucos</a>
             <a href="#como-pedir" className="hover:text-white">Como pedir</a>
           </nav>
-          <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
+          <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackClick("whatsapp_click", "header")} className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3.5 py-2.5 text-xs font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/20">
             <MessageCircle size={16} />
             <span className="hidden sm:inline">WhatsApp</span>
           </a>
@@ -768,7 +775,7 @@ export default function Home() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {comboHighlights.map((item) => (
-              <a key={item.line} href="#combo-montar" className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/25 transition hover:-translate-y-1 hover:border-[#a7b86a]/40">
+              <a key={item.line} href="#combo-montar" onClick={() => trackClick("combo_builder_start", item.line)} className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/25 transition hover:-translate-y-1 hover:border-[#a7b86a]/40">
                 <div className="relative aspect-[16/10] overflow-hidden bg-black">
                   <div className="grid h-full grid-cols-3 gap-1">
                     {item.images.map((image, index) => (
@@ -802,7 +809,7 @@ export default function Home() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               {combos.map(([line,quantity,price,average]) => (
-                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
+                <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${line}-${quantity}`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
                   <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
                   <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
                   <div className="mt-1 text-2xl font-black">{price}</div>
@@ -864,7 +871,7 @@ export default function Home() {
               <p className="mt-3 leading-7 text-white/55">
                 Escolha seus produtos, confirme o pedido e finalize o pagamento pelo WhatsApp. Você pode receber em casa ou retirar seu pedido na Nutrifit, em Monte Castelo.
               </p>
-              <a href={whatsapp} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
+              <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
                 Falar com a Nutrifit <MessageCircle size={16} />
               </a>
             </div>
@@ -927,7 +934,7 @@ export default function Home() {
                 <a href={instagram} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 font-bold">
                   @nutrifit_jf
                 </a>
-                <a href={whatsapp} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black">
+                <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-7 py-4 font-black text-black">
                   <ShoppingBag size={18} /> Fazer pedido
                 </a>
               </div>
@@ -946,7 +953,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <a href={whatsapp} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
+      <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
         <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
       </a>
 
