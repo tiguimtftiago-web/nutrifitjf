@@ -691,6 +691,7 @@ export default function Home() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [orderCep, setOrderCep] = useState("");
+  const [orderNotes, setOrderNotes] = useState("");
   const [orderDelivery, setOrderDelivery] = useState<DeliveryResult | null>(null);
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -731,6 +732,8 @@ export default function Home() {
       const subtotal = item.price * item.quantity;
       return `${i + 1}. ${item.quantity}x ${item.name}\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   Subtotal: ${money(subtotal)}`;
     }).join("\n\n");
+    const notesText = orderNotes.trim();
+
     const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🚚 FRETE: ${money(orderDelivery?.fee ?? 0)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",orderDelivery ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}` : "Taxa de entrega a confirmar pelo WhatsApp","","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
   };
