@@ -753,7 +753,27 @@ export default function Home() {
             <p className="mt-4 text-white/50">Comida de verdade, porções prontas para sua rotina. Escolha a linha e misture os sabores dentro dela.</p>
           </div>
 
-          <ComboBuilder />
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {comboHighlights.map((item) => (
+              <a key={item.line} href="#combo-montar" className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/25 transition hover:-translate-y-1 hover:border-[#a7b86a]/40">
+                <div className="relative aspect-[16/10] overflow-hidden bg-black">
+                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                  <div className="absolute left-3 top-3 rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{item.line} • {item.weight}</div>
+                </div>
+                <div className="p-5">
+                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo com sabores à sua escolha</div>
+                  <h3 className="mt-2 text-xl font-black">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/45">{item.text}</p>
+                  <div className="mt-4 flex items-end justify-between gap-3">
+                    <div><div className="text-[10px] uppercase tracking-wider text-white/35">Preço inicial</div><div className="text-lg font-black text-[#ef7d18]">{item.price}</div></div>
+                    <span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Montar →</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div id="combo-montar" className="scroll-mt-24"><ComboBuilder /></div>
 
           <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
             <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
