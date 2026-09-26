@@ -111,6 +111,17 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
+const juiceProducts: Product[] = [
+  ...functionalJuices.flatMap(([name, image]) => [
+    { name: `${name} — 500 ml`, line: "SUCOS", weight: "500 ml", price: "R$ 12,90", description: "Suco funcional Nutrifit.", image },
+    { name: `${name} — 300 ml`, line: "SUCOS", weight: "300 ml", price: "R$ 9,90", description: "Suco funcional Nutrifit.", image },
+  ]),
+  ...naturalJuices.flatMap(([name, image]) => [
+    { name: `${name} — 500 ml`, line: "SUCOS", weight: "500 ml", price: "R$ 12,90", description: "Suco natural Nutrifit.", image },
+    { name: `${name} — 300 ml`, line: "SUCOS", weight: "300 ml", price: "R$ 9,90", description: "Suco natural Nutrifit.", image },
+  ]),
+];
+
 
 const DELIVERY_FREE_FROM = 20;
 
