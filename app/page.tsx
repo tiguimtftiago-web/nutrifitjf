@@ -774,8 +774,6 @@ export default function Home() {
                 </div>
                 <div className="p-5">
                   <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo com sabores à sua escolha</div>
-                  <h3 className="mt-2 text-xl font-black">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/45">{item.text}</p>
                   <div className="mt-4 flex items-end justify-between gap-3">
                     <div><div className="text-[10px] uppercase tracking-wider text-white/35">Preço inicial</div><div className="text-lg font-black text-[#ef7d18]">{item.price}</div></div>
                     <span className="rounded-full bg-white/10 px-3 py-2 text-xs font-black text-white transition group-hover:bg-[#a7b86a] group-hover:text-black">Montar →</span>
