@@ -206,6 +206,10 @@ const findDelivery = (neighborhood: string): DeliveryResult | null => {
 const money = (value: number) =>
   value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+const parseMoney = (value: string) => Number(value.replace(/[^0-9,]/g, "").replace(/\./g, "").replace(",", "."));
+
+type OrderItem = { name: string; line: string; weight: string; price: number; quantity: number };
+
 
 const comboOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
@@ -601,59 +605,22 @@ function ComboBuilder() {
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
-      </div>
-
+      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black"><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div>
       <div className="flex flex-1 flex-col p-3 sm:p-5">
-        <div className="flex min-h-5 items-center">
-          <span className="rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black sm:px-3 sm:text-[10px]">
-            {product.line} • {product.weight}
-          </span>
-        </div>
-
-        <h3 className="mt-3 min-h-[3.25rem] text-base font-black leading-tight sm:mt-4 sm:min-h-[3.5rem] sm:text-xl">
-          {product.name}
-        </h3>
-
-        <p
-          className="mt-2 min-h-[3.9rem] text-xs leading-5 text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6"
-          style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}
-        >
-          {product.description}
-        </p>
-
-        <div className="mt-auto pt-4">
-          <div className="text-lg font-black text-[#ef7d18] sm:text-xl">
-            {product.price}
-          </div>
-
-          <a
-            href={whatsappOrder(`Olá, Nutrifit! Quero pedir: ${product.name} (${product.line}, ${product.weight}) — ${product.price}.`)}
-            onClick={() => trackClick("product_order_click", product.name)}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2.5 text-xs font-black text-black transition hover:scale-[1.01] sm:px-4 sm:text-sm"
-          >
-            <span className="sm:hidden">Pedir</span>
-            <span className="hidden sm:inline">Pedir esta opção</span>
-            <ArrowRight size={14} />
-          </a>
+        <span className="w-fit rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
+        <h3 className="mt-3 min-h-[3.25rem] text-base font-black leading-tight sm:text-xl">{product.name}</h3>
+        <p className="mt-2 min-h-[3.9rem] text-xs leading-5 text-white/50 sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <div className="mt-auto pt-4"><div className="text-lg font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2.5 text-xs font-black text-black sm:text-sm"><ShoppingBag size={14} /> Adicionar ao pedido</button>
         </div>
       </div>
     </article>
   );
 }
-
-function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[] }) {
+function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
   const showWeekCard = products.length % 2 === 1;
   const visibleProducts = expanded ? products : products.slice(0, 4);
@@ -668,7 +635,7 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-        {visibleProducts.map((product) => <ProductCard key={product.name} product={product} />)}
+        {visibleProducts.map((product) => <ProductCard key={product.name} product={product} onAdd={onAdd} />)}
       </div>
 
       {hiddenCount > 0 && (
@@ -719,7 +686,32 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
 
 export default function Home() {
   const [comboOpen, setComboOpen] = useState(false);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [orderOpen, setOrderOpen] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  const addToOrder = (product: Product) => {
+    setOrderItems((current) => {
+      const found = current.find((item) => item.name === product.name);
+      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...current, { name: product.name, line: product.line, weight: product.weight, price: parseMoney(product.price), quantity: 1 }];
+    });
+    setOrderOpen(true);
+  };
+  const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
+  const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
+  const sendFullOrder = () => {
+    if (!orderItems.length) return;
+    const lines = orderItems.map((item, i) => {
+      const subtotal = item.price * item.quantity;
+      return `${i + 1}. ${item.quantity}x ${item.name}\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   Subtotal: ${money(subtotal)}`;
+    }).join("\n\n");
+    const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 TOTAL: ${money(orderSubtotal)}`,"","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
+    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+  };
   const openComboBuilder = (line?: string) => {
     setComboOpen(true);
     if (line) trackClick("combo_builder_start", line);
@@ -803,10 +795,10 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} />
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit}  onAdd={addToOrder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance}  onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads}  onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional}  onAdd={addToOrder} />
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
@@ -1040,6 +1032,21 @@ export default function Home() {
         </div>
       </section>
 
+      {orderItems.length > 0 && <div className="fixed bottom-5 left-5 right-5 z-50 mx-auto max-w-3xl">
+        <div className="rounded-2xl border border-[#a7b86a]/40 bg-[#10130d]/95 p-3 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3">
+          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu pedido</div><div className="text-sm font-black">{orderCount} item(ns) • {money(orderSubtotal)}</div></div>
+          <button type="button" onClick={() => setOrderOpen(true)} className="rounded-full bg-[#a7b86a] px-4 py-2 text-xs font-black text-black">Revisar pedido</button>
+        </div>
+      </div>}
+      {orderOpen && <div className="fixed inset-0 z-[60] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setOrderOpen(false)}>
+        <div className="mx-auto mt-6 max-h-[90vh] max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl md:mt-10 md:p-7" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • conferência</div><h2 className="mt-1 text-2xl font-black">Seu pedido</h2><p className="mt-1 text-sm text-white/45">Confira a lista e os valores antes de enviar.</p></div><button type="button" onClick={() => setOrderOpen(false)} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black">Fechar</button></div>
+          <div className="mt-5 space-y-2">{orderItems.map((item) => <div key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex justify-between gap-3"><div><div className="font-black">{item.name}</div><div className="mt-1 text-xs text-white/45">{item.line} • {item.weight} • {money(item.price)} cada</div></div><div className="font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div></div><div className="mt-3 flex items-center gap-2"><button type="button" onClick={() => changeOrderQty(item.name,-1)} className="rounded-full border border-white/15 p-2"><Minus size={14}/></button><span className="w-8 text-center font-black">{item.quantity}</span><button type="button" onClick={() => changeOrderQty(item.name,1)} className="rounded-full border border-white/15 p-2"><Plus size={14}/></button><button type="button" onClick={() => removeOrderItem(item.name)} className="ml-auto text-xs text-white/45">Remover</button></div></div>)}</div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2"><input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="WhatsApp do cliente" inputMode="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/></div>
+          <div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4"><div className="flex justify-between text-sm text-white/55"><span>Subtotal</span><span>{money(orderSubtotal)}</span></div><div className="mt-3 flex justify-between border-t border-white/10 pt-3 text-lg font-black"><span>TOTAL</span><span className="text-[#ef7d18]">{money(orderSubtotal)}</span></div></div>
+          <button type="button" onClick={sendFullOrder} disabled={!orderItems.length} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black disabled:opacity-40">Enviar pedido completo para o WhatsApp <MessageCircle size={18}/></button>
+        </div>
+      </div>}
       <footer className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
           <span>© 2026 Nutrifit • Juiz de Fora - MG</span>
