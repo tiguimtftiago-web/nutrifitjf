@@ -96,7 +96,7 @@ const comboHighlights = [
     line: "FIT",
     weight: "350 g",
     title: "Patinho com Abóbora",
-    image: "/images/page-4.jpg",
+    image: "/images/combo-fit.svg?v=1",
     price: "a partir de R$ 117,00",
     text: "Escolha seus sabores e monte seu combo com 5, 7, 10, 14 ou 20 marmitas."
   },
@@ -104,7 +104,7 @@ const comboHighlights = [
     line: "PERFORMANCE",
     weight: "450 g",
     title: "Chicken Parmesão",
-    image: "/images/page-12.jpg",
+    image: "/images/combo-performance.svg?v=1",
     price: "a partir de R$ 139,90",
     text: "Mais proteína e refeições maiores para sua rotina. Combine os sabores da linha."
   },
@@ -112,7 +112,7 @@ const comboHighlights = [
     line: "TRADICIONAL",
     weight: "500 g",
     title: "Parmegiana Cremosa",
-    image: "/images/page-29.jpg",
+    image: "/images/combo-tradicional.svg?v=1",
     price: "a partir de R$ 139,90",
     text: "Comida com sabor caseiro em combos de 5, 7, 10, 14 ou 20 marmitas."
   },
