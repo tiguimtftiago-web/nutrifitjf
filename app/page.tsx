@@ -789,6 +789,28 @@ export default function Home() {
         </div>
       </section>
 
+      <section aria-label="Acesso rápido ao pedido" className="border-b border-white/10 bg-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="hidden sm:block">
+              <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Comece por aqui</div>
+              <div className="mt-1 text-sm text-white/45">Encontre sua opção e faça seu pedido rapidamente.</div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-1 sm:justify-end">
+              <a href="#cardapio" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-3 text-xs font-black text-black transition hover:scale-[1.01]">
+                🍱 <span>Marmitas</span>
+              </a>
+              <a href="#combos" className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-3 py-3 text-xs font-black text-[#f2a05d] transition hover:bg-[#ef7d18]/20">
+                📦 <span>Combos</span>
+              </a>
+              <a href="#sucos" className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-3 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">
+                🥤 <span>Sucos</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section aria-label="Categorias do cardápio" className="sticky top-[73px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
           <div className="text-center">
