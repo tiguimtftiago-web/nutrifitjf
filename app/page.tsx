@@ -96,7 +96,7 @@ const comboHighlights = [
     line: "FIT",
     weight: "350 g",
     title: "Patinho com Abóbora",
-    image: "/images/combo-fit.svg?v=1",
+    images: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg"],
     price: "a partir de R$ 117,00",
     text: "Escolha seus sabores e monte seu combo com 5, 7, 10, 14 ou 20 marmitas."
   },
@@ -104,7 +104,7 @@ const comboHighlights = [
     line: "PERFORMANCE",
     weight: "450 g",
     title: "Chicken Parmesão",
-    image: "/images/combo-performance.svg?v=1",
+    images: ["/images/page-12.jpg","/images/page-13.jpg","/images/page-14.jpg"],
     price: "a partir de R$ 139,90",
     text: "Mais proteína e refeições maiores para sua rotina. Combine os sabores da linha."
   },
@@ -112,7 +112,7 @@ const comboHighlights = [
     line: "TRADICIONAL",
     weight: "500 g",
     title: "Parmegiana Cremosa",
-    image: "/images/combo-tradicional.svg?v=1",
+    images: ["/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg"],
     price: "a partir de R$ 139,90",
     text: "Comida com sabor caseiro em combos de 5, 7, 10, 14 ou 20 marmitas."
   },
@@ -769,7 +769,13 @@ export default function Home() {
             {comboHighlights.map((item) => (
               <a key={item.line} href="#combo-montar" className="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/25 transition hover:-translate-y-1 hover:border-[#a7b86a]/40">
                 <div className="relative aspect-[16/10] overflow-hidden bg-black">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                  <div className="grid h-full grid-cols-3 gap-1">
+                    {item.images.map((image, index) => (
+                      <div key={image} className="overflow-hidden">
+                        <img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
                   <div className="absolute left-3 top-3 rounded-full bg-[#a7b86a] px-3 py-1 text-[10px] font-black tracking-wider text-black">{item.line} • {item.weight}</div>
                 </div>
                 <div className="p-5">
