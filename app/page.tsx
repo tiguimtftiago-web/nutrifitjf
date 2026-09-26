@@ -680,10 +680,13 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[] }) {
+  const [expanded, setExpanded] = useState(false);
   const showWeekCard = products.length % 2 === 1;
+  const visibleProducts = expanded ? products : products.slice(0, 4);
+  const hiddenCount = Math.max(products.length - 4, 0);
 
   return (
-    <section id={id} className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+    <section id={id} className="mx-auto max-w-7xl px-5 py-12 md:px-8">
       <div className="max-w-3xl">
         <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
         <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
@@ -691,9 +694,20 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-        {products.map((product) => <ProductCard key={product.name} product={product} />)}
-
+        {visibleProducts.map((product) => <ProductCard key={product.name} product={product} />)}
       </div>
+
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          className="mx-auto mt-5 flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[.04] px-5 py-3 text-sm font-black text-white/80 transition hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10 hover:text-white"
+          aria-expanded={expanded}
+        >
+          {expanded ? "Mostrar menos" : "Ver todos os " + products.length + " pratos"}
+          <span className="text-[#a7b86a]">{expanded ? "↑" : "+" + hiddenCount}</span>
+        </button>
+      )}
 
       {showWeekCard && (
         <a
@@ -767,8 +781,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Categorias do cardápio" className="border-b border-white/10 bg-[#080a07]">
-        <div className="mx-auto max-w-7xl px-5 py-6 md:px-8">
+      <section aria-label="Categorias do cardápio" className="sticky top-[73px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl">
+        <div className="mx-auto max-w-7xl px-5 py-4 md:px-8">
           <div className="text-center">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Navegue pelo cardápio</div>
             <p className="mt-1 text-sm text-white/50">Escolha uma categoria para encontrar sua próxima refeição.</p>
@@ -788,7 +802,7 @@ export default function Home() {
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} />
 
       <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-16 md:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
             <h2 className="mt-2 text-3xl font-black md:text-5xl">Por que pedir na Nutrifit?</h2>
@@ -812,7 +826,7 @@ export default function Home() {
       </section>
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
             <h2 className="mt-2 text-4xl font-black md:text-6xl">Escolha seu combo</h2>
@@ -871,7 +885,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sucos" className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+      <section id="sucos" className="mx-auto max-w-7xl px-5 py-14 md:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
           <div className="max-w-3xl"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div><h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2><p className="mt-3 text-white/50">Sucos funcionais • 500 ml R$ 12,90 • 300 ml R$ 9,90</p></div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">{functionalJuices.map(([name,image]) => <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40"><div className="aspect-[4/3] overflow-hidden"><img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="p-4"><div className="font-black">{name}</div><div className="mt-3 grid grid-cols-2 gap-2"><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 500 ml — R$ 12,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">500 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 12,90</b></a><a href={whatsappOrder(`Olá, Nutrifit! Quero o suco ${name}, 300 ml — R$ 9,90.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">300 ml <b className="mt-0.5 block text-sm text-[#ef7d18]">R$ 9,90</b></a></div></div></div>)}</div>
@@ -880,7 +894,7 @@ export default function Home() {
       </section>
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
+        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8">
           <div className="grid gap-5 md:grid-cols-3">
             {[
               ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
