@@ -716,6 +716,18 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <section aria-label="Categorias do cardápio" className="border-b border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-5 py-6 md:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
+            <a href="#cardapio" className="rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Fit 350 g</a>
+            <a href="#performance" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Performance 450 g</a>
+            <a href="#saladas" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Saladas 350 g</a>
+            <a href="#tradicional" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Tradicionais 500 g</a>
+            <a href="#sucos" className="rounded-full border border-white/15 bg-white/[.04] px-4 py-2.5 text-xs font-black text-white/85 transition hover:border-[#a7b86a]/40 hover:text-white">Sucos</a>
+          </div>
+        </div>
+      </section>
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} />
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
