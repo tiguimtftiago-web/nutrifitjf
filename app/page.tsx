@@ -1001,4 +1001,8 @@ export default function Home() {
 
       <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
         <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
-      </a>\n\n    </main>\n  );\n}\n
+      </a>
+
+    </main>
+  );
+}
