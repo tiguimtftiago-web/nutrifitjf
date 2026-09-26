@@ -667,7 +667,6 @@ function Section({ id, eyebrow, title, subtitle, products }: { id:string; eyebro
           </div>
         </a>
       )}
-      </div>
     </section>
   );
 }
