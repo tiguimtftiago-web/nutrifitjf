@@ -1093,7 +1093,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3.5 font-black text-black shadow-2xl transition hover:scale-105">
+      <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-4 right-4 z-50 inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#25D366] p-0 font-black text-black shadow-2xl transition hover:scale-105 sm:bottom-5 sm:right-5 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5">
         <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
       </a>
 
