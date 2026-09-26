@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
 
@@ -250,17 +250,6 @@ function ComboBuilder() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  // iPhone/Safari: executa no início do toque e bloqueia o click sintético duplicado.
-  const lastPress = useRef(0);
-  const runPress = (action: () => void) => {
-    lastPress.current = Date.now();
-    action();
-  };
-  const runClickFallback = (action: () => void) => {
-    if (Date.now() - lastPress.current < 700) return;
-    action();
-  };
-
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
@@ -410,8 +399,59 @@ function ComboBuilder() {
   const customerReady = Boolean(customerName.trim() && customerPhone.trim());
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
 
+  // iPhone/Safari: use eventos nativos no container do montador, fora da delegação de eventos do React.
+  // Isso evita inconsistências do WebKit em alguns aparelhos ao combinar pointerdown/preventDefault/click.
+  const comboRootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = comboRootRef.current;
+    if (!root) return;
+
+    let lastTouch = 0;
+
+    const runAction = (element: HTMLElement) => {
+      const action = element.dataset.comboAction;
+      if (!action) return;
+
+      if (action === "line") changeLine(Number(element.dataset.index));
+      else if (action === "quantity") changeQuantity(Number(element.dataset.value) as 5 | 7 | 10 | 14 | 20);
+      else if (action === "add") addProduct(element.dataset.product || "");
+      else if (action === "remove") removeProduct(element.dataset.product || "");
+      else if (action === "delivery") chooseDeliveryMode("delivery");
+      else if (action === "pickup") chooseDeliveryMode("pickup");
+      else if (action === "calculate") void calculateDelivery();
+      else if (action === "reset") reset();
+      else if (action === "send") sendOrder();
+    };
+
+    const findAction = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      return target?.closest<HTMLElement>("[data-combo-action]");
+    };
+
+    const onTouchEnd = (event: Event) => {
+      const element = findAction(event);
+      if (!element || element.hasAttribute("disabled")) return;
+      lastTouch = Date.now();
+      runAction(element);
+    };
+
+    const onClick = (event: Event) => {
+      const element = findAction(event);
+      if (!element || element.hasAttribute("disabled")) return;
+      if (Date.now() - lastTouch < 800) return;
+      runAction(element);
+    };
+
+    root.addEventListener("touchend", onTouchEnd, { passive: true });
+    root.addEventListener("click", onClick);
+    return () => {
+      root.removeEventListener("touchend", onTouchEnd);
+      root.removeEventListener("click", onClick);
+    };
+  });
+
   return (
-    <div className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
+    <div ref={comboRootRef} className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
@@ -437,7 +477,7 @@ function ComboBuilder() {
 
       <div className="mt-7 grid gap-3 md:grid-cols-3">
         {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => changeLine(index)); }} onClick={() => runClickFallback(() => changeLine(index))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
+          <button key={item.line} type="button" data-combo-action="line" data-index={index} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
             <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
             <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
           </button>
@@ -446,7 +486,7 @@ function ComboBuilder() {
 
       <div className="mt-6 flex flex-wrap gap-2">
         {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => changeQuantity(value)); }} onClick={() => runClickFallback(() => changeQuantity(value))} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
+          <button key={value} type="button" data-combo-action="quantity" data-value={value} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
             {value} marmitas
           </button>
         ))}
@@ -460,9 +500,9 @@ function ComboBuilder() {
               <div className="mt-1 text-xs text-white/40">{product.weight}</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => removeProduct(product.name)); }} onClick={() => runClickFallback(() => removeProduct(product.name))} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <button type="button" data-combo-action="remove" data-product={product.name} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
               <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" onPointerDown={(event) => { event.preventDefault(); runPress(() => addProduct(product.name)); }} onClick={() => runClickFallback(() => addProduct(product.name))} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+              <button type="button" data-combo-action="add" data-product={product.name} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
             </div>
           </div>
         ))}
@@ -478,7 +518,7 @@ function ComboBuilder() {
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <button type="button" onClick={() => chooseDeliveryMode("delivery")} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}>
+          <button type="button" data-combo-action="delivery" className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}>
             {deliveryMode === "delivery" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3} /></div>}
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={24} /></div>
             <div className="mt-4 text-xl font-black">🚚 Receber em casa</div>
@@ -486,7 +526,7 @@ function ComboBuilder() {
             <div className="mt-4 inline-flex rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#cbd99a]">CALCULAR PELO CEP</div>
           </button>
 
-          <button type="button" onClick={() => chooseDeliveryMode("pickup")} style={{ touchAction: "manipulation", WebkitUserSelect: "none" }} className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}>
+          <button type="button" data-combo-action="pickup" className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}>
             {deliveryMode === "pickup" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#ef7d18] text-black"><Check size={16} strokeWidth={3} /></div>}
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={24} /></div>
             <div className="mt-4 text-xl font-black">📍 Retirar na Nutrifit</div>
@@ -510,7 +550,7 @@ function ComboBuilder() {
           <>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]" />
-              <button type="button" onClick={calculateDelivery} disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+              <button type="button" data-combo-action="calculate" disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                 {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
               </button>
             </div>
@@ -567,8 +607,8 @@ function ComboBuilder() {
           </div>
         </div>
         <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-          <button type="button" onClick={reset} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
-          <button type="button" onClick={sendOrder} disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+          <button type="button" data-combo-action="reset" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
+          <button type="button" data-combo-action="send" disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
             {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando pedido...</> : <><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</>}
           </button>
         </div>
