@@ -534,7 +534,7 @@ function ComboBuilder() {
                 ? "Escolha como receber o pedido para liberar o pagamento."
                 : !customerReady
                   ? "Preencha nome e WhatsApp para continuar."
-                  : "Pedido completo. Clique para enviar os detalhes pelo WhatsApp e combinar o pagamento."}
+                  : "Pedido completo. Confira o resumo e envie pelo WhatsApp para finalizar o pagamento."}
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -711,6 +711,30 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Bovina R$ 29,90 • Demais R$ 26,90." products={traditional} />
+
+      <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
+        <div className="mx-auto max-w-7xl px-5 py-16 md:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
+            <h2 className="mt-2 text-3xl font-black md:text-5xl">Por que pedir na Nutrifit?</h2>
+            <p className="mt-3 text-sm leading-6 text-white/50 md:text-base">Você escolhe as refeições, confere o pedido e finaliza o pagamento pelo WhatsApp.</p>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ["🍱", "Porções padronizadas", "Fit 350 g • Performance 450 g • Tradicional 500 g."],
+              ["🥗", "Opções para sua rotina", "Marmitas, saladas e sucos em um só lugar."],
+              ["🚚", "Entrega em Juiz de Fora", "Consulte a taxa pelo CEP ou escolha retirar na Nutrifit."],
+              ["💬", "Atendimento direto", "Seu pedido segue para o WhatsApp com os detalhes já organizados."],
+            ].map(([icon, title, text]) => (
+              <div key={title} className="rounded-3xl border border-white/10 bg-white/[.025] p-6">
+                <div className="text-2xl">{icon}</div>
+                <h3 className="mt-4 font-black">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/45">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8">
