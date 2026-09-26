@@ -6,10 +6,13 @@ import { ArrowLeft, Building2, CheckCircle2, MessageCircle, PackageCheck, Truck,
 const whatsapp = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+
 export default function B2BPage() {
   const [sent, setSent] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const message = [
@@ -29,8 +32,26 @@ export default function B2BPage() {
       `Observações: ${form.get("observacoes") || "Nenhuma"}`,
     ].join("\n");
 
-    setSent(true);
-    window.open(whatsapp(message), "_blank", "noopener,noreferrer");
+    try {
+      const payload = {
+        company: String(form.get("empresa") || ""), cnpj: String(form.get("cnpj") || ""),
+        contact_name: String(form.get("responsavel") || ""), whatsapp: String(form.get("telefone") || ""),
+        email: String(form.get("email") || ""), segment: String(form.get("segmento") || ""),
+        employees: String(form.get("funcionarios") || ""), estimated_meals: String(form.get("refeicoes") || ""),
+        frequency: String(form.get("frequencia") || ""), service_type: String(form.get("tipo") || ""),
+        notes: String(form.get("observacoes") || ""),
+      };
+      if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase não configurado.");
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/b2b_leads`, {
+        method: "POST", headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" }, body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("Falha ao registrar lead.");
+      setSent(true);
+      window.open(whatsapp(message), "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error(error);
+      window.open(whatsapp(message), "_blank", "noopener,noreferrer");
+    }
   }
 
   return (
