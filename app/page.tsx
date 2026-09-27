@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -1165,6 +1165,7 @@ export default function Home() {
             <a href="#cardapio" className="group rounded-[1.15rem] border border-[#a7b86a]/65 bg-[#a7b86a]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
               <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
+                  <Apple size={34} strokeWidth={1.8} className="mb-2 text-[#a7b86a] sm:h-10 sm:w-10" />
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.18em]">Linha Fit</div>
                   <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">FIT <span className="text-[#a7b86a]">350 g</span></div>
                   <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Leve, equilibrada e saborosa.</div>
@@ -1176,6 +1177,7 @@ export default function Home() {
             <a href="#performance" className="group rounded-[1.15rem] border border-white/15 bg-white/[.03] p-2.5 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40 sm:rounded-[1.4rem] sm:p-4 md:p-5">
               <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
+                  <Dumbbell size={34} strokeWidth={1.8} className="mb-2 text-[#ef7d18] sm:h-10 sm:w-10" />
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Performance</div>
                   <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">PERFORMANCE <span className="text-[#ef7d18]">450 g</span></div>
                   <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Mais proteína para o seu dia.</div>
@@ -1187,6 +1189,7 @@ export default function Home() {
             <a href="#tradicional" className="group rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
               <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
+                  <ChefHat size={34} strokeWidth={1.8} className="mb-2 text-[#ef7d18] sm:h-10 sm:w-10" />
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Linha Tradicional</div>
                   <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">TRADICIONAL <span className="text-[#ef7d18]">500 g</span></div>
                   <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Refeições mais completas.</div>
