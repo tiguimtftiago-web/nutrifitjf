@@ -43,7 +43,7 @@ const fit: Product[] = [
   ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-9.jpg","/images/page-10.jpg"][i]
+  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg"][i]
 }));
 
 const performance: Product[] = [
