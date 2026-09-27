@@ -851,7 +851,7 @@ export default function Home() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       setBannerIndex((current) => (current + 1) % bannerSlides.length);
-    }, 6500);
+    }, 3500);
     return () => window.clearInterval(timer);
   }, [bannerSlides.length]);
   const addPlanToOrder = (items: OrderItem[]) => {
