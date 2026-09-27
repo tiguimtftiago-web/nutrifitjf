@@ -1179,8 +1179,8 @@ export default function Home() {
       <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
           <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">O que você está procurando?</div>
-            <p className="mt-1 text-sm text-white/45">Escolha uma opção e vá direto para o que você quer comprar.</p>
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Como você quer se alimentar hoje?</div>
+            <p className="mt-1 text-sm text-white/45">Escolha uma opção e encontre sua refeição.</p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             <a href="#cardapio" className="group rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15">
