@@ -1084,7 +1084,7 @@ export default function Home() {
   <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
     {bannerSlides.map((slide, index) => (
       <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
-        <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full object-cover" fetchPriority={index === 0 ? "high" : "auto"} />
+        <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full bg-black object-contain object-center" fetchPriority={index === 0 ? "high" : "auto"} />
         {index === 2 ? (
           <a
             href={slide.href}
