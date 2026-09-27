@@ -1264,8 +1264,8 @@ export default function Home() {
 
             <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="font-black">Já sabe que quer um combo?</div>
-                <div className="mt-0.5 text-xs text-white/40">Escolha 5, 7, 10, 14 ou 20 marmitas no montador.</div>
+                <div className="font-black">Monte seu combo do seu jeito</div>
+                <div className="mt-0.5 text-xs text-white/40">Escolha 5, 7, 10, 14 ou 20 marmitas.</div>
               </div>
               <button type="button" onClick={() => openComboBuilder()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3 text-xs font-black text-black shadow-lg transition hover:scale-[1.01]">
                 Montar meu combo <ArrowRight size={15} />
