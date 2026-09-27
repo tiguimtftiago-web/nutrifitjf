@@ -1079,15 +1079,26 @@ export default function Home() {
           </div>
         </div>
         <div className="border-t border-white/10 bg-[#050605] lg:hidden">
-          <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-3 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <a href="#cardapio" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">CARDÁPIO</a>
-            <a href="#combos" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">COMBOS</a>
-            <a href="#planos-mensais" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">PERSONALIZE</a>
-            <a href="#como-pedir" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">COMO COMPRAR</a>
-            <button type="button" onClick={() => setSearchOpen(true)} aria-label="Pesquisar" className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[.05] text-white/90"><Search size={18} /></button>
+          <div className="mx-auto flex h-11 items-center justify-end px-3">
+            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Abrir menu" className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[.05] text-white">
+              <span className="text-lg leading-none">☰</span>
+            </button>
           </div>
+          {menuOpen && (
+            <div className="border-t border-white/10 bg-[#10130d] px-3 py-3">
+              <div className="grid grid-cols-2 gap-2">
+                <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">CARDÁPIO</a>
+                <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
+                <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
+                <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
+              </div>
+              <button type="button" onClick={() => { setMenuOpen(false); setSearchOpen(true); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">
+                <Search size={18} /> O QUE VOCÊ PROCURA?
+              </button>
+            </div>
+          )}
         </div>
-      </header>
+     </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
   <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
