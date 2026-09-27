@@ -1253,51 +1253,68 @@ export default function Home() {
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
-          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.24)] md:p-9">
-            <div className="max-w-4xl">
-              <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade, mais economia</div>
-              <h2 className="mt-2 text-3xl font-black md:text-5xl">Monte seu combo do seu jeito</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Escolha sua linha, a quantidade de marmitas e depois monte os sabores. Você resolve várias refeições de uma vez.</p>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 sm:py-10 md:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-[#ef7d18]/45 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] shadow-[0_20px_70px_rgba(0,0,0,.24)]">
+            <div className="border-b border-white/10 p-5 sm:p-7 md:p-9">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="max-w-3xl">
+                  <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Mais praticidade • mais economia</div>
+                  <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">Monte seu combo</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50 md:text-base">Escolha a linha, a quantidade e depois monte os sabores. Tudo em um único pedido.</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3.5 py-2 text-[10px] font-black text-[#cbd99a]">
+                  <span>5</span><span className="text-white/25">•</span><span>7</span><span className="text-white/25">•</span><span>10</span><span className="text-white/25">•</span><span>14</span><span className="text-white/25">•</span><span>20</span>
+                  <span className="ml-1 text-white/45">marmitas</span>
+                </div>
+              </div>
             </div>
 
-            <div className="mt-7">
-              <div className="mb-3 text-sm font-black text-white/80">Escolha sua linha</div>
-              <div className="grid gap-2 md:grid-cols-3">
+            <div className="p-5 sm:p-7 md:p-9">
+              <div className="mb-3 text-[11px] font-black uppercase tracking-[.16em] text-white/45">1. Escolha sua linha</div>
+              <div className="grid gap-2.5 md:grid-cols-3">
                 {[
                   ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
                   ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
                   ["TRADICIONAL","500 g","R$ 139,90","Sabor caseiro"],
-                ].map(([line,weight,price,description]) => (
+                ].map(([line,weight,price,description], index) => (
                   <button
                     key={line}
                     type="button"
                     onClick={() => openComboBuilder(line)}
-                    className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/20 p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10"
+                    className={`group relative flex min-h-[132px] flex-col justify-between rounded-[1.35rem] border p-4 text-left transition hover:-translate-y-0.5 ${
+                      index === 0 ? "border-[#a7b86a]/55 bg-[#a7b86a]/10" : index === 1 ? "border-white/12 bg-white/[.03]" : "border-[#ef7d18]/35 bg-[#ef7d18]/5"
+                    }`}
                   >
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-black uppercase tracking-[.16em] text-[#a7b86a]">{line}</div>
-                      <div className="mt-1 font-black">{description}</div>
-                      <div className="mt-0.5 text-xs text-white/40">{weight}</div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className={`text-[10px] font-black uppercase tracking-[.18em] ${
+                          index === 2 ? "text-[#ef7d18]" : "text-[#a7b86a]"
+                        }`}>{line}</div>
+                        <div className="mt-1 text-lg font-black">{weight}</div>
+                      </div>
+                      <span className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 ${
+                        index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
+                      }`}>→</span>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <div className="text-[9px] font-black uppercase tracking-wider text-white/35">a partir de</div>
-                      <div className="mt-0.5 text-sm font-black text-[#ef7d18]">{price}</div>
-                      <div className="mt-1 text-[11px] font-black text-white/70 group-hover:text-white">Escolher →</div>
+                    <div>
+                      <div className="mt-3 text-sm font-bold text-white/75">{description}</div>
+                      <div className="mt-1 text-xs text-white/40">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
                     </div>
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="font-black">Monte seu combo do seu jeito</div>
-                <div className="mt-0.5 text-xs text-white/40">Escolha 5, 7, 10, 14 ou 20 marmitas.</div>
+              <div className="mt-4 rounded-[1.35rem] border border-white/10 bg-black/20 p-4 sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="text-sm font-black">2. Monte os sabores do seu jeito</div>
+                    <div className="mt-1 text-xs leading-5 text-white/40">Depois de escolher a linha, você define as quantidades e os sabores.</div>
+                  </div>
+                  <button type="button" onClick={() => openComboBuilder()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg transition hover:scale-[1.01]">
+                    Montar meu combo <ArrowRight size={15} />
+                  </button>
+                </div>
               </div>
-              <button type="button" onClick={() => openComboBuilder()} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3 text-xs font-black text-black shadow-lg transition hover:scale-[1.01]">
-                Montar meu combo <ArrowRight size={15} />
-              </button>
             </div>
           </div>
 
