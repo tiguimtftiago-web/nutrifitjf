@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Leaf, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -1051,7 +1051,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[82px] max-w-7xl items-center gap-5 px-4 md:px-7">
           <a href="#inicio" aria-label="Nutrifit — início" className="flex shrink-0 items-center gap-2.5">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#0b0d09] text-[#a7b86a]"><Leaf size={35} strokeWidth={2.2} fill="currentColor" /></span>
+            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#0b0d09]"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-10 w-10 object-contain" /></span>
             <span className="hidden leading-none sm:block"><span className="text-[28px] font-black tracking-[-.04em] text-white">NUTRI<span className="text-[#ef7d18]">FIT</span></span><span className="mt-1 block text-[9px] font-bold tracking-[.25em] text-white/60">MARMITAS FITNESS</span></span>
           </a>
 
