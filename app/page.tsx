@@ -369,8 +369,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   );
 }
 
-function ComboBuilder() {
-  const [lineIndex, setLineIndex] = useState(0);
+function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
+  const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
@@ -846,6 +846,7 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
 export default function Home() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [comboOpen, setComboOpen] = useState(false);
+  const [comboLineIndex, setComboLineIndex] = useState(0);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
   const bannerSlides = [
@@ -1073,9 +1074,11 @@ export default function Home() {
   };
 
   const openComboBuilder = (line?: string) => {
+    const lineIndex = line ? comboOptions.findIndex((item) => item.line === line) : 0;
+    setComboLineIndex(lineIndex >= 0 ? lineIndex : 0);
     setComboOpen(true);
     if (line) trackClick("combo_builder_start", line);
-    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
+    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
   };
 
   return (
@@ -1282,7 +1285,7 @@ export default function Home() {
                   </div>
                   <button type="button" onClick={() => setComboOpen(false)} className="rounded-full border border-white/15 px-4 py-2 text-xs font-black text-white/70 transition hover:border-white/30 hover:text-white">Fechar montador</button>
                 </div>
-                <ComboBuilder />
+                <ComboBuilder initialLine={comboLineIndex} />
               </div>
 
               <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
