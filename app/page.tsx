@@ -960,6 +960,21 @@ export default function Home() {
           neighborhood: orderDelivery?.neighborhood || null,
         }),
       });
+
+      if (clubDiscount > 0) {
+        const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_whatsapp: customerPhone.replace(/\\D/g, "") }),
+        });
+        if (redeemResponse.ok) {
+          setClubDiscount(0);
+          try {
+            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+          } catch {}
+        }
+      }
     } catch (error) {
       console.error("order capture", error);
     }
@@ -982,6 +997,7 @@ export default function Home() {
       setProfileEmail(saved.email || "");
       setProfileBirthDate(saved.birthDate || "");
       setProfileMarketing(Boolean(saved.marketing));
+      setClubDiscount(saved.couponUsed === false ? 10 : 0);
     } catch {}
     setProfileStatus("idle");
     setProfileOpen(true);
