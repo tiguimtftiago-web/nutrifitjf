@@ -822,36 +822,23 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
         </button>
       )}
 
-      {showWeekCard && (
-        <a
-          href="#combos"
-          className="group relative mt-5 flex overflow-hidden rounded-3xl border border-[#ef7d18]/30 bg-gradient-to-br from-[#171d10] via-[#10130d] to-[#0b0e09] p-4 transition hover:-translate-y-1 hover:border-[#a7b86a]/50 sm:p-5"
-        >
-          <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ef7d18]/10 blur-2xl transition group-hover:bg-[#ef7d18]/20" />
-          <div className="relative z-10 flex min-w-0 flex-1 items-center gap-4 sm:gap-6">
-            <div className="min-w-0 flex-1">
-              <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit • Sua semana</div>
-              <h3 className="mt-1 text-lg font-black leading-tight sm:text-2xl">Seu almoço da semana começa aqui.</h3>
-              <p className="mt-1 hidden max-w-2xl text-xs leading-5 text-white/50 sm:block">Escolha seus sabores e deixe várias refeições da semana resolvidas.</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black text-[#c8d98b]">FIT • 350 g</span>
-                <span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black text-[#c8d98b]">PERFORMANCE • 450 g</span>
-                <span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black text-[#c8d98b]">TRADICIONAL • 500 g</span>
-              </div>
-            </div>
-            <div className="relative z-10 hidden shrink-0 items-center gap-2 sm:flex">
-              {[fit[0], performance[0], traditional[1]].map((product) => (
-                <div key={product.name} className="h-14 w-14 overflow-hidden rounded-xl border border-white/10 bg-black/30 lg:h-16 lg:w-16">
-                  <img src={product.image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                </div>
-              ))}
-            </div>
-            <div className="relative z-10 shrink-0 rounded-full bg-[#a7b86a] p-3 text-black sm:px-4 sm:py-2.5 sm:text-xs sm:font-black">
-              <span className="hidden sm:inline">Montar meu combo </span><ArrowRight size={15} />
-            </div>
+      <a
+        href="#combos"
+        className="group relative mt-5 flex overflow-hidden rounded-3xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10130d] to-[#0b0e09] p-4 transition hover:-translate-y-1 hover:border-[#a7b86a]/50 sm:p-5"
+        onClick={() => trackClick("combo_cta_click", "section_combo")}
+      >
+        <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ef7d18]/10 blur-2xl transition group-hover:bg-[#ef7d18]/20" />
+        <div className="relative z-10 flex min-w-0 flex-1 items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit • Sua semana</div>
+            <h3 className="mt-1 text-lg font-black leading-tight sm:text-2xl">MONTE SUA SEMANA</h3>
+            <p className="mt-1 text-xs leading-5 text-white/50">Escolha suas marmitas e monte seu combo do seu jeito.</p>
           </div>
-        </a>
-      )}
+          <div className="relative z-10 shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black sm:px-5 sm:py-3.5">
+            <span>Montar meu combo</span> <ArrowRight size={15} className="inline" />
+          </div>
+        </div>
+      </a>
     </section>
   );
 }
