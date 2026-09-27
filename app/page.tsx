@@ -1211,10 +1211,6 @@ export default function Home() {
         </div>
       </section>
 
-
-        </div>
-      </section>
-
       <section aria-label="Categorias do cardápio" className="relative z-30 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl md:sticky md:top-[82px]">
         <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
