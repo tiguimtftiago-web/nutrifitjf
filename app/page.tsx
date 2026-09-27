@@ -1017,32 +1017,12 @@ export default function Home() {
           {bannerSlides.map((slide, index) => (
             <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
               <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full object-cover" fetchPriority={index === 0 ? "high" : "auto"} />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/15" />
-              <div className="relative z-10 mx-auto flex min-h-[360px] max-w-7xl items-center px-6 py-14 md:min-h-[500px] md:px-8">
-                <div className="max-w-2xl">
-                  <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">{slide.eyebrow}</div>
-                  <h1 className="mt-3 text-4xl font-black leading-[1.02] md:text-6xl">{slide.title}</h1>
-                  <p className="mt-5 max-w-xl text-base leading-7 text-white/70 md:text-lg">{slide.text}</p>
-                  {"benefits" in slide && slide.benefits && (
-                    <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
-                      {slide.benefits.map((benefit) => {
-                        const BenefitIcon = benefit.icon === "apple" ? Apple : benefit.icon === "dumbbell" ? Dumbbell : ClipboardCheck;
-                        return (
-                          <div key={benefit.label} className="flex items-center gap-2.5 text-sm font-bold text-white/85">
-                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 text-[#a7b86a]">
-                              <BenefitIcon size={17} strokeWidth={2} />
-                            </span>
-                            <span className="leading-5">{benefit.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <a href={slide.href} onClick={() => trackClick("banner_cta_click", slide.source)} target={slide.href.startsWith("http") ? "_blank" : undefined} rel={slide.href.startsWith("http") ? "noreferrer" : undefined} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">
-                    {slide.cta} <ArrowRight size={16} />
-                  </a>
-                </div>
-              </div>
+              <a
+                href={slide.href}
+                onClick={() => trackClick("banner_cta_click", slide.source)}
+                aria-label={`${slide.title} — abrir conteúdo`}
+                className="absolute inset-0 z-10"
+              />
             </div>
           ))}
           <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
