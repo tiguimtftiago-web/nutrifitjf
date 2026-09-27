@@ -639,9 +639,9 @@ function ComboBuilder() {
               <div className="mt-1 text-xs text-white/40">{product.weight}</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button type="button" data-combo-action="remove" data-product={product.name} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+              <button type="button" data-combo-action="remove" data-product={product.name} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
               <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" data-combo-action="add" data-product={product.name} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+              <button type="button" data-combo-action="add" data-product={product.name} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
             </div>
           </div>
         ))}
@@ -1574,7 +1574,7 @@ export default function Home() {
         </div>
       </div>}
       {searchOpen && <div className="fixed inset-0 z-[70] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
-        <div className="mx-auto mt-20 max-w-xl rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto mt-8 max-h-[88vh] max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl sm:mt-20" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Buscar no cardápio</div><h2 className="mt-1 text-2xl font-black">O que você procura?</h2></div><button type="button" onClick={() => setSearchOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
           <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4"><Search size={20} className="text-white/40"/><input autoFocus value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Ex.: strogonoff, patinho, frango..." className="min-w-0 flex-1 bg-transparent py-4 text-sm outline-none"/></div>
           <div className="mt-4 space-y-2">{searchTerm.trim() && !searchResults.length && <div className="rounded-2xl border border-white/10 p-4 text-sm text-white/45">Nenhum item encontrado.</div>}{searchResults.map((product) => <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left hover:border-[#a7b86a]/40"><span><span className="block font-black">{product.name}</span><span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {product.price}</span></span><ArrowRight size={16} className="text-[#a7b86a]"/></button>)}</div>
@@ -1582,7 +1582,7 @@ export default function Home() {
       </div>}
 
       {profileOpen && <div className="fixed inset-0 z-[70] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setProfileOpen(false)}>
-        <div className="mx-auto mt-12 max-w-md rounded-[2rem] border border-white/10 bg-[#0d100c] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto mt-6 max-h-[88vh] max-w-md overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0d100c] p-6 shadow-2xl sm:mt-12" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Cadastro Nutrifit</div><h2 className="mt-1 text-2xl font-black">Crie seu cadastro</h2><p className="mt-1 text-sm leading-5 text-white/45">Seus dados ficam registrados para agilizar seus próximos pedidos. O envio de novidades é opcional.</p></div><button type="button" onClick={() => setProfileOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
           <div className="mt-5 grid gap-3">
             <input value={profileName} onChange={(e) => { setProfileName(e.target.value); setProfileStatus("idle"); }} placeholder="Seu nome *" autoComplete="name" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
