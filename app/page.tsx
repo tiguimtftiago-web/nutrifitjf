@@ -1100,6 +1100,7 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
             <button type="button" onClick={openProfile} aria-label="Cadastro do cliente" title="Cadastro" className="grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10"><UserRound size={31} strokeWidth={1.7} /></button>
+            <a href="#cardapio" className="hidden xl:inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black transition hover:scale-[1.02]">Fazer pedido <ArrowRight size={15} /></a>
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Abrir carrinho" className="relative grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10">
               <ShoppingCart size={31} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
@@ -1158,17 +1159,6 @@ export default function Home() {
   </div>
 </section>
 
-      <div className="border-b border-white/10 bg-[#080a07] px-5 py-4 md:px-8">
-        <div className="mx-auto flex max-w-2xl flex-col gap-2.5 sm:flex-row sm:justify-center">
-          <a href="#cardapio" onClick={() => trackClick("hero_cta_click", "ver_cardapio")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">
-            🍱 Ver cardápio <ArrowRight size={16} />
-          </a>
-          <a href="#cardapio" onClick={() => trackClick("hero_cta_click", "montar_pedido")} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-black transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
-            🛒 Montar meu pedido
-          </a>
-        </div>
-      </div>
-
       <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
           <div className="text-center">
@@ -1212,22 +1202,7 @@ export default function Home() {
             </div>
           </section>
 
-          <div id="b2b" className="mt-5 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-6 md:p-7">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-              <div>
-                <div className="flex items-center gap-3">
-                  <Building2 className="text-[#ef7d18]" size={22} />
-                  <h2 className="text-xl font-black md:text-2xl">Nutrifit para empresas</h2>
-                </div>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
-                  Refeições práticas para equipes, empresas e pedidos corporativos. Fale com a Nutrifit para conhecer as possibilidades.
-                </p>
-              </div>
-              <a href="/b2b" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black">
-                Quero atender minha empresa <ArrowRight size={16} />
-              </a>
-            </div>
-          </div>
+
         </div>
       </section>
 
@@ -1508,6 +1483,23 @@ export default function Home() {
               ))}
             </div>
           </section>
+
+          <div id="b2b" className="mt-10 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-6 md:p-7">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
+              <div>
+                <div className="flex items-center gap-3">
+                  <Building2 className="text-[#ef7d18]" size={22} />
+                  <h2 className="text-xl font-black md:text-2xl">Nutrifit para empresas</h2>
+                </div>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+                  Refeições práticas para equipes, empresas e pedidos corporativos. Fale com a Nutrifit para conhecer as possibilidades.
+                </p>
+              </div>
+              <a href="/b2b" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black">
+                Quero atender minha empresa <ArrowRight size={16} />
+              </a>
+            </div>
+          </div>
 
           <div className="mt-10">
             <div className="max-w-3xl">
