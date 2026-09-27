@@ -151,7 +151,7 @@ const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] 
       "Centro","Boa Vista","Granbery","Bom Pastor","São Mateus","Alto dos Passos",
       "Teixeiras","Bairu","Bonfim","Botanágua","Cesário Alvim","Grajaú","Manoel Honório",
       "Linhares","Marumbi","Progresso","Santa Rita","Santa Cândida","São Benedito",
-      "São Bernardo","Santa Terezinha","Eldorado","Jardim Bom Clima","Vale dos Bandeirantes",
+      "São Bernardo","Santa Terezinha","Eldorado","Jardim Bom Clima",
       "Granjas Betânia","Jardim Emaús","Parque Independência","Grama","Jardim Natal",
       "Nova Era","Benfica","Nova Benfica","Milho Branco","Industrial","Jóquei Clube",
       "Barbosa Lage","Santa Cruz","Represa","Jardim dos Alfineiros","Bandeirantes",
@@ -189,7 +189,7 @@ const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] 
       "Chalés do Imperador","Chalés do Algarve","Colinas do Imperador","Mandala",
       "Portal do Aeroporto","Morada do Serro","Bosque Imperial","Conjunto Flamboyants",
       "São Clemente","São Lucas","Santana","Neo Residencial","Spinaville II",
-      "Mirante","Residencial Alvim","Cidade Universitária","Três Moinhos",
+      "Mirante","Cidade Universitária","Três Moinhos",
       "Terras Altas","Retiro","Pedras Preciosas","Jardim Esperança","Jardim do Sol",
       "Santos Anjos","Vila Alpina","São Sebastião","Aracy","Jardim das Flores",
       "Solidariedade","Granjas Primavera","Granjas Santo Antônio","Guaruá","Granjas do Bosque",
@@ -850,7 +850,9 @@ export default function Home() {
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
-  const orderGrandTotal = orderSubtotal + (orderDelivery?.fee ?? 0);
+  const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
+  const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
+  const orderGrandTotal = orderSubtotal + orderDeliveryFee;
 
   const calculateOrderDelivery = async () => {
     const cleanCep = orderCep.replace(/\D/g, "");
@@ -888,7 +890,12 @@ export default function Home() {
     }).join("\n\n");
     const notesText = orderNotes.trim();
 
-    const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🚚 FRETE: ${money(orderDelivery?.fee ?? 0)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",orderDelivery ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}` : "Taxa de entrega a confirmar pelo WhatsApp","","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
+    const deliverySummary = orderFreeDelivery
+      ? `Entrega grátis — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
+      : orderDelivery
+        ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
+        : "Taxa de entrega a confirmar pelo WhatsApp";
+    const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🚚 FRETE: ${money(orderDeliveryFee)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",deliverySummary,"","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
   };
   const openComboBuilder = (line?: string) => {
@@ -1292,7 +1299,7 @@ export default function Home() {
           <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • revisão</div><h2 className="mt-1 text-2xl font-black">Revisar pedido</h2><p className="mt-1 text-sm text-white/45">Confira itens, quantidades, frete e total antes de abrir o WhatsApp.</p></div><button type="button" onClick={() => setOrderOpen(false)} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black">Fechar</button></div>
           <div className="mt-5 space-y-2">{orderItems.map((item) => <div key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex justify-between gap-3"><div><div className="font-black">{item.name}</div><div className="mt-1 text-xs text-white/45">{item.line} • {item.weight} • {money(item.price)} cada</div></div><div className="font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div></div><div className="mt-3 flex items-center gap-2"><button type="button" onClick={() => changeOrderQty(item.name,-1)} className="rounded-full border border-white/15 p-2"><Minus size={14}/></button><span className="w-8 text-center font-black">{item.quantity}</span><button type="button" onClick={() => changeOrderQty(item.name,1)} className="rounded-full border border-white/15 p-2"><Plus size={14}/></button><button type="button" onClick={() => removeOrderItem(item.name)} className="ml-auto text-xs text-white/45">Remover</button></div></div>)}</div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2"><input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="WhatsApp do cliente" inputMode="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/></div>
-          <div className="mt-3 flex gap-2"><input value={orderCep} onChange={(e) => setOrderCep(e.target.value)} placeholder="Digite seu CEP" inputMode="numeric" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><button type="button" onClick={calculateOrderDelivery} className="rounded-xl bg-white/10 px-4 py-3 text-xs font-black">{orderDeliveryStatus === "loading" ? "Calculando..." : "Calcular frete"}</button></div>{orderDeliveryStatus === "error" && <div className="mt-2 text-xs text-[#ef7d18]">Não encontramos uma taxa para esse CEP. Você pode confirmar a entrega pelo WhatsApp.</div>}<div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4"><div className="flex justify-between text-sm text-white/55"><span>Subtotal</span><span>{money(orderSubtotal)}</span></div><div className="mt-1 flex justify-between text-sm text-white/55"><span>Frete</span><span>{money(orderDelivery?.fee ?? 0)}</span></div><div className="mt-3 flex justify-between border-t border-white/10 pt-3 text-lg font-black"><span>TOTAL</span><span className="text-[#ef7d18]">{money(orderGrandTotal)}</span></div></div>
+          <div className="mt-3 flex gap-2"><input value={orderCep} onChange={(e) => setOrderCep(e.target.value)} placeholder="Digite seu CEP" inputMode="numeric" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><button type="button" onClick={calculateOrderDelivery} className="rounded-xl bg-white/10 px-4 py-3 text-xs font-black">{orderDeliveryStatus === "loading" ? "Calculando..." : "Calcular frete"}</button></div>{orderDeliveryStatus === "error" && <div className="mt-2 text-xs text-[#ef7d18]">Não encontramos uma taxa para esse CEP. Você pode confirmar a entrega pelo WhatsApp.</div>}<div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4"><div className="flex justify-between text-sm text-white/55"><span>Subtotal</span><span>{money(orderSubtotal)}</span></div><div className="mt-1 flex justify-between text-sm text-white/55"><span>Frete</span><span>{orderFreeDelivery ? "Grátis" : money(orderDeliveryFee)}</span></div><div className="mt-3 flex justify-between border-t border-white/10 pt-3 text-lg font-black"><span>TOTAL</span><span className="text-[#ef7d18]">{money(orderGrandTotal)}</span></div></div>
           <div className="sticky bottom-0 mt-4 border-t border-white/10 bg-[#0d100c]/95 pt-4 backdrop-blur-xl"><button type="button" onClick={sendFullOrder} disabled={!orderItems.length} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black disabled:opacity-40">Confirmar pedido e abrir WhatsApp <MessageCircle size={18}/></button><div className="mt-2 text-center text-[11px] text-white/40">Nada é enviado ao WhatsApp antes de você tocar neste botão.</div></div>
         </div>
       </div>}
