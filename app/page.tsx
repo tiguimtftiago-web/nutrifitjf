@@ -1223,11 +1223,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit}  onAdd={addToOrder} />
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance}  onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads}  onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional}  onAdd={addToOrder} />
-
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
           <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.24)] md:p-9">
@@ -1317,6 +1312,18 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      <section aria-labelledby="nossos-pratos-title" className="mx-auto max-w-7xl px-4 pt-10 sm:px-5 md:px-8">
+        <div className="max-w-3xl">
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Cardápio Nutrifit</div>
+          <h2 id="nossos-pratos-title" className="mt-2 text-4xl font-black md:text-5xl">Nossos Pratos</h2>
+          <p className="mt-3 text-white/50">Escolha sua linha e monte sua refeição do seu jeito.</p>
+        </div>
+      </section>
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit}  onAdd={addToOrder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance}  onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads}  onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional}  onAdd={addToOrder} />
 
       <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
         <div className="rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-7 md:p-10">
