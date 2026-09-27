@@ -14,6 +14,8 @@ const whatsappOrder = (text: string) =>
 const PIX_KEY = "64.776.469/0001-08";
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
+const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 const trackClick = (event: string, source: string) => {
   track(event, { source });
@@ -874,6 +876,9 @@ export default function Home() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileMarketing, setProfileMarketing] = useState(false);
+  const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -946,19 +951,57 @@ export default function Home() {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
       setProfileName(saved.name || "");
       setProfilePhone(saved.phone || "");
+      setProfileEmail(saved.email || "");
+      setProfileMarketing(Boolean(saved.marketing));
     } catch {}
+    setProfileStatus("idle");
     setProfileOpen(true);
   };
 
-  const saveProfile = () => {
+  const saveProfile = async () => {
     const name = profileName.trim();
-    const phone = profilePhone.trim();
-    if (!name || !phone) return;
-    window.localStorage.setItem("nutrifit_profile", JSON.stringify({ name, phone }));
-    setCustomerName(name);
-    setCustomerPhone(phone);
-    setProfileOpen(false);
-    trackClick("profile_save", "header");
+    const phone = profilePhone.replace(/\D/g, "");
+    const email = profileEmail.trim().toLowerCase();
+    if (!name || phone.length < 10) return;
+
+    setProfileStatus("saving");
+    try {
+      const response = await fetch(SUPABASE_URL + "/rest/v1/customer_profiles", {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          name,
+          whatsapp: phone,
+          email: email || null,
+          marketing_consent: profileMarketing,
+          marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
+        }),
+      });
+
+      if (response.status === 409) {
+        setProfileStatus("exists");
+        return;
+      }
+      if (!response.ok) throw new Error("signup");
+
+      window.localStorage.setItem("nutrifit_profile", JSON.stringify({
+        name,
+        phone,
+        email,
+        marketing: profileMarketing,
+      }));
+      setCustomerName(name);
+      setCustomerPhone(phone);
+      setProfileStatus("success");
+      trackClick("profile_save", "header");
+      window.setTimeout(() => setProfileOpen(false), 700);
+    } catch {
+      setProfileStatus("error");
+    }
   };
 
   const openSearchResult = (product: Product) => {
@@ -1428,10 +1471,23 @@ export default function Home() {
       </div>}
 
       {profileOpen && <div className="fixed inset-0 z-[70] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setProfileOpen(false)}>
-        <div className="mx-auto mt-20 max-w-md rounded-[2rem] border border-white/10 bg-[#0d100c] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Cadastro Nutrifit</div><h2 className="mt-1 text-2xl font-black">Seus dados</h2><p className="mt-1 text-sm text-white/45">Salvamos apenas neste navegador para agilizar seus próximos pedidos.</p></div><button type="button" onClick={() => setProfileOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
-          <div className="mt-5 grid gap-3"><input value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="Seu nome" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><input value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} placeholder="Seu WhatsApp" inputMode="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/></div>
-          <button type="button" onClick={saveProfile} disabled={!profileName.trim() || !profilePhone.trim()} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">Salvar cadastro <Check size={17}/></button>
+        <div className="mx-auto mt-12 max-w-md rounded-[2rem] border border-white/10 bg-[#0d100c] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Cadastro Nutrifit</div><h2 className="mt-1 text-2xl font-black">Crie seu cadastro</h2><p className="mt-1 text-sm leading-5 text-white/45">Seus dados ficam registrados para agilizar seus próximos pedidos. O envio de novidades é opcional.</p></div><button type="button" onClick={() => setProfileOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
+          <div className="mt-5 grid gap-3">
+            <input value={profileName} onChange={(e) => { setProfileName(e.target.value); setProfileStatus("idle"); }} placeholder="Seu nome *" autoComplete="name" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
+            <input value={profilePhone} onChange={(e) => { setProfilePhone(e.target.value); setProfileStatus("idle"); }} placeholder="Seu WhatsApp *" inputMode="tel" autoComplete="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
+            <input value={profileEmail} onChange={(e) => { setProfileEmail(e.target.value); setProfileStatus("idle"); }} placeholder="Seu e-mail (opcional)" type="email" autoComplete="email" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3 text-xs leading-5 text-white/55">
+              <input type="checkbox" checked={profileMarketing} onChange={(e) => setProfileMarketing(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a]"/>
+              <span>Quero receber novidades, ofertas e informações da Nutrifit pelo contato informado.</span>
+            </label>
+          </div>
+          {profileStatus === "exists" && <div className="mt-3 rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 p-3 text-xs text-[#f2a15b]">Este WhatsApp já está cadastrado. Seus dados continuam salvos no cadastro da Nutrifit.</div>}
+          {profileStatus === "error" && <div className="mt-3 rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 p-3 text-xs text-[#f2a15b]">Não foi possível concluir o cadastro agora. Tente novamente em alguns segundos.</div>}
+          {profileStatus === "success" && <div className="mt-3 rounded-xl border border-[#a7b86a]/25 bg-[#a7b86a]/10 p-3 text-xs text-[#c8d98b]">Cadastro salvo. Seus dados já estão registrados na Nutrifit.</div>}
+          <button type="button" onClick={saveProfile} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">
+            {profileStatus === "saving" ? "Salvando..." : profileStatus === "success" ? "Cadastro salvo" : "Salvar cadastro"} <Check size={17}/>
+          </button>
         </div>
       </div>}
 
