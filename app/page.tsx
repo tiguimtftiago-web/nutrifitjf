@@ -34,17 +34,16 @@ type Product = {
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
 
 const fit: Product[] = [
-  ["Patinho com Purê de Batata Inglesa","FIT","350 g","R$ 23,97","Patinho moído bem temperado, acompanhado de purê cremoso de batata inglesa."],
-  ["Carne Acebolada com Arroz Integral","FIT","350 g","R$ 23,97","Carne bovina acebolada, dourada na medida, com arroz integral soltinho."],
-  ["Frango Grelhado com Arroz Integral","FIT","350 g","R$ 23,97","Peito de frango grelhado com arroz integral, em uma combinação simples e equilibrada."],
-  ["Frango Desfiado com Batata-doce","FIT","350 g","R$ 23,97","Frango desfiado bem temperado acompanhado de batata-doce macia."],
-  ["Frango com Brócolis e Arroz Integral","FIT","350 g","R$ 23,97","Frango grelhado, brócolis e arroz integral em uma refeição completa."],
-  ["Frango com Purê de Batata Inglesa","FIT","350 g","R$ 23,97","Frango grelhado acompanhado de purê cremoso de batata inglesa."],
-  ["Frango com Mandioca","FIT","350 g","R$ 23,97","Frango grelhado acompanhado de mandioca macia e temperada."],
-  ["Lombo Suíno com Batata-doce","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de batata-doce assada."],
+  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de mix de legumes, em uma refeição equilibrada e saborosa."],
+  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas acompanhado de legumes selecionados."],
+  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
+  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
+  ["Patinho com Legumes","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes selecionados."],
+  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-12.jpg","/images/page-13.jpg","/images/page-14.jpg","/images/page-8.jpg"][i]
+  image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-9.jpg","/images/page-10.jpg"][i]
 }));
 
 const performance: Product[] = [
