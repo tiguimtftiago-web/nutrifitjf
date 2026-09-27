@@ -1185,7 +1185,7 @@ export default function Home() {
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
             <a href="#cardapio" className="group rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15">
               <div className="text-xl">🥗</div>
-              <div className="mt-2 font-black">Quero algo leve</div>
+              <div className="mt-2 font-black">Quero uma refeição leve</div>
               <div className="mt-0.5 text-xs text-white/45">Fit 350 g e Saladas</div>
             </a>
             <a href="#performance" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/35">
@@ -1195,12 +1195,12 @@ export default function Home() {
             </a>
             <a href="#tradicional" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18]/35">
               <div className="text-xl">🍛</div>
-              <div className="mt-2 font-black">Quero sabor caseiro</div>
+              <div className="mt-2 font-black">Quero comida de verdade</div>
               <div className="mt-0.5 text-xs text-white/45">Tradicionais 500 g</div>
             </a>
             <a href="#combos" className="group rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15">
               <div className="text-xl">📦</div>
-              <div className="mt-2 font-black">Quero economizar</div>
+              <div className="mt-2 font-black">Quero praticidade e economia</div>
               <div className="mt-0.5 text-xs text-white/45">Combos de 5 a 20 marmitas</div>
             </a>
           </div>
