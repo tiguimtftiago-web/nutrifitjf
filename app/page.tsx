@@ -380,6 +380,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
@@ -585,182 +586,226 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     root.addEventListener("click", onClick);
     return () => {
       root.removeEventListener("touchend", onTouchEnd);
-      root.removeEventListener("click", onClick);
-    };
-  });
-
-  return (
-    <div ref={comboRootRef} className="mt-10 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-5 md:p-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      root  return (
+    <div ref={comboRootRef} className="mt-8 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-4 md:p-8">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Monte seu pedido no site</div>
-          <h3 className="mt-2 text-3xl font-black md:text-4xl">Escolha as marmitas do seu combo</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
-            Escolha a linha, o tamanho e os sabores. Depois informe seus dados, confirme a entrega e envie o pedido pelo WhatsApp para finalizar o pagamento.
-          </p>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador Nutrifit</div>
+          <h3 className="mt-1.5 text-2xl font-black md:text-4xl">Monte seu combo</h3>
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-white/50">Você só precisa seguir os 4 passos. No celular, avance quando terminar cada etapa.</p>
         </div>
-        <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17120c] px-5 py-4 text-center">
-          <div className="text-xs font-black uppercase tracking-wider text-white/45">Selecionadas</div>
-          <div className="mt-1 text-3xl font-black"><span className="text-[#a7b86a]">{total}</span>/{quantity}</div>
-        </div>
+        <button type="button" data-combo-action="reset" className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
       </div>
 
-      <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-        <div className="grid grid-cols-5 gap-2 text-center">
-          {[["1","Linha"],["2","Quantidade"],["3","Sabores"],["4","Entrega"],["5","Dados"]].map(([step,label], index) => {
-            const active = index === 0 ? true : index === 1 ? quantity !== 5 || total > 0 : index === 2 ? total > 0 : index === 3 ? deliveryReady : customerReady;
-            return <div key={step} className="min-w-0"><div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${active ? "bg-[#a7b86a] text-black" : "bg-white/10 text-white/45"}`}>{step}</div><div className={`mt-1 truncate text-[9px] font-bold uppercase tracking-wider sm:text-[10px] ${active ? "text-white/80" : "text-white/35"}`}>{label}</div></div>;
+      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-3.5">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[["1","Escolha"],["2","Sabores"],["3","Entrega"],["4","Finalizar"]].map(([number,label]) => {
+            const n = Number(number) as 1 | 2 | 3 | 4;
+            const done = step > n;
+            const active = step === n;
+            return (
+              <button key={number} type="button" onClick={() => n <= step && setStep(n)} className="min-w-0 text-center" disabled={n > step}>
+                <div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${done || active ? "bg-[#a7b86a] text-black" : "bg-white/10 text-white/35"}`}>
+                  {done ? <Check size={14} strokeWidth={3} /> : number}
+                </div>
+                <div className={`mt-1 truncate text-[9px] font-black uppercase tracking-wider sm:text-[10px] ${active ? "text-white" : done ? "text-[#cbd99a]" : "text-white/35"}`}>{label}</div>
+              </button>
+            );
           })}
         </div>
       </div>
 
-      <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3">
-        {comboOptions.map((item, index) => (
-          <button key={item.line} type="button" data-combo-action="line" data-index={index} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025] hover:border-white/20"}`}>
-            <div className="text-xs font-black tracking-wider text-[#a7b86a]">{item.line} • {item.weight}</div>
-            <div className="mt-2 text-sm text-white/60">Monte seu combo com os sabores da linha.</div>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-6 flex flex-wrap gap-2">
-        {([5, 7, 10, 14, 20] as const).map((value) => (
-          <button key={value} type="button" data-combo-action="quantity" data-value={value} className={`touch-manipulation relative z-10 rounded-full px-5 py-2.5 text-sm font-black transition ${quantity === value ? "bg-[#a7b86a] text-black" : "border border-white/10 bg-white/5 text-white/65 hover:border-[#a7b86a]/40"}`}>
-            {value} marmitas
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {option.products.map((product) => (
-          <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-            <div className="min-w-0">
-              <div className="font-black">{product.name}</div>
-              <div className="mt-1 text-xs text-white/40">{product.weight}</div>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button type="button" data-combo-action="remove" data-product={product.name} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation relative z-10 grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
-              <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" data-combo-action="add" data-product={product.name} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation relative z-10 grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-7 rounded-2xl border border-white/10 bg-[#0f120d] p-5">
-        <div className="flex items-center gap-2">
-          <Truck size={20} className="text-[#a7b86a]" />
+      <div className="mt-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="font-black text-lg">Como você quer receber?</div>
-            <div className="text-sm text-white/45">Escolha uma das opções para continuar.</div>
+            <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#a7b86a]">Seu combo</div>
+            <div className="mt-1 text-lg font-black">{total}/{quantity} marmitas</div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-white/45">{total === quantity ? "Combo completo ✓" : `Faltam ${quantity - total}`}</div>
+            <div className="mt-1 text-lg font-black text-[#ef7d18]">{money(grandTotal)}</div>
           </div>
         </div>
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <button type="button" data-combo-action="delivery" className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10 shadow-[0_0_0_3px_rgba(167,184,106,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50 hover:bg-white/[.04]"}`}>
-            {deliveryMode === "delivery" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3} /></div>}
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={24} /></div>
-            <div className="mt-4 text-xl font-black">🚚 Receber em casa</div>
-            <div className="mt-1 text-sm text-white/55">Digite seu CEP e veja a taxa de entrega da sua região.</div>
-            <div className="mt-4 inline-flex rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#cbd99a]">CALCULAR PELO CEP</div>
-          </button>
-
-          <button type="button" data-combo-action="pickup" className={`touch-manipulation group relative overflow-hidden rounded-3xl border-2 p-5 text-left transition-all ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_0_3px_rgba(239,125,24,.08)]" : "border-white/10 bg-white/[.025] hover:border-[#ef7d18]/50 hover:bg-white/[.04]"}`}>
-            {deliveryMode === "pickup" && <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#ef7d18] text-black"><Check size={16} strokeWidth={3} /></div>}
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={24} /></div>
-            <div className="mt-4 text-xl font-black">📍 Retirar na Nutrifit</div>
-            <div className="mt-1 text-sm text-white/55">Retire seu pedido no endereço da Nutrifit, sem taxa de entrega.</div>
-            <div className="mt-4 inline-flex rounded-full bg-[#ef7d18]/15 px-3 py-1 text-xs font-black text-[#ef9b55]">SEM TAXA</div>
-          </button>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full bg-[#a7b86a] transition-all" style={{ width: `${Math.min((total / quantity) * 100, 100)}%` }} />
         </div>
+      </div>
 
-        {deliveryMode === "pickup" ? (
-          <div className="mt-5 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-5">
-            <div className="flex items-start gap-3">
-              <MapPin size={20} className="mt-0.5 shrink-0 text-[#ef7d18]" />
-              <div>
-                <div className="font-black text-white">Retirada na Nutrifit</div>
-                <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
-                <div className="mt-2 text-sm font-black text-[#ef7d18]">Taxa de entrega: R$ 0,00</div>
-              </div>
-            </div>
+      {step === 1 && (
+        <div className="mt-6">
+          <div className="mb-4">
+            <div className="text-xl font-black">1. Escolha sua linha e o tamanho</div>
+            <div className="mt-1 text-sm text-white/45">Depois você escolhe os sabores sem precisar voltar.</div>
           </div>
-        ) : (
-          <>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none transition focus:border-[#a7b86a]" />
-              <button type="button" data-combo-action="calculate" disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
-                {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
+
+          <div className="grid grid-cols-3 gap-2.5">
+            {comboOptions.map((item, index) => (
+              <button key={item.line} type="button" data-combo-action="line" data-index={index} className={`touch-manipulation relative z-10 rounded-2xl border p-3.5 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
+                <div className="text-[11px] font-black tracking-wider text-[#a7b86a]">{item.line}</div>
+                <div className="mt-1 text-xs font-bold text-white/55">{item.weight}</div>
               </button>
+            ))}
+          </div>
+
+          <div className="mt-5">
+            <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
+            <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {([5, 7, 10, 14, 20] as const).map((value) => (
+                <button key={value} type="button" data-combo-action="quantity" data-value={value} className={`touch-manipulation relative z-10 rounded-2xl border px-3 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
+                  {value}
+                  <span className={`mt-0.5 block text-[10px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
+                </button>
+              ))}
             </div>
-            {quantity >= DELIVERY_FREE_FROM ? (
-              <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
-                <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
-                <div className="mt-1 text-sm text-white/55">Seu combo tem 20 marmitas ou mais.</div>
-              </div>
-            ) : delivery ? (
-              <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
-                <div className="font-black text-[#cbd99a]">📍 {delivery.neighborhood}</div>
-                <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#ef7d18]">{money(delivery.fee)}</span></div>
-              </div>
-            ) : deliveryStatus === "error" ? (
-              <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar uma área de entrega cadastrada para esse CEP. Confira o CEP ou fale com a Nutrifit pelo WhatsApp.</div>
-            ) : null}
-          </>
-        )}
-      </div>
+          </div>
 
-      <div className="mt-7 rounded-2xl border border-white/10 bg-white/[.025] p-5">
-        <div className="flex items-center gap-2">
-          <MessageCircle size={20} className="text-[#ef7d18]" />
-          <div>
-            <div className="font-black text-lg">Seus dados para o pedido</div>
-            <div className="text-sm text-white/45">Esses dados serão usados para identificar você e confirmar o pedido pelo WhatsApp.</div>
-          </div>
-        </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-2">
-          <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-          <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-        </div>
-      </div>
-
-      <div className="sticky bottom-3 z-20 mt-7 rounded-2xl border border-[#a7b86a]/30 bg-[#11160d]/95 p-4 shadow-[0_18px_50px_rgba(0,0,0,.45)] backdrop-blur-md md:static md:flex md:flex-row md:items-center md:justify-between md:gap-4 md:p-5">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-sm font-black">{option.line} • {option.weight} • {quantity} marmitas</div>
-            <div className="shrink-0 rounded-full bg-[#ef7d18]/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#ef9b55]">Resumo</div>
-          </div>
-          <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-white/55">
-            <span>Subtotal</span><strong className="text-white">{money(subtotal)}</strong>
-            <span>Entrega</span><strong className="text-white">{deliveryReady ? (deliveryFee === 0 ? "Grátis" : money(deliveryFee)) : "Informe o CEP"}</strong>
-          </div>
-          <div className="mt-2 text-2xl font-black text-[#ef7d18]">Total {money(grandTotal)}</div>
-          <div className="mt-1 text-xs text-white/45">
-            {total !== quantity
-              ? `Escolha mais ${quantity - total} marmita(s) para completar o combo.`
-              : !deliveryReady
-                ? "Escolha como receber o pedido para liberar o pagamento."
-                : !customerReady
-                  ? "Preencha nome e WhatsApp para continuar."
-                  : "Pedido completo. Confira o resumo e envie pelo WhatsApp para finalizar o pagamento."}
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-          <button type="button" data-combo-action="reset" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-white/70"><RotateCcw size={15} /> Limpar</button>
-          <button type="button" data-combo-action="send" disabled={!canPay} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
-            {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando pedido...</> : <><ShoppingBag size={17} /> Enviar pedido pelo WhatsApp</>}
+          <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black">
+            Escolher sabores <ArrowRight size={18} />
           </button>
-        </div>
-      </div>
-
-      {paymentStatus === "error" && (
-        <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
-          Não foi possível iniciar o pagamento agora. Confira seus dados e tente novamente. Se o problema continuar, fale com a Nutrifit pelo WhatsApp.
         </div>
       )}
 
-      <div className="mt-4 text-center text-xs text-white/35">
-        O pagamento é finalizado diretamente pelo WhatsApp. O pedido é confirmado após a confirmação do pagamento.
+      {step === 2 && (
+        <div className="mt-6">
+          <div className="mb-4">
+            <div className="text-xl font-black">2. Monte seus sabores</div>
+            <div className="mt-1 text-sm text-white/45">Use + e − para escolher quantas unidades quer de cada prato.</div>
+          </div>
+
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {option.products.map((product) => (
+              <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3.5">
+                <div className="min-w-0">
+                  <div className="font-black text-sm leading-tight">{product.name}</div>
+                  <div className="mt-1 text-xs text-white/40">{product.weight}</div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button type="button" data-combo-action="remove" data-product={product.name} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
+                  <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
+                  <button type="button" data-combo-action="add" data-product={product.name} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-center">
+            {total === quantity ? (
+              <div className="font-black text-[#cbd99a]">✓ Combo completo. Agora escolha como receber.</div>
+            ) : (
+              <div className="text-sm text-white/60">Faltam <strong className="text-white">{quantity - total}</strong> marmita(s) para completar seu combo.</div>
+            )}
+          </div>
+
+          <div className="mt-5 flex gap-2">
+            <button type="button" onClick={() => setStep(1)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+              Continuar <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="mt-6">
+          <div className="mb-4">
+            <div className="text-xl font-black">3. Como você quer receber?</div>
+            <div className="mt-1 text-sm text-white/45">Escolha entrega ou retirada. Para 20 marmitas, a entrega é grátis.</div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button type="button" data-combo-action="delivery" className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={23} /></div>
+              <div className="mt-3 text-lg font-black">Receber em casa</div>
+              <div className="mt-1 text-sm text-white/50">Digite seu CEP para calcular a entrega.</div>
+            </button>
+            <button type="button" data-combo-action="pickup" className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={23} /></div>
+              <div className="mt-3 text-lg font-black">Retirar na Nutrifit</div>
+              <div className="mt-1 text-sm text-white/50">Sem taxa de entrega.</div>
+            </button>
+          </div>
+
+          {deliveryMode === "pickup" ? (
+            <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4">
+              <div className="font-black">📍 Retirada na Nutrifit</div>
+              <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
+            </div>
+          ) : (
+            <>
+              <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+                <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
+                <button type="button" data-combo-action="calculate" disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                  {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
+                </button>
+              </div>
+              {quantity >= DELIVERY_FREE_FROM ? (
+                <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm">
+                  <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
+                  <div className="mt-1 text-white/55">Seu combo tem 20 marmitas ou mais.</div>
+                </div>
+              ) : delivery ? (
+                <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
+                  <div className="font-black text-[#cbd99a]">📍 {delivery.neighborhood}</div>
+                  <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#ef7d18]">{money(delivery.fee)}</span></div>
+                </div>
+              ) : deliveryStatus === "error" ? (
+                <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar a área de entrega. Confira o CEP ou fale com a Nutrifit.</div>
+              ) : null}
+            </>
+          )}
+
+          <div className="mt-5 flex gap-2">
+            <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => deliveryReady && setStep(4)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+              Continuar <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="mt-6">
+          <div className="mb-4">
+            <div className="text-xl font-black">4. Confira e finalize</div>
+            <div className="mt-1 text-sm text-white/45">Só falta seu nome e WhatsApp. Depois o pedido abre no WhatsApp para você concluir o pagamento.</div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
+              <span className="text-white/45">Linha</span><strong>{option.line} • {option.weight}</strong>
+              <span className="text-white/45">Marmitas</span><strong>{quantity}</strong>
+              <span className="text-white/45">Subtotal</span><strong>{money(subtotal)}</strong>
+              <span className="text-white/45">Entrega</span><strong>{deliveryFee === 0 ? "Grátis" : money(deliveryFee)}</strong>
+              <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-[#ef7d18]">{money(grandTotal)}</strong>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 text-sm text-white/55">
+            <div className="font-black text-white">Pagamento pelo WhatsApp</div>
+            <div className="mt-1">Ao tocar no botão, o pedido será preparado com seus sabores, valor e entrega. Você envia o comprovante do Pix pelo WhatsApp.</div>
+          </div>
+
+          <div className="mt-5 flex gap-2">
+            <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" data-combo-action="send" disabled={!canPay} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+              {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
+            </button>
+          </div>
+          {!customerReady && <div className="mt-3 text-center text-xs text-[#ef9b55]">Preencha nome e WhatsApp para liberar o botão.</div>}
+        </div>
+      )}
+
+      <div className="mt-5 text-center text-[11px] text-white/30">
+        Pagamento antecipado via Pix. O pedido é confirmado após a confirmação do pagamento.
+      </div>
+    </div>
+  );
+nfirmação do pagamento.
       </div>
     </div>
   );
