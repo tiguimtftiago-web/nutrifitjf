@@ -922,7 +922,7 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
-  const sendFullOrder = () => {
+  const sendFullOrder = async () => {
     if (!orderItems.length) return;
     const lines = orderItems.map((item, i) => {
       const subtotal = item.price * item.quantity;
@@ -936,6 +936,31 @@ export default function Home() {
         ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "Taxa de entrega a confirmar pelo WhatsApp";
     const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🚚 FRETE: ${money(orderDeliveryFee)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",deliverySummary,"","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
+
+    try {
+      await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({
+          customer_name: customerName.trim() || null,
+          whatsapp: customerPhone.replace(/\\D/g, "") || null,
+          items: orderItems,
+          item_count: orderCount,
+          subtotal: orderSubtotal,
+          delivery_fee: orderDeliveryFee,
+          total: orderGrandTotal,
+          cep: orderCep.replace(/\\D/g, "") || null,
+          neighborhood: orderDelivery?.neighborhood || null,
+        }),
+      });
+    } catch (error) {
+      console.error("order capture", error);
+    }
+
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
