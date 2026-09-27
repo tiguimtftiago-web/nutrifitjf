@@ -1,0 +1,59 @@
+name: Fix Nutrifit FIT image mapping
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, 'fix: align FIT products with images') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Align FIT product names with existing images
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("app/page.tsx")
+          s = p.read_text()
+
+          pattern = re.compile(
+              r'const fit: Product\[\] = \[.*?\n\]\.map\(\(\[name,line,weight,price,description\], i\) => \(\{\n  name,line,weight,price,description,\n  image: \["/images/page-4\.jpg".*?\n\}\)\);',
+              re.S,
+          )
+
+          replacement = '''const fit: Product[] = [
+  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
+  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de mix de legumes, em uma refeição equilibrada e saborosa."],
+  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas acompanhado de legumes selecionados."],
+  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
+  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
+  ["Patinho com Legumes","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes selecionados."],
+].map(([name,line,weight,price,description], i) => ({
+  name,line,weight,price,description,
+  image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-9.jpg","/images/page-10.jpg"][i]
+}));'''
+
+          s2, n = pattern.subn(replacement, s, count=1)
+          if n != 1:
+              raise SystemExit("FIT block not found; no changes made.")
+          p.write_text(s2)
+          PY
+
+      - name: Commit fix and remove temporary workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-nutrifit-fit-images.yml
+          git add app/page.tsx
+          git commit -m "fix: align FIT products with images"
+          git push
