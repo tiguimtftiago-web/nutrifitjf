@@ -311,7 +311,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha</div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {monthlyPlanOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`rounded-xl border px-2 py-3 text-xs font-black transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-xl border px-1.5 py-3 text-[11px] font-black leading-tight whitespace-normal break-words transition sm:px-2 sm:text-xs ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
                 {item.line}<span className="mt-1 block text-[10px] font-normal text-white/40">{item.weight}</span>
               </button>
             ))}
