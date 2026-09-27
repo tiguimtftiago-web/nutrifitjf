@@ -45,7 +45,7 @@ const fit: Product[] = [
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
   image: FIT_SPRITE,
-  crop: ["0% 0%","50% 0%","100% 0%","0% 100%","50% 100%","100% 100%","0% 100%","100% 100%"][i]
+  crop: ["0% 0%","33.333% 0%","66.667% 0%","100% 0%","0% 100%","33.333% 100%","66.667% 100%","100% 100%"][i]
 }));
 
 const performance: Product[] = [
