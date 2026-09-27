@@ -44,8 +44,7 @@ const fit: Product[] = [
   ["Lombo Suíno com Batata-doce","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de batata-doce assada."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: FIT_SPRITE,
-  crop: ["0% 0%","33.333% 0%","66.667% 0%","100% 0%","0% 100%","33.333% 100%","66.667% 100%","100% 100%"][i]
+  image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-12.jpg","/images/page-13.jpg","/images/page-14.jpg","/images/page-8.jpg"][i]
 }));
 
 const performance: Product[] = [
@@ -1629,7 +1628,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-4 right-4 z-50 inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#25D366] p-0 font-black text-black shadow-2xl transition hover:scale-105 sm:bottom-5 sm:right-5 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5">
+      <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "floating")} aria-label="Falar com a Nutrifit pelo WhatsApp" className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center gap-2 rounded-full bg-[#25D366] p-0 font-black text-black shadow-2xl transition hover:scale-105 sm:bottom-5 sm:right-5 sm:h-auto sm:w-auto sm:px-5 sm:py-3.5">
         <MessageCircle size={19} /> <span className="hidden sm:inline">WhatsApp</span>
       </a>
 
