@@ -28,17 +28,25 @@ type Product = {
   price: string;
   description: string;
   image: string;
+  crop?: string;
 };
 
+const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
+
 const fit: Product[] = [
-  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído temperado e purê de abóbora cremoso."],
-  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina em tiras refogada com cebola e mix de legumes."],
-  ["Frango Grelhado com Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de legumes selecionados."],
-  ["Frango ao Molho de Ervas","FIT","350 g","R$ 23,97","Peito de frango ao molho de ervas finas com legumes."],
-  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado temperado com legumes assados."],
-  ["Patinho com Batata-doce","FIT","350 g","R$ 23,97","Patinho moído refogado com purê de batata-doce cremoso."],
-  ["Patinho com Legumes","FIT","350 g","R$ 23,97","Patinho moído refogado com temperos naturais e legumes."]
-].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[4,5,6,7,8,9,10][i]}.jpg`}));
+  ["Patinho com Purê de Batata Inglesa","FIT","350 g","R$ 23,97","Patinho moído bem temperado, acompanhado de purê cremoso de batata inglesa."],
+  ["Carne Acebolada com Arroz Integral","FIT","350 g","R$ 23,97","Carne bovina acebolada, dourada na medida, com arroz integral soltinho."],
+  ["Frango Grelhado com Arroz Integral","FIT","350 g","R$ 23,97","Peito de frango grelhado com arroz integral, em uma combinação simples e equilibrada."],
+  ["Frango Desfiado com Batata-doce","FIT","350 g","R$ 23,97","Frango desfiado bem temperado acompanhado de batata-doce macia."],
+  ["Frango com Brócolis e Arroz Integral","FIT","350 g","R$ 23,97","Frango grelhado, brócolis e arroz integral em uma refeição completa."],
+  ["Frango com Purê de Batata Inglesa","FIT","350 g","R$ 23,97","Frango grelhado acompanhado de purê cremoso de batata inglesa."],
+  ["Frango com Mandioca","FIT","350 g","R$ 23,97","Frango grelhado acompanhado de mandioca macia e temperada."],
+  ["Lombo Suíno com Batata-doce","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de batata-doce assada."],
+].map(([name,line,weight,price,description], i) => ({
+  name,line,weight,price,description,
+  image: FIT_SPRITE,
+  crop: ["0% 0%","50% 0%","100% 0%","0% 100%","50% 100%","100% 100%","0% 100%","100% 100%"][i]
+}));
 
 const performance: Product[] = [
   ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, molho de tomate artesanal, queijo parmesão, arroz integral e legumes."],
@@ -763,7 +771,18 @@ function ComboBuilder() {
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black"><img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" /></div>
+      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black">
+        {product.crop ? (
+          <div
+            aria-label={product.name}
+            role="img"
+            className="h-full w-full bg-cover bg-no-repeat transition duration-500 group-hover:scale-105"
+            style={{ backgroundImage: `url(${product.image})`, backgroundSize: "400% 200%", backgroundPosition: product.crop }}
+          />
+        ) : (
+          <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+        )}
+      </div>
       <div className="flex flex-1 flex-col p-3.5 sm:p-5">
         <span className="w-fit rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
         <h3 className="mt-2.5 min-h-[3.25rem] text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
