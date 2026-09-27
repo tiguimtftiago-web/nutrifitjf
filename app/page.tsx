@@ -815,23 +815,7 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
         </button>
       )}
 
-      <button
-        type="button"
-        onClick={() => { onOpenCombo(); trackClick("combo_cta_click", "section_combo"); }}
-        className="group relative mt-4 flex w-full overflow-hidden rounded-3xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10130d] to-[#0b0e09] p-4 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/50 sm:p-5"
-      >
-        <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ef7d18]/10 blur-2xl transition group-hover:bg-[#ef7d18]/20" />
-        <div className="relative z-10 flex min-w-0 flex-1 items-center justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit • Sua semana</div>
-            <h3 className="mt-1 text-lg font-black leading-tight sm:text-2xl">MONTE SUA SEMANA</h3>
-            <p className="mt-1 text-xs leading-5 text-white/50">Escolha suas marmitas e monte seu combo do seu jeito.</p>
-          </div>
-          <div className="relative z-10 shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black sm:px-5 sm:py-3.5">
-            <span>Montar meu combo</span> <ArrowRight size={15} className="inline" />
-          </div>
-        </div>
-      </button>
+>
     </section>
   );
 }
