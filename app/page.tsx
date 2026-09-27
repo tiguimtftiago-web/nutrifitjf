@@ -1079,7 +1079,7 @@ export default function Home() {
             <button type="button" onClick={() => setSearchOpen(true)} aria-label="O que você procura?" className="hidden h-12 w-[260px] items-center justify-between rounded-2xl border border-white/20 bg-white/[.08] px-5 text-left text-sm text-white/70 lg:flex xl:w-[340px]">
               <span>O que você procura?</span><Search size={24} />
             </button>
-            <button type="button" onClick={openProfile} aria-label="Cadastro do cliente" className="grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10"><UserRound size={31} strokeWidth={1.7} /></button>
+            <button type="button" onClick={openProfile} aria-label="Cadastro do cliente" title="Cadastro" className="grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10"><UserRound size={31} strokeWidth={1.7} /></button>
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Abrir carrinho" className="relative grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10">
               <ShoppingCart size={31} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
@@ -1540,7 +1540,7 @@ export default function Home() {
             <input value={profileBirthDate} onChange={(e) => { setProfileBirthDate(e.target.value); setProfileStatus("idle"); }} placeholder="Data de nascimento (opcional)" type="date" autoComplete="bday" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
             <div className="rounded-xl border border-[#a7b86a]/25 bg-[#171d10] p-4">
               <div className="text-sm font-black text-[#c8d98b]">CLUBE NUTRIFIT</div>
-              <div className="mt-1 text-xs leading-5 text-white/55">Seu cadastro já entra no Clube Interfit. Na primeira compra, você recebe <strong className="text-[#ef7d18]">R$ 10 OFF</strong>.</div>
+              <div className="mt-1 text-xs leading-5 text-white/55">Seu cadastro já entra no Clube Nutrifit. Na primeira compra, você recebe <strong className="text-[#ef7d18]">R$ 10 OFF</strong>.</div>
               <div className="mt-2 inline-flex rounded-full bg-[#ef7d18]/10 px-2.5 py-1 text-[10px] font-black tracking-wider text-[#ef9b55]">CUPOM: BEMVINDO10</div>
             </div>
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[.03] p-3 text-xs leading-5 text-white/55">
