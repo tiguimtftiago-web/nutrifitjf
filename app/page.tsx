@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2 } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Leaf, Search, UserRound, ShoppingCart, ChevronDown, X } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -867,6 +867,12 @@ export default function Home() {
     setOrderOpen(true);
   };
   const [orderOpen, setOrderOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profilePhone, setProfilePhone] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [orderCep, setOrderCep] = useState("");
@@ -923,6 +929,45 @@ export default function Home() {
     const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🚚 FRETE: ${money(orderDeliveryFee)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",deliverySummary,"","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
     window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
   };
+  const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
+  const searchResults = searchTerm.trim()
+    ? searchableProducts.filter((product, index, list) =>
+        list.findIndex((item) => item.name === product.name) === index &&
+        product.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  const openProfile = () => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+      setProfileName(saved.name || "");
+      setProfilePhone(saved.phone || "");
+    } catch {}
+    setProfileOpen(true);
+  };
+
+  const saveProfile = () => {
+    const name = profileName.trim();
+    const phone = profilePhone.trim();
+    if (!name || !phone) return;
+    window.localStorage.setItem("nutrifit_profile", JSON.stringify({ name, phone }));
+    setCustomerName(name);
+    setCustomerPhone(phone);
+    setProfileOpen(false);
+    trackClick("profile_save", "header");
+  };
+
+  const openSearchResult = (product: Product) => {
+    setSearchOpen(false);
+    setSearchTerm("");
+    const target = product.line === "FIT" ? "cardapio"
+      : product.line === "PERFORMANCE" ? "performance"
+      : product.line === "SALADAS" ? "saladas"
+      : product.line === "TRADICIONAL" ? "tradicional"
+      : "sucos";
+    window.setTimeout(() => document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
+  };
+
   const openComboBuilder = (line?: string) => {
     setComboOpen(true);
     if (line) trackClick("combo_builder_start", line);
@@ -931,10 +976,35 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080a07]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
-          <a href="#inicio" aria-label="Nutrifit — início" className="inline-flex items-center text-xl font-black tracking-[.08em] text-white">NUTRIFIT</a>
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-[82px] max-w-7xl items-center gap-5 px-4 md:px-7">
+          <a href="#inicio" aria-label="Nutrifit — início" className="flex shrink-0 items-center gap-2.5">
+            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#0b0d09] text-[#a7b86a]"><Leaf size={35} strokeWidth={2.2} fill="currentColor" /></span>
+            <span className="hidden leading-none sm:block"><span className="text-[28px] font-black tracking-[-.04em] text-white">NUTRI<span className="text-[#ef7d18]">FIT</span></span><span className="mt-1 block text-[9px] font-bold tracking-[.25em] text-white/60">MARMITAS FITNESS</span></span>
+          </a>
 
+          <nav className="hidden items-center gap-7 lg:flex">
+            <div className="relative">
+              <button type="button" onClick={() => setMenuOpen((open) => !open)} className="inline-flex items-center gap-1 text-sm font-black text-white/85 hover:text-white">CARDÁPIO <ChevronDown size={15} className={menuOpen ? "rotate-180 transition" : "transition"} /></button>
+              {menuOpen && <div className="absolute left-0 top-9 w-56 rounded-2xl border border-white/10 bg-[#10130d]/98 p-2 shadow-2xl backdrop-blur-xl">
+                {[["Fit 350 g","#cardapio"],["Performance 450 g","#performance"],["Saladas","#saladas"],["Tradicionais 500 g","#tradicional"],["Sucos","#sucos"]].map(([label,href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 text-sm font-bold text-white/70 hover:bg-white/5 hover:text-white">{label}</a>)}
+              </div>}
+            </div>
+            <a href="#combos" className="text-sm font-black text-white/85 hover:text-white">COMBOS</a>
+            <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PERSONALIZE</a>
+            <a href="#como-pedir" className="text-sm font-black text-white/85 hover:text-white">COMO COMPRAR</a>
+          </nav>
+
+          <div className="ml-auto flex min-w-0 items-center gap-2.5">
+            <button type="button" onClick={() => setSearchOpen(true)} aria-label="O que você procura?" className="hidden h-12 w-[260px] items-center justify-between rounded-2xl border border-white/20 bg-white/[.08] px-5 text-left text-sm text-white/70 lg:flex xl:w-[340px]">
+              <span>O que você procura?</span><Search size={24} />
+            </button>
+            <button type="button" onClick={openProfile} aria-label="Cadastro do cliente" className="grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10"><UserRound size={31} strokeWidth={1.7} /></button>
+            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Abrir carrinho" className="relative grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10">
+              <ShoppingCart size={31} strokeWidth={1.7} />
+              {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -1350,6 +1420,22 @@ export default function Home() {
           <button type="button" onClick={() => setOrderOpen(true)} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Revisar pedido</button>
         </div>
       </div>}
+      {searchOpen && <div className="fixed inset-0 z-[70] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setSearchOpen(false)}>
+        <div className="mx-auto mt-20 max-w-xl rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Buscar no cardápio</div><h2 className="mt-1 text-2xl font-black">O que você procura?</h2></div><button type="button" onClick={() => setSearchOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
+          <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4"><Search size={20} className="text-white/40"/><input autoFocus value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Ex.: strogonoff, patinho, frango..." className="min-w-0 flex-1 bg-transparent py-4 text-sm outline-none"/></div>
+          <div className="mt-4 space-y-2">{searchTerm.trim() && !searchResults.length && <div className="rounded-2xl border border-white/10 p-4 text-sm text-white/45">Nenhum item encontrado.</div>}{searchResults.map((product) => <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left hover:border-[#a7b86a]/40"><span><span className="block font-black">{product.name}</span><span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {product.price}</span></span><ArrowRight size={16} className="text-[#a7b86a]"/></button>)}</div>
+        </div>
+      </div>}
+
+      {profileOpen && <div className="fixed inset-0 z-[70] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setProfileOpen(false)}>
+        <div className="mx-auto mt-20 max-w-md rounded-[2rem] border border-white/10 bg-[#0d100c] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Cadastro Nutrifit</div><h2 className="mt-1 text-2xl font-black">Seus dados</h2><p className="mt-1 text-sm text-white/45">Salvamos apenas neste navegador para agilizar seus próximos pedidos.</p></div><button type="button" onClick={() => setProfileOpen(false)} className="rounded-full border border-white/15 p-2"><X size={16}/></button></div>
+          <div className="mt-5 grid gap-3"><input value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="Seu nome" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><input value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} placeholder="Seu WhatsApp" inputMode="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/></div>
+          <button type="button" onClick={saveProfile} disabled={!profileName.trim() || !profilePhone.trim()} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">Salvar cadastro <Check size={17}/></button>
+        </div>
+      </div>}
+
       {orderOpen && <div className="fixed inset-0 z-[60] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setOrderOpen(false)}>
         <div className="mx-auto mt-6 max-h-[90vh] max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl md:mt-10 md:p-7" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • revisão</div><h2 className="mt-1 text-2xl font-black">Revisar pedido</h2><p className="mt-1 text-sm text-white/45">Confira itens, quantidades, frete e total antes de abrir o WhatsApp.</p></div><button type="button" onClick={() => setOrderOpen(false)} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black">Fechar</button></div>
