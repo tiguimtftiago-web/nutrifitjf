@@ -1059,10 +1059,14 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[82px] max-w-7xl items-center gap-5 px-4 md:px-7">
-          <a href="#inicio" aria-label="Nutrifit — início" className="flex shrink-0 items-center gap-2.5">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#0b0d09]"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-10 w-10 object-contain" /></span>
-            <span className="hidden leading-none sm:block"><span className="text-[28px] font-black tracking-[-.04em] text-white">NUTRI<span className="text-[#ef7d18]">FIT</span></span><span className="mt-1 block text-[9px] font-bold tracking-[.25em] text-white/60">MARMITAS FITNESS</span></span>
+        <div className="mx-auto flex h-[86px] max-w-7xl items-center gap-3 px-3 sm:h-[92px] sm:px-4 md:h-[82px] md:gap-5 md:px-7">
+          <a href="#inicio" aria-label="Nutrifit — início" className="flex min-w-0 shrink-0 items-center gap-2.5">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#0b0d09] sm:h-12 sm:w-12">
+              <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-9 w-9 object-contain sm:h-10 sm:w-10" />
+            </span>
+            <span className="leading-none">
+              <span className="text-[20px] font-black tracking-[-.04em] text-white sm:text-[24px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
+            </span>
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex">
@@ -1077,24 +1081,32 @@ export default function Home() {
             <a href="#como-pedir" className="text-sm font-black text-white/85 hover:text-white">COMO COMPRAR</a>
           </nav>
 
-          <div className="ml-auto flex min-w-0 items-center gap-2.5">
+          <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
             <button type="button" onClick={() => setSearchOpen(true)} aria-label="O que você procura?" className="hidden h-12 w-[260px] items-center justify-between rounded-2xl border border-white/20 bg-white/[.08] px-5 text-left text-sm text-white/70 lg:flex xl:w-[340px]">
               <span>O que você procura?</span><Search size={24} />
             </button>
-            <button type="button" onClick={openProfile} aria-label="Cadastro do cliente" title="Cadastro" className="grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10"><UserRound size={31} strokeWidth={1.7} /></button>
+
+            <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="group grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
+              <UserRound size={27} strokeWidth={1.7} />
+              <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px] lg:hidden">Minha conta</span>
+            </button>
+
             <a href="#cardapio" className="hidden xl:inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black transition hover:scale-[1.02]">Fazer pedido <ArrowRight size={15} /></a>
-            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Abrir carrinho" className="relative grid h-12 w-12 place-items-center rounded-full text-white transition hover:bg-white/10">
-              <ShoppingCart size={31} strokeWidth={1.7} />
+
+            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
+              <ShoppingCart size={27} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
+              <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px] lg:hidden">Carrinho</span>
+            </button>
+
+            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" title="Menu" className="grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
+              <span className="text-[27px] leading-[1]">☰</span>
+              <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px]">Menu</span>
             </button>
           </div>
         </div>
-        <div className="border-t border-white/10 bg-[#050605] lg:hidden">
-          <div className="mx-auto flex h-11 items-center justify-end px-3">
-            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Abrir menu" className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[.05] text-white">
-              <span className="text-lg leading-none">☰</span>
-            </button>
-          </div>
+
+        <div className="hidden border-t border-white/10 bg-[#10130d] lg:hidden">
           {menuOpen && (
             <div className="border-t border-white/10 bg-[#10130d] px-3 py-3">
               <div className="grid grid-cols-2 gap-2">
@@ -1109,7 +1121,7 @@ export default function Home() {
             </div>
           )}
         </div>
-     </header>
+      </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
   <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
