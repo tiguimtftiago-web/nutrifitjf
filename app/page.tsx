@@ -648,7 +648,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
             )}
           </div>
 
-          <div className="mt-5 flex gap-2">
+          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(1)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
@@ -706,7 +706,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
             </>
           )}
 
-          <div className="mt-5 flex gap-2">
+          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={() => deliveryReady && setStep(4)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
@@ -742,7 +742,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
             <div className="mt-1">Ao tocar no botão, o pedido será preparado com seus sabores, valor e entrega. Você envia o comprovante do Pix pelo WhatsApp.</div>
           </div>
 
-          <div className="mt-5 flex gap-2">
+          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={sendOrder} disabled={!canPay} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
