@@ -800,7 +800,9 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
-          <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">{title}</h2>
+          <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">
+            {id === "cardapio" ? <><span className="text-[#a7b86a]">LINHA FIT</span> <span className="text-white">•</span> <span className="text-[#ef7d18]">350 G</span></> : title}
+          </h2>
           <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
         </div>
         {hiddenCount > 0 && (
@@ -1193,37 +1195,11 @@ export default function Home() {
               </div>
             </a>
           </div>
-          <section id="plano-alimentar" className="mt-5 rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-6 md:p-8">
-            <div className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-center">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano alimentar • Nutrifit</div>
-                <h2 className="mt-2 text-2xl font-black md:text-3xl">Seu plano alimentar pode virar refeições prontas.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Você já tem um plano alimentar feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas. Se preferir, também podemos encaminhar você para nossa nutricionista parceira.</p>
-              </div>
-              <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-1">
-                <a href={whatsappOrder("Olá, Nutrifit! Já tenho um plano alimentar feito pelo meu nutricionista e quero saber como montar minhas refeições.")} onClick={() => trackClick("nutritionist_click", "plano_proprio")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black">Tenho meu plano <MessageCircle size={16} /></a>
-                <a href={whatsappOrder("Olá, Nutrifit! Quero saber como funciona a consulta com a nutricionista parceira.")} onClick={() => trackClick("nutritionist_click", "nutricionista_nutrifit")} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3.5 text-sm font-black">Quero consultar a nutricionista <ArrowRight size={16} /></a>
-              </div>
-            </div>
-          </section>
 
 
         </div>
       </section>
 
-      <section aria-label="Categorias do cardápio" className="relative z-30 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl md:sticky md:top-[82px]">
-        <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="shrink-0 px-1 text-[10px] font-black uppercase tracking-[.16em] text-white/35">Escolha sua refeição</span>
-            <a href="#cardapio" className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2 text-xs font-black text-black">Fit 350 g</a>
-            <a href="#performance" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Performance 450 g</a>
-            <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Saladas</a>
-            <a href="#tradicional" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#ef7d18]/40">Tradicionais 500 g</a>
-            <a href="#combos" className="shrink-0 rounded-full border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-4 py-2 text-xs font-black text-[#f2a05d] transition hover:bg-[#ef7d18]/20">Combos</a>
-            <a href="#sucos" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Sucos</a>
-          </div>
-        </div>
-      </section>
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
 
       <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
@@ -1244,6 +1220,8 @@ export default function Home() {
           </div>
         </button>
       </section>
+
+      
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
