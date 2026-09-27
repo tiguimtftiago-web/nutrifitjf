@@ -814,8 +814,6 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
           <span className="text-[#a7b86a]">{expanded ? "↑" : "+" + hiddenCount}</span>
         </button>
       )}
-
->
     </section>
   );
 }
