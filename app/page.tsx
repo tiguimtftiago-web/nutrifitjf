@@ -761,7 +761,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
-    <article className="group flex min-w-0 h-full min-h-[390px] flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35 sm:min-h-0">
+    <article className="group flex min-w-0 h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35 sm:min-h-0">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.crop ? (
           <div
