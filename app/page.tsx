@@ -847,7 +847,7 @@ export default function Home() {
   const bannerSlides = [
     { image: "/images/banner-site-1.jpg", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
     { image: "/images/banner-site-2.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
-    { image: "/images/banner-site-3.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
+    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
       { label: "Alimentação planejada", icon: "apple" },
       { label: "Suporte às suas metas", icon: "dumbbell" },
       { label: "Mais saúde e resultados", icon: "clipboard" },
@@ -1081,27 +1081,43 @@ export default function Home() {
       </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
-        <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
-          {bannerSlides.map((slide, index) => (
-            <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
-              <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full object-cover" fetchPriority={index === 0 ? "high" : "auto"} />
-              <a
-                href={slide.href}
-                onClick={() => trackClick("banner_cta_click", slide.source)}
-                aria-label={`${slide.title} — abrir conteúdo`}
-                className="absolute inset-0 z-10"
-              />
+  <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
+    {bannerSlides.map((slide, index) => (
+      <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
+        <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full object-cover" fetchPriority={index === 0 ? "high" : "auto"} />
+        {index === 2 ? (
+          <a
+            href={slide.href}
+            onClick={() => trackClick("banner_cta_click", slide.source)}
+            className="absolute inset-0 z-10 flex items-center bg-gradient-to-r from-black via-black/75 to-transparent"
+            aria-label={slide.title}
+          >
+            <div className="max-w-xl px-7 py-10 md:px-14">
+              <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">{slide.eyebrow}</div>
+              <h1 className="mt-3 text-3xl font-black leading-[1.05] text-white md:text-5xl">{slide.title}</h1>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
+              <span className="mt-6 inline-flex rounded-full bg-[#a7b86a] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
             </div>
-          ))}
-          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-            {bannerSlides.map((slide, index) => (
-              <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#a7b86a]" : "w-2 bg-white/45"}`} />
-            ))}
-          </div>
-          <button type="button" onClick={() => setBannerIndex((bannerIndex - 1 + bannerSlides.length) % bannerSlides.length)} aria-label="Banner anterior" className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">‹</button>
-          <button type="button" onClick={() => setBannerIndex((bannerIndex + 1) % bannerSlides.length)} aria-label="Próximo banner" className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">›</button>
-        </div>
-      </section>
+          </a>
+        ) : (
+          <a
+            href={slide.href}
+            onClick={() => trackClick("banner_cta_click", slide.source)}
+            aria-label={slide.title}
+            className="absolute inset-0 z-10"
+          />
+        )}
+      </div>
+    ))}
+    <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+      {bannerSlides.map((slide, index) => (
+        <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#a7b86a]" : "w-2 bg-white/45"}`} />
+      ))}
+    </div>
+    <button type="button" onClick={() => setBannerIndex((bannerIndex - 1 + bannerSlides.length) % bannerSlides.length)} aria-label="Banner anterior" className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">‹</button>
+    <button type="button" onClick={() => setBannerIndex((bannerIndex + 1) % bannerSlides.length)} aria-label="Próximo banner" className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">›</button>
+  </div>
+</section>
 
       <div className="border-b border-white/10 bg-[#080a07] px-5 py-4 md:px-8">
         <div className="mx-auto flex max-w-2xl flex-col gap-2.5 sm:flex-row sm:justify-center">
