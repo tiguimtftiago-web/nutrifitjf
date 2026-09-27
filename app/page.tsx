@@ -1078,6 +1078,15 @@ export default function Home() {
             </button>
           </div>
         </div>
+        <div className="border-t border-white/10 bg-[#050605] lg:hidden">
+          <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-3 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <a href="#cardapio" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">CARDÁPIO</a>
+            <a href="#combos" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">COMBOS</a>
+            <a href="#planos-mensais" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">PERSONALIZE</a>
+            <a href="#como-pedir" className="shrink-0 rounded-full border border-white/10 bg-white/[.05] px-4 py-2 text-xs font-black text-white/90">COMO COMPRAR</a>
+            <button type="button" onClick={() => setSearchOpen(true)} aria-label="Pesquisar" className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[.05] text-white/90"><Search size={18} /></button>
+          </div>
+        </div>
       </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
