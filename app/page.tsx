@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Leaf, Search, UserRound, ShoppingCart, ChevronDown, X } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Leaf, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -845,7 +845,11 @@ export default function Home() {
   const bannerSlides = [
     { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
     { image: "/images/page-4.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
-    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Já tem orientação de nutricionista? Podemos montar suas refeições a partir dela. Ou, se preferir, fale com nossa nutricionista parceira.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista" },
+    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
+      { label: "Alimentação planejada", icon: "apple" },
+      { label: "Suporte às suas metas", icon: "dumbbell" },
+      { label: "Mais saúde e resultados", icon: "clipboard" },
+    ] },
   ] as const;
 
   useEffect(() => {
@@ -1019,6 +1023,21 @@ export default function Home() {
                   <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">{slide.eyebrow}</div>
                   <h1 className="mt-3 text-4xl font-black leading-[1.02] md:text-6xl">{slide.title}</h1>
                   <p className="mt-5 max-w-xl text-base leading-7 text-white/70 md:text-lg">{slide.text}</p>
+                  {"benefits" in slide && slide.benefits && (
+                    <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
+                      {slide.benefits.map((benefit) => {
+                        const BenefitIcon = benefit.icon === "apple" ? Apple : benefit.icon === "dumbbell" ? Dumbbell : ClipboardCheck;
+                        return (
+                          <div key={benefit.label} className="flex items-center gap-2.5 text-sm font-bold text-white/85">
+                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 text-[#a7b86a]">
+                              <BenefitIcon size={17} strokeWidth={2} />
+                            </span>
+                            <span className="leading-5">{benefit.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   <a href={slide.href} onClick={() => trackClick("banner_cta_click", slide.source)} target={slide.href.startsWith("http") ? "_blank" : undefined} rel={slide.href.startsWith("http") ? "noreferrer" : undefined} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">
                     {slide.cta} <ArrowRight size={16} />
                   </a>
