@@ -529,6 +529,14 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
   const customerReady = Boolean(customerName.trim() && customerPhone.trim());
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
+  const comboRootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      comboRootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [step]);
 
   return (
     <div ref={comboRootRef} className="mt-8 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-4 md:p-8">
