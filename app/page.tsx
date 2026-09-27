@@ -1162,7 +1162,7 @@ export default function Home() {
       <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
           <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Qual é o seu jeito hoje?</div>
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">O que você está procurando?</div>
             <p className="mt-1 text-sm text-white/45">Escolha uma opção e vá direto para o que você quer comprar.</p>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
@@ -1178,7 +1178,7 @@ export default function Home() {
             </a>
             <a href="#tradicional" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18]/35">
               <div className="text-xl">🍛</div>
-              <div className="mt-2 font-black">Quero comida de verdade</div>
+              <div className="mt-2 font-black">Quero sabor caseiro</div>
               <div className="mt-0.5 text-xs text-white/45">Tradicionais 500 g</div>
             </a>
             <a href="#combos" className="group rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15">
@@ -1193,7 +1193,7 @@ export default function Home() {
               <div>
                 <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano alimentar • Nutrifit</div>
                 <h2 className="mt-2 text-2xl font-black md:text-3xl">Seu plano alimentar pode virar refeições prontas.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Você já tem um plano alimentar feito pelo seu nutricionista? Traga as orientações para a Nutrifit e nós ajudamos a transformar o planejamento em refeições. Se preferir, também podemos encaminhar você para nossa nutricionista parceira.</p>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Você já tem um plano alimentar feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas. Se preferir, também podemos encaminhar você para nossa nutricionista parceira.</p>
               </div>
               <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-1">
                 <a href={whatsappOrder("Olá, Nutrifit! Já tenho um plano alimentar feito pelo meu nutricionista e quero saber como montar minhas refeições.")} onClick={() => trackClick("nutritionist_click", "plano_proprio")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black">Tenho meu plano <MessageCircle size={16} /></a>
