@@ -1487,6 +1487,28 @@ export default function Home() {
             </div>
           </div>
 
+          <section className="mt-10 rounded-[2rem] border border-[#a7b86a]/20 bg-[#10130d] p-6 md:p-9">
+            <div className="max-w-3xl">
+              <div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • conservação</div>
+              <h2 className="mt-2 text-3xl font-black">🥘 Cuidados com sua Nutrifit</h2>
+              <p className="mt-2 leading-7 text-white/50">Tudo para você conservar e aproveitar sua refeição da melhor forma.</p>
+            </div>
+            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["❄️","Conservação","Recebeu congelada? Mantenha no freezer até o momento de consumir e confira a validade indicada na etiqueta."],
+                ["🧊","Descongelamento","Retire do freezer e deixe descongelar dentro da geladeira. Evite descongelar em temperatura ambiente."],
+                ["🔥","Aquecimento","Aqueça no micro-ondas por aproximadamente 7 minutos, ajustando o tempo conforme a potência do aparelho."],
+                ["⚠️","Importante","Depois de descongelada, mantenha refrigerada e consuma dentro do prazo indicado. Não recongele."],
+              ].map(([emoji,title,text]) => (
+                <div key={title} className="rounded-2xl border border-white/10 bg-white/[.03] p-5">
+                  <div className="text-3xl">{emoji}</div>
+                  <h3 className="mt-3 text-lg font-black">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/50">{text}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <div className="mt-10">
             <div className="max-w-3xl">
               <div className="flex items-center gap-3">
