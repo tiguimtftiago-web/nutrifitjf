@@ -761,7 +761,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
-    <article className="group flex min-w-0 h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35 sm:min-h-0">
+    <article className="group flex min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.crop ? (
           <div
@@ -774,12 +774,17 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
         )}
       </div>
-      <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-5">
-        <span className="w-fit max-w-full rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
-        <h3 className="mt-2.5 min-h-[3.25rem] break-words text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
-        <p className="mt-2 min-h-[4.5rem] text-[11px] leading-[1.35rem] text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
-        <div className="mt-auto pt-3.5 sm:pt-4"><div className="text-base font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} className="mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2 py-2.5 text-[11px] font-black text-black sm:mt-3 sm:gap-1.5 sm:px-3 sm:text-sm"><ShoppingBag size={14} /> Adicionar à minha refeição</button>
+      <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="min-w-0 break-words text-[14px] font-black leading-[1.15] sm:text-lg">{product.name}</h3>
+          <span className="shrink-0 text-[10px] font-black text-white/45">{product.weight}</span>
+        </div>
+        <p className="mt-1.5 min-h-[2.5rem] text-[10px] leading-4 text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <div className="mt-auto flex items-center gap-2 pt-3">
+          <div className="text-lg font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-10 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-3 py-2 text-[11px] font-black text-black sm:px-4 sm:text-sm">
+            <Plus size={15} strokeWidth={3} /> Adicionar
+          </button>
         </div>
       </div>
     </article>
@@ -787,32 +792,29 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
 }
 function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void; onOpenCombo: (line?: string) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const showWeekCard = products.length % 2 === 1;
   const visibleProducts = expanded ? products : products.slice(0, 4);
   const hiddenCount = Math.max(products.length - 4, 0);
 
   return (
-    <section id={id} className="mx-auto max-w-7xl px-4 py-4 sm:px-5 sm:py-6 md:px-8">
-      <div className="max-w-3xl">
-        <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
-        <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
-        <p className="mt-3 text-white/50">{subtitle}</p>
+    <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
+          <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">{title}</h2>
+          <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
+        </div>
+        {hiddenCount > 0 && (
+          <button type="button" onClick={() => setExpanded((current) => !current)} className="shrink-0 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/5 px-3.5 py-2 text-[11px] font-black text-[#cbd99a] sm:px-4 sm:text-xs" aria-expanded={expanded}>
+            {expanded ? "Mostrar menos ↑" : "Ver todos →"}
+          </button>
+        )}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-5 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:gap-4 lg:grid-cols-4">
         {visibleProducts.map((product) => <ProductCard key={product.name} product={product} onAdd={onAdd} />)}
       </div>
-
-      {hiddenCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          className="mx-auto mt-4 flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[.04] px-5 py-3 text-sm font-black text-white/80 transition hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10 hover:text-white"
-          aria-expanded={expanded}
-        >
-          {expanded ? "Mostrar menos" : "Ver todos os " + products.length + " pratos"}
-          <span className="text-[#a7b86a]">{expanded ? "↑" : "+" + hiddenCount}</span>
-        </button>
+      {expanded && hiddenCount > 0 && (
+        <div className="mt-4 text-center text-[11px] font-bold text-white/30">{products.length} opções disponíveis nesta linha.</div>
       )}
     </section>
   );
@@ -1149,35 +1151,48 @@ export default function Home() {
   </div>
 </section>
 
-      <section aria-label="Escolha o que você procura" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
+      <section aria-label="Escolha sua refeição" className="border-b border-white/10 bg-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-5 md:px-8">
           <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Como você quer se alimentar hoje?</div>
-            <p className="mt-1 text-sm text-white/45">Escolha uma opção e encontre sua refeição.</p>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-            <a href="#cardapio" className="group rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15">
-              <div className="text-xl">🥗</div>
-              <div className="mt-2 font-black">Quero uma refeição leve</div>
-              <div className="mt-0.5 text-xs text-white/45">Fit 350 g e Saladas</div>
-            </a>
-            <a href="#performance" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/35">
-              <div className="text-xl">💪</div>
-              <div className="mt-2 font-black">Quero mais proteína</div>
-              <div className="mt-0.5 text-xs text-white/45">Performance 450 g</div>
-            </a>
-            <a href="#tradicional" className="group rounded-2xl border border-white/10 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18]/35">
-              <div className="text-xl">🍛</div>
-              <div className="mt-2 font-black">Quero comida de verdade</div>
-              <div className="mt-0.5 text-xs text-white/45">Tradicionais 500 g</div>
-            </a>
-            <a href="#combos" className="group rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15">
-              <div className="text-xl">📦</div>
-              <div className="mt-2 font-black">Quero praticidade e economia</div>
-              <div className="mt-0.5 text-xs text-white/45">Combos de 5 a 20 marmitas</div>
-            </a>
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Escolha sua refeição</div>
+            <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Como você quer se alimentar hoje?</h2>
+            <p className="mt-1.5 text-sm text-white/45">Escolha uma linha e encontre sua refeição.</p>
           </div>
 
+          <div className="mt-5 grid gap-2.5 md:grid-cols-3">
+            <a href="#cardapio" className="group rounded-[1.4rem] border border-[#a7b86a]/55 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Fit</div>
+                  <div className="mt-1 text-xl font-black">FIT <span className="text-[#a7b86a]">350 g</span></div>
+                </div>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#a7b86a]/60 text-lg text-[#a7b86a]">→</span>
+              </div>
+              <div className="mt-2 text-sm text-white/50">Leve, equilibrada e saborosa.</div>
+            </a>
+
+            <a href="#performance" className="group rounded-[1.4rem] border border-white/15 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Linha Performance</div>
+                  <div className="mt-1 text-xl font-black">PERFORMANCE <span className="text-[#ef7d18]">450 g</span></div>
+                </div>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/60 text-lg text-[#ef7d18]">→</span>
+              </div>
+              <div className="mt-2 text-sm text-white/50">Mais proteína para o seu dia.</div>
+            </a>
+
+            <a href="#tradicional" className="group rounded-[1.4rem] border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15 sm:p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Linha Tradicional</div>
+                  <div className="mt-1 text-xl font-black">TRADICIONAL <span className="text-[#ef7d18]">500 g</span></div>
+                </div>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/60 text-lg text-[#ef7d18]">→</span>
+              </div>
+              <div className="mt-2 text-sm text-white/50">Refeições mais completas e caseiras.</div>
+            </a>
+          </div>
           <section id="plano-alimentar" className="mt-5 rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-6 md:p-8">
             <div className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-center">
               <div>
@@ -1196,6 +1211,10 @@ export default function Home() {
         </div>
       </section>
 
+
+        </div>
+      </section>
+
       <section aria-label="Categorias do cardápio" className="sticky top-[126px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl lg:top-[82px]">
         <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
@@ -1209,6 +1228,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+
+      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
+        <button type="button" onClick={() => openComboBuilder("FIT")} className="group grid w-full overflow-hidden rounded-[1.7rem] border border-[#ef7d18]/70 bg-gradient-to-r from-[#1a140c] via-[#22160b] to-[#12170d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] md:grid-cols-[1.1fr_1.4fr]">
+          <div className="grid grid-cols-2 gap-1.5 bg-black/20 p-2 md:min-h-[190px]">
+            {["/images/page-6.jpg","/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg"].map((image) => (
+              <img key={image} src={image} alt="" className="h-24 w-full rounded-xl object-cover sm:h-32 md:h-full" />
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-4 p-5 sm:p-7">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Mais praticidade, mais economia</div>
+              <div className="mt-1 text-2xl font-black sm:text-3xl">MONTE SEU COMBO</div>
+              <div className="mt-1 text-2xl font-black text-[#ef7d18] sm:text-3xl">COMPRE MAIS • PAGUE MENOS</div>
+              <p className="mt-2 max-w-md text-sm leading-5 text-white/50">Escolha suas marmitas e monte o combo ideal para sua rotina.</p>
+            </div>
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#a7b86a] text-xl font-black text-black sm:h-14 sm:w-14">→</span>
+          </div>
+        </button>
+      </section>
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
           <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/30 bg-gradient-to-br from-[#1a2112] via-[#11160d] to-[#0b0e09] p-6 shadow-[0_20px_70px_rgba(0,0,0,.24)] md:p-9">
@@ -1299,17 +1342,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="nossos-pratos-title" className="mx-auto max-w-7xl px-4 pt-10 sm:px-5 md:px-8">
-        <div className="max-w-3xl">
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Cardápio Nutrifit</div>
-          <h2 id="nossos-pratos-title" className="mt-2 text-4xl font-black md:text-5xl">Nossos Pratos</h2>
-          <p className="mt-3 text-white/50">Escolha sua linha e monte sua refeição do seu jeito.</p>
-        </div>
-      </section>
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
 
       <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
         <div className="rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-7 md:p-10">
