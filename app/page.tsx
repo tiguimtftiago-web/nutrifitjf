@@ -785,14 +785,14 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </article>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void }) {
+function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void; onOpenCombo: (line?: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const showWeekCard = products.length % 2 === 1;
   const visibleProducts = expanded ? products : products.slice(0, 4);
   const hiddenCount = Math.max(products.length - 4, 0);
 
   return (
-    <section id={id} className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8">
+    <section id={id} className="mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
       <div className="max-w-3xl">
         <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
         <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
@@ -807,7 +807,7 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
         <button
           type="button"
           onClick={() => setExpanded((current) => !current)}
-          className="mx-auto mt-5 flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[.04] px-5 py-3 text-sm font-black text-white/80 transition hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10 hover:text-white"
+          className="mx-auto mt-4 flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[.04] px-5 py-3 text-sm font-black text-white/80 transition hover:border-[#a7b86a]/50 hover:bg-[#a7b86a]/10 hover:text-white"
           aria-expanded={expanded}
         >
           {expanded ? "Mostrar menos" : "Ver todos os " + products.length + " pratos"}
@@ -815,10 +815,10 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
         </button>
       )}
 
-      <a
-        href="#combos"
-        className="group relative mt-5 flex overflow-hidden rounded-3xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10130d] to-[#0b0e09] p-4 transition hover:-translate-y-1 hover:border-[#a7b86a]/50 sm:p-5"
-        onClick={() => trackClick("combo_cta_click", "section_combo")}
+      <button
+        type="button"
+        onClick={() => { onOpenCombo(); trackClick("combo_cta_click", "section_combo"); }}
+        className="group relative mt-4 flex w-full overflow-hidden rounded-3xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10130d] to-[#0b0e09] p-4 text-left transition hover:-translate-y-1 hover:border-[#a7b86a]/50 sm:p-5"
       >
         <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#ef7d18]/10 blur-2xl transition group-hover:bg-[#ef7d18]/20" />
         <div className="relative z-10 flex min-w-0 flex-1 items-center justify-between gap-4">
@@ -831,7 +831,7 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
             <span>Montar meu combo</span> <ArrowRight size={15} className="inline" />
           </div>
         </div>
-      </a>
+      </button>
     </section>
   );
 }
@@ -1071,7 +1071,7 @@ export default function Home() {
     setComboLineIndex(lineIndex >= 0 ? lineIndex : 0);
     setComboOpen(true);
     if (line) trackClick("combo_builder_start", line);
-    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   return (
@@ -1316,10 +1316,10 @@ export default function Home() {
           <p className="mt-3 text-white/50">Escolha sua linha e monte sua refeição do seu jeito.</p>
         </div>
       </section>
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit}  onAdd={addToOrder} />
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance}  onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads}  onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional}  onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
 
       <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
         <div className="rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-7 md:p-10">
