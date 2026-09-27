@@ -1215,7 +1215,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Categorias do cardápio" className="sticky top-[126px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl lg:top-[82px]">
+      <section aria-label="Categorias do cardápio" className="relative z-30 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl md:sticky md:top-[82px]">
         <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             <span className="shrink-0 px-1 text-[10px] font-black uppercase tracking-[.16em] text-white/35">Escolha sua refeição</span>
