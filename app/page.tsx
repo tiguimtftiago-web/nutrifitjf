@@ -1106,21 +1106,17 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hidden border-t border-white/10 bg-[#10130d] lg:hidden">
-          {menuOpen && (
-            <div className="border-t border-white/10 bg-[#10130d] px-3 py-3">
-              <div className="grid grid-cols-2 gap-2">
-                <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">CARDÁPIO</a>
-                <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
-                <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
-                <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
-              </div>
-              <button type="button" onClick={() => { setMenuOpen(false); setSearchOpen(true); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">
-                <Search size={18} /> O QUE VOCÊ PROCURA?
-              </button>
-            </div>
-          )}
-        </div>
+        {menuOpen && <div className="border-t border-white/10 bg-[#10130d] px-3 py-3 lg:hidden">
+          <div className="grid grid-cols-2 gap-2">
+            <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">CARDÁPIO</a>
+            <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
+            <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
+            <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
+          </div>
+          <button type="button" onClick={() => { setMenuOpen(false); setSearchOpen(true); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">
+            <Search size={18} /> O QUE VOCÊ PROCURA?
+          </button>
+        </div>}
       </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
