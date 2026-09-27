@@ -768,8 +768,8 @@ function ComboBuilder() {
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] shrink-0 overflow-hidden bg-black">
+    <article className="group flex min-w-0 h-full min-h-[390px] flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[.035] transition hover:-translate-y-1 hover:border-[#a7b86a]/35 sm:min-h-0">
+      <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.crop ? (
           <div
             aria-label={product.name}
@@ -781,9 +781,9 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
         )}
       </div>
-      <div className="flex flex-1 flex-col p-3.5 sm:p-5">
-        <span className="w-fit rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
-        <h3 className="mt-2.5 min-h-[3.25rem] text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
+      <div className="flex min-w-0 flex-1 flex-col p-3.5 sm:p-5">
+        <span className="w-fit max-w-full rounded-full bg-[#a7b86a] px-2.5 py-1 text-[9px] font-black tracking-wider text-black">{product.line} • {product.weight}</span>
+        <h3 className="mt-2.5 min-h-[3.25rem] break-words text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
         <p className="mt-2 min-h-[4.5rem] text-[11px] leading-[1.35rem] text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
         <div className="mt-auto pt-3.5 sm:pt-4"><div className="text-base font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
           <button type="button" onClick={() => onAdd(product)} className="mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2 py-2.5 text-[11px] font-black text-black sm:mt-3 sm:gap-1.5 sm:px-3 sm:text-sm"><ShoppingBag size={14} /> Adicionar à minha refeição</button>
