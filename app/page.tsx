@@ -1006,8 +1006,8 @@ export default function Home() {
           whatsapp: phone,
           email: email || null,
           birth_date: birthDate,
-          interfit_member: true,
-          interfit_joined_at: new Date().toISOString(),
+          nutrifit_club_member: true,
+          nutrifit_club_joined_at: new Date().toISOString(),
           marketing_consent: profileMarketing,
           marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
         }),
@@ -1025,7 +1025,7 @@ export default function Home() {
         email,
         birthDate,
         marketing: profileMarketing,
-        interfit: true,
+        nutrifitClub: true,
       }));
       setCustomerName(name);
       setCustomerPhone(phone);
@@ -1539,7 +1539,7 @@ export default function Home() {
             <input value={profileEmail} onChange={(e) => { setProfileEmail(e.target.value); setProfileStatus("idle"); }} placeholder="Seu e-mail (opcional)" type="email" autoComplete="email" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
             <input value={profileBirthDate} onChange={(e) => { setProfileBirthDate(e.target.value); setProfileStatus("idle"); }} placeholder="Data de nascimento (opcional)" type="date" autoComplete="bday" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/>
             <div className="rounded-xl border border-[#a7b86a]/25 bg-[#171d10] p-4">
-              <div className="text-sm font-black text-[#c8d98b]">CLUBE INTERFIT</div>
+              <div className="text-sm font-black text-[#c8d98b]">CLUBE NUTRIFIT</div>
               <div className="mt-1 text-xs leading-5 text-white/55">Seu cadastro já entra no Clube Interfit. Na primeira compra, você recebe <strong className="text-[#ef7d18]">R$ 10 OFF</strong>.</div>
               <div className="mt-2 inline-flex rounded-full bg-[#ef7d18]/10 px-2.5 py-1 text-[10px] font-black tracking-wider text-[#ef9b55]">CUPOM: BEMVINDO10</div>
             </div>
