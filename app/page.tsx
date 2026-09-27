@@ -238,6 +238,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<30 | 60>(30);
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [flavorsOpen, setFlavorsOpen] = useState(false);
   const option = monthlyPlanOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const totalPrice = parseMoney(option.prices[quantity]);
@@ -310,19 +311,29 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         </div>
       </div>
 
-      <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:flex-row sm:items-center sm:justify-between">
+      <button
+        type="button"
+        onClick={() => setFlavorsOpen((open) => !open)}
+        aria-expanded={flavorsOpen}
+        className="mt-5 flex w-full flex-col gap-3 rounded-2xl border border-[#a7b86a]/25 bg-white/[.025] p-4 text-left transition hover:border-[#a7b86a]/50 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div>
           <div className="text-sm font-black">Monte seu mês escolhendo os sabores</div>
-          <div className="mt-1 text-xs text-white/45">Misture sabores dentro da mesma linha. O preço por unidade é o mesmo do combo de 20.</div>
+          <div className="mt-1 text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : "Toque aqui para escolher as marmitas e adicionar ao pedido."}</div>
         </div>
-        <div className="shrink-0 text-left sm:text-right">
-          <div className="text-xs text-white/45">{total}/{quantity} selecionadas</div>
-          <div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
-          <div className="text-[11px] text-white/40">{money(unitPrice)} por marmita • frete grátis</div>
+        <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
+          <div className="text-left sm:text-right">
+            <div className="text-xs text-white/45">{total}/{quantity} selecionadas</div>
+            <div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
+            <div className="text-[11px] text-white/40">{money(unitPrice)} por marmita • frete grátis</div>
+          </div>
+          <span className="rounded-full border border-[#a7b86a]/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">
+            {flavorsOpen ? "Fechar" : "Escolher"}
+          </span>
         </div>
-      </div>
+      </button>
 
-      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
+      {flavorsOpen && <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
         {option.products.map((product) => (
           <div key={product.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
             <div className="min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
@@ -334,7 +345,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
             </div>
           </div>
         ))}
-      </div>
+      </div>}
 
       <div className="mt-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
         <div className="flex items-center justify-between gap-3 text-sm">
