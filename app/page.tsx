@@ -762,7 +762,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <article className="group flex min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
+      <div className="aspect-[1.18/1] w-full shrink-0 overflow-hidden bg-black sm:aspect-[4/3]">
         {product.crop ? (
           <div
             aria-label={product.name}
@@ -776,13 +776,13 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 break-words text-[14px] font-black leading-[1.15] sm:text-lg">{product.name}</h3>
+          <h3 className="min-w-0 break-words text-[13px] font-black leading-[1.12] sm:text-lg">{product.name}</h3>
           <span className="shrink-0 text-[10px] font-black text-white/45">{product.weight}</span>
         </div>
-        <p className="mt-1.5 min-h-[2.5rem] text-[10px] leading-4 text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <p className="mt-1.5 min-h-[2.25rem] text-[9.5px] leading-[1.15rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
         <div className="mt-auto flex items-center gap-2 pt-3">
-          <div className="text-lg font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-10 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-3 py-2 text-[11px] font-black text-black sm:px-4 sm:text-sm">
+          <div className="text-[16px] font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-10 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2.5 py-2 text-[10px] font-black text-black sm:px-4 sm:text-sm">
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
