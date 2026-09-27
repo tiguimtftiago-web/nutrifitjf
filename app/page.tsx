@@ -845,8 +845,8 @@ export default function Home() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
   const bannerSlides = [
-    { image: "/images/banner-site-1.jpg", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
-    { image: "/images/banner-site-2.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
+    { image: "/images/page-4.jpg", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
+    { image: "/images/page-12.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
     { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
       { label: "Alimentação planejada", icon: "apple" },
       { label: "Suporte às suas metas", icon: "dumbbell" },
