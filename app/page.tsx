@@ -786,7 +786,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         <h3 className="mt-2.5 min-h-[3.25rem] text-[15px] font-black leading-tight sm:mt-3 sm:text-xl">{product.name}</h3>
         <p className="mt-2 min-h-[4.5rem] text-[11px] leading-[1.35rem] text-white/50 sm:min-h-[4.5rem] sm:text-sm sm:leading-6" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
         <div className="mt-auto pt-3.5 sm:pt-4"><div className="text-base font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} className="mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2 py-2.5 text-[11px] font-black text-black sm:mt-3 sm:gap-1.5 sm:px-3 sm:text-sm"><ShoppingBag size={14} /> Adicionar ao pedido</button>
+          <button type="button" onClick={() => onAdd(product)} className="mt-2.5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2 py-2.5 text-[11px] font-black text-black sm:mt-3 sm:gap-1.5 sm:px-3 sm:text-sm"><ShoppingBag size={14} /> Adicionar à minha refeição</button>
         </div>
       </div>
     </article>
@@ -832,7 +832,7 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
             <div className="min-w-0 flex-1">
               <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit • Sua semana</div>
               <h3 className="mt-1 text-lg font-black leading-tight sm:text-2xl">Seu almoço da semana começa aqui.</h3>
-              <p className="mt-1 hidden max-w-2xl text-xs leading-5 text-white/50 sm:block">Escolha seus sabores, monte seu combo e deixe várias refeições da semana resolvidas.</p>
+              <p className="mt-1 hidden max-w-2xl text-xs leading-5 text-white/50 sm:block">Escolha seus sabores e deixe várias refeições da semana resolvidas.</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black text-[#c8d98b]">FIT • 350 g</span>
                 <span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black text-[#c8d98b]">PERFORMANCE • 450 g</span>
@@ -1226,7 +1226,7 @@ export default function Home() {
       <section aria-label="Categorias do cardápio" className="sticky top-[73px] z-40 border-b border-white/10 bg-[#080a07]/95 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-5 py-3 md:px-8">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <span className="shrink-0 px-1 text-[10px] font-black uppercase tracking-[.16em] text-white/35">Escolha sua opção</span>
+            <span className="shrink-0 px-1 text-[10px] font-black uppercase tracking-[.16em] text-white/35">Escolha sua refeição</span>
             <a href="#cardapio" className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-2 text-xs font-black text-black">Fit 350 g</a>
             <a href="#performance" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Performance 450 g</a>
             <a href="#saladas" className="shrink-0 rounded-full border border-white/15 bg-white/[.04] px-4 py-2 text-xs font-black text-white/80 transition hover:border-[#a7b86a]/40">Saladas</a>
@@ -1371,7 +1371,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div>
             <h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2>
-            <p className="mt-3 text-white/50">Escolha o sabor e o tamanho. Tudo entra no mesmo pedido das suas marmitas e saladas.</p>
+            <p className="mt-3 text-white/50">Escolha o sabor e o tamanho para completar sua refeição.</p>
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -1532,7 +1532,7 @@ export default function Home() {
                 ["Quais são os tamanhos das marmitas?","Fit e Saladas: 350 g. Performance: 450 g. Tradicional: 500 g."],
                 ["Saladas entram nos combos?","O catálogo informa as saladas como vendidas por unidade."],
                 ["Os sucos entram nos combos?","Os sucos são vendidos por unidade; consulte disponibilidade pelo WhatsApp."],
-                ["Como faço meu pedido?","Escolha suas opções no cardápio e clique em qualquer botão de pedido para falar com a Nutrifit."],
+                ["Como faço meu pedido?","Escolha suas refeições, confira o pedido e finalize pelo WhatsApp."],
                 ["Como funciona a entrega?","Para pedidos com menos de 20 marmitas, informe o CEP no montador de combos para calcular a taxa. A partir de 20 marmitas, o frete é grátis. Também é possível retirar na Nutrifit."],
                 ["Quando faço o pagamento?","O pagamento é realizado antecipadamente. Após a confirmação do pagamento, a Nutrifit prepara e realiza a entrega do pedido."]
               ].map(([question,answer]) => (
@@ -1610,7 +1610,7 @@ export default function Home() {
 
       {orderOpen && <div className="fixed inset-0 z-[60] bg-black/70 p-4 backdrop-blur-sm" onClick={() => setOrderOpen(false)}>
         <div className="mx-auto mt-6 max-h-[90vh] max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0d100c] p-5 shadow-2xl md:mt-10 md:p-7" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • revisão</div><h2 className="mt-1 text-2xl font-black">Revisar pedido</h2><p className="mt-1 text-sm text-white/45">Confira itens, quantidades, frete e total antes de abrir o WhatsApp.</p></div><button type="button" onClick={() => setOrderOpen(false)} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black">Fechar</button></div>
+          <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit • revisão</div><h2 className="mt-1 text-2xl font-black">Revisar pedido</h2><p className="mt-1 text-sm text-white/45">Confira suas refeições, quantidades, frete e total antes de finalizar.</p></div><button type="button" onClick={() => setOrderOpen(false)} className="rounded-full border border-white/15 px-3 py-2 text-xs font-black">Fechar</button></div>
           <div className="mt-5 space-y-2">{orderItems.map((item) => <div key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex justify-between gap-3"><div><div className="font-black">{item.name}</div><div className="mt-1 text-xs text-white/45">{item.line} • {item.weight} • {money(item.price)} cada</div></div><div className="font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div></div><div className="mt-3 flex items-center gap-2"><button type="button" onClick={() => changeOrderQty(item.name,-1)} className="rounded-full border border-white/15 p-2"><Minus size={14}/></button><span className="w-8 text-center font-black">{item.quantity}</span><button type="button" onClick={() => changeOrderQty(item.name,1)} className="rounded-full border border-white/15 p-2"><Plus size={14}/></button><button type="button" onClick={() => removeOrderItem(item.name)} className="ml-auto text-xs text-white/45">Remover</button></div></div>)}</div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2"><input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Nome do cliente" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="WhatsApp do cliente" inputMode="tel" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/></div>
           <div className="mt-3 flex gap-2"><input value={orderCep} onChange={(e) => setOrderCep(e.target.value)} placeholder="Digite seu CEP" inputMode="numeric" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none"/><button type="button" onClick={calculateOrderDelivery} className="rounded-xl bg-white/10 px-4 py-3 text-xs font-black">{orderDeliveryStatus === "loading" ? "Calculando..." : "Calcular frete"}</button></div>{orderDeliveryStatus === "error" && <div className="mt-2 text-xs text-[#ef7d18]">Não encontramos uma taxa para esse CEP. Você pode confirmar a entrega pelo WhatsApp.</div>}<div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4"><div className="flex justify-between text-sm text-white/55"><span>Subtotal</span><span>{money(orderSubtotal)}</span></div><div className="mt-1 flex justify-between text-sm text-white/55"><span>Desconto Clube Nutrifit</span><span className="text-[#a7b86a]">-{money(orderDiscount)}</span></div><div className="mt-1 flex justify-between text-sm text-white/55"><span>Frete</span><span>{orderFreeDelivery ? "Grátis" : money(orderDeliveryFee)}</span></div><div className="mt-3 flex justify-between border-t border-white/10 pt-3 text-lg font-black"><span>TOTAL</span><span className="text-[#ef7d18]">{money(orderGrandTotal)}</span></div></div>
