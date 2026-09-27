@@ -845,9 +845,9 @@ export default function Home() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
   const bannerSlides = [
-    { image: "/images/banner-site-1.svg", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
-    { image: "/images/banner-site-2.svg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
-    { image: "/images/banner-site-3.svg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
+    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
+    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
+    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
       { label: "Alimentação planejada", icon: "apple" },
       { label: "Suporte às suas metas", icon: "dumbbell" },
       { label: "Mais saúde e resultados", icon: "clipboard" },
@@ -1084,7 +1084,7 @@ export default function Home() {
   <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
     {bannerSlides.map((slide, index) => (
       <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
-        <img src={slide.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" fetchPriority={index === 0 ? "high" : "auto"} />
+        <img src={slide.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: index === 0 ? "72% center" : index === 1 ? "58% center" : "45% center" }} fetchPriority={index === 0 ? "high" : "auto"} />
         <a
           href={slide.href}
           onClick={() => trackClick("banner_cta_click", slide.source)}
