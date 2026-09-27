@@ -34,13 +34,13 @@ type Product = {
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
 
 const fit: Product[] = [
+  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
+  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
+  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes preparados na manteiga."],
   ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de mix de legumes, em uma refeição equilibrada e saborosa."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
   ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas acompanhado de legumes selecionados."],
   ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
-  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
-  ["Patinho com Legumes","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes selecionados."],
-  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
-  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
   image: ["/images/page-4.jpg","/images/page-5.jpg","/images/page-6.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-9.jpg","/images/page-10.jpg"][i]
