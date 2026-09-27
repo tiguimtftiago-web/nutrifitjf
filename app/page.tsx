@@ -809,10 +809,6 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
       </div>
     </div>
   );
-nfirmação do pagamento.
-      </div>
-    </div>
-  );
 }
 
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
