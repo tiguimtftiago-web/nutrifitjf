@@ -838,8 +838,22 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
 }
 
 export default function Home() {
+  const [bannerIndex, setBannerIndex] = useState(0);
   const [comboOpen, setComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+
+  const bannerSlides = [
+    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
+    { image: "/images/page-4.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
+    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Já tem orientação de nutricionista? Podemos montar suas refeições a partir dela. Ou, se preferir, fale com nossa nutricionista parceira.", cta: "Falar com a nutricionista", href: "https://wa.me/5532998030038?text=Ol%C3%A1%2C%20Nutrifit!%20Quero%20saber%20sobre%20o%20plano%20alimentar%20com%20a%20nutricionista.", source: "banner_nutricionista" },
+  ] as const;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setBannerIndex((current) => (current + 1) % bannerSlides.length);
+    }, 6500);
+    return () => window.clearInterval(timer);
+  }, [bannerSlides.length]);
   const addPlanToOrder = (items: OrderItem[]) => {
     setOrderItems((current) => {
       const next = [...current];
@@ -925,13 +939,30 @@ export default function Home() {
       </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
-        <div className="w-full overflow-hidden">
-          <img
-            src="/images/91de66d4-d4da-471c-9178-6ca8f363602c.png"
-            alt="Nutrifit — comida de verdade para todos os estilos de vida"
-            className="block h-auto w-full"
-            fetchPriority="high"
-          />
+        <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
+          {bannerSlides.map((slide, index) => (
+            <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
+              <img src={slide.image} alt={slide.title} className="absolute inset-0 h-full w-full object-cover" fetchPriority={index === 0 ? "high" : "auto"} />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/15" />
+              <div className="relative z-10 mx-auto flex min-h-[360px] max-w-7xl items-center px-6 py-14 md:min-h-[500px] md:px-8">
+                <div className="max-w-2xl">
+                  <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">{slide.eyebrow}</div>
+                  <h1 className="mt-3 text-4xl font-black leading-[1.02] md:text-6xl">{slide.title}</h1>
+                  <p className="mt-5 max-w-xl text-base leading-7 text-white/70 md:text-lg">{slide.text}</p>
+                  <a href={slide.href} onClick={() => trackClick("banner_cta_click", slide.source)} target={slide.href.startsWith("http") ? "_blank" : undefined} rel={slide.href.startsWith("http") ? "noreferrer" : undefined} className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black transition hover:scale-[1.01]">
+                    {slide.cta} <ArrowRight size={16} />
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            {bannerSlides.map((slide, index) => (
+              <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#a7b86a]" : "w-2 bg-white/45"}`} />
+            ))}
+          </div>
+          <button type="button" onClick={() => setBannerIndex((bannerIndex - 1 + bannerSlides.length) % bannerSlides.length)} aria-label="Banner anterior" className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">‹</button>
+          <button type="button" onClick={() => setBannerIndex((bannerIndex + 1) % bannerSlides.length)} aria-label="Próximo banner" className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">›</button>
         </div>
       </section>
 
@@ -974,6 +1005,20 @@ export default function Home() {
               <div className="mt-0.5 text-xs text-white/45">Combos de 5 a 20 marmitas</div>
             </a>
           </div>
+
+          <section id="plano-alimentar" className="mt-5 rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-6 md:p-8">
+            <div className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:items-center">
+              <div>
+                <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano alimentar • Nutrifit</div>
+                <h2 className="mt-2 text-2xl font-black md:text-3xl">Seu plano alimentar pode virar refeições prontas.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/55 md:text-base">Você já tem um plano alimentar feito pelo seu nutricionista? Traga as orientações para a Nutrifit e nós ajudamos a transformar o planejamento em refeições. Se preferir, também podemos encaminhar você para nossa nutricionista parceira.</p>
+              </div>
+              <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-1">
+                <a href={whatsappOrder("Olá, Nutrifit! Já tenho um plano alimentar feito pelo meu nutricionista e quero saber como montar minhas refeições.")} onClick={() => trackClick("nutritionist_click", "plano_proprio")} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-black">Tenho meu plano <MessageCircle size={16} /></a>
+                <a href={whatsappOrder("Olá, Nutrifit! Quero saber como funciona a consulta com a nutricionista parceira.")} onClick={() => trackClick("nutritionist_click", "nutricionista_nutrifit")} className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3.5 text-sm font-black">Quero consultar a nutricionista <ArrowRight size={16} /></a>
+              </div>
+            </div>
+          </section>
 
           <div id="b2b" className="mt-5 rounded-[2rem] border border-[#ef7d18]/20 bg-[#17120c] p-6 md:p-7">
             <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
