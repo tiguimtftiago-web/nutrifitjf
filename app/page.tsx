@@ -1159,38 +1159,38 @@ export default function Home() {
             <p className="mt-1.5 text-sm text-white/45">Escolha uma linha e encontre sua refeição.</p>
           </div>
 
-          <div className="mt-5 grid gap-2.5 md:grid-cols-3">
-            <a href="#cardapio" className="group rounded-[1.4rem] border border-[#a7b86a]/55 bg-[#a7b86a]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+            <a href="#cardapio" className="group rounded-[1.15rem] border border-[#a7b86a]/65 bg-[#a7b86a]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
+              <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha Fit</div>
-                  <div className="mt-1 text-xl font-black">FIT <span className="text-[#a7b86a]">350 g</span></div>
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.18em]">Linha Fit</div>
+                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">FIT <span className="text-[#a7b86a]">350 g</span></div>
+                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Leve, equilibrada e saborosa.</div>
                 </div>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#a7b86a]/60 text-lg text-[#a7b86a]">→</span>
+                <span className="grid h-7 w-7 place-items-center self-end rounded-full border border-[#a7b86a]/70 text-sm text-[#a7b86a] sm:h-10 sm:w-10 sm:text-lg">→</span>
               </div>
-              <div className="mt-2 text-sm text-white/50">Leve, equilibrada e saborosa.</div>
             </a>
 
-            <a href="#performance" className="group rounded-[1.4rem] border border-white/15 bg-white/[.03] p-4 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
+            <a href="#performance" className="group rounded-[1.15rem] border border-white/15 bg-white/[.03] p-2.5 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40 sm:rounded-[1.4rem] sm:p-4 md:p-5">
+              <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Linha Performance</div>
-                  <div className="mt-1 text-xl font-black">PERFORMANCE <span className="text-[#ef7d18]">450 g</span></div>
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Performance</div>
+                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">PERFORMANCE <span className="text-[#ef7d18]">450 g</span></div>
+                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Mais proteína para o seu dia.</div>
                 </div>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/60 text-lg text-[#ef7d18]">→</span>
+                <span className="grid h-7 w-7 place-items-center self-end rounded-full border border-[#ef7d18]/70 text-sm text-[#ef7d18] sm:h-10 sm:w-10 sm:text-lg">→</span>
               </div>
-              <div className="mt-2 text-sm text-white/50">Mais proteína para o seu dia.</div>
             </a>
 
-            <a href="#tradicional" className="group rounded-[1.4rem] border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-4 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
+            <a href="#tradicional" className="group rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
+              <div className="flex min-h-[126px] flex-col justify-between sm:min-h-[150px]">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Linha Tradicional</div>
-                  <div className="mt-1 text-xl font-black">TRADICIONAL <span className="text-[#ef7d18]">500 g</span></div>
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Linha Tradicional</div>
+                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">TRADICIONAL <span className="text-[#ef7d18]">500 g</span></div>
+                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Refeições mais completas.</div>
                 </div>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/60 text-lg text-[#ef7d18]">→</span>
+                <span className="grid h-7 w-7 place-items-center self-end rounded-full border border-[#ef7d18]/70 text-sm text-[#ef7d18] sm:h-10 sm:w-10 sm:text-lg">→</span>
               </div>
-              <div className="mt-2 text-sm text-white/50">Refeições mais completas e caseiras.</div>
             </a>
           </div>
           <section id="plano-alimentar" className="mt-5 rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-6 md:p-8">
