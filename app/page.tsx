@@ -1203,13 +1203,13 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-
       <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
         <button type="button" onClick={() => openComboBuilder("FIT")} className="group grid w-full overflow-hidden rounded-[1.7rem] border border-[#ef7d18]/70 bg-gradient-to-r from-[#1a140c] via-[#22160b] to-[#12170d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] md:grid-cols-[1.1fr_1.4fr]">
           <div className="grid grid-cols-2 gap-1.5 bg-black/20 p-2 md:min-h-[190px]">
             {["/images/page-6.jpg","/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg"].map((image) => (
-              <img key={image} src={image} alt="" className="h-24 w-full rounded-xl object-cover sm:h-32 md:h-full" />
+              <div key={image} className="h-24 overflow-hidden rounded-xl bg-black sm:h-32 md:h-full">
+              <img src={image} alt="" className="h-full w-full scale-[1.55] object-cover object-[78%_center] sm:scale-[1.45]" />
+            </div>
             ))}
           </div>
           <div className="flex items-center justify-between gap-4 p-5 sm:p-7">
@@ -1225,6 +1225,8 @@ export default function Home() {
       </section>
 
       
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
