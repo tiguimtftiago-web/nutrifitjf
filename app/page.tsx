@@ -792,14 +792,14 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
   const hiddenCount = Math.max(products.length - 4, 0);
 
   return (
-    <section id={id} className="mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
+    <section id={id} className="mx-auto max-w-7xl px-4 py-4 sm:px-5 sm:py-6 md:px-8">
       <div className="max-w-3xl">
         <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
         <h2 className="mt-2 text-4xl font-black md:text-5xl">{title}</h2>
         <p className="mt-3 text-white/50">{subtitle}</p>
       </div>
 
-      <div className="mt-7 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-5 lg:grid-cols-3">
         {visibleProducts.map((product) => <ProductCard key={product.name} product={product} onAdd={onAdd} />)}
       </div>
 
