@@ -586,7 +586,11 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     root.addEventListener("click", onClick);
     return () => {
       root.removeEventListener("touchend", onTouchEnd);
-      root.removeEventListener("click", onClick);\n    };\n  });\n\n  return (
+      root.removeEventListener("click", onClick);
+    };
+  });
+
+  return (
     <div ref={comboRootRef} className="mt-8 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-4 md:p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
