@@ -845,7 +845,7 @@ export default function Home() {
   const bannerSlides = [
     { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
     { image: "/images/page-4.jpg", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
-    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Já tem orientação de nutricionista? Podemos montar suas refeições a partir dela. Ou, se preferir, fale com nossa nutricionista parceira.", cta: "Falar com a nutricionista", href: "https://wa.me/5532998030038?text=Ol%C3%A1%2C%20Nutrifit!%20Quero%20saber%20sobre%20o%20plano%20alimentar%20com%20a%20nutricionista.", source: "banner_nutricionista" },
+    { image: "/images/page-12.jpg", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Já tem orientação de nutricionista? Podemos montar suas refeições a partir dela. Ou, se preferir, fale com nossa nutricionista parceira.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista" },
   ] as const;
 
   useEffect(() => {
