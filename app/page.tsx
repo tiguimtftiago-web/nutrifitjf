@@ -29,6 +29,7 @@ type Product = {
   description: string;
   image: string;
   crop?: string;
+  comingSoon?: boolean;
 };
 
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
@@ -45,6 +46,16 @@ const fit: Product[] = [
   name,line,weight,price,description,
   image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg"][i]
 }));
+
+const fitComingSoon: Product[] = [
+  { name: "Pernil Acebolado com Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno acebolado acompanhado de batata inglesa.", image: "", comingSoon: true },
+  { name: "Frango ao Molho de Mostarda com Batata", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango ao molho de mostarda acompanhado de batata inglesa.", image: "", comingSoon: true },
+  { name: "Escondidinho Fit de Frango", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango desfiado com purê de batata em uma versão fit.", image: "", comingSoon: true },
+  { name: "Frango Empanado Assado com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango empanado e assado acompanhado de arroz integral.", image: "", comingSoon: true },
+  { name: "Pernil Desfiado ao Molho com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno desfiado ao molho acompanhado de arroz integral.", image: "", comingSoon: true },
+];
+
+fit.push(...fitComingSoon);
 
 const performance: Product[] = [
   ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, molho de tomate artesanal, queijo parmesão, arroz integral e legumes."],
@@ -933,7 +944,16 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
   return (
     <article className="group flex min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
-        {product.crop ? (
+        {product.comingSoon ? (
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-5 text-center">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a] sm:text-xs">Novidade</div>
+              <div className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">EM BREVE</div>
+              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[#ef7d18]" />
+              <div className="mt-3 text-[10px] font-semibold text-white/45 sm:text-xs">Novo prato Nutrifit</div>
+            </div>
+          </div>
+        ) : product.crop ? (
           <div
             aria-label={product.name}
             role="img"
