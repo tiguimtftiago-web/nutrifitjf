@@ -478,6 +478,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   };
 
   const reset = () => {
+    setStep(1);
     setSelected({});
     setCep("");
     setDeliveryMode("delivery");
@@ -650,9 +651,9 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
             <div className="mt-1 text-sm text-white/45">Depois você escolhe os sabores sem precisar voltar.</div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             {comboOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border p-3.5 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
                 <div className="text-[11px] font-black tracking-wider text-[#a7b86a]">{item.line}</div>
                 <div className="mt-1 text-xs font-bold text-white/55">{item.weight}</div>
               </button>
