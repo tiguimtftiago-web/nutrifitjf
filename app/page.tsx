@@ -854,8 +854,14 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
               <span className="text-white/45">Linha</span><strong>{option.line} • {option.weight}</strong>
               <span className="text-white/45">Marmitas</span><strong>{quantity}</strong>
               <span className="text-white/45">Subtotal</span><strong>{money(subtotal)}</strong>
+              {complementItems.length > 0 && (
+                <>
+                  <span className="text-white/45">Complementos</span>
+                  <strong className="text-right">{complementTotal > 0 ? money(complementTotal) : "Preço a confirmar"}</strong>
+                </>
+              )}
               <span className="text-white/45">Entrega</span><strong>{deliveryFee === 0 ? "Grátis" : money(deliveryFee)}</strong>
-              <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-[#ef7d18]">{money(grandTotal)}</strong>
+              <span className="border-t border-white/10 pt-2 font-black">{complementItems.some((item) => item.price === null) ? "Total parcial" : "Total"}</span><strong className="border-t border-white/10 pt-2 text-[#ef7d18]">{money(grandTotal)}</strong>
             </div>
           </div>
 
@@ -867,6 +873,11 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
           <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 text-sm text-white/55">
             <div className="font-black text-white">Pagamento pelo WhatsApp</div>
             <div className="mt-1">Ao tocar no botão, o pedido será preparado com seus sabores, valor e entrega. Você envia o comprovante do Pix pelo WhatsApp.</div>
+            {complementItems.some((item) => item.price === null) && (
+              <div className="mt-3 rounded-xl bg-[#ef7d18]/10 px-3 py-2 text-xs font-bold text-[#efb06d]">
+                Sanduíches e frutas estão selecionados para o pedido, mas o preço será confirmado pelo WhatsApp.
+              </div>
+            )}
           </div>
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
