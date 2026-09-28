@@ -47,7 +47,7 @@ const fit: Product[] = [
   ["Strogonoff de Frango Fit","FIT","350 g","R$ 23,97","Frango em cubos ao molho cremoso de strogonoff, acompanhado de arroz branco."]
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/frango-pure-batata-inglesa-v3.webp","/images/frango-molho-tomate-arroz.jpg","/images/escondidinho-frango-fit.webp","/images/strogonoff-frango-fit.webp"][i]
+  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/frango-pure-batata-inglesa-v3.webp?v=5","/images/frango-molho-tomate-arroz.jpg","/images/escondidinho-frango-fit.webp","/images/strogonoff-frango-fit.webp"][i]
 }));
 
 const performance: Product[] = [
