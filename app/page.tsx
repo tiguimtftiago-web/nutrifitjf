@@ -658,23 +658,24 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
               <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
                 <div className="text-[11px] font-black tracking-wider text-[#a7b86a]">{item.line}</div>
                 <div className="mt-1 text-xs font-bold text-white/55">{item.weight}</div>
+                <div className="mt-2 text-xs font-black text-[#ef7d18]">{item.prices[5]} <span className="font-normal text-white/35">• 5 un.</span></div>
               </button>
             ))}
           </div>
 
           <div className="mt-5">
             <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
-            <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:gap-2">
               {([5, 7, 10, 14, 20] as const).map((value) => (
-                <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 rounded-2xl border px-3 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
-                  {value}
-                  <span className={`mt-0.5 block text-[10px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
+                <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
+                  <span className="block text-base sm:text-sm">{value}</span>
+                  <span className={`mt-0.5 block truncate text-[8px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black">
+          <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99]">
             Escolher sabores <ArrowRight size={18} />
           </button>
         </div>
