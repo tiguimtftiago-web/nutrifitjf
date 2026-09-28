@@ -1310,7 +1310,7 @@ export default function Home() {
               <span className="mt-0.5 text-[8px] font-black leading-none text-white/70 sm:text-[9px] lg:hidden">Carrinho</span>
             </button>
 
-            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
+            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" aria-expanded={menuOpen} title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
               <span className="text-[25px] leading-[1]">☰</span>
               <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px]">Menu</span>
             </button>
@@ -1319,7 +1319,11 @@ export default function Home() {
 
         {menuOpen && <div className="border-t border-white/10 bg-[#10130d] px-3 py-3 lg:hidden">
           <div className="grid grid-cols-2 gap-2">
-            <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">CARDÁPIO</a>
+            <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">FIT 350 g</a>
+            <a href="#performance" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERFORMANCE 450 g</a>
+            <a href="#saladas" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SALADAS</a>
+            <a href="#tradicional" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">TRADICIONAL 500 g</a>
+            <a href="#sucos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SUCOS</a>
             <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
             <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
             <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
