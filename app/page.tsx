@@ -756,7 +756,6 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
         Pagamento antecipado via Pix. O pedido é confirmado após a confirmação do pagamento.
       </div>
     </div>
-    </div>
   );
 }
 
