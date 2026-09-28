@@ -210,7 +210,7 @@ const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] 
 const normalizeText = (value: string) =>
   value
     .normalize("NFD")
-    .replace(/[\\u0300-\\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
 
@@ -805,7 +805,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </article>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void; onOpenCombo: (line?: string) => void }) {
+function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
   const visibleProducts = expanded ? products : products.slice(0, 4);
   const hiddenCount = Math.max(products.length - 2, 0);
@@ -870,6 +870,19 @@ export default function Home() {
     }, 3500);
     return () => window.clearInterval(timer);
   }, [bannerSlides.length]);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOrderOpen(false);
+      setProfileOpen(false);
+      setSearchOpen(false);
+      setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
+
   const addPlanToOrder = (items: OrderItem[]) => {
     setOrderItems((current) => {
       const next = [...current];
@@ -935,61 +948,97 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
-  const sendFullOrder = async () => {
+  const sendFullOrder = () => {
     if (!orderItems.length) return;
-    const lines = orderItems.map((item, i) => {
-      const subtotal = item.price * item.quantity;
-      return `${i + 1}. ${item.quantity}x ${item.name}\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   Subtotal: ${money(subtotal)}`;
-    }).join("\n\n");
-    const notesText = orderNotes.trim();
 
+    const lines = orderItems.map((item, i) => {
+      const itemSubtotal = item.price * item.quantity;
+      return `${i + 1}. ${item.quantity}x ${item.name}\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   Subtotal: ${money(itemSubtotal)}`;
+    }).join("\n\n");
+
+    const notesText = orderNotes.trim();
     const deliverySummary = orderFreeDelivery
       ? `Entrega grátis — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
         ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "Taxa de entrega a confirmar pelo WhatsApp";
-    const message = ["🥗 NUTRIFIT • NOVO PEDIDO","━━━━━━━━━━━━━━━━━━━━","",`Cliente: ${customerName.trim() || "A informar"}`,`WhatsApp: ${customerPhone.trim() || "A informar"}`,"","🛒 ITENS DO PEDIDO","",lines,"","━━━━━━━━━━━━━━━━━━━━",`📦 QUANTIDADE: ${orderCount} item(ns)`,`💰 SUBTOTAL: ${money(orderSubtotal)}`,`🎁 DESCONTO CLUBE NUTRIFIT: -${money(orderDiscount)}`,`🚚 FRETE: ${money(orderDeliveryFee)}`,`💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,"","📍 ENTREGA",deliverySummary,"","💳 PAGAMENTO VIA PIX",`Chave Pix: ${PIX_KEY}`,"Enviar o comprovante por este WhatsApp após o pagamento.","","✅ Pedido conferido pelo cliente."].join("\n");
 
-    try {
-      await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
-        method: "POST",
-        headers: {
-          apikey: SUPABASE_PUBLISHABLE_KEY,
-          "Content-Type": "application/json",
-          Prefer: "return=minimal",
-        },
-        body: JSON.stringify({
-          customer_name: customerName.trim() || null,
-          whatsapp: customerPhone.replace(/\\D/g, "") || null,
-          items: orderItems,
-          item_count: orderCount,
-          subtotal: orderSubtotal,
-          delivery_fee: orderDeliveryFee,
-          total: orderGrandTotal,
-          cep: orderCep.replace(/\\D/g, "") || null,
-          neighborhood: orderDelivery?.neighborhood || null,
-        }),
-      });
+    const message = [
+      "🥗 NUTRIFIT • NOVO PEDIDO",
+      "━━━━━━━━━━━━━━━━━━━━",
+      "",
+      `Cliente: ${customerName.trim() || "A informar"}`,
+      `WhatsApp: ${customerPhone.trim() || "A informar"}`,
+      "",
+      "🛒 ITENS DO PEDIDO",
+      "",
+      lines,
+      "",
+      "━━━━━━━━━━━━━━━━━━━━",
+      `📦 QUANTIDADE: ${orderCount} item(ns)`,
+      `💰 SUBTOTAL: ${money(orderSubtotal)}`,
+      `🎁 DESCONTO CLUBE NUTRIFIT: -${money(orderDiscount)}`,
+      `🚚 FRETE: ${money(orderDeliveryFee)}`,
+      `💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,
+      "",
+      "📍 ENTREGA",
+      deliverySummary,
+      ...(notesText ? ["", "📝 OBSERVAÇÕES", notesText] : []),
+      "",
+      "💳 PAGAMENTO VIA PIX",
+      `Chave Pix: ${PIX_KEY}`,
+      "Enviar o comprovante por este WhatsApp após o pagamento.",
+      "",
+      "✅ Pedido conferido pelo cliente."
+    ].join("\n");
 
-      if (clubDiscount > 0) {
-        const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
+    const whatsappUrl = whatsappOrder(message);
+    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    if (!whatsappWindow) window.location.href = whatsappUrl;
+
+    void (async () => {
+      try {
+        await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
           method: "POST",
-          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({ p_whatsapp: customerPhone.replace(/\\D/g, "") }),
+          headers: {
+            apikey: SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({
+            customer_name: customerName.trim() || null,
+            whatsapp: customerPhone.replace(/\D/g, "") || null,
+            items: orderItems,
+            item_count: orderCount,
+            subtotal: orderSubtotal,
+            delivery_fee: orderDeliveryFee,
+            total: orderGrandTotal,
+            cep: orderCep.replace(/\D/g, "") || null,
+            neighborhood: orderDelivery?.neighborhood || null,
+            notes: notesText || null,
+          }),
         });
-        if (redeemResponse.ok) {
-          setClubDiscount(0);
-          try {
-            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
-            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
-          } catch {}
-        }
-      }
-    } catch (error) {
-      console.error("order capture", error);
-    }
 
-    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+        if (clubDiscount > 0) {
+          const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
+            method: "POST",
+            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ p_whatsapp: customerPhone.replace(/\D/g, "") }),
+          });
+          if (redeemResponse.ok) {
+            setClubDiscount(0);
+            try {
+              const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+              window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+            } catch {}
+          }
+        }
+      } catch (error) {
+        console.error("order capture", error);
+      }
+    })();
+
+    setOrderOpen(false);
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
   const searchResults = searchTerm.trim()
@@ -1263,11 +1312,11 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} />
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-0 sm:px-5 sm:py-3 md:px-8 md:py-8">
           <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
@@ -1597,6 +1646,188 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </main>
+    
+      {orderOpen && (
+        <div className="fixed inset-0 z-[100]">
+          <button type="button" aria-label="Fechar carrinho" onClick={() => setOrderOpen(false)} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
+          <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-7">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Seu pedido</div>
+                <h2 id="cart-title" className="mt-1 text-2xl font-black">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
+              </div>
+              <button type="button" onClick={() => setOrderOpen(false)} aria-label="Fechar carrinho" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+              {!orderItems.length ? (
+                <div className="grid min-h-[45vh] place-items-center text-center">
+                  <div>
+                    <ShoppingCart size={42} className="mx-auto text-[#a7b86a]" />
+                    <h3 className="mt-4 text-xl font-black">Seu carrinho está vazio</h3>
+                    <p className="mt-2 max-w-xs text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
+                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
+                      Ver cardápio
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    {orderItems.map((item) => (
+                      <article key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <h3 className="break-words font-black leading-tight">{item.name}</h3>
+                            <div className="mt-1 text-xs text-white/40">{item.line} • {item.weight} • {money(item.price)} cada</div>
+                          </div>
+                          <button type="button" onClick={() => removeOrderItem(item.name)} aria-label={`Remover ${item.name}`} className="shrink-0 rounded-full p-2 text-white/40 hover:bg-white/5 hover:text-white">
+                            <X size={16} />
+                          </button>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={15} /></button>
+                            <span className="w-8 text-center font-black">{item.quantity}</span>
+                            <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} className="grid h-10 w-10 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                          </div>
+                          <div className="text-lg font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 grid gap-3">
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seus dados</div>
+                    <label className="text-xs font-bold text-white/55">Nome
+                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs font-bold text-white/55">WhatsApp
+                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} inputMode="tel" autoComplete="tel" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                    </label>
+                  </div>
+
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega</div>
+                        <div className="mt-1 text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div>
+                      </div>
+                      <Truck size={21} className="shrink-0 text-[#a7b86a]" />
+                    </div>
+                    {!orderFreeDelivery && (
+                      <>
+                        <div className="mt-3 flex gap-2">
+                          <input value={orderCep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setOrderCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setOrderDelivery(null); setOrderDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
+                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
+                          </button>
+                        </div>
+                        {orderDelivery && <div className="mt-3 text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
+                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
+                      </>
+                    )}
+                    {orderFreeDelivery && <div className="mt-3 text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
+                  </div>
+
+                  <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
+                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                  </label>
+                </>
+              )}
+            </div>
+
+            {orderItems.length > 0 && (
+              <div className="border-t border-white/10 bg-[#080a07] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-7">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
+                  <span className="text-white/45">Clube Nutrifit</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
+                  <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
+                  <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
+                </div>
+                <button type="button" onClick={sendFullOrder} className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-4 font-black text-black">
+                  Finalizar no WhatsApp <ArrowRight size={18} />
+                </button>
+              </div>
+            )}
+          </aside>
+        </div>
+      )}
+
+      {searchOpen && (
+        <div className="fixed inset-0 z-[110]">
+          <button type="button" aria-label="Fechar busca" onClick={() => setSearchOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <section role="dialog" aria-modal="true" aria-labelledby="search-title" className="absolute left-1/2 top-16 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
+            <div className="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
+              <Search size={21} className="shrink-0 text-[#a7b86a]" />
+              <input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Busque por prato ou suco..." aria-label="Buscar produtos" className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:text-white/30" />
+              <button type="button" onClick={() => setSearchOpen(false)} aria-label="Fechar busca" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5"><X size={18} /></button>
+            </div>
+            <div className="max-h-[65vh] overflow-y-auto p-3 sm:p-4">
+              {searchTerm.trim() && !searchResults.length && <div className="p-6 text-center text-sm text-white/45">Nenhum produto encontrado.</div>}
+              {!searchTerm.trim() && <div id="search-title" className="p-6 text-center text-sm text-white/40">Digite o nome de uma marmita, salada ou suco.</div>}
+              <div className="grid gap-2">
+                {searchResults.map((product) => (
+                  <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left hover:border-[#a7b86a]/40">
+                    <span className="min-w-0">
+                      <span className="block break-words font-black">{product.name}</span>
+                      <span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {product.price}</span>
+                    </span>
+                    <ArrowRight size={18} className="shrink-0 text-[#a7b86a]" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {profileOpen && (
+        <div className="fixed inset-0 z-[120]">
+          <button type="button" aria-label="Fechar minha conta" onClick={() => setProfileOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <section role="dialog" aria-modal="true" aria-labelledby="profile-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
+            <div className="flex items-center justify-between gap-4 border-b border-white/10 p-5">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Clube Nutrifit</div>
+                <h2 id="profile-title" className="mt-1 text-2xl font-black">Minha conta</h2>
+              </div>
+              <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
+            </div>
+            <div className="max-h-[75vh] overflow-y-auto p-5 sm:p-6">
+              <p className="text-sm leading-6 text-white/50">Cadastre seus dados para agilizar seus próximos pedidos e participar do Clube Nutrifit.</p>
+              <div className="mt-5 grid gap-3">
+                <label className="text-xs font-bold text-white/55">Nome completo
+                  <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                </label>
+                <label className="text-xs font-bold text-white/55">WhatsApp
+                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                </label>
+                <label className="text-xs font-bold text-white/55">E-mail
+                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                </label>
+                <label className="text-xs font-bold text-white/55">Data de nascimento
+                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                </label>
+                <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs leading-5 text-white/55">
+                  <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a]" />
+                  Quero receber novidades e ofertas da Nutrifit.
+                </label>
+              </div>
+
+              {profileStatus === "exists" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Este WhatsApp já está cadastrado no Clube Nutrifit.</div>}
+              {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
+              {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm text-[#d8e7a0]">Cadastro concluído. Seu benefício de boas-vindas foi aplicado.</div>}
+
+              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">
+                {profileStatus === "saving" ? <><Loader2 size={17} className="animate-spin" /> Salvando...</> : "Salvar cadastro"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+</main>
   );
 }
