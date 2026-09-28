@@ -574,7 +574,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
       `Quantidade: ${quantity} marmitas`,
       `Subtotal: ${money(subtotal)}`,
       `Frete: ${money(deliveryFee)}`,
-      `TOTAL A PAGAR: ${money(grandTotal)}`,
+      `${hasPendingComplementPrice ? "TOTAL PARCIAL DO PEDIDO" : "TOTAL A PAGAR"}: ${money(grandTotal)}`,
       "",
       "📍 RECEBIMENTO",
       deliveryText,
@@ -588,7 +588,9 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     setPaymentStatus("idle");
   };
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
-  const customerReady = Boolean(customerName.trim() && customerPhone.trim());
+  const normalizedPhone = customerPhone.replace(/\D/g, "");
+  const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
+  const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
   const comboRootRef = useRef<HTMLDivElement>(null);
 
@@ -868,13 +870,13 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
           <div className="mt-4 grid gap-3">
             <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
           </div>
 
           <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 text-sm text-white/55">
             <div className="font-black text-white">Pagamento pelo WhatsApp</div>
             <div className="mt-1">Ao tocar no botão, o pedido será preparado com seus sabores, valor e entrega. Você envia o comprovante do Pix pelo WhatsApp.</div>
-            {complementItems.some((item) => item.price === null) && (
+            {hasPendingComplementPrice && (
               <div className="mt-3 rounded-xl bg-[#ef7d18]/10 px-3 py-2 text-xs font-bold text-[#efb06d]">
                 Sanduíches e frutas estão selecionados para o pedido, mas o preço será confirmado pelo WhatsApp.
               </div>
@@ -887,7 +889,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
           </div>
-          {!customerReady && <div className="mt-3 text-center text-xs text-[#ef9b55]">Preencha nome e WhatsApp para liberar o botão.</div>}
+          {!customerReady && <div className="mt-3 text-center text-xs text-[#ef9b55]">Informe seu nome e um WhatsApp válido para liberar o botão.</div>}
         </div>
       )}
 
