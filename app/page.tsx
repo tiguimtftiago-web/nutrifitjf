@@ -345,7 +345,13 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         </div>
       </div>
 
-      <div className="p-5 sm:p-7 md:p-9">
+      <div className="p-4 sm:p-7 md:p-9">
+        <div className="sticky top-[72px] z-20 -mx-1 mb-5 rounded-2xl border border-white/10 bg-[#0d110c]/95 p-3 shadow-xl backdrop-blur-xl sm:static sm:mx-0 sm:mb-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+          <div className="flex items-center justify-between gap-3">
+            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu plano</div><div className="mt-0.5 text-sm font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div></div>
+            <div className="text-right"><div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div><div className="text-[10px] text-white/40">{total}/{quantity} escolhidas</div></div>
+          </div>
+        </div>
         <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Quantidade</div>
         <div className="mt-3 grid grid-cols-2 gap-2.5">
           {[30, 60].map((value) => (
@@ -376,12 +382,13 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         </button>
 
         {flavorsOpen && (
-          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
             {option.products.map((product) => (
-              <div key={product.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
-                <div className="min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
+              <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
+                <img src={product.image} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover sm:mb-2 sm:h-24 sm:w-full" loading="lazy" />
+                <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
                 <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
-                <div className="mt-3 flex items-center justify-between gap-2">
+                <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
                   <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
                   <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
                   <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
@@ -412,7 +419,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
             {remaining > 0 && <span>Faltam {remaining}</span>}
             {remaining === 0 && <span className="text-[#a7b86a]">Plano completo ✓</span>}
           </div>
-          <button type="button" onClick={addToCart} disabled={total !== quantity} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black transition hover:scale-[1.01] disabled:opacity-35">
+          <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
             Adicionar plano ao pedido <ShoppingBag size={18} />
           </button>
           <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
