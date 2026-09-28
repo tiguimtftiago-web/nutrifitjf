@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -1224,9 +1224,15 @@ export default function Home() {
           <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
           <div className="mt-1 text-2xl font-black leading-tight sm:text-3xl">Seu plano alimentar pode virar refeições prontas.</div>
           <p className="mt-2 max-w-3xl text-sm leading-5 text-white/50">Você já tem um plano feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas.</p>
-          <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
-            <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 text-sm font-black text-black">Tenho meu plano <MessageCircle size={17} /></a>
-            <a href={whatsappOrder("Olá Nutrifit! Quero falar com a nutricionista parceira da Nutrifit.")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/50 bg-[#ef7d18]/5 px-5 text-sm font-black text-[#ef7d18]">Quero falar com a nutricionista <MessageCircle size={17} /></a>
+          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3">
+            <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#a7b86a]/40 bg-[#a7b86a]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/10 sm:min-h-28 sm:p-4">
+              <ClipboardCheck size={25} strokeWidth={2} className="text-[#a7b86a] sm:h-7 sm:w-7" />
+              <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano <ArrowRight size={15} /></span>
+            </a>
+            <a href={whatsappOrder("Olá Nutrifit! Quero falar com a nutricionista parceira da Nutrifit.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/10 sm:min-h-28 sm:p-4">
+              <Stethoscope size={25} strokeWidth={2} className="text-[#ef7d18] sm:h-7 sm:w-7" />
+              <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista <ArrowRight size={15} /></span>
+            </a>
           </div>
         </div>
       </section>
