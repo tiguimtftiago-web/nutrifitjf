@@ -1364,7 +1364,7 @@ export default function Home() {
         >
           <div className="max-w-xl px-5 py-9 sm:px-7 sm:py-10 md:px-14">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ff5a00]">{slide.eyebrow}</div>
-            <h1 className="mt-3 text-[2rem] leading-[1.05] sm:text-4xl font-black leading-[1.05] text-[#ff5a00] md:text-5xl">{slide.title}</h1>
+            <h1 className="mt-3 text-[2rem] font-black leading-[1.05] text-[#ff5a00] sm:text-4xl md:text-5xl">{slide.title}</h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
             <span className="mt-6 inline-flex rounded-full bg-[#a7b86a] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
           </div>
