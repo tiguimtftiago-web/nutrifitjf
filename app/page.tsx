@@ -1271,7 +1271,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#080a07] text-white">
+    <>
+      <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-2 px-3 sm:h-[80px] sm:px-4 md:h-[82px] md:gap-5 md:px-7">
           <a href="#inicio" aria-label="Nutrifit — início" className="flex min-w-0 shrink-0 items-center gap-2.5">
@@ -1962,9 +1963,9 @@ export default function Home() {
         </div>
       )}
 
-</main>
+      </main>
 
-<footer className="border-t border-white/10 bg-black">
+      <footer className="border-t border-white/10 bg-black">
   <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-5 md:flex-row md:items-center md:justify-between md:px-8">
     <div>
       <div className="text-lg font-black tracking-tight">NUTRIFIT</div>
@@ -1986,7 +1987,7 @@ export default function Home() {
   <div className="border-t border-white/5 px-4 py-4 text-center text-[10px] text-white/25 sm:px-5">
     Nutrifit • Juiz de Fora/MG
   </div>
-</footer>
-
+      </footer>
+    </>
   );
 }
