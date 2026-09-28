@@ -1759,7 +1759,7 @@ export default function Home() {
       {searchOpen && (
         <div className="fixed inset-0 z-[110]">
           <button type="button" aria-label="Fechar busca" onClick={() => setSearchOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-          <section role="dialog" aria-modal="true" aria-labelledby="search-title" className="absolute left-1/2 top-16 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
+          <section role="dialog" aria-modal="true" aria-label="Buscar produtos" className="absolute left-1/2 top-16 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
             <div className="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
               <Search size={21} className="shrink-0 text-[#a7b86a]" />
               <input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Busque por prato ou suco..." aria-label="Buscar produtos" className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:text-white/30" />
