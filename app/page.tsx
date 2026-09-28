@@ -1783,14 +1783,19 @@ export default function Home() {
         <div className="fixed inset-0 z-[100]">
           <button type="button" aria-label="Fechar carrinho" onClick={() => setOrderOpen(false)} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
           <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 bg-[#0b0e09]/95 px-4 py-3 backdrop-blur sm:px-7 sm:py-4">
-              <div>
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-[#0b0e09]/95 px-4 py-3 backdrop-blur sm:px-7 sm:py-4">
+              <div className="min-w-0">
                 <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Seu pedido</div>
                 <h2 id="cart-title" className="mt-1 text-xl font-black sm:text-2xl">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
               </div>
-              <button type="button" onClick={() => setOrderOpen(false)} aria-label="Fechar carrinho" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70">
-                <X size={20} />
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                <button type="button" onClick={() => setOrderOpen(false)} className="hidden rounded-full border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-black text-white/75 sm:block">
+                  Continuar comprando
+                </button>
+                <button type="button" onClick={() => setOrderOpen(false)} aria-label="Fechar carrinho" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-6 sm:px-7 sm:py-5">
@@ -1800,8 +1805,8 @@ export default function Home() {
                     <ShoppingCart size={42} className="mx-auto text-[#a7b86a]" />
                     <h3 className="mt-4 text-xl font-black">Seu carrinho está vazio</h3>
                     <p className="mt-2 max-w-xs text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
-                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth" }); }} className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
-                      Ver cardápio
+                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
+                      Voltar ao cardápio
                     </button>
                   </div>
                 </div>
