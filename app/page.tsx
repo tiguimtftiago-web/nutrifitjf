@@ -294,76 +294,90 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   };
 
   return (
-    <div className="mt-7 rounded-[2rem] border border-[#a7b86a]/20 bg-[#10130d] p-5 md:p-7">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Quantidade</div>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {[30, 60].map((value) => (
-              <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-xl border px-4 py-3 text-left text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
-                {value} marmitas
-                <span className="mt-1 block text-xs font-normal text-white/40">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Linha</div>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {monthlyPlanOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-xl border px-1.5 py-3 text-[11px] font-black leading-tight whitespace-normal break-words transition sm:px-2 sm:text-xs ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#a7b86a]" : "border-white/10 bg-white/[.03] text-white/65"}`}>
-                {item.line}<span className="mt-1 block text-[10px] font-normal text-white/40">{item.weight}</span>
-              </button>
-            ))}
-          </div>
+    <div className="mt-7 overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-[#0d110c]">
+      <div className="relative overflow-hidden border-b border-white/10">
+        <img src="/images/nutrifit-fit-350-sprite.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070907] via-[#080a08]/95 to-[#080a08]/55" />
+        <div className="relative px-5 py-7 sm:px-7 sm:py-9 md:px-9">
+          <div className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Plano mensal</div>
+          <h3 className="mt-1 text-4xl font-black tracking-tight sm:text-5xl">NUTRI<span className="text-[#ef7d18]">FIT</span></h3>
+          <div className="mt-3 text-xl font-black sm:text-2xl">Seu mês de refeições pronto.</div>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">Escolha a quantidade, a linha e monte seus sabores.</p>
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setFlavorsOpen((open) => !open)}
-        aria-expanded={flavorsOpen}
-        className="mt-5 flex w-full flex-col gap-3 rounded-2xl border border-[#a7b86a]/25 bg-white/[.025] p-4 text-left transition hover:border-[#a7b86a]/50 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <div>
-          <div className="text-sm font-black">Monte seu mês escolhendo os sabores</div>
-          <div className="mt-1 text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : "Toque aqui para escolher as marmitas e adicionar ao pedido."}</div>
+      <div className="p-5 sm:p-7 md:p-9">
+        <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Quantidade</div>
+        <div className="mt-3 grid grid-cols-2 gap-2.5">
+          {[30, 60].map((value) => (
+            <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-2xl border px-4 py-4 text-left transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15" : "border-white/10 bg-white/[.025]"}`}>
+              <span className={`block text-base font-black sm:text-lg ${quantity === value ? "text-[#cbd99a]" : "text-white/75"}`}>{value} marmitas</span>
+              <span className="mt-1 block text-xs text-white/45">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
+            </button>
+          ))}
         </div>
-        <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
-          <div className="text-left sm:text-right">
-            <div className="text-xs text-white/45">{total}/{quantity} selecionadas</div>
-            <div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
-            <div className="text-[11px] text-white/40">{money(unitPrice)} por marmita • frete grátis</div>
-          </div>
-          <span className="rounded-full border border-[#a7b86a]/30 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">
-            {flavorsOpen ? "Fechar" : "Escolher"}
+
+        <div className="mt-6 text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Linha</div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {monthlyPlanOptions.map((item, index) => (
+            <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-2xl border px-2 py-3.5 text-center transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#cbd99a]" : "border-white/10 bg-white/[.025] text-white/65"}`}>
+              <span className="block whitespace-nowrap text-[10px] font-black sm:text-xs">{item.line}</span>
+              <span className="mt-1 block text-[10px] text-white/40">{item.weight}</span>
+            </button>
+          ))}
+        </div>
+
+        <button type="button" onClick={() => setFlavorsOpen((open) => !open)} aria-expanded={flavorsOpen} className="mt-6 flex w-full items-center gap-4 rounded-2xl border border-[#a7b86a]/35 bg-[#11160e] p-4 text-left transition hover:border-[#a7b86a]/60">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xl">🍱</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-black">Escolher meus sabores</span>
+            <span className="mt-1 block text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : `Selecione as ${quantity} marmitas do seu plano.`}</span>
           </span>
-        </div>
-      </button>
-
-      {flavorsOpen && <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">
-        {option.products.map((product) => (
-          <div key={product.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
-            <div className="min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
-            <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
-            <div className="mt-3 flex items-center justify-between gap-2">
-              <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
-              <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
-              <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
-            </div>
-          </div>
-        ))}
-      </div>}
-
-      <div className="mt-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <span className="text-white/55">Faltam</span>
-          <span className="font-black">{remaining} marmitas</span>
-        </div>
-        <button type="button" onClick={addToCart} disabled={total !== quantity} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-35">
-          Adicionar plano ao pedido <ShoppingBag size={17} />
+          <span className="text-2xl text-[#ef7d18]">›</span>
         </button>
-        <div className="mt-2 text-center text-[11px] text-white/40">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
+
+        {flavorsOpen && (
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+            {option.products.map((product) => (
+              <div key={product.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
+                <div className="min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
+                <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
+                  <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
+                  <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-7 grid gap-6 border-t border-white/10 pt-6 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <div className="text-xl font-black">{quantity} marmitas</div>
+            <div className="mt-1 text-4xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
+            <div className="mt-1 text-sm text-white/50">{money(unitPrice)} por marmita</div>
+            <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+          </div>
+          <div className="space-y-2 text-sm text-white/60 sm:min-w-[180px]">
+            <div>✓ Mais praticidade</div>
+            <div>✓ Alimentação equilibrada</div>
+            <div>✓ Economia no mês</div>
+            <div>✓ Sabores variados</div>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="mb-2 flex items-center justify-between text-xs text-white/45">
+            <span>{total}/{quantity} selecionadas</span>
+            {remaining > 0 && <span>Faltam {remaining}</span>}
+            {remaining === 0 && <span className="text-[#a7b86a]">Plano completo ✓</span>}
+          </div>
+          <button type="button" onClick={addToCart} disabled={total !== quantity} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black transition hover:scale-[1.01] disabled:opacity-35">
+            Adicionar plano ao pedido <ShoppingBag size={18} />
+          </button>
+          <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
+        </div>
       </div>
     </div>
   );
