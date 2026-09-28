@@ -1204,23 +1204,17 @@ export default function Home() {
       </section>
 
       <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
-        <button type="button" onClick={() => openComboBuilder("FIT")} className="group grid w-full overflow-hidden rounded-[1.7rem] border border-[#ef7d18]/70 bg-gradient-to-r from-[#1a140c] via-[#22160b] to-[#12170d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] md:grid-cols-[1.1fr_1.4fr]">
-          <div className="grid grid-cols-2 gap-1.5 bg-black/20 p-2 md:min-h-[190px]">
-            {["/images/page-6.jpg","/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg"].map((image) => (
-              <div key={image} className="h-24 overflow-hidden rounded-xl bg-black sm:h-32 md:h-full">
-              <img src={image} alt="" className="h-full w-full scale-[1.55] object-cover object-[78%_center] sm:scale-[1.45]" />
-            </div>
-            ))}
+        <button type="button" onClick={() => openComboBuilder("FIT")} className="group relative flex min-h-[142px] w-full items-center overflow-hidden rounded-[1.5rem] border border-[#ef7d18]/65 bg-gradient-to-r from-[#17130d] via-[#1b160d] to-[#10150d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] sm:min-h-[158px]">
+          <div className="relative z-10 min-w-0 flex-1 p-4 pr-28 sm:p-6 sm:pr-40">
+            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
+            <div className="mt-1 text-[22px] font-black leading-tight sm:text-3xl">MONTE SEU COMBO</div>
+            <div className="mt-1 text-[18px] font-black leading-tight text-[#ef7d18] sm:text-2xl">COMPRE MAIS • PAGUE MENOS</div>
+            <p className="mt-2 max-w-md text-[11px] leading-4 text-white/50 sm:text-sm sm:leading-5">Escolha suas marmitas e monte o combo ideal para sua rotina.</p>
           </div>
-          <div className="flex items-center justify-between gap-4 p-5 sm:p-7">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Mais praticidade, mais economia</div>
-              <div className="mt-1 text-2xl font-black sm:text-3xl">MONTE SEU COMBO</div>
-              <div className="mt-1 text-2xl font-black text-[#ef7d18] sm:text-3xl">COMPRE MAIS • PAGUE MENOS</div>
-              <p className="mt-2 max-w-md text-sm leading-5 text-white/50">Escolha suas marmitas e monte o combo ideal para sua rotina.</p>
-            </div>
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#a7b86a] text-xl font-black text-black sm:h-14 sm:w-14">→</span>
+          <div className="absolute right-3 top-1/2 h-[116px] w-[116px] -translate-y-1/2 overflow-hidden rounded-[1.15rem] border border-white/10 bg-black sm:right-5 sm:h-[130px] sm:w-[170px]">
+            <img src="/images/page-6.jpg" alt="Marmita Nutrifit" className="h-full w-full scale-[1.45] object-cover object-[78%_center] sm:scale-[1.3]" />
           </div>
+          <span className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-lg font-black text-black sm:bottom-4 sm:right-4 sm:h-11 sm:w-11">→</span>
         </button>
       </section>
 
