@@ -298,20 +298,6 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
     setSelected((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
   };
 
-  const addComplement = (name: string) => {
-    setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
-  };
-
-  const removeComplement = (name: string) => {
-    setSelectedComplements((current) => {
-      const next = { ...current };
-      if (!next[name]) return current;
-      if (next[name] === 1) delete next[name];
-      else next[name] -= 1;
-      return next;
-    });
-  };
-
   const removeProduct = (name: string) => {
     setSelected((current) => {
       const next = { ...current };
