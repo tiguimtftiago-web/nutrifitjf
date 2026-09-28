@@ -1284,7 +1284,7 @@ export default function Home() {
                     key={line}
                     type="button"
                     onClick={() => openComboBuilder(line)}
-                    className={`group relative flex min-h-[104px] items-center gap-3 rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[116px] sm:p-4 ${
+                    className={`group relative flex min-h-[82px] items-center gap-2.5 rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[96px] sm:p-4 md:min-h-[116px] ${
                       index === 0 ? "border-[#a7b86a]/55 bg-[#a7b86a]/10" : index === 1 ? "border-white/12 bg-white/[.03]" : "border-[#ef7d18]/35 bg-[#ef7d18]/5"
                     }`}
                   >
@@ -1292,15 +1292,17 @@ export default function Home() {
                       <div className={`text-[9px] font-black uppercase tracking-[.18em] ${
                         index === 2 ? "text-[#ef7d18]" : "text-[#a7b86a]"
                       }`}>{line}</div>
-                      <div className="mt-0.5 text-lg font-black sm:text-xl">{weight}</div>
-                      <div className="mt-1 text-[11px] font-semibold leading-4 text-white/65 sm:text-xs">{description}</div>
+                      <div className="mt-1 text-[10px] font-semibold leading-3.5 text-white/65 sm:text-xs">{description}</div>
                     </div>
-                    <div className="flex shrink-0 flex-col items-end justify-between self-stretch">
-                      <span className={`grid h-8 w-8 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 ${
-                        index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
-                      }`}>→</span>
-                      <div className="text-right text-[10px] leading-4 text-white/40">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
+
+                    <div className="shrink-0 border-l border-white/10 pl-2.5 sm:pl-4">
+                      <div className="text-lg font-black leading-none sm:text-xl">{weight}</div>
+                      <div className="mt-1 whitespace-nowrap text-[9px] leading-3 text-white/40 sm:text-[10px]">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
                     </div>
+
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9 ${
+                      index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
+                    }`}>→</span>
                   </button>
                 ))}
               </div>
