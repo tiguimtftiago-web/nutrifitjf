@@ -1352,7 +1352,7 @@ export default function Home() {
       </header>
 
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
-  <div className="relative min-h-[360px] overflow-hidden md:min-h-[500px]">
+  <div className="relative min-h-[400px] overflow-hidden sm:min-h-[430px] md:min-h-[500px]">
     {bannerSlides.map((slide, index) => (
       <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
         <img src={slide.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: index === 0 ? "72% center" : index === 1 ? "58% center" : "45% center" }} fetchPriority={index === 0 ? "high" : "auto"} />
@@ -1362,9 +1362,9 @@ export default function Home() {
           className="absolute inset-0 z-10 flex items-center bg-[linear-gradient(90deg,#000_0%,#000_52%,rgba(0,0,0,.88)_68%,rgba(0,0,0,.12)_88%,transparent_100%)]"
           aria-label={slide.title}
         >
-          <div className="max-w-xl px-7 py-10 md:px-14">
+          <div className="max-w-xl px-5 py-9 sm:px-7 sm:py-10 md:px-14">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ff5a00]">{slide.eyebrow}</div>
-            <h1 className="mt-3 text-3xl font-black leading-[1.05] text-[#ff5a00] md:text-5xl">{slide.title}</h1>
+            <h1 className="mt-3 text-[2rem] leading-[1.05] sm:text-4xl font-black leading-[1.05] text-[#ff5a00] md:text-5xl">{slide.title}</h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
             <span className="mt-6 inline-flex rounded-full bg-[#a7b86a] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
           </div>
