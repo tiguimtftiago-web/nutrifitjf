@@ -951,8 +951,8 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string;
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        {visibleProducts.map((product, index) => (
-          <div key={product.name} className={!expanded && index >= 2 ? "hidden sm:block" : "block"}>
+        {visibleProducts.map((product) => (
+          <div key={product.name}>
             <ProductCard product={product} onAdd={onAdd} />
           </div>
         ))}
