@@ -982,8 +982,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const visibleProducts = expanded ? products : products.slice(0, 2);
-  const hiddenCount = Math.max(products.length - 2, 0);
+  const visibleProducts = expanded ? products : products.slice(0, 3);
+  const hiddenCount = Math.max(products.length - 3, 0);
 
   return (
     <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -998,9 +998,9 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
-          <div key={product.name}>
+          <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
             <ProductCard product={product} onAdd={onAdd} />
           </div>
         ))}
