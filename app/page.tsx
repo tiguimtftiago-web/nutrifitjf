@@ -962,7 +962,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const visibleProducts = expanded ? products : products.slice(0, 4);
+  const visibleProducts = expanded ? products : products.slice(0, 2);
   const hiddenCount = Math.max(products.length - 2, 0);
 
   return (
