@@ -749,6 +749,18 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
               const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
               return (
                 <div key={category} className="rounded-3xl border border-white/10 bg-white/[.025] p-4">
+                  {category === "FRUTAS" && (
+                    <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
+                      <img
+                        src="/images/frutas-picadas-nutrifit.jpg"
+                        alt="Apresentação das frutas picadas Nutrifit"
+                        className="h-auto w-full object-cover"
+                      />
+                      <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
+                        Referência de apresentação das frutas picadas.
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <div className="text-lg font-black">{labels[category]}</div>
