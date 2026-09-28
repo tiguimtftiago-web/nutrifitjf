@@ -1788,6 +1788,17 @@ export default function Home() {
               <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-xs font-black">Falar com a Nutrifit <MessageCircle size={15} /></a>
             </div>
           </div>
+
+          <div className="mt-5 overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/10 p-4 sm:mt-7 sm:rounded-[2rem] sm:p-6 md:flex md:items-center md:justify-between md:gap-6">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#d8e7a0]">Pronto para começar?</div>
+              <h2 className="mt-1 text-lg font-black sm:text-2xl">Monte seu pedido e fale com a Nutrifit.</h2>
+              <p className="mt-1 text-xs leading-5 text-white/50 sm:text-sm">Escolha suas refeições, confira o total e finalize pelo WhatsApp.</p>
+            </div>
+            <a href="#cardapio" className="mt-3 inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black sm:mt-4 sm:w-auto md:mt-0">
+              Ver cardápio <ArrowRight size={15} />
+            </a>
+          </div>
         </div>
       </section>
     
