@@ -792,7 +792,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
 }
 function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void; onOpenCombo: (line?: string) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const visibleProducts = expanded ? products : products.slice(0, 2);
+  const visibleProducts = expanded ? products : products.slice(0, 4);
   const hiddenCount = Math.max(products.length - 2, 0);
 
   return (
@@ -813,7 +813,11 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:gap-4 lg:grid-cols-4">
-        {visibleProducts.map((product) => <ProductCard key={product.name} product={product} onAdd={onAdd} />)}
+        {visibleProducts.map((product, index) => (
+          <div key={product.name} className={!expanded && index >= 2 ? "hidden sm:block" : ""}>
+            <ProductCard product={product} onAdd={onAdd} />
+          </div>
+        ))}
       </div>
       {expanded && hiddenCount > 0 && (
         <div className="mt-4 text-center text-[11px] font-bold text-white/30">{products.length} opções disponíveis nesta linha.</div>
