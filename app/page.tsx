@@ -45,7 +45,7 @@ const fit: Product[] = [
   ["Frango Desfiado ao Molho de Tomate + Arroz","FIT","350 g","R$ 23,97","Frango desfiado ao molho de tomate artesanal acompanhado de arroz soltinho."]
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/frango-pure-batata-inglesa.webp","/images/frango-molho-tomate-arroz.jpg"][i]
+  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/frango-pure-batata-inglesa.webp?v=2","/images/frango-molho-tomate-arroz.jpg"][i]
 }));
 
 const performance: Product[] = [
