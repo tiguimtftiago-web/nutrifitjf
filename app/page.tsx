@@ -604,7 +604,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
         <div>
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador Nutrifit</div>
           <h3 className="mt-1.5 text-2xl font-black md:text-4xl">Monte seu combo</h3>
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-white/50">Você só precisa seguir os 4 passos. No celular, avance quando terminar cada etapa.</p>
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-white/50">Você só precisa seguir os 5 passos. No celular, avance quando terminar cada etapa.</p>
         </div>
         <button type="button" onClick={reset} className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
       </div>
