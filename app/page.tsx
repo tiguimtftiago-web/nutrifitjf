@@ -254,6 +254,11 @@ const parseMoney = (value: string) => Number(value.replace(/[^0-9,]/g, "").repla
 
 type OrderItem = { name: string; line: string; weight: string; price: number; quantity: number };
 
+const itemLineLabel = (line: string) => {
+  const labels: Record<string, string> = { FIT: "Fit 350 g", PERFORMANCE: "Performance 450 g", TRADICIONAL: "Tradicional 500 g" };
+  return labels[line] || line;
+};
+
 
 const comboOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
