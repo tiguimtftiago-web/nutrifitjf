@@ -541,7 +541,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   };
 
   const sendOrder = () => {
-    if (total !== quantity || (!delivery && quantity < DELIVERY_FREE_FROM) || !customerName.trim() || !customerPhone.trim()) return;
+    if (total !== quantity || !deliveryReady || !customerReady) return;
     trackClick("combo_order_click", `${option.line}-${quantity}`);
 
     setPaymentStatus("loading");
@@ -612,7 +612,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
         <button type="button" onClick={reset} className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-3.5">
+      <div className="sticky top-[72px] z-30 mt-5 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-3.5 shadow-xl backdrop-blur-xl sm:static sm:bg-white/[.025] sm:shadow-none">
         <div className="grid grid-cols-5 gap-1.5">
           {[["1","Escolha"],["2","Sabores"],["3","Complete"],["4","Entrega"],["5","Finalizar"]].map(([number,label]) => {
             const n = Number(number) as 1 | 2 | 3 | 4 | 5;
@@ -678,6 +678,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
           <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99]">
             Escolher sabores <ArrowRight size={18} />
           </button>
+          <div className="mt-2 text-center text-[10px] font-bold text-white/30">Você poderá alterar a linha e a quantidade antes de confirmar.</div>
         </div>
       )}
 
@@ -690,12 +691,15 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
           <div className="grid gap-2.5 sm:grid-cols-2">
             {option.products.map((product) => (
-              <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3.5">
-                <div className="min-w-0">
-                  <div className="font-black text-sm leading-tight">{product.name}</div>
-                  <div className="mt-1 text-xs text-white/40">{product.weight}</div>
+              <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:p-3.5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <img src={product.image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover sm:h-16 sm:w-16" loading="lazy" />
+                  <div className="min-w-0">
+                    <div className="break-words font-black text-sm leading-tight">{product.name}</div>
+                    <div className="mt-1 text-xs text-white/40">{product.weight} • {product.price}</div>
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                   <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
                   <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
                   <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
