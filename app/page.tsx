@@ -1326,7 +1326,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
                 {[
                   ["Energy","/images/page-36.jpg","FUNCIONAL","Beterraba • Laranja • Maçã • Limão"],
                   ["Green","/images/page-37.jpg","DETOX","Maçã • Pepino • Gengibre • Hortelã • Limão"],
@@ -1336,29 +1336,29 @@ export default function Home() {
                   ["Glow","/images/page-41.jpg","FUNCIONAL","Morango • Laranja • Cenoura • Beterraba • Limão"],
                 ].map(([name,image,badge,ingredients]) => (
                   <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#a7b86a]/55">
-                    <div className="relative aspect-[3/2] overflow-hidden">
+                    <div className="relative aspect-[16/8] overflow-hidden sm:aspect-[3/2]">
                       <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                       <span className="absolute left-3 top-3 rounded-full border border-[#a7b86a]/45 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
                     </div>
-                    <div className="p-3.5 sm:p-5 md:p-7">
+                    <div className="p-4 sm:p-5 md:p-7">
                       <div className="text-2xl font-black sm:text-2xl md:text-3xl">{name}</div>
-                      <div className="mt-1 min-h-8 text-[11px] leading-5 text-white/55 sm:text-xs md:text-sm">{ingredients}</div>
-                      <div className="mt-4 grid min-w-0 grid-cols-2 gap-2">
+                      <div className="mt-1 min-h-8 text-xs leading-5 text-white/55 sm:text-xs md:text-sm">{ingredients}</div>
+                      <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
                         {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                           <button key={size} type="button" onClick={() => {
                             const product = juiceProducts.find((item) => item.name === name + " — " + size);
                             if (product) addToOrder(product);
-                          }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-1.5 py-3 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10 sm:px-2">
+                          }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10 sm:px-2">
                             <span className="block whitespace-nowrap text-[10px] text-white/55 sm:text-xs">{size}</span>
-                            <span className="mt-0.5 block whitespace-nowrap text-[15px] font-black text-[#ef7d18] sm:text-xl">{price}</span>
+                            <span className="mt-0.5 block whitespace-nowrap text-lg font-black text-[#ef7d18] sm:text-xl">{price}</span>
                           </button>
                         ))}
                       </div>
                       <button type="button" onClick={() => {
                         const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                         if (product) addToOrder(product);
-                      }} className="mt-3 flex min-h-[52px] w-full items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[#b7dc62] px-1.5 text-[11px] font-black text-black shadow-lg transition hover:scale-[1.01] sm:gap-2 sm:px-3 sm:text-sm md:min-h-[58px] md:text-base">
-                        <ShoppingCart size={18} strokeWidth={2} className="shrink-0" /> <span className="truncate">Adicionar ao carrinho</span>
+                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#b7dc62] px-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
+                        <ShoppingCart size={20} strokeWidth={2} className="shrink-0" /> <span>Adicionar ao carrinho</span>
                       </button>
                     </div>
                   </div>
@@ -1383,13 +1383,13 @@ export default function Home() {
                     ["Abacaxi com Hortelã","/images/page-44.jpg"],
                   ].map(([name,image]) => (
                     <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#ef7d18]/45">
-                      <div className="relative aspect-[3/2] overflow-hidden">
+                      <div className="relative aspect-[16/8] overflow-hidden sm:aspect-[3/2]">
                         <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                         <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
-                      <div className="p-3.5 sm:p-5 md:p-7">
+                      <div className="p-4 sm:p-5 md:p-7">
                         <div className="text-base font-black sm:text-lg">{name}</div>
-                        <div className="mt-4 grid min-w-0 grid-cols-2 gap-2">
+                        <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
                           {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
@@ -1403,7 +1403,7 @@ export default function Home() {
                         <button type="button" onClick={() => {
                           const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                           if (product) addToOrder(product);
-                        }} className="mt-3 flex min-h-[52px] w-full items-center justify-center gap-1 whitespace-nowrap rounded-full bg-[#b7dc62] px-1.5 text-[11px] font-black text-black shadow-lg transition hover:scale-[1.01] sm:gap-2 sm:px-3 sm:text-sm md:min-h-[58px] md:text-base">
+                        }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#b7dc62] px-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
                           <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
                         </button>
                       </div>
