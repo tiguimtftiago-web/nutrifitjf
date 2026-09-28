@@ -936,16 +936,16 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <article className="group flex min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
-      <div className="aspect-square w-full shrink-0 overflow-hidden bg-black sm:aspect-[4/3]">
+      <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.crop ? (
           <div
             aria-label={product.name}
             role="img"
-            className="h-full w-full bg-cover bg-no-repeat transition duration-500 group-hover:scale-105"
+            className="h-full w-full bg-cover bg-no-repeat brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105"
             style={{ backgroundImage: `url(${product.image})`, backgroundSize: "400% 200%", backgroundPosition: product.crop }}
           />
         ) : (
-          <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+          <img src={product.image} alt={product.name} className="h-full w-full object-cover brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105" loading="lazy" />
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-4">
