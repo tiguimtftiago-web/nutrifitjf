@@ -1254,6 +1254,125 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
+      <section id="sucos" className="scroll-mt-24 border-y border-white/10 bg-[#0d100c]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10140d] to-[#0b0e09]">
+            <div className="relative overflow-hidden border-b border-white/10">
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent" />
+              <div className="relative grid min-h-[220px] items-end p-5 sm:min-h-[260px] sm:p-7 md:grid-cols-[1fr_1.15fr] md:items-center md:p-10">
+                <div className="max-w-xl">
+                  <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Refresque sua rotina</div>
+                  <h2 className="mt-1 text-4xl font-black tracking-tight sm:text-5xl">Linha de <span className="text-[#ef7d18]">Sucos</span></h2>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-white/55">Sabor, frescor e praticidade para acompanhar sua refeição.</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {["100% natural","Funcionais","Sem conservantes"].map((item) => (
+                      <span key={item} className="rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#cbd99a]">{item}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="pointer-events-none absolute right-[-12%] top-0 h-full w-[62%] opacity-90 md:right-0 md:w-1/2">
+                  <img src="/images/page-36.jpg" alt="" className="h-full w-full object-cover object-center" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#10140d] via-transparent to-transparent" />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Funcionais</div>
+                  <h3 className="mt-1 text-xl font-black sm:text-2xl">Escolha seu sabor</h3>
+                </div>
+                <div className="text-right text-[10px] text-white/35">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+                {[
+                  ["Energy","/images/page-36.jpg","FUNCIONAL","Beterraba • Laranja • Maçã • Limão"],
+                  ["Green","/images/page-37.jpg","DETOX","Maçã • Pepino • Gengibre • Hortelã • Limão"],
+                  ["Pink","/images/page-38.jpg","FUNCIONAL","Morango • Beterraba • Laranja • Limão"],
+                  ["Sun","/images/page-39.jpg","REFRESCANTE","Abacaxi • Maracujá • Laranja • Gengibre"],
+                  ["Purple","/images/page-40.jpg","ANTIOXIDANTE","Uva • Frutas vermelhas • Limão"],
+                  ["Glow","/images/page-41.jpg","FUNCIONAL","Morango • Laranja • Cenoura • Beterraba • Limão"],
+                ].map(([name,image,badge,ingredients]) => (
+                  <div key={name} className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/45">
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                      <span className="absolute left-2.5 top-2.5 rounded-full bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
+                    </div>
+                    <div className="p-3 sm:p-4">
+                      <div className="text-base font-black sm:text-lg">{name}</div>
+                      <div className="mt-1 min-h-8 text-[9px] leading-4 text-white/45 sm:text-[10px]">{ingredients}</div>
+                      <div className="mt-3 grid grid-cols-2 gap-1.5">
+                        {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
+                          <button key={size} type="button" onClick={() => {
+                            const product = juiceProducts.find((item) => item.name === name + " — " + size);
+                            if (product) addToOrder(product);
+                          }} className="rounded-lg border border-white/10 bg-white/[.03] px-2 py-2 text-center transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
+                            <span className="block text-[8px] font-bold text-white/45">{size}</span>
+                            <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <button type="button" onClick={() => {
+                        const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
+                        if (product) addToOrder(product);
+                      }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black transition hover:scale-[1.01]">
+                        <Plus size={13} /> Adicionar 500 ml
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 border-t border-white/10 pt-6">
+                <div className="mb-4 flex items-end justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Naturais</div>
+                    <h3 className="mt-1 text-xl font-black">Clássicos da Nutrifit</h3>
+                  </div>
+                  <div className="text-right text-[10px] text-white/35">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                  {[
+                    ["Suco de Laranja","/images/page-42.jpg"],
+                    ["Laranja com Acerola","/images/page-43.jpg"],
+                    ["Abacaxi com Hortelã","/images/page-44.jpg"],
+                  ].map(([name,image]) => (
+                    <div key={name} className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#ef7d18]/40">
+                      <div className="relative aspect-[4/3] overflow-hidden">
+                        <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                        <span className="absolute left-2.5 top-2.5 rounded-full bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <div className="text-sm font-black sm:text-base">{name}</div>
+                        <div className="mt-3 grid grid-cols-2 gap-1.5">
+                          {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
+                            <button key={size} type="button" onClick={() => {
+                              const product = juiceProducts.find((item) => item.name === name + " — " + size);
+                              if (product) addToOrder(product);
+                            }} className="rounded-lg border border-white/10 bg-white/[.03] px-2 py-2 text-center transition hover:border-[#ef7d18]/40 hover:bg-[#ef7d18]/5">
+                              <span className="block text-[8px] font-bold text-white/45">{size}</span>
+                              <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <button type="button" onClick={() => {
+                          const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
+                          if (product) addToOrder(product);
+                        }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black transition hover:scale-[1.01]">
+                          <Plus size={13} /> Adicionar 500 ml
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 sm:py-8 md:px-8">
@@ -1394,75 +1513,6 @@ export default function Home() {
                 <p className="mt-2 text-sm leading-6 text-white/45">{text}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="sucos" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
-        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-8 md:p-12">
-          <div className="max-w-3xl">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Funcionais e 100% naturais</div>
-            <h2 className="mt-2 text-4xl font-black">Linha de Sucos</h2>
-            <p className="mt-3 text-white/50">Escolha o sabor e o tamanho para completar sua refeição.</p>
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {functionalJuices.map(([name, image]) => (
-              <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                </div>
-                <div className="p-4">
-                  <div className="font-black">{name}</div>
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    {[["500 ml","R$ 12,90"],["300 ml","R$ 9,90"]].map(([size, price]) => (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => {
-                          const product = juiceProducts.find((item) => item.name === `${name} — ${size}`);
-                          if (product) addToOrder(product);
-                        }}
-                        className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10"
-                      >
-                        {size} <b className="mt-0.5 block text-sm text-[#ef7d18]">{price}</b>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 border-t border-white/10 pt-8">
-            <div className="text-sm font-black uppercase tracking-wider text-[#ef7d18]">Sucos naturais</div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {naturalJuices.map(([name, image]) => (
-                <div key={name} className="group overflow-hidden rounded-2xl border border-white/10 bg-black/20 hover:border-[#a7b86a]/40">
-                  <div className="aspect-[4/3] overflow-hidden">
-                    <img src={image} alt={name} className="h-full w-full object-cover transition duration-500" loading="lazy" />
-                  </div>
-                  <div className="p-4">
-                    <div className="font-black">{name}</div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      {[["500 ml","R$ 12,90"],["300 ml","R$ 9,90"]].map(([size, price]) => (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => {
-                            const product = juiceProducts.find((item) => item.name === `${name} — ${size}`);
-                            if (product) addToOrder(product);
-                          }}
-                          className="rounded-xl bg-white/5 px-3 py-2 text-left text-xs text-white/65 transition hover:bg-[#a7b86a]/10"
-                        >
-                          {size} <b className="mt-0.5 block text-sm text-[#ef7d18]">{price}</b>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
