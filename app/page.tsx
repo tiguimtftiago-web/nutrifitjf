@@ -610,9 +610,9 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
       </div>
 
       <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-3.5">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[["1","Escolha"],["2","Sabores"],["3","Entrega"],["4","Finalizar"]].map(([number,label]) => {
-            const n = Number(number) as 1 | 2 | 3 | 4;
+        <div className="grid grid-cols-5 gap-1.5">
+          {[["1","Escolha"],["2","Sabores"],["3","Complete"],["4","Entrega"],["5","Finalizar"]].map(([number,label]) => {
+            const n = Number(number) as 1 | 2 | 3 | 4 | 5;
             const done = step > n;
             const active = step === n;
             return (
@@ -702,7 +702,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-center">
             {total === quantity ? (
-              <div className="font-black text-[#cbd99a]">✓ Combo completo. Agora escolha como receber.</div>
+              <div className="font-black text-[#cbd99a]">✓ Combo completo. Agora complete seu pedido.</div>
             ) : (
               <div className="text-sm text-white/60">Faltam <strong className="text-white">{quantity - total}</strong> marmita(s) para completar seu combo.</div>
             )}
@@ -834,7 +834,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
           )}
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
             </button>
