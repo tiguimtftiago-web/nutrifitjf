@@ -949,7 +949,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </article>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; onAdd: (product: Product) => void }) {
+function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
   const visibleProducts = expanded ? products : products.slice(0, 4);
   const hiddenCount = Math.max(products.length - 2, 0);
@@ -1465,11 +1465,11 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-0 sm:px-5 sm:py-3 md:px-8 md:py-8">
           <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
