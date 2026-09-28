@@ -379,7 +379,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
           <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
             {option.products.map((product) => (
               <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
-                <img src={product.image} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover sm:mb-2 sm:h-24 sm:w-full" loading="lazy" />
+                <img src={product.image} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover sm:mb-2 sm:h-24 sm:w-full" loading="eager" decoding="async" fetchPriority="high" />
                 <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
                 <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
                 <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
