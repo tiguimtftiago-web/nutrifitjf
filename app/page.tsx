@@ -1270,35 +1270,27 @@ export default function Home() {
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-0 sm:px-5 sm:py-3 md:px-8 md:py-8">
-          <a
-            href="#sucos-produtos"
-            className="mx-auto mb-7 flex min-h-[58px] w-full max-w-[875px] items-center justify-center gap-4 rounded-full border border-[#a7b86a]/45 bg-[#11150d]/85 px-5 text-center text-base font-black text-[#d9e8a1] shadow-[0_8px_30px_rgba(0,0,0,.18)] transition hover:border-[#a7b86a] hover:bg-[#171d10] sm:mb-8 sm:min-h-[72px] sm:text-xl"
-          >
-            <span>Ver todos os pratos da linha</span>
-            <ArrowRight size={28} strokeWidth={2.2} />
-          </a>
-
           <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
-            <div className="relative min-h-[470px] overflow-hidden sm:min-h-[540px] md:min-h-[550px]">
+            <div className="relative min-h-[390px] overflow-hidden sm:min-h-[500px] md:min-h-[550px]">
               <img
                 src="/images/page-36.jpg"
                 alt="Suco Nutrifit Energy"
-                className="absolute inset-0 h-full w-full object-cover object-center"
+                className="absolute inset-0 h-full w-full object-cover object-[68%_center] sm:object-center"
               />
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.92)_34%,rgba(0,0,0,.55)_55%,rgba(0,0,0,.08)_82%,rgba(0,0,0,0)_100%)]" />
               <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.18)_0%,transparent_45%)]" />
 
-              <div className="relative z-10 flex min-h-[470px] max-w-[620px] flex-col justify-center px-6 py-10 sm:min-h-[540px] sm:px-9 sm:py-12 md:min-h-[550px] md:px-12">
+              <div className="relative z-10 flex min-h-[390px] max-w-[620px] flex-col justify-center px-5 py-8 sm:min-h-[500px] sm:px-9 sm:py-12 md:min-h-[550px] md:px-12">
                 <div className="text-[10px] font-black uppercase tracking-[.25em] text-[#a7b86a] sm:text-xs">Refresque sua rotina</div>
-                <h2 className="mt-3 text-[3.6rem] font-black leading-[.86] tracking-[-.055em] sm:text-6xl md:text-7xl">
+                <h2 className="mt-3 text-[3rem] font-black leading-[.86] tracking-[-.055em] sm:text-6xl md:text-7xl">
                   <span className="block text-white">Linha de</span>
                   <span className="block text-[#ef7d18]">Sucos</span>
                 </h2>
-                <p className="mt-5 max-w-[430px] text-base leading-7 text-white/70 sm:text-lg sm:leading-8">
+                <p className="mt-4 max-w-[390px] text-sm leading-6 text-white/70 sm:mt-5 sm:text-lg sm:leading-8">
                   Sabor, frescor e praticidade<br className="hidden sm:block" /> para o seu dia a dia.
                 </p>
 
-                <div className="mt-7 flex max-w-[520px] flex-wrap gap-3">
+                <div className="mt-5 flex max-w-[520px] flex-wrap gap-2.5 sm:mt-7 sm:gap-3">
                   <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
                     <Leaf size={25} strokeWidth={2} />
                     <span>100%<br />NATURAL</span>
