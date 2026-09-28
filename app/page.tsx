@@ -1981,27 +1981,35 @@ export default function Home() {
 
 
       <footer className="border-t border-white/10 bg-black">
-  <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-5 md:flex-row md:items-center md:justify-between md:px-8">
-    <div>
-      <div className="text-lg font-black tracking-tight">NUTRIFIT</div>
-      <p className="mt-1 text-[11px] leading-5 text-white/40">Marmitas, saladas e sucos para sua rotina.</p>
-    </div>
-    <nav className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs font-bold text-white/55 sm:flex sm:flex-wrap sm:gap-5">
-      <a href="#cardapio" className="transition hover:text-white">Fit 350 g</a>
-      <a href="#performance" className="transition hover:text-white">Performance</a>
-      <a href="#saladas" className="transition hover:text-white">Saladas</a>
-      <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
-      <a href="#sucos" className="transition hover:text-white">Sucos</a>
-      <a href="#combos" className="transition hover:text-white">Combos</a>
-      <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
-    </nav>
-    <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-5 py-3 text-xs font-black text-[#d8e7a0]">
-      Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
-    </a>
-  </div>
-  <div className="border-t border-white/5 px-4 py-4 text-center text-[10px] text-white/25 sm:px-5">
-    Nutrifit • Juiz de Fora/MG
-  </div>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-9">
+          <div className="grid gap-6 md:grid-cols-[1fr_auto_auto] md:items-center">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain" />
+                <div>
+                  <div className="text-base font-black tracking-tight">NUTRIFIT</div>
+                  <p className="mt-0.5 text-[10px] leading-4 text-white/40">Marmitas, saladas e sucos para sua rotina.</p>
+                </div>
+              </div>
+            </div>
+            <nav className="grid grid-cols-2 gap-x-5 gap-y-2.5 text-[11px] font-bold text-white/55 sm:flex sm:flex-wrap sm:gap-5">
+              <a href="#cardapio" className="transition hover:text-white">Fit 350 g</a>
+              <a href="#performance" className="transition hover:text-white">Performance</a>
+              <a href="#saladas" className="transition hover:text-white">Saladas</a>
+              <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
+              <a href="#sucos" className="transition hover:text-white">Sucos</a>
+              <a href="#combos" className="transition hover:text-white">Combos</a>
+              <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
+            </nav>
+            <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
+              Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
+            </a>
+          </div>
+          <div className="mt-7 flex flex-col gap-2 border-t border-white/5 pt-4 text-center text-[10px] text-white/25 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            <span>Nutrifit • Juiz de Fora/MG</span>
+            <span>Escolha sua linha • monte seu pedido • receba com praticidade.</span>
+          </div>
+        </div>
       </footer>
     </main>
   );
