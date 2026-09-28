@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171d10"/>
+      <stop offset="1" stop-color="#080a07"/>
+    </linearGradient>
+    <linearGradient id="bowl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5f5ef"/>
+      <stop offset="1" stop-color="#bfc2b7"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="520" rx="36" fill="url(#bg)"/>
+  <ellipse cx="450" cy="420" rx="275" ry="28" fill="#000" opacity=".45"/>
+  <path d="M205 235 Q450 175 695 235 L650 390 Q450 470 250 390 Z" fill="url(#bowl)" stroke="#a7b86a" stroke-width="7"/>
+  <ellipse cx="450" cy="238" rx="245" ry="72" fill="#d9ddd1" stroke="#a7b86a" stroke-width="7"/>
+  <ellipse cx="450" cy="238" rx="220" ry="56" fill="#17220e"/>
+  <g fill="#6f8f2e">
+    <ellipse cx="330" cy="230" rx="42" ry="20" transform="rotate(-20 330 230)"/>
+    <ellipse cx="390" cy="215" rx="48" ry="22" transform="rotate(15 390 215)"/>
+    <ellipse cx="465" cy="232" rx="45" ry="21" transform="rotate(-10 465 232)"/>
+    <ellipse cx="535" cy="215" rx="48" ry="22" transform="rotate(20 535 215)"/>
+    <ellipse cx="590" cy="240" rx="42" ry="20" transform="rotate(-15 590 240)"/>
+  </g>
+  <g fill="#ef7d18">
+    <circle cx="360" cy="252" r="17"/><circle cx="430" cy="245" r="15"/><circle cx="505" cy="255" r="18"/><circle cx="555" cy="238" r="14"/>
+  </g>
+  <g fill="#d9e7a0">
+    <circle cx="405" cy="260" r="10"/><circle cx="475" cy="215" r="11"/><circle cx="575" cy="260" r="10"/>
+  </g>
+  <text x="450" y="95" text-anchor="middle" fill="#a7b86a" font-family="Arial,sans-serif" font-size="25" font-weight="800" letter-spacing="5">NUTRIFIT</text>
+  <text x="450" y="132" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="31" font-weight="900">POTE INDIVIDUAL</text>
+  <text x="450" y="170" text-anchor="middle" fill="#fff" opacity=".55" font-family="Arial,sans-serif" font-size="18">Referência de apresentação</text>
+</svg>
