@@ -1782,17 +1782,17 @@ export default function Home() {
         <div className="fixed inset-0 z-[100]">
           <button type="button" aria-label="Fechar carrinho" onClick={() => setOrderOpen(false)} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
           <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
-            <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 sm:px-7">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 bg-[#0b0e09]/95 px-4 py-3 backdrop-blur sm:px-7 sm:py-4">
               <div>
                 <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Seu pedido</div>
-                <h2 id="cart-title" className="mt-1 text-2xl font-black">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
+                <h2 id="cart-title" className="mt-1 text-xl font-black sm:text-2xl">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
               </div>
               <button type="button" onClick={() => setOrderOpen(false)} aria-label="Fechar carrinho" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70">
                 <X size={20} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 pb-6 sm:px-7 sm:py-5">
               {!orderItems.length ? (
                 <div className="grid min-h-[45vh] place-items-center text-center">
                   <div>
@@ -1871,14 +1871,14 @@ export default function Home() {
             </div>
 
             {orderItems.length > 0 && (
-              <div className="border-t border-white/10 bg-[#080a07] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:p-7">
+              <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/98 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:p-7">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
                   <span className="text-white/45">Clube Nutrifit</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-4 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30">
+                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
                   Finalizar no WhatsApp <ArrowRight size={18} />
                 </button>
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
