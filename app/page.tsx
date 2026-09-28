@@ -1080,7 +1080,7 @@ export default function Home() {
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
   const sendFullOrder = () => {
-    if (!orderItems.length) return;
+    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
@@ -1137,11 +1137,12 @@ export default function Home() {
             Prefer: "return=minimal",
           },
           body: JSON.stringify({
-            customer_name: customerName.trim() || null,
-            whatsapp: customerPhone.replace(/\D/g, "") || null,
+            customer_name: customerName.trim(),
+            whatsapp: orderPhoneDigits,
             items: orderItems,
             item_count: orderCount,
             subtotal: orderSubtotal,
+            discount: orderDiscount,
             delivery_fee: orderDeliveryFee,
             total: orderGrandTotal,
             cep: orderCep.replace(/\D/g, "") || null,
@@ -1154,7 +1155,7 @@ export default function Home() {
           const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
             method: "POST",
             headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_whatsapp: customerPhone.replace(/\D/g, "") }),
+            body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
           });
           if (redeemResponse.ok) {
             setClubDiscount(0);
