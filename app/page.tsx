@@ -1089,13 +1089,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[86px] max-w-7xl items-center gap-3 px-3 sm:h-[92px] sm:px-4 md:h-[82px] md:gap-5 md:px-7">
+        <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-2 px-3 sm:h-[80px] sm:px-4 md:h-[82px] md:gap-5 md:px-7">
           <a href="#inicio" aria-label="Nutrifit — início" className="flex min-w-0 shrink-0 items-center gap-2.5">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#0b0d09] sm:h-12 sm:w-12">
-              <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-9 w-9 object-contain sm:h-10 sm:w-10" />
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0b0d09] sm:h-10 sm:w-10">
+              <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
             </span>
             <span className="leading-none">
-              <span className="text-[20px] font-black tracking-[-.04em] text-white sm:text-[24px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
+              <span className="text-[18px] font-black tracking-[-.04em] text-white sm:text-[22px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
             </span>
           </a>
 
@@ -1116,21 +1116,21 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
 
-            <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="group grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
-              <UserRound size={27} strokeWidth={1.7} />
-              <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px] lg:hidden">Minha conta</span>
+            <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="group grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
+              <UserRound size={24} strokeWidth={1.7} />
+              <span className="mt-0.5 text-[8px] font-black leading-none text-white/70 sm:text-[9px] lg:hidden">Minha conta</span>
             </button>
 
             <a href="#cardapio" className="hidden xl:inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black transition hover:scale-[1.02]">Fazer pedido <ArrowRight size={15} /></a>
 
-            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
-              <ShoppingCart size={27} strokeWidth={1.7} />
+            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
+              <ShoppingCart size={24} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
-              <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px] lg:hidden">Carrinho</span>
+              <span className="mt-0.5 text-[8px] font-black leading-none text-white/70 sm:text-[9px] lg:hidden">Carrinho</span>
             </button>
 
-            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" title="Menu" className="grid min-w-[54px] place-items-center rounded-xl px-1.5 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
-              <span className="text-[27px] leading-[1]">☰</span>
+            <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
+              <span className="text-[25px] leading-[1]">☰</span>
               <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px]">Menu</span>
             </button>
           </div>
@@ -1268,7 +1268,7 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <section id="sucos" className="scroll-mt-[92px] border-y border-white/10 bg-[#080a07]">
+      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-7 md:px-8 md:py-10">
           <a
             href="#sucos-produtos"
@@ -1315,7 +1315,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="sucos-produtos" className="scroll-mt-[100px] border-t border-white/10 p-4 sm:p-6 md:p-8">
+            <div id="sucos-produtos" className="scroll-mt-[120px] border-t border-white/10 p-4 sm:p-6 md:p-8">
               <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
                 <div>
                   <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a] sm:text-xs">Funcionais</div>
@@ -1340,15 +1340,15 @@ export default function Home() {
                       <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                       <span className="absolute left-3 top-3 rounded-full border border-[#a7b86a]/45 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
                     </div>
-                    <div className="p-3.5 sm:p-4">
+                    <div className="p-3 sm:p-4">
                       <div className="text-xl font-black sm:text-2xl">{name}</div>
                       <div className="mt-1 min-h-8 text-[10px] leading-4 text-white/55 sm:text-xs">{ingredients}</div>
-                      <div className="mt-4 grid grid-cols-2 gap-2">
+                      <div className="mt-3 grid grid-cols-2 gap-2">
                         {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                           <button key={size} type="button" onClick={() => {
                             const product = juiceProducts.find((item) => item.name === name + " — " + size);
                             if (product) addToOrder(product);
-                          }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10">
+                          }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-2.5 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10">
                             <span className="block text-[10px] text-white/55">{size}</span>
                             <span className="mt-0.5 block text-base font-black text-[#ef7d18] sm:text-lg">{price}</span>
                           </button>
@@ -1357,7 +1357,7 @@ export default function Home() {
                       <button type="button" onClick={() => {
                         const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                         if (product) addToOrder(product);
-                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
+                      }} className="mt-2.5 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
                         <ShoppingCart size={22} strokeWidth={2} /> Adicionar ao carrinho
                       </button>
                     </div>
@@ -1387,14 +1387,14 @@ export default function Home() {
                         <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                         <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
-                      <div className="p-3.5 sm:p-4">
+                      <div className="p-3 sm:p-4">
                         <div className="text-base font-black sm:text-lg">{name}</div>
-                        <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="mt-3 grid grid-cols-2 gap-2">
                           {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
                               if (product) addToOrder(product);
-                            }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5">
+                            }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-2.5 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5">
                               <span className="block text-[10px] text-white/55">{size}</span>
                               <span className="mt-0.5 block text-base font-black text-[#ef7d18]">{price}</span>
                             </button>
@@ -1403,7 +1403,7 @@ export default function Home() {
                         <button type="button" onClick={() => {
                           const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                           if (product) addToOrder(product);
-                        }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
+                        }} className="mt-2.5 flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
                           <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
                         </button>
                       </div>
