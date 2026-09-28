@@ -1972,5 +1972,30 @@ export default function Home() {
       )}
 
 </main>
+
+<footer className="border-t border-white/10 bg-black">
+  <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-5 md:flex-row md:items-center md:justify-between md:px-8">
+    <div>
+      <div className="text-lg font-black tracking-tight">NUTRIFIT</div>
+      <p className="mt-1 text-[11px] leading-5 text-white/40">Marmitas, saladas e sucos para sua rotina.</p>
+    </div>
+    <nav className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs font-bold text-white/55 sm:flex sm:flex-wrap sm:gap-5">
+      <a href="#cardapio" className="transition hover:text-white">Fit 350 g</a>
+      <a href="#performance" className="transition hover:text-white">Performance</a>
+      <a href="#saladas" className="transition hover:text-white">Saladas</a>
+      <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
+      <a href="#sucos" className="transition hover:text-white">Sucos</a>
+      <a href="#combos" className="transition hover:text-white">Combos</a>
+      <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
+    </nav>
+    <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-5 py-3 text-xs font-black text-[#d8e7a0]">
+      Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
+    </a>
+  </div>
+  <div className="border-t border-white/5 px-4 py-4 text-center text-[10px] text-white/25 sm:px-5">
+    Nutrifit • Juiz de Fora/MG
+  </div>
+</footer>
+
   );
 }
