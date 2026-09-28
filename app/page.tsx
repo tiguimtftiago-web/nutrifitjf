@@ -130,6 +130,31 @@ const juiceProducts: Product[] = [
   ]),
 ];
 
+type ComplementOption = {
+  name: string;
+  category: "SUCOS" | "SANDUÍCHES" | "FRUTAS";
+  description: string;
+  price: number | null;
+  image?: string;
+  emoji: string;
+};
+
+const comboComplements: ComplementOption[] = [
+  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
+  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
+  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
+  { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: null, emoji: "🥪" },
+  { name: "Pernil com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, pernil, alface e tomate.", price: null, emoji: "🥪" },
+  { name: "Mix de Frutas", category: "FRUTAS", description: "Mamão, manga, abacaxi, melancia, melão, morango e uva verde.", price: null, emoji: "🍓" },
+  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: null, emoji: "🍊" },
+  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: null, emoji: "🥭" },
+  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: null, emoji: "🍍" },
+  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: null, emoji: "🍉" },
+  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: null, emoji: "🍈" },
+  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: null, emoji: "🍓" },
+  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: null, emoji: "🍇" },
+];
+
 
 const DELIVERY_FREE_FROM = 20;
 
@@ -268,6 +293,20 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
     setSelected((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
   };
 
+  const addComplement = (name: string) => {
+    setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
+  };
+
+  const removeComplement = (name: string) => {
+    setSelectedComplements((current) => {
+      const next = { ...current };
+      if (!next[name]) return current;
+      if (next[name] === 1) delete next[name];
+      else next[name] -= 1;
+      return next;
+    });
+  };
+
   const removeProduct = (name: string) => {
     setSelected((current) => {
       const next = { ...current };
@@ -394,13 +433,16 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
   const subtotal = Number(price.replace("R$ ", "").replace(".", "").replace(",", "."));
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
-  const grandTotal = subtotal + deliveryFee;
+  const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
+  const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
+  const grandTotal = subtotal + deliveryFee + complementTotal;
 
   const changeLine = (index: number) => {
     setLineIndex(index);
@@ -409,6 +451,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     setDeliveryMode("delivery");
     setDelivery(null);
     setDeliveryStatus("idle");
+    setSelectedComplements({});
   };
 
   const changeQuantity = (value: 5 | 7 | 10 | 14 | 20) => {
@@ -416,6 +459,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     setSelected({});
     setDelivery(null);
     setDeliveryStatus("idle");
+    setSelectedComplements({});
   };
 
   const addProduct = (name: string) => {
@@ -442,6 +486,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
     setCustomerName("");
     setCustomerPhone("");
     setPaymentStatus("idle");
+    setSelectedComplements({});
   };
 
   const chooseDeliveryMode = (mode: "delivery" | "pickup") => {
@@ -524,6 +569,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
       "",
       items,
       "",
+      ...(complementItems.length ? ["➕ COMPLEMENTOS", ...complementItems.map((item) => `${selectedComplements[item.name]}x ${item.name}${item.price === null ? " — preço a confirmar" : ` — ${money((item.price ?? 0) * (selectedComplements[item.name] || 0))}`}`), ""] : []),
       `Quantidade: ${quantity} marmitas`,
       `Subtotal: ${money(subtotal)}`,
       `Frete: ${money(deliveryFee)}`,
@@ -674,7 +720,74 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
       {step === 3 && (
         <div className="mt-6">
           <div className="mb-4">
-            <div className="text-xl font-black">3. Como você quer receber?</div>
+            <div className="text-xl font-black">3. Complete seu pedido</div>
+            <div className="mt-1 text-sm text-white/45">Seu combo já está pronto. Se quiser, adicione suco, sanduíche natural ou frutas picadas.</div>
+          </div>
+
+          <div className="grid gap-3">
+            {(["SUCOS","SANDUÍCHES","FRUTAS"] as const).map((category) => {
+              const items = comboComplements.filter((item) => item.category === category);
+              const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
+              return (
+                <div key={category} className="rounded-3xl border border-white/10 bg-white/[.025] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-lg font-black">{labels[category]}</div>
+                      <div className="mt-1 text-xs text-white/40">{category === "FRUTAS" ? "Frescas, práticas e ideais para o seu dia." : category === "SANDUÍCHES" ? "Leves, simples e nutritivos." : "Naturais, funcionais e refrescantes."}</div>
+                    </div>
+                    <span className="rounded-full bg-[#a7b86a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#cbd99a]">Opcional</span>
+                  </div>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                    {items.map((item) => {
+                      const qty = selectedComplements[item.name] || 0;
+                      return (
+                        <div key={item.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0d100c] p-3">
+                          {item.image ? (
+                            <img src={item.image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                          ) : (
+                            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#171d10] text-2xl">{item.emoji}</div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="break-words text-sm font-black leading-tight">{item.name}</div>
+                            <div className="mt-1 text-[11px] leading-4 text-white/40">{item.description}</div>
+                            <div className="mt-1 text-xs font-black text-[#ef7d18]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
+                            {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
+                            <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {complementItems.length > 0 && (
+            <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4">
+              <div className="font-black">Seu pedido está ficando completo ✓</div>
+              <div className="mt-1 text-xs leading-5 text-white/50">
+                {complementItems.map((item) => `${selectedComplements[item.name]}x ${item.name}`).join(" • ")}
+              </div>
+            </div>
+          )}
+
+          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
+            <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
+              Continuar <ArrowRight size={17} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="mt-6">
+          <div className="mb-4">
+            <div className="text-xl font-black">4. Como você quer receber?</div>
             <div className="mt-1 text-sm text-white/45">Escolha entrega ou retirada. Para 20 marmitas, a entrega é grátis.</div>
           </div>
 
@@ -722,17 +835,17 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => deliveryReady && setStep(4)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+            <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
             </button>
           </div>
         </div>
       )}
 
-      {step === 4 && (
+      {step === 5 && (
         <div className="mt-6">
           <div className="mb-4">
-            <div className="text-xl font-black">4. Confira e finalize</div>
+            <div className="text-xl font-black">5. Confira e finalize</div>
             <div className="mt-1 text-sm text-white/45">Só falta seu nome e WhatsApp. Depois o pedido abre no WhatsApp para você concluir o pagamento.</div>
           </div>
 
@@ -757,7 +870,7 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
           </div>
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={sendOrder} disabled={!canPay} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
