@@ -145,14 +145,13 @@ const comboComplements: ComplementOption[] = [
   { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: null, emoji: "🥪" },
   { name: "Pernil com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, pernil, alface e tomate.", price: null, emoji: "🥪" },
-  { name: "Mix de Frutas", category: "FRUTAS", description: "Mamão, manga, abacaxi, melancia, melão, morango e uva verde.", price: null, emoji: "🍓" },
-  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: null, emoji: "🍊" },
-  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: null, emoji: "🥭" },
-  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: null, emoji: "🍍" },
-  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: null, emoji: "🍉" },
-  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: null, emoji: "🍈" },
-  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: null, emoji: "🍓" },
-  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: null, emoji: "🍇" },
+  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, emoji: "🍊" },
+  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, emoji: "🥭" },
+  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, emoji: "🍍" },
+  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: 7.90, emoji: "🍉" },
+  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: 8.90, emoji: "🍈" },
+  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: 9.90, emoji: "🍓" },
+  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: 9.90, emoji: "🍇" },
 ];
 
 
