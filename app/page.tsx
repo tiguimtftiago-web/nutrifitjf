@@ -1046,6 +1046,10 @@ export default function Home() {
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
   const orderDiscount = Math.min(clubDiscount, orderSubtotal);
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
+  const orderPhoneDigits = customerPhone.replace(/\D/g, "");
+  const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
+  const orderDeliveryReady = orderFreeDelivery || Boolean(orderDelivery);
+  const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
     const cleanCep = orderCep.replace(/\D/g, "");
@@ -1832,7 +1836,7 @@ export default function Home() {
                       <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
                     </label>
                     <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value)} inputMode="tel" autoComplete="tel" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
                     </label>
                   </div>
 
@@ -1874,9 +1878,11 @@ export default function Home() {
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
-                <button type="button" onClick={sendFullOrder} className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-4 font-black text-black">
+                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-4 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30">
                   Finalizar no WhatsApp <ArrowRight size={18} />
                 </button>
+                {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
+                {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
               </div>
             )}
           </aside>
