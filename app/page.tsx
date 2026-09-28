@@ -430,7 +430,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   );
 }
 
-function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
+function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: number; autoScroll?: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
   const [selected, setSelected] = useState<Record<string, number>>({});
@@ -617,11 +617,12 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
   const comboRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!autoScroll) return;
     const timer = window.setTimeout(() => {
       comboRootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [step]);
+  }, [step, autoScroll]);
 
   return (
     <div ref={comboRootRef} className="mt-8 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-4 md:p-8">
@@ -1039,6 +1040,7 @@ export default function Home() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [comboOpen, setComboOpen] = useState(false);
   const [comboLineIndex, setComboLineIndex] = useState(0);
+  const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
   const bannerSlides = [
@@ -1327,6 +1329,11 @@ export default function Home() {
     window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
+  const openTopComboBuilder = () => {
+    setTopComboOpen(true);
+    trackClick("combo_builder_start", "FIT-top-card");
+  };
+
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
@@ -1475,7 +1482,7 @@ export default function Home() {
       </section>
 
       <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
-        <button type="button" onClick={() => openComboBuilder("FIT")} className="group relative flex min-h-[142px] w-full items-center overflow-hidden rounded-[1.5rem] border border-[#ef7d18]/65 bg-gradient-to-r from-[#17130d] via-[#1b160d] to-[#10150d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] sm:min-h-[158px]">
+        <button type="button" onClick={openTopComboBuilder} className="group relative flex min-h-[142px] w-full items-center overflow-hidden rounded-[1.5rem] border border-[#ef7d18]/65 bg-gradient-to-r from-[#17130d] via-[#1b160d] to-[#10150d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] sm:min-h-[158px]">
           <div className="relative z-10 min-w-0 flex-1 p-4 pr-28 sm:p-6 sm:pr-40">
             <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
             <div className="mt-1 text-[22px] font-black leading-tight sm:text-3xl">MONTE SEU COMBO</div>
@@ -1487,6 +1494,19 @@ export default function Home() {
           </div>
           <span className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-lg font-black text-black sm:bottom-4 sm:right-4 sm:h-11 sm:w-11">→</span>
         </button>
+
+        {topComboOpen && (
+          <div className="mt-3 rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-4 sm:p-5">
+            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#171d10] p-3.5 sm:p-4">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Montar agora</div>
+                <div className="mt-1 text-sm font-black sm:text-base">Escolha suas marmitas sem sair daqui.</div>
+              </div>
+              <button type="button" onClick={() => setTopComboOpen(false)} className="shrink-0 rounded-full border border-white/15 px-3.5 py-2 text-[10px] font-black text-white/65 transition hover:border-white/30 hover:text-white">Fechar</button>
+            </div>
+            <ComboBuilder initialLine={0} autoScroll={false} />
+          </div>
+        )}
       </section>
 
       
