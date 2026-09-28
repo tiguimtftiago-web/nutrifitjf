@@ -1735,17 +1735,19 @@ export default function Home() {
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Por que pedir na Nutrifit?</h2>
             <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6 md:text-base">Tudo organizado para você escolher, pedir e receber sem complicação.</p>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <div className="mt-6 grid gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {[
               ["🍱", "Porções padronizadas", "350 g • 450 g • 500 g."],
               ["🥗", "Tudo em um só lugar", "Marmitas, saladas e sucos."],
               ["🚚", "Entrega ou retirada", "Consulte pelo CEP."],
               ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
             ].map(([icon, title, text]) => (
-              <div key={title} className="rounded-2xl border border-white/10 bg-white/[.025] p-3.5 sm:rounded-3xl sm:p-6">
-                <div className="text-xl sm:text-2xl">{icon}</div>
-                <h3 className="mt-2.5 text-xs font-black leading-tight sm:mt-4 sm:text-base">{title}</h3>
-                <p className="mt-1.5 text-[10px] leading-4 text-white/45 sm:mt-2 sm:text-sm sm:leading-6">{text}</p>
+              <div key={title} className="flex min-h-[92px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3.5 sm:block sm:min-h-0 sm:rounded-3xl sm:p-6">
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#a7b86a]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
+                <div className="min-w-0">
+                  <h3 className="text-xs font-black leading-tight sm:mt-4 sm:text-base">{title}</h3>
+                  <p className="mt-1.5 text-[10px] leading-4 text-white/45 sm:mt-2 sm:text-sm sm:leading-6">{text}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -1764,10 +1766,11 @@ export default function Home() {
               ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
               ["02","Peça","Envie o pedido pelo WhatsApp."],
               ["03","Receba","Combine entrega ou retirada após a confirmação."]
-            ].map(([number,title,text]) => (
-              <div key={number} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 sm:block sm:rounded-3xl sm:p-7">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xs font-black text-[#ef7d18] sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-sm">{number}</div>
-                <div><h3 className="text-base font-black sm:mt-3 sm:text-2xl">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
+            ].map(([number,title,text], index) => (
+              <div key={number} className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 sm:block sm:rounded-3xl sm:p-7">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xs font-black text-[#ef7d18] sm:h-10 sm:w-10 sm:bg-[#ef7d18]/15">{number}</div>
+                <div className="min-w-0"><h3 className="text-base font-black sm:mt-4 sm:text-2xl">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
+                {index < 2 && <ArrowRight className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-white/15 md:block" size={18} />}
               </div>
             ))}
           </div>
