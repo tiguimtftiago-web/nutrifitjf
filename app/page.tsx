@@ -1469,6 +1469,83 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
+
+      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
+        <div className="mb-4">
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
+          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Opções rápidas</h2>
+          <p className="mt-1.5 text-sm text-white/50">Escolha um sanduíche ou uma fruta fresca para acompanhar sua rotina.</p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+          <article className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)]">
+            <div className="flex items-center gap-3 border-b border-white/10 bg-[#a7b86a]/[.07] p-4">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#a7b86a]/15 text-2xl">🥪</div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Prático e proteico</div>
+                <h3 className="mt-0.5 text-xl font-black">Sanduíches Fit</h3>
+              </div>
+            </div>
+            <div className="divide-y divide-white/5">
+              {comboComplements.filter((item) => item.category === "SANDUÍCHES").map((item) => (
+                <div key={item.name} className="flex items-center justify-between gap-3 p-3.5">
+                  <div className="min-w-0">
+                    <div className="break-words text-sm font-black">{item.name}</div>
+                    <div className="mt-0.5 text-[11px] text-white/40">{item.description}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => addToOrder({
+                      name: item.name,
+                      line: "SANDUÍCHES",
+                      weight: "100–120 g",
+                      price: money(item.price ?? 0),
+                      description: item.description,
+                      image: item.image || ""
+                    })}
+                    className="shrink-0 rounded-full bg-[#a7b86a] px-3.5 py-2 text-[11px] font-black text-black"
+                  >
+                    {money(item.price ?? 0)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)]">
+            <div className="flex items-center gap-3 border-b border-white/10 bg-[#ef7d18]/[.07] p-4">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#ef7d18]/15 text-2xl">🍓</div>
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Frescas e prontas</div>
+                <h3 className="mt-0.5 text-xl font-black">Frutas Picadas</h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-y divide-white/5">
+              {comboComplements.filter((item) => item.category === "FRUTAS").map((item) => (
+                <div key={item.name} className="flex items-center justify-between gap-2 p-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-black">{item.emoji} {item.name}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => addToOrder({
+                      name: item.name,
+                      line: "FRUTAS",
+                      weight: "",
+                      price: money(item.price ?? 0),
+                      description: item.description,
+                      image: item.image || ""
+                    })}
+                    className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-2.5 py-1.5 text-[10px] font-black text-[#ff9a4b]"
+                  >
+                    {money(item.price ?? 0)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-0 sm:px-5 sm:py-3 md:px-8 md:py-8">
           <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
