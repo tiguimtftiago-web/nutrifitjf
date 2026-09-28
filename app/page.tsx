@@ -1315,7 +1315,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div id="sucos-produtos" className="scroll-mt-[120px] border-t border-white/10 p-5 sm:p-7 md:p-8">
+            <div id="sucos-produtos" className="scroll-mt-[170px] border-t border-white/10 p-4 sm:p-7 md:p-8">
               <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
                 <div>
                   <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a] sm:text-xs">Funcionais</div>
@@ -1340,25 +1340,25 @@ export default function Home() {
                       <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                       <span className="absolute left-3 top-3 rounded-full border border-[#a7b86a]/45 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
                     </div>
-                    <div className="p-4 sm:p-5 md:p-7">
+                    <div className="p-3.5 sm:p-5 md:p-7">
                       <div className="text-2xl font-black sm:text-2xl md:text-3xl">{name}</div>
                       <div className="mt-1 min-h-8 text-[11px] leading-5 text-white/55 sm:text-xs md:text-sm">{ingredients}</div>
-                      <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="mt-4 grid grid-cols-2 gap-2.5">
                         {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                           <button key={size} type="button" onClick={() => {
                             const product = juiceProducts.find((item) => item.name === name + " — " + size);
                             if (product) addToOrder(product);
                           }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10">
-                            <span className="block text-[11px] text-white/55 sm:text-xs">{size}</span>
-                            <span className="mt-0.5 block text-lg font-black text-[#ef7d18] sm:text-xl">{price}</span>
+                            <span className="block whitespace-nowrap text-[10px] text-white/55 sm:text-xs">{size}</span>
+                            <span className="mt-0.5 block whitespace-nowrap text-base font-black text-[#ef7d18] sm:text-xl">{price}</span>
                           </button>
                         ))}
                       </div>
                       <button type="button" onClick={() => {
                         const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                         if (product) addToOrder(product);
-                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
-                        <ShoppingCart size={22} strokeWidth={2} /> Adicionar ao carrinho
+                      }} className="mt-3 flex min-h-[52px] w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#b7dc62] px-2 text-xs font-black text-black shadow-lg transition hover:scale-[1.01] sm:gap-2 sm:text-sm md:min-h-[58px] md:text-base">
+                        <ShoppingCart size={20} strokeWidth={2} /> <span>Adicionar ao carrinho</span>
                       </button>
                     </div>
                   </div>
@@ -1387,15 +1387,15 @@ export default function Home() {
                         <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
                         <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
-                      <div className="p-4 sm:p-5 md:p-7">
+                      <div className="p-3.5 sm:p-5 md:p-7">
                         <div className="text-base font-black sm:text-lg">{name}</div>
-                        <div className="mt-4 grid grid-cols-2 gap-3">
+                        <div className="mt-4 grid grid-cols-2 gap-2.5">
                           {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
                               if (product) addToOrder(product);
                             }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-2.5 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5">
-                              <span className="block text-[11px] text-white/55 sm:text-xs">{size}</span>
+                              <span className="block whitespace-nowrap text-[10px] text-white/55 sm:text-xs">{size}</span>
                               <span className="mt-0.5 block text-base font-black text-[#ef7d18]">{price}</span>
                             </button>
                           ))}
@@ -1403,7 +1403,7 @@ export default function Home() {
                         <button type="button" onClick={() => {
                           const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                           if (product) addToOrder(product);
-                        }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
+                        }} className="mt-3 flex min-h-[52px] w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#b7dc62] px-2 text-xs font-black text-black shadow-lg transition hover:scale-[1.01] sm:gap-2 sm:text-sm md:min-h-[58px] md:text-base">
                           <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
                         </button>
                       </div>
