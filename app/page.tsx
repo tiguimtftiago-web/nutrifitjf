@@ -1724,23 +1724,23 @@ export default function Home() {
       </section>
 
       <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-11 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-5 sm:py-11 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
-            <h2 className="mt-2 text-3xl font-black md:text-5xl">Por que pedir na Nutrifit?</h2>
-            <p className="mt-3 text-sm leading-6 text-white/50 md:text-base">Você escolhe as refeições, confere o pedido e finaliza o pagamento pelo WhatsApp.</p>
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Por que pedir na Nutrifit?</h2>
+            <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6 md:text-base">Tudo organizado para você escolher, pedir e receber sem complicação.</p>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {[
-              ["🍱", "Porções padronizadas", "Fit 350 g • Performance 450 g • Tradicional 500 g."],
-              ["🥗", "Opções para sua rotina", "Marmitas, saladas e sucos em um só lugar."],
-              ["🚚", "Entrega em Juiz de Fora", "Consulte a taxa pelo CEP ou escolha retirar na Nutrifit."],
-              ["💬", "Atendimento direto", "Seu pedido segue para o WhatsApp com os detalhes já organizados."],
+              ["🍱", "Porções padronizadas", "350 g • 450 g • 500 g."],
+              ["🥗", "Tudo em um só lugar", "Marmitas, saladas e sucos."],
+              ["🚚", "Entrega ou retirada", "Consulte pelo CEP."],
+              ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
             ].map(([icon, title, text]) => (
-              <div key={title} className="rounded-3xl border border-white/10 bg-white/[.025] p-6">
-                <div className="text-2xl">{icon}</div>
-                <h3 className="mt-4 font-black">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-white/45">{text}</p>
+              <div key={title} className="rounded-2xl border border-white/10 bg-white/[.025] p-3.5 sm:rounded-3xl sm:p-6">
+                <div className="text-xl sm:text-2xl">{icon}</div>
+                <h3 className="mt-2.5 text-xs font-black leading-tight sm:mt-4 sm:text-base">{title}</h3>
+                <p className="mt-1.5 text-[10px] leading-4 text-white/45 sm:mt-2 sm:text-sm sm:leading-6">{text}</p>
               </div>
             ))}
           </div>
@@ -1748,46 +1748,36 @@ export default function Home() {
       </section>
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8">
-          <div className="grid gap-5 md:grid-cols-3">
+        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-5 sm:py-14 md:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">É simples</div>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Como pedir</h2>
+            <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">Escolha, confirme e receba.</p>
+          </div>
+          <div className="mt-6 grid gap-2.5 md:grid-cols-3 sm:mt-8 sm:gap-4">
             {[
               ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
-              ["02","Peça","Clique no WhatsApp e envie seu pedido já com a opção escolhida."],
-              ["03","Receba","Após a confirmação do pagamento, combinamos a entrega do seu pedido."]
+              ["02","Peça","Envie o pedido pelo WhatsApp."],
+              ["03","Receba","Combine entrega ou retirada após a confirmação."]
             ].map(([number,title,text]) => (
-              <div key={number} className="rounded-3xl border border-white/10 bg-white/[.03] p-7">
-                <div className="text-sm font-black text-[#ef7d18]">{number}</div>
-                <h3 className="mt-3 text-2xl font-black">{title}</h3>
-                <p className="mt-3 leading-7 text-white/50">{text}</p>
+              <div key={number} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 sm:block sm:rounded-3xl sm:p-7">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xs font-black text-[#ef7d18] sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-sm">{number}</div>
+                <div><h3 className="text-base font-black sm:mt-3 sm:text-2xl">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <div className="rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-7 md:p-9">
-              <div className="flex items-center gap-3">
-                <Truck className="text-[#a7b86a]" size={22} />
-                <h2 className="text-2xl font-black">Entrega em Juiz de Fora</h2>
-              </div>
-              <p className="mt-3 leading-7 text-white/55">
-                Calcule a entrega pelo CEP no montador de combos ou escolha retirar seu pedido diretamente na Nutrifit.
-              </p>
-              <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
-                Consultar entrega <ArrowRight size={16} />
-              </a>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 sm:mt-10 sm:gap-5">
+            <div className="rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:rounded-[2rem] sm:p-7 md:p-9">
+              <div className="flex items-center gap-3"><Truck className="text-[#a7b86a]" size={21} /><h2 className="text-lg font-black sm:text-2xl">Entrega em Juiz de Fora</h2></div>
+              <p className="mt-2.5 text-xs leading-5 text-white/55 sm:mt-3 sm:text-sm sm:leading-7">Calcule pelo CEP no montador de combos ou escolha retirar diretamente na Nutrifit.</p>
+              <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black">Consultar entrega <ArrowRight size={15} /></a>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/[.03] p-7 md:p-9">
-              <div className="flex items-center gap-3">
-                <MessageCircle className="text-[#ef7d18]" size={22} />
-                <h2 className="text-2xl font-black">Pedido e pagamento</h2>
-              </div>
-              <p className="mt-3 leading-7 text-white/55">
-                Escolha seus produtos, confirme o pedido e finalize o pagamento pelo WhatsApp. Você pode receber em casa ou retirar seu pedido na Nutrifit, em Monte Castelo.
-              </p>
-              <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 font-bold">
-                Falar com a Nutrifit <MessageCircle size={16} />
-              </a>
+            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5 sm:rounded-[2rem] sm:p-7 md:p-9">
+              <div className="flex items-center gap-3"><MessageCircle className="text-[#ef7d18]" size={21} /><h2 className="text-lg font-black sm:text-2xl">Pedido e pagamento</h2></div>
+              <p className="mt-2.5 text-xs leading-5 text-white/55 sm:mt-3 sm:text-sm sm:leading-7">Escolha seus produtos, confirme o pedido e finalize pelo WhatsApp. Receba em casa ou retire na Nutrifit.</p>
+              <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-xs font-black">Falar com a Nutrifit <MessageCircle size={15} /></a>
             </div>
           </div>
         </div>
