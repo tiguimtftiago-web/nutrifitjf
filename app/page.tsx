@@ -1368,7 +1368,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
                   {[
                     ["Suco de Laranja","/images/page-42.jpg"],
                     ["Laranja com Acerola","/images/page-43.jpg"],
@@ -1380,15 +1380,15 @@ export default function Home() {
                         <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
                       <div className="p-4 sm:p-5 md:p-7">
-                        <div className="text-base font-black sm:text-lg">{name}</div>
+                        <div className="text-2xl font-black sm:text-2xl md:text-3xl">{name}</div>
                         <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
                           {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
                               if (product) addToOrder(product);
-                            }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-1.5 py-2.5 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5 sm:px-2">
+                            }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5 sm:px-2">
                               <span className="block whitespace-nowrap text-[10px] text-white/55 sm:text-xs">{size}</span>
-                              <span className="mt-0.5 block whitespace-nowrap text-[15px] font-black text-[#ef7d18]">{price}</span>
+                              <span className="mt-0.5 block whitespace-nowrap text-lg font-black text-[#ef7d18] sm:text-xl">{price}</span>
                             </button>
                           ))}
                         </div>
