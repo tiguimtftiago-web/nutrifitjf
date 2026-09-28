@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -1268,42 +1268,65 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
-      <section id="sucos" className="scroll-mt-24 border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 sm:py-10 md:px-8 md:py-12">
-          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10140d] to-[#0b0e09] shadow-[0_18px_60px_rgba(0,0,0,.22)]">
-            <div className="relative overflow-hidden border-b border-white/10">
-              <div className="grid min-h-[330px] grid-cols-[1.08fr_.92fr] sm:min-h-[360px] md:grid-cols-2 md:min-h-[390px]">
-                <div className="relative z-10 flex flex-col justify-center px-5 py-7 sm:px-7 sm:py-9 md:px-10 md:py-10">
-                  <div className="text-[9px] font-black uppercase tracking-[.24em] text-[#a7b86a] sm:text-[10px]">Refresque sua rotina</div>
-                  <h2 className="mt-2 text-[2rem] font-black leading-[.94] tracking-tight sm:text-5xl md:text-6xl">
-                    <span className="block text-white">Linha de</span>
-                    <span className="block text-[#ef7d18]">Sucos</span>
-                  </h2>
-                  <p className="mt-3 max-w-[230px] text-xs leading-5 text-white/55 sm:max-w-sm sm:text-sm sm:leading-6">Sabor, frescor e praticidade para acompanhar sua refeição.</p>
-                  <div className="mt-4 grid max-w-[245px] gap-2 sm:max-w-md sm:flex sm:flex-wrap">
-                    {["100% natural","Funcionais","Sem conservantes"].map((item) => (
-                      <span key={item} className="inline-flex w-fit rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-2 text-[8px] font-black uppercase tracking-[.08em] text-[#cbd99a] sm:text-[9px]">{item}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="relative min-w-0 overflow-hidden">
-                  <img src="/images/page-36.jpg" alt="Suco Nutrifit Energy" className="h-full w-full object-cover object-center" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#10140d] via-[#10140d]/15 to-transparent" />
-                  <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black/15 to-transparent" />
+      <section id="sucos" className="scroll-mt-[92px] border-y border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-7 md:px-8 md:py-10">
+          <a
+            href="#sucos-produtos"
+            className="mb-7 flex min-h-[58px] w-full items-center justify-center gap-4 rounded-full border border-[#a7b86a]/45 bg-[#11150d]/85 px-5 text-center text-base font-black text-[#d9e8a1] shadow-[0_8px_30px_rgba(0,0,0,.18)] transition hover:border-[#a7b86a] hover:bg-[#171d10] sm:mb-8 sm:min-h-[64px] sm:text-lg"
+          >
+            <span>Ver todos os pratos da linha</span>
+            <ArrowRight size={28} strokeWidth={2.2} />
+          </a>
+
+          <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
+            <div className="relative min-h-[470px] overflow-hidden sm:min-h-[520px] md:min-h-[560px]">
+              <img
+                src="/images/page-36.jpg"
+                alt="Suco Nutrifit Energy"
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.92)_34%,rgba(0,0,0,.55)_55%,rgba(0,0,0,.08)_82%,rgba(0,0,0,0)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.18)_0%,transparent_45%)]" />
+
+              <div className="relative z-10 flex min-h-[470px] max-w-[620px] flex-col justify-center px-6 py-10 sm:min-h-[520px] sm:px-9 sm:py-12 md:min-h-[560px] md:px-12">
+                <div className="text-[10px] font-black uppercase tracking-[.25em] text-[#a7b86a] sm:text-xs">Refresque sua rotina</div>
+                <h2 className="mt-3 text-[3.6rem] font-black leading-[.86] tracking-[-.055em] sm:text-6xl md:text-7xl">
+                  <span className="block text-white">Linha de</span>
+                  <span className="block text-[#ef7d18]">Sucos</span>
+                </h2>
+                <p className="mt-5 max-w-[430px] text-base leading-7 text-white/70 sm:text-lg sm:leading-8">
+                  Sabor, frescor e praticidade<br className="hidden sm:block" /> para o seu dia a dia.
+                </p>
+
+                <div className="mt-7 flex max-w-[520px] flex-wrap gap-3">
+                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
+                    <Leaf size={25} strokeWidth={2} />
+                    <span>100%<br />NATURAL</span>
+                  </span>
+                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
+                    <HeartPulse size={25} strokeWidth={2} />
+                    <span>FUNCIONAIS</span>
+                  </span>
+                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
+                    <FlaskConical size={25} strokeWidth={2} />
+                    <span>SEM CONSERVANTES</span>
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 sm:p-6 md:p-8">
-              <div className="mb-4 flex items-end justify-between gap-3 sm:mb-5">
+            <div id="sucos-produtos" className="scroll-mt-[100px] border-t border-white/10 p-4 sm:p-6 md:p-8">
+              <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
                 <div>
-                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Funcionais</div>
-                  <h3 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Escolha seu sabor</h3>
+                  <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a] sm:text-xs">Funcionais</div>
+                  <h3 className="mt-1 text-[2rem] font-black leading-none tracking-tight sm:text-4xl">Escolha seu sabor</h3>
                 </div>
-                <div className="shrink-0 text-right text-[10px] leading-5 text-white/40 sm:text-xs">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+                <div className="shrink-0 text-right text-sm leading-6 text-white/55 sm:text-base">
+                  300 ml • R$ 9,90<br />500 ml • R$ 12,90
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
                 {[
                   ["Energy","/images/page-36.jpg","FUNCIONAL","Beterraba • Laranja • Maçã • Limão"],
                   ["Green","/images/page-37.jpg","DETOX","Maçã • Pepino • Gengibre • Hortelã • Limão"],
@@ -1312,73 +1335,76 @@ export default function Home() {
                   ["Purple","/images/page-40.jpg","ANTIOXIDANTE","Uva • Frutas vermelhas • Limão"],
                   ["Glow","/images/page-41.jpg","FUNCIONAL","Morango • Laranja • Cenoura • Beterraba • Limão"],
                 ].map(([name,image,badge,ingredients]) => (
-                  <div key={name} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/45">
+                  <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#a7b86a]/55">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                      <span className="absolute left-2.5 top-2.5 rounded-full border border-[#a7b86a]/25 bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
+                      <span className="absolute left-3 top-3 rounded-full border border-[#a7b86a]/45 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
                     </div>
-                    <div className="p-3 sm:p-4">
-                      <div className="text-base font-black sm:text-lg">{name}</div>
-                      <div className="mt-1 min-h-8 text-[9px] leading-4 text-white/45 sm:text-[10px]">{ingredients}</div>
-                      <div className="mt-3 grid grid-cols-2 gap-1.5">
+                    <div className="p-3.5 sm:p-4">
+                      <div className="text-xl font-black sm:text-2xl">{name}</div>
+                      <div className="mt-1 min-h-8 text-[10px] leading-4 text-white/55 sm:text-xs">{ingredients}</div>
+                      <div className="mt-4 grid grid-cols-2 gap-2">
                         {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                           <button key={size} type="button" onClick={() => {
                             const product = juiceProducts.find((item) => item.name === name + " — " + size);
                             if (product) addToOrder(product);
-                          }} className="rounded-xl border border-white/10 bg-white/[.03] px-2 py-2.5 text-center transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
-                            <span className="block text-[8px] font-bold text-white/45">{size}</span>
-                            <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
+                          }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10">
+                            <span className="block text-[10px] text-white/55">{size}</span>
+                            <span className="mt-0.5 block text-base font-black text-[#ef7d18] sm:text-lg">{price}</span>
                           </button>
                         ))}
                       </div>
                       <button type="button" onClick={() => {
                         const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                         if (product) addToOrder(product);
-                      }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black shadow-lg transition hover:scale-[1.01]">
-                        <Plus size={13} /> Adicionar 500 ml
+                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
+                        <ShoppingCart size={22} strokeWidth={2} /> Adicionar ao carrinho
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8 border-t border-white/10 pt-6">
-                <div className="mb-4 flex items-end justify-between gap-3">
+              <div className="mt-10 border-t border-white/10 pt-7">
+                <div className="mb-5 flex items-end justify-between gap-4">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Naturais</div>
-                    <h3 className="mt-1 text-xl font-black sm:text-2xl">Clássicos da Nutrifit</h3>
+                    <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#ef7d18] sm:text-xs">Naturais</div>
+                    <h3 className="mt-1 text-2xl font-black sm:text-3xl">Clássicos da Nutrifit</h3>
                   </div>
-                  <div className="text-right text-[10px] leading-5 text-white/40">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+                  <div className="shrink-0 text-right text-sm leading-6 text-white/55">
+                    300 ml • R$ 9,90<br />500 ml • R$ 12,90
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">
                   {[
                     ["Suco de Laranja","/images/page-42.jpg"],
                     ["Laranja com Acerola","/images/page-43.jpg"],
                     ["Abacaxi com Hortelã","/images/page-44.jpg"],
                   ].map(([name,image]) => (
-                    <div key={name} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#ef7d18]/40">
+                    <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#ef7d18]/45">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#ef7d18]/25 bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
+                        <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <div className="text-sm font-black sm:text-base">{name}</div>
-                        <div className="mt-3 grid grid-cols-2 gap-1.5">
+                      <div className="p-3.5 sm:p-4">
+                        <div className="text-base font-black sm:text-lg">{name}</div>
+                        <div className="mt-4 grid grid-cols-2 gap-2">
                           {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
                               if (product) addToOrder(product);
-                            }} className="rounded-xl border border-white/10 bg-white/[.03] px-2 py-2.5 text-center transition hover:border-[#ef7d18]/40 hover:bg-[#ef7d18]/5">
-                              <span className="block text-[8px] font-bold text-white/45">{size}</span>
-                              <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
+                            }} className="rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5">
+                              <span className="block text-[10px] text-white/55">{size}</span>
+                              <span className="mt-0.5 block text-base font-black text-[#ef7d18]">{price}</span>
                             </button>
                           ))}
                         </div>
                         <button type="button" onClick={() => {
                           const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                           if (product) addToOrder(product);
-                        }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black shadow-lg transition hover:scale-[1.01]">
-                          <Plus size={13} /> Adicionar 500 ml
+                        }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#b7dc62] px-3 text-sm font-black text-black shadow-lg transition hover:scale-[1.01]">
+                          <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
                         </button>
                       </div>
                     </div>
