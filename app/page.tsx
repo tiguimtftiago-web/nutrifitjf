@@ -782,8 +782,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
         <p className="mt-1.5 min-h-[2.25rem] text-[9.5px] leading-[1.15rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
         <div className="mt-auto flex items-center gap-2 pt-3">
-          <div className="text-[16px] font-black text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-10 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2.5 py-2 text-[10px] font-black text-black sm:px-4 sm:text-sm">
+          <div className="shrink-0 whitespace-nowrap text-[15px] font-black leading-none text-[#ef7d18] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-10 shrink-0 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-2.5 py-2 text-[10px] font-black text-black sm:px-4 sm:text-sm">
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
