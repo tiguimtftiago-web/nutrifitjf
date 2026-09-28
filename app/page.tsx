@@ -1269,35 +1269,38 @@ export default function Home() {
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
       <section id="sucos" className="scroll-mt-24 border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8">
-          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10140d] to-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 sm:py-10 md:px-8 md:py-12">
+          <div className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#10140d] to-[#0b0e09] shadow-[0_18px_60px_rgba(0,0,0,.22)]">
             <div className="relative overflow-hidden border-b border-white/10">
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-transparent" />
-              <div className="relative grid min-h-[220px] items-end p-5 sm:min-h-[260px] sm:p-7 md:grid-cols-[1fr_1.15fr] md:items-center md:p-10">
-                <div className="max-w-xl">
-                  <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Refresque sua rotina</div>
-                  <h2 className="mt-1 text-4xl font-black tracking-tight sm:text-5xl">Linha de <span className="text-[#ef7d18]">Sucos</span></h2>
-                  <p className="mt-2 max-w-md text-sm leading-6 text-white/55">Sabor, frescor e praticidade para acompanhar sua refeição.</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+              <div className="grid min-h-[330px] grid-cols-[1.08fr_.92fr] sm:min-h-[360px] md:grid-cols-2 md:min-h-[390px]">
+                <div className="relative z-10 flex flex-col justify-center px-5 py-7 sm:px-7 sm:py-9 md:px-10 md:py-10">
+                  <div className="text-[9px] font-black uppercase tracking-[.24em] text-[#a7b86a] sm:text-[10px]">Refresque sua rotina</div>
+                  <h2 className="mt-2 text-[2rem] font-black leading-[.94] tracking-tight sm:text-5xl md:text-6xl">
+                    <span className="block text-white">Linha de</span>
+                    <span className="block text-[#ef7d18]">Sucos</span>
+                  </h2>
+                  <p className="mt-3 max-w-[230px] text-xs leading-5 text-white/55 sm:max-w-sm sm:text-sm sm:leading-6">Sabor, frescor e praticidade para acompanhar sua refeição.</p>
+                  <div className="mt-4 grid max-w-[245px] gap-2 sm:max-w-md sm:flex sm:flex-wrap">
                     {["100% natural","Funcionais","Sem conservantes"].map((item) => (
-                      <span key={item} className="rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#cbd99a]">{item}</span>
+                      <span key={item} className="inline-flex w-fit rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-2 text-[8px] font-black uppercase tracking-[.08em] text-[#cbd99a] sm:text-[9px]">{item}</span>
                     ))}
                   </div>
                 </div>
-                <div className="pointer-events-none absolute right-[-12%] top-0 h-full w-[62%] opacity-90 md:right-0 md:w-1/2">
-                  <img src="/images/page-36.jpg" alt="" className="h-full w-full object-cover object-center" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#10140d] via-transparent to-transparent" />
+                <div className="relative min-w-0 overflow-hidden">
+                  <img src="/images/page-36.jpg" alt="Suco Nutrifit Energy" className="h-full w-full object-cover object-center" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#10140d] via-[#10140d]/15 to-transparent" />
+                  <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black/15 to-transparent" />
                 </div>
               </div>
             </div>
 
             <div className="p-4 sm:p-6 md:p-8">
-              <div className="mb-4 flex items-end justify-between gap-3">
+              <div className="mb-4 flex items-end justify-between gap-3 sm:mb-5">
                 <div>
                   <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Funcionais</div>
-                  <h3 className="mt-1 text-xl font-black sm:text-2xl">Escolha seu sabor</h3>
+                  <h3 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Escolha seu sabor</h3>
                 </div>
-                <div className="text-right text-[10px] text-white/35">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+                <div className="shrink-0 text-right text-[10px] leading-5 text-white/40 sm:text-xs">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
@@ -1309,10 +1312,10 @@ export default function Home() {
                   ["Purple","/images/page-40.jpg","ANTIOXIDANTE","Uva • Frutas vermelhas • Limão"],
                   ["Glow","/images/page-41.jpg","FUNCIONAL","Morango • Laranja • Cenoura • Beterraba • Limão"],
                 ].map(([name,image,badge,ingredients]) => (
-                  <div key={name} className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/45">
+                  <div key={name} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/45">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                      <span className="absolute left-2.5 top-2.5 rounded-full bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
+                      <span className="absolute left-2.5 top-2.5 rounded-full border border-[#a7b86a]/25 bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
                     </div>
                     <div className="p-3 sm:p-4">
                       <div className="text-base font-black sm:text-lg">{name}</div>
@@ -1322,7 +1325,7 @@ export default function Home() {
                           <button key={size} type="button" onClick={() => {
                             const product = juiceProducts.find((item) => item.name === name + " — " + size);
                             if (product) addToOrder(product);
-                          }} className="rounded-lg border border-white/10 bg-white/[.03] px-2 py-2 text-center transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
+                          }} className="rounded-xl border border-white/10 bg-white/[.03] px-2 py-2.5 text-center transition hover:border-[#a7b86a]/40 hover:bg-[#a7b86a]/10">
                             <span className="block text-[8px] font-bold text-white/45">{size}</span>
                             <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
                           </button>
@@ -1331,7 +1334,7 @@ export default function Home() {
                       <button type="button" onClick={() => {
                         const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                         if (product) addToOrder(product);
-                      }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black transition hover:scale-[1.01]">
+                      }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black shadow-lg transition hover:scale-[1.01]">
                         <Plus size={13} /> Adicionar 500 ml
                       </button>
                     </div>
@@ -1343,9 +1346,9 @@ export default function Home() {
                 <div className="mb-4 flex items-end justify-between gap-3">
                   <div>
                     <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Naturais</div>
-                    <h3 className="mt-1 text-xl font-black">Clássicos da Nutrifit</h3>
+                    <h3 className="mt-1 text-xl font-black sm:text-2xl">Clássicos da Nutrifit</h3>
                   </div>
-                  <div className="text-right text-[10px] text-white/35">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
+                  <div className="text-right text-[10px] leading-5 text-white/40">300 ml • R$ 9,90<br />500 ml • R$ 12,90</div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
                   {[
@@ -1353,10 +1356,10 @@ export default function Home() {
                     ["Laranja com Acerola","/images/page-43.jpg"],
                     ["Abacaxi com Hortelã","/images/page-44.jpg"],
                   ].map(([name,image]) => (
-                    <div key={name} className="group overflow-hidden rounded-[1.25rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#ef7d18]/40">
+                    <div key={name} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-black/25 transition hover:-translate-y-0.5 hover:border-[#ef7d18]/40">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                        <span className="absolute left-2.5 top-2.5 rounded-full bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
+                        <span className="absolute left-2.5 top-2.5 rounded-full border border-[#ef7d18]/25 bg-[#10140d]/90 px-2.5 py-1.5 text-[8px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
                       </div>
                       <div className="p-3 sm:p-4">
                         <div className="text-sm font-black sm:text-base">{name}</div>
@@ -1365,7 +1368,7 @@ export default function Home() {
                             <button key={size} type="button" onClick={() => {
                               const product = juiceProducts.find((item) => item.name === name + " — " + size);
                               if (product) addToOrder(product);
-                            }} className="rounded-lg border border-white/10 bg-white/[.03] px-2 py-2 text-center transition hover:border-[#ef7d18]/40 hover:bg-[#ef7d18]/5">
+                            }} className="rounded-xl border border-white/10 bg-white/[.03] px-2 py-2.5 text-center transition hover:border-[#ef7d18]/40 hover:bg-[#ef7d18]/5">
                               <span className="block text-[8px] font-bold text-white/45">{size}</span>
                               <span className="mt-0.5 block text-[11px] font-black text-[#ef7d18]">{price}</span>
                             </button>
@@ -1374,7 +1377,7 @@ export default function Home() {
                         <button type="button" onClick={() => {
                           const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
                           if (product) addToOrder(product);
-                        }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black transition hover:scale-[1.01]">
+                        }} className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] py-2.5 text-[10px] font-black text-black shadow-lg transition hover:scale-[1.01]">
                           <Plus size={13} /> Adicionar 500 ml
                         </button>
                       </div>
