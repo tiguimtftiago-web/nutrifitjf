@@ -1219,6 +1219,18 @@ export default function Home() {
       </section>
 
       
+      <section id="plano-alimentar" aria-label="Plano alimentar Nutrifit" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
+        <div className="rounded-[1.5rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] p-5 sm:p-6">
+          <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
+          <div className="mt-1 text-2xl font-black leading-tight sm:text-3xl">Seu plano alimentar pode virar refeições prontas.</div>
+          <p className="mt-2 max-w-3xl text-sm leading-5 text-white/50">Você já tem um plano feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas.</p>
+          <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
+            <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 text-sm font-black text-black">Tenho meu plano <MessageCircle size={17} /></a>
+            <a href={whatsappOrder("Olá Nutrifit! Quero falar com a nutricionista parceira da Nutrifit.")} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/50 bg-[#ef7d18]/5 px-5 text-sm font-black text-[#ef7d18]">Quero falar com a nutricionista <MessageCircle size={17} /></a>
+          </div>
+        </div>
+      </section>
+
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} onAdd={addToOrder} onOpenCombo={openComboBuilder} />
