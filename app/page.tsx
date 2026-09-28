@@ -805,22 +805,29 @@ function Section({ id, eyebrow, title, subtitle, products, onAdd, onOpenCombo }:
           </h2>
           <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
         </div>
-        {hiddenCount > 0 && (
-          <button type="button" onClick={() => setExpanded((current) => !current)} className="shrink-0 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/5 px-3.5 py-2 text-[11px] font-black text-[#cbd99a] sm:px-4 sm:text-xs" aria-expanded={expanded}>
-            {expanded ? "Mostrar menos ↑" : "Ver todos →"}
-          </button>
-        )}
+
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:gap-4 lg:grid-cols-4">
         {visibleProducts.map((product, index) => (
-          <div key={product.name} className={!expanded && index >= 2 ? "hidden sm:block" : ""}>
+          <div key={product.name} className={!expanded && index >= 2 ? "hidden sm:block" : "block"}>
             <ProductCard product={product} onAdd={onAdd} />
           </div>
         ))}
       </div>
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
+        >
+          <span>{expanded ? "Mostrar menos" : "Ver todos os pratos da linha"}</span>
+          <ArrowRight size={16} className={expanded ? "rotate-[-90deg]" : ""} />
+        </button>
+      )}
       {expanded && hiddenCount > 0 && (
-        <div className="mt-4 text-center text-[11px] font-bold text-white/30">{products.length} opções disponíveis nesta linha.</div>
+        <div className="mt-3 text-center text-[11px] font-bold text-white/30">{products.length} opções disponíveis nesta linha.</div>
       )}
     </section>
   );
