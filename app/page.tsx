@@ -761,14 +761,26 @@ function ComboBuilder({ initialLine = 0 }: { initialLine?: number }) {
               return (
                 <div key={category} className="rounded-3xl border border-white/10 bg-white/[.025] p-4">
                   {category === "FRUTAS" && (
-                    <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
-                      <img
-                        src="/images/frutas-picadas-nutrifit.jpg"
-                        alt="Apresentação das frutas picadas Nutrifit"
-                        className="h-auto w-full object-cover"
-                      />
-                      <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
-                        Referência de apresentação das frutas picadas.
+                    <div className="mb-4 grid gap-3 sm:grid-cols-2">
+                      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                        <img
+                          src="/images/frutas-picadas-nutrifit.jpg"
+                          alt="Apresentação das frutas picadas Nutrifit"
+                          className="h-auto w-full object-cover"
+                        />
+                        <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
+                          Frutas picadas.
+                        </div>
+                      </div>
+                      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
+                        <img
+                          src="/images/nutrifit-pote-salada.svg"
+                          alt="Referência do pote individual Nutrifit"
+                          className="h-auto w-full object-cover"
+                        />
+                        <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
+                          Referência do pote individual.
+                        </div>
                       </div>
                     </div>
                   )}
