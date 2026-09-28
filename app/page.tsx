@@ -1266,32 +1266,33 @@ export default function Home() {
 
             <div className="p-4 sm:p-6 md:p-8">
               <div className="mb-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white/40">1. Escolha sua linha</div>
-              <div className="grid gap-2 md:grid-cols-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                   ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
-                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
+                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína"],
                   ["TRADICIONAL","500 g","R$ 139,90","Sabor caseiro"],
                 ].map(([line,weight,price,description], index) => (
                   <button
                     key={line}
                     type="button"
                     onClick={() => openComboBuilder(line)}
-                    className={`group relative flex min-h-[104px] items-center gap-3 rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[116px] sm:p-4 ${
+                    className={`group relative flex min-h-[142px] flex-col justify-between rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[150px] sm:p-4 ${
                       index === 0 ? "border-[#a7b86a]/55 bg-[#a7b86a]/10" : index === 1 ? "border-white/12 bg-white/[.03]" : "border-[#ef7d18]/35 bg-[#ef7d18]/5"
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className={`text-[9px] font-black uppercase tracking-[.18em] ${
+                    <div className="min-w-0">
+                      <div className={`text-[8px] font-black uppercase tracking-[.13em] sm:text-[9px] ${
                         index === 2 ? "text-[#ef7d18]" : "text-[#a7b86a]"
                       }`}>{line}</div>
-                      <div className="mt-0.5 text-lg font-black sm:text-xl">{weight}</div>
-                      <div className="mt-1 text-[11px] font-semibold leading-4 text-white/65 sm:text-xs">{description}</div>
+                      <div className="mt-1 text-base font-black leading-none sm:text-xl">{weight}</div>
+                      <div className="mt-2 text-[9px] font-semibold leading-3.5 text-white/55 sm:text-xs sm:leading-4">{description}</div>
                     </div>
-                    <div className="flex shrink-0 flex-col items-end justify-between self-stretch">
-                      <span className={`grid h-8 w-8 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 ${
+                    <div className="mt-3">
+                      <div className="text-[8px] leading-3 text-white/35 sm:text-[10px]">A partir de</div>
+                      <div className="text-sm font-black leading-tight text-[#ef7d18] sm:text-base">{price}</div>
+                      <div className={`mt-2 grid h-7 w-7 place-items-center rounded-full border text-xs font-black transition group-hover:translate-x-0.5 sm:h-8 sm:w-8 ${
                         index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
-                      }`}>→</span>
-                      <div className="text-right text-[10px] leading-4 text-white/40">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
+                      }`}>→</div>
                     </div>
                   </button>
                 ))}
