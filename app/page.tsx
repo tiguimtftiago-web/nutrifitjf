@@ -154,7 +154,7 @@ const comboComplements: ComplementOption[] = [
   { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
   { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
   { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
-  { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, emoji: "🥪" },
+  { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
   { name: "Pernil com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, pernil, alface e tomate.", price: 13.90, emoji: "🥪" },
   { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, emoji: "🍊" },
   { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, emoji: "🥭" },
@@ -762,27 +762,12 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
               return (
                 <div key={category} className="rounded-3xl border border-white/10 bg-white/[.025] p-4">
                   {category === "FRUTAS" && (
-                    <div className="mb-4 grid gap-3 sm:grid-cols-2">
-                      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                        <img
-                          src="/images/frutas-picadas-nutrifit.jpg"
-                          alt="Apresentação das frutas picadas Nutrifit"
-                          className="h-auto w-full object-cover"
-                        />
-                        <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
-                          Frutas picadas.
-                        </div>
-                      </div>
-                      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black">
-                        <img
-                          src="/images/nutrifit-pote-salada.svg"
-                          alt="Referência do pote individual Nutrifit"
-                          className="h-auto w-full object-cover"
-                        />
-                        <div className="px-3 py-2 text-[10px] font-semibold text-white/45">
-                          Referência do pote individual.
-                        </div>
-                      </div>
+                    <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
+                      <img
+                        src="/images/frutas-picadas-header.jpg"
+                        alt="Frutas picadas Nutrifit"
+                        className="h-auto max-h-64 w-full object-cover"
+                      />
                     </div>
                   )}
                   <div className="flex items-center justify-between gap-3">
@@ -1562,9 +1547,12 @@ export default function Home() {
             <div className="divide-y divide-white/5">
               {comboComplements.filter((item) => item.category === "SANDUÍCHES").map((item) => (
                 <div key={item.name} className="flex items-center justify-between gap-3 p-3.5">
+                  <div className="flex min-w-0 items-center gap-3">
+                    {item.image ? <img src={item.image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" loading="lazy" /> : null}
                   <div className="min-w-0">
                     <div className="break-words text-sm font-black">{item.name}</div>
                     <div className="mt-0.5 text-[11px] text-white/40">{item.description}</div>
+                  </div>
                   </div>
                   <button
                     type="button"
