@@ -49,6 +49,7 @@ const fit: Product[] = [
 
 const fitComingSoon: Product[] = [
   { name: "Pernil Acebolado com Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno acebolado acompanhado de batata inglesa.", image: "/images/pernil_acebolado_batata_real.jpg", comingSoon: false },
+  { name: "Frango com Purê de Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango grelhado acompanhado de purê cremoso de batata inglesa.", image: "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png", comingSoon: false },
   { name: "Frango ao Molho de Mostarda com Batata", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango ao molho de mostarda acompanhado de batata inglesa.", image: "/images/frangomostarda.png", comingSoon: false },
   { name: "Escondidinho de Patinho Fit", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Patinho moído com purê de batata em uma versão fit.", image: "/images/escondidinho-fit-frango-real.jpg", comingSoon: false },
   { name: "Frango Empanado Assado com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango empanado e assado acompanhado de arroz integral.", image: "/images/frango-empanado-arroz-com-ervilha-e-cenoura.jpg", comingSoon: false },
