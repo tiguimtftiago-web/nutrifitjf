@@ -1574,36 +1574,52 @@ export default function Home() {
             </div>
           </article>
 
-          <article className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)]">
-            <div className="flex items-center gap-3 border-b border-white/10 bg-[#ef7d18]/[.07] p-4">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#ef7d18]/15 text-2xl">🍓</div>
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Frescas e prontas</div>
-                <h3 className="mt-0.5 text-xl font-black">Frutas Picadas</h3>
+          <article className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:border-[#ef7d18]/35">
+            <div className="relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_82%_15%,rgba(239,125,24,.18),transparent_34%),linear-gradient(135deg,#17150e,#0d100c)] p-4 sm:p-5">
+              <div className="flex items-center gap-3">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 text-2xl shadow-inner">🍓</div>
+                <div className="min-w-0">
+                  <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Frescas e prontas</div>
+                  <h3 className="mt-0.5 text-xl font-black sm:text-2xl">Frutas Picadas</h3>
+                  <p className="mt-1 text-[11px] leading-4 text-white/45 sm:text-xs">Frescas, práticas e na medida certa.</p>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 divide-x divide-y divide-white/5">
+
+            <div className="grid grid-cols-2 gap-px bg-white/5">
               {comboComplements.filter((item) => item.category === "FRUTAS").map((item) => (
-                <div key={item.name} className="flex items-center justify-between gap-2 p-3">
-                  <div className="min-w-0">
-                    <div className="text-sm font-black">{item.emoji} {item.name}</div>
+                <div key={item.name} className="group/item flex min-h-[76px] items-center justify-between gap-2 bg-[#0d100c] p-3 transition hover:bg-[#151811] sm:min-h-[84px] sm:p-3.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#ef7d18]/10 text-xl">
+                      {item.emoji}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-black sm:text-[15px]">{item.name}</div>
+                      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">200 g</div>
+                    </div>
                   </div>
                   <button
                     type="button"
+                    aria-label={`Adicionar ${item.name} por ${money(item.price ?? 0)}`}
                     onClick={() => addToOrder({
                       name: item.name,
                       line: "FRUTAS",
-                      weight: "",
+                      weight: "200 g",
                       price: money(item.price ?? 0),
                       description: item.description,
                       image: item.image || ""
                     })}
-                    className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-2.5 py-1.5 text-[10px] font-black text-[#ff9a4b]"
+                    className="shrink-0 rounded-full border border-[#ef7d18]/45 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
                   >
                     {money(item.price ?? 0)}
                   </button>
                 </div>
               ))}
+            </div>
+
+            <div className="flex items-center gap-2 border-t border-white/10 bg-[#0a0d09] px-4 py-3.5 text-xs font-bold text-white/45">
+              <span className="text-lg">🌿</span>
+              <span>Escolha sua fruta favorita e deixe sua rotina mais prática.</span>
             </div>
           </article>
         </div>
