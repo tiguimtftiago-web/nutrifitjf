@@ -1520,7 +1520,7 @@ export default function Home() {
               <ClipboardCheck size={25} strokeWidth={2} className="text-[#a7b86a] sm:h-7 sm:w-7" />
               <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano <ArrowRight size={15} /></span>
             </a>
-            <a href={whatsappOrder("Olá Nutrifit! Quero falar com a nutricionista parceira da Nutrifit.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/10 sm:min-h-28 sm:p-4">
+            <a href={"https://wa.me/553299925617?text=Ol%C3%A1!%20Quero%20falar%20com%20a%20nutricionista%20parceira%20da%20Nutrifit."} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/10 sm:min-h-28 sm:p-4">
               <Stethoscope size={25} strokeWidth={2} className="text-[#ef7d18] sm:h-7 sm:w-7" />
               <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista <ArrowRight size={15} /></span>
             </a>
