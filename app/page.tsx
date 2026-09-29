@@ -155,7 +155,7 @@ const comboComplements: ComplementOption[] = [
   { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
   { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
-  { name: "Pernil com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, pernil, alface e tomate.", price: 13.90, emoji: "🥪" },
+  { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
   { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, emoji: "🍊" },
   { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, emoji: "🥭" },
   { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, emoji: "🍍" },
