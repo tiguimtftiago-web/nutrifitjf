@@ -1520,9 +1520,18 @@ export default function Home() {
               <ClipboardCheck size={25} strokeWidth={2} className="text-[#a7b86a] sm:h-7 sm:w-7" />
               <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano <ArrowRight size={15} /></span>
             </a>
-            <a href={"https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional."} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/10 sm:min-h-28 sm:p-4">
-              <Stethoscope size={25} strokeWidth={2} className="text-[#ef7d18] sm:h-7 sm:w-7" />
-              <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista Deuslene Costa <ArrowRight size={15} /></span>
+            <a href={"https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional."} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/60 bg-gradient-to-br from-[#ef7d18]/12 via-[#ef7d18]/5 to-transparent p-3.5 text-left shadow-[inset_0_0_24px_rgba(239,125,24,0.05)] transition hover:-translate-y-0.5 hover:border-[#ef7d18] hover:bg-[#ef7d18]/15 sm:min-h-28 sm:p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Atendimento nutricional</div>
+                  <Stethoscope size={25} strokeWidth={2} className="mt-1.5 text-[#ef7d18] sm:h-7 sm:w-7" />
+                </div>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
+              </div>
+              <div>
+                <div className="text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista Deuslene Costa</div>
+                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Orientação nutricional personalizada para seus objetivos.</div>
+              </div>
             </a>
           </div>
         </div>
