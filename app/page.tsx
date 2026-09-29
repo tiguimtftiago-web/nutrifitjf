@@ -49,7 +49,7 @@ const fit: Product[] = [
 
 const fitComingSoon: Product[] = [
   { name: "Pernil Acebolado com Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno acebolado acompanhado de batata inglesa.", image: "/images/pernil-acebolado-batata-real.jpg", comingSoon: false },
-  { name: "Frango ao Molho de Mostarda com Batata", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango ao molho de mostarda acompanhado de batata inglesa.", image: "", comingSoon: true },
+  { name: "Frango ao Molho de Mostarda com Batata", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango ao molho de mostarda acompanhado de batata inglesa.", image: "/images/frangomostarda.png", comingSoon: false },
   { name: "Escondidinho Fit de Frango", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango desfiado com purê de batata em uma versão fit.", image: "", comingSoon: true },
   { name: "Frango Empanado Assado com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango empanado e assado acompanhado de arroz integral.", image: "", comingSoon: true },
   { name: "Pernil Desfiado ao Molho com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno desfiado ao molho acompanhado de arroz integral.", image: "", comingSoon: true },
