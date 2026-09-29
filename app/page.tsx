@@ -1497,12 +1497,12 @@ export default function Home() {
 
         {topComboOpen && (
           <div className="mt-3 rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-4 sm:p-5">
-            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#171d10] p-3.5 sm:p-4">
+            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-[#ef7d18] bg-[#ef7d18] p-3.5 sm:p-4">
               <div>
-                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Montar agora</div>
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-white">Montar agora</div>
                 <div className="mt-1 text-sm font-black sm:text-base">Escolha suas marmitas sem sair daqui.</div>
               </div>
-              <button type="button" onClick={() => setTopComboOpen(false)} className="shrink-0 rounded-full border border-white/15 px-3.5 py-2 text-[10px] font-black text-white/65 transition hover:border-white/30 hover:text-white">Fechar</button>
+              <button type="button" onClick={() => setTopComboOpen(false)} className="shrink-0 rounded-full border border-white/40 px-3.5 py-2 text-[10px] font-black text-white transition hover:border-white hover:bg-white/10">Fechar</button>
             </div>
             <ComboBuilder initialLine={0} autoScroll={false} />
           </div>
