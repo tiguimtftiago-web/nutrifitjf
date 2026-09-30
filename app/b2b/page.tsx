@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { ArrowLeft, Building2, CheckCircle2, MessageCircle, PackageCheck, Truck, Users } from "lucide-react";
 
 const whatsapp = (text: string) =>
