@@ -1072,9 +1072,9 @@ export default function Home() {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
 
   const bannerSlides = [
-    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
-    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
-    { image: "/images/91de66d4-d4da-471c-9178-6ca8f363602c.png", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
+    { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
+    { image: "/images/nutrifit-banner-2-tradicional.png", eyebrow: "Linha FIT • 350 g", title: "Comida de verdade para quem quer comer bem.", text: "Opções equilibradas para variar sua rotina sem abrir mão do sabor.", cta: "Conhecer a FIT", href: "#cardapio", source: "banner_fit" },
+    { image: "/images/nutrifit-banner-3-plano.png", eyebrow: "Plano alimentar personalizado", title: "Você traz o plano. A Nutrifit prepara as refeições.", text: "Marmitas personalizadas de acordo com suas metas e orientação nutricional.", cta: "Saiba como funciona", href: "#plano-alimentar", source: "banner_nutricionista", benefits: [
       { label: "Alimentação planejada", icon: "apple" },
       { label: "Suporte às suas metas", icon: "dumbbell" },
       { label: "Mais saúde e resultados", icon: "clipboard" },
