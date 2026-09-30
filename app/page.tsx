@@ -1437,7 +1437,7 @@ export default function Home() {
         <a
           href={slide.href}
           onClick={() => trackClick("banner_cta_click", slide.source)}
-          className="absolute inset-0 z-10 flex items-center bg-[linear-gradient(90deg,#000_0%,#000_52%,rgba(0,0,0,.88)_68%,rgba(0,0,0,.12)_88%,transparent_100%)]"
+          className="absolute inset-0 z-10 flex items-center bg-[linear-gradient(90deg,#000_0%,#000_38%,rgba(0,0,0,.72)_54%,rgba(0,0,0,.18)_76%,transparent_100%)]"
           aria-label={slide.title}
         >
           <div className="max-w-xl px-5 py-9 sm:px-7 sm:py-10 md:px-14">
