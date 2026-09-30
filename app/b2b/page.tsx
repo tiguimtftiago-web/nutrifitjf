@@ -163,7 +163,7 @@ export default function B2BPage() {
         <section className="mt-4 overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d] shadow-[0_30px_100px_rgba(0,0,0,.35)]">
           <div className="relative min-h-[560px] overflow-hidden">
             <img
-              src="https://images.unsplash.com/photo-1645739468741-5a19e9828148?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=88&w=2400"
+              src="/images/nutrifit-b2b-hero.jpg"
               alt=""
               className="absolute inset-0 h-full w-full object-cover object-center opacity-65"
             />
