@@ -1503,8 +1503,22 @@ export default function Home() {
           <p className="mt-2 max-w-3xl text-sm leading-5 text-white/50">Você já tem um plano feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas.</p>
           <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3">
             <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#a7b86a]/40 bg-[#a7b86a]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/10 sm:min-h-28 sm:p-4">
-              <ClipboardCheck size={25} strokeWidth={2} className="text-[#a7b86a] sm:h-7 sm:w-7" />
-              <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano <ArrowRight size={15} /></span>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a] sm:text-[10px]">Seu plano alimentar</div>
+                  <ClipboardCheck size={25} strokeWidth={2} className="mt-1.5 text-[#a7b86a] sm:h-7 sm:w-7" />
+                </div>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#a7b86a] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
+              </div>
+              <div>
+                <div className="text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano</div>
+                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Transforme suas orientações em refeições prontas.</div>
+                <div className="mt-2 space-y-0.5 text-[9px] font-bold leading-4 text-white/45 sm:text-[10px]">
+                  <div>✓ Envie seu plano</div>
+                  <div>✓ Nós seguimos suas orientações</div>
+                  <div>✓ Receba suas refeições prontas</div>
+                </div>
+              </div>
             </a>
             <a href={"https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional."} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/60 bg-gradient-to-br from-[#ef7d18]/12 via-[#ef7d18]/5 to-transparent p-3.5 text-left shadow-[inset_0_0_24px_rgba(239,125,24,0.05)] transition hover:-translate-y-0.5 hover:border-[#ef7d18] hover:bg-[#ef7d18]/15 sm:min-h-28 sm:p-4">
               <div className="flex items-start justify-between gap-3">
