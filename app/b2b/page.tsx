@@ -62,19 +62,33 @@ export default function B2BPage() {
         </a>
 
         <section className="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d]">
-          <div className="border-b border-white/10 bg-gradient-to-br from-[#171d10] to-[#0d100c] p-7 md:p-12">
+          <div className="relative overflow-hidden border-b border-white/10 p-7 md:p-12">
+            <img src="/images/page-32.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center opacity-20" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,#171d10_0%,rgba(23,29,16,.94)_48%,rgba(13,16,12,.88)_100%)]" />
+            <div className="relative">
             <div className="flex items-center gap-3 text-[#ef7d18]">
               <Building2 size={25} />
               <span className="text-xs font-black uppercase tracking-[.2em]">Nutrifit para empresas</span>
             </div>
             <h1 className="mt-3 max-w-3xl text-4xl font-black md:text-6xl">
-              Refeições para sua equipe, sem complicação.
+              Alimentação de qualidade para sua equipe.
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-white/55">
-              A Nutrifit atende empresas em Juiz de Fora com marmitas, saladas e outras opções
-              para equipes, reuniões, eventos e demandas recorrentes.
+              Refeições práticas e equilibradas para empresas que querem facilitar a rotina dos colaboradores,
+              com atendimento corporativo ajustado ao volume e à frequência de cada equipe.
             </p>
-            <a
+            </div>
+          </div>
+
+          <div className="sr-only">B2B Nutrifit</div>
+          <div className="hidden"></div>
+
+          <div className="absolute bottom-6 right-6 hidden rounded-2xl border border-[#ef7d18]/25 bg-black/40 px-4 py-3 text-right backdrop-blur md:block">
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Nutrifit Empresas</div>
+            <div className="mt-1 text-xs font-bold text-white/60">Alimentação para sua equipe</div>
+          </div>
+
+          <a
               href="#solicitar-proposta"
               className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black"
             >
