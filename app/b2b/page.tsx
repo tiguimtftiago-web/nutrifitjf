@@ -166,7 +166,24 @@ export default function B2BPage() {
           </section>
 
           <section className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
-            <div className="relative min-h-[300px] overflow-hidden rounded-[2rem] bg-[#11140e]"><div className="absolute inset-0 bg-[linear-gradient(90deg,#171d10_0%,#171d10_43%,rgba(23,29,16,.78)_66%,rgba(23,29,16,.18)_100%)]" /><div className="absolute right-[-3%] bottom-[-20%] hidden h-[360px] w-[360px] rotate-[-8deg] md:block"><img src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png" alt="" className="h-full w-full object-contain drop-shadow-[0_30px_45px_rgba(0,0,0,.55)]" /></div><div className="relative max-w-2xl p-7 sm:p-10 lg:p-12"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ef7d18] text-black"><ClipboardList size={21} /></div><span className="mt-5 block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Atendimento corporativo</span><h2 className="mt-2 text-3xl font-black leading-tight tracking-tight sm:text-5xl">Sua empresa precisa de refeições para a equipe?</h2><p className="mt-4 max-w-xl text-sm leading-6 text-white/50 sm:text-base">Solicite uma proposta e conte para a Nutrifit o volume, a frequência e o tipo de atendimento que sua empresa precisa.</p><a href="#solicitar-proposta" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black transition hover:brightness-105">Solicite uma proposta <ArrowRight size={17} /></a></div></div>
+            <div className="group relative min-h-[360px] overflow-hidden rounded-[2rem] border border-[#ef7d18]/20 bg-[#11140e]">
+              <img
+                src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png"
+                alt="Marmita Nutrifit de frango com purê de batata inglesa"
+                className="absolute inset-0 h-full w-full object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,20,14,.98)_0%,rgba(17,20,14,.93)_32%,rgba(17,20,14,.68)_55%,rgba(17,20,14,.18)_100%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_52%,rgba(239,125,24,.18),transparent_28%)]" />
+              <div className="relative z-10 flex min-h-[360px] items-center p-7 sm:p-10 lg:p-12">
+                <div className="max-w-2xl">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#ef7d18] text-black shadow-[0_10px_30px_rgba(239,125,24,.2)]"><ClipboardList size={21} /></div>
+                  <span className="mt-5 block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Atendimento corporativo</span>
+                  <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight sm:text-5xl">Sua empresa precisa de refeições para a equipe?</h2>
+                  <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Solicite uma proposta e conte para a Nutrifit o volume, a frequência e o tipo de atendimento que sua empresa precisa.</p>
+                  <a href="#solicitar-proposta" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_30px_rgba(239,125,24,.2)] transition hover:-translate-y-0.5 hover:brightness-105">Solicite uma proposta <ArrowRight size={17} /></a>
+                </div>
+              </div>
+            </div>
           </section>
 
           <section id="solicitar-proposta" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
