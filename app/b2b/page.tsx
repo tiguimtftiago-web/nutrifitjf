@@ -79,7 +79,6 @@ export default function B2BPage() {
               com atendimento corporativo ajustado ao volume e à frequência de cada equipe.
             </p>
             </div>
-          </div>
 
           <div className="sr-only">B2B Nutrifit</div>
           <div className="hidden"></div>
