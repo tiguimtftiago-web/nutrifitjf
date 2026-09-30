@@ -61,7 +61,15 @@ export default function B2BPage() {
     };
 
     const yesNo = (name: string) => form.get(name) === "sim" ? "Sim" : "Não";
-    const selectedDays = form.getAll("dias").map(String);\n    if (!selectedDays.length) {\n      alert("Selecione pelo menos um dia de fornecimento.");\n      return;\n    }\n    const days = selectedDays.join(", ");\n    const billingAddress = form.get("cobranca_mesmo_endereco") === "sim"\n      ? "Mesmo da entrega"\n      : `${value("cobranca_rua")}, nº ${value("cobranca_numero")}, ${value("cobranca_bairro")}, ${value("cobranca_cidade")}`;
+    const selectedDays = form.getAll("dias").map(String);
+    if (!selectedDays.length) {
+      alert("Selecione pelo menos um dia de fornecimento.");
+      return;
+    }
+    const days = selectedDays.join(", ");
+    const billingAddress = form.get("cobranca_mesmo_endereco") === "sim"
+      ? "Mesmo da entrega"
+      : `${value("cobranca_rua")}, nº ${value("cobranca_numero")}, ${value("cobranca_bairro")}, ${value("cobranca_cidade")}`;
 
     const message = [
       "🟧 *NOVO LEAD B2B — NUTRIFIT*",
