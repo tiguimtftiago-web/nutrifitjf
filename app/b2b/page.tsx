@@ -200,30 +200,34 @@ export default function B2BPage() {
                   Refeições estimadas
                   <input name="refeicoes" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Ex.: 30 por dia" />
                 </label>
-                <label className="grid gap-2 text-sm font-bold">
-                  Frequência
-                  <select name="frequencia" defaultValue="" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]">
-                    <option value="" disabled>Selecione</option>
-                    <option>Diária</option>
-                    <option>Semanal</option>
-                    <option>Quinzenal</option>
-                    <option>Mensal</option>
-                    <option>Conforme demanda</option>
-                  </select>
-                </label>
+                <fieldset className="grid gap-2 text-sm font-bold">
+                  <legend>Frequência</legend>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {["Diária", "Semanal", "Quinzenal", "Mensal", "Conforme demanda"].map((option) => (
+                      <label key={option} className="cursor-pointer">
+                        <input type="radio" name="frequencia" value={option} className="peer sr-only" />
+                        <span className="flex min-h-12 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-xs font-bold text-white/60 transition peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15 peer-checked:text-[#d9e5a5] hover:border-white/20 hover:bg-white/[.08]">
+                          {option}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
               </div>
 
-              <label className="grid gap-2 text-sm font-bold">
-                Tipo de atendimento
-                <select name="tipo" defaultValue="" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]">
-                  <option value="" disabled>Selecione</option>
-                  <option>Refeições para colaboradores</option>
-                  <option>Reuniões</option>
-                  <option>Eventos</option>
-                  <option>Equipe / operação</option>
-                  <option>Outro</option>
-                </select>
-              </label>
+              <fieldset className="grid gap-2 text-sm font-bold">
+                <legend>Tipo de atendimento</legend>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {["Refeições para colaboradores", "Reuniões", "Eventos", "Equipe / operação", "Outro"].map((option) => (
+                    <label key={option} className="cursor-pointer">
+                      <input type="radio" name="tipo" value={option} className="peer sr-only" />
+                      <span className="flex min-h-12 items-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white/60 transition peer-checked:border-[#ef7d18] peer-checked:bg-[#ef7d18]/10 peer-checked:text-[#ffb56f] hover:border-white/20 hover:bg-white/[.08]">
+                        {option}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
 
               <label className="grid gap-2 text-sm font-bold">
                 Observações
