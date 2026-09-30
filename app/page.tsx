@@ -1501,7 +1501,7 @@ export default function Home() {
           <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
           <div className="mt-1 text-2xl font-black leading-tight sm:text-3xl">Seu plano alimentar pode virar refeições prontas.</div>
           <p className="mt-2 max-w-3xl text-sm leading-5 text-white/50">Você já tem um plano feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3">
             <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#a7b86a]/40 bg-[#a7b86a]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/10 sm:min-h-28 sm:p-4">
               <ClipboardCheck size={25} strokeWidth={2} className="text-[#a7b86a] sm:h-7 sm:w-7" />
               <span className="flex items-center justify-between gap-2 text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano <ArrowRight size={15} /></span>
@@ -1517,6 +1517,19 @@ export default function Home() {
               <div>
                 <div className="text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista Deuslene Costa</div>
                 <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Orientação nutricional personalizada para seus objetivos.</div>
+              </div>
+            </a>
+            <a href="/b2b" className="group col-span-2 flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/55 bg-gradient-to-br from-[#17130d] via-[#11150d] to-[#0b0e09] p-3.5 text-left shadow-[inset_0_0_28px_rgba(239,125,24,0.06)] transition hover:-translate-y-0.5 hover:border-[#ef7d18] hover:bg-[#ef7d18]/10 md:col-span-1 sm:min-h-28 sm:p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit para empresas</div>
+                  <Building2 size={25} strokeWidth={2} className="mt-1.5 text-[#ef7d18] sm:h-7 sm:w-7" />
+                </div>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
+              </div>
+              <div>
+                <div className="text-[11px] font-black leading-4 sm:text-sm">Alimentação de qualidade para sua equipe.</div>
+                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Refeições para colaboradores, reuniões e eventos.</div>
               </div>
             </a>
           </div>
