@@ -1014,6 +1014,38 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           </div>
         ))}
       </div>
+      {expanded && id === "tradicional" && (
+        <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09]">
+          <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Linha Tradicional • complementos</div>
+            <h3 className="mt-1 text-2xl font-black sm:text-3xl">COMPLEMENTE <span className="text-[#ef7d18]">SUA REFEIÇÃO</span></h3>
+            <p className="mt-1.5 text-sm text-white/45">Adicione um acompanhamento ou uma porção extra sem sair da Linha Tradicional.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-2 md:grid-cols-4">
+            {traditionalComplements.map((item) => (
+              <article key={item.name} className="bg-[#0d100c] p-3.5 sm:p-4">
+                <div className="grid min-h-[118px] content-between">
+                  <div>
+                    <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 text-xl">
+                      {item.name === "Arroz Branco" ? "🍚" : item.name === "Feijão" ? "🫘" : item.name === "Farofa" ? "🥘" : item.name === "Purê de Batata" ? "🥔" : item.name === "Macarrão" ? "🍝" : item.name === "Couve Refogada" ? "🥬" : "🥩"}
+                    </div>
+                    <h4 className="mt-2.5 text-sm font-black leading-tight sm:text-base">{item.name}</h4>
+                    <div className="mt-1 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">{item.weight}</div>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="text-base font-black text-[#ef7d18]">{item.price}</span>
+                    <button type="button" onClick={() => onAdd(item)} aria-label={"Adicionar " + item.name} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#a7b86a] text-black transition hover:scale-105"><Plus size={17} strokeWidth={3} /></button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 border-t border-white/10 bg-black/15 px-4 py-3 text-[11px] font-bold text-white/35 sm:px-5">
+            <ChefHat size={15} className="shrink-0 text-[#ef7d18]" />
+            <span>A porção de carne acompanha a opção disponível na produção do dia.</span>
+          </div>
+        </div>
+      )}
       {hiddenCount > 0 && (
         <button
           type="button"
@@ -1565,56 +1597,6 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
-
-      <section id="complementos-tradicionais" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
-        <div className="overflow-hidden rounded-[1.6rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] shadow-[0_18px_55px_rgba(0,0,0,.2)]">
-          <div className="relative border-b border-[#a7b86a]/15 px-4 py-5 sm:px-6 sm:py-6 md:px-8">
-            <div className="absolute right-5 top-3 text-5xl opacity-[.07] sm:right-8 sm:text-7xl">🍽️</div>
-            <div className="relative">
-              <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#ef7d18] sm:text-xs">Linha Tradicional • complementos</div>
-              <h2 className="mt-1.5 text-3xl font-black leading-none sm:text-4xl">COMPLEMENTE <span className="text-[#ef7d18]">SUA REFEIÇÃO</span></h2>
-              <p className="mt-2 max-w-2xl text-sm leading-5 text-white/50 sm:text-base">Adicione um acompanhamento ou uma porção extra e deixe sua refeição do seu jeito.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-2 md:grid-cols-4">
-            {traditionalComplements.map((item) => (
-              <article key={item.name} className="group bg-[#0d100c] p-3.5 transition hover:bg-[#151a11] sm:p-4">
-                <div className="flex min-h-[128px] flex-col justify-between">
-                  <div>
-                    <div className="grid h-11 w-11 place-items-center rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 text-2xl">
-                      {item.name === "Arroz Branco" ? "🍚" :
-                        item.name === "Feijão" ? "🫘" :
-                        item.name === "Farofa" ? "🥘" :
-                        item.name === "Purê de Batata" ? "🥔" :
-                        item.name === "Macarrão" ? "🍝" :
-                        item.name === "Couve Refogada" ? "🥬" : "🥩"}
-                    </div>
-                    <h3 className="mt-3 text-sm font-black leading-tight sm:text-base">{item.name}</h3>
-                    <div className="mt-1 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">{item.weight}</div>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <span className="text-base font-black text-[#ef7d18] sm:text-lg">{item.price}</span>
-                    <button
-                      type="button"
-                      onClick={() => addToOrder(item)}
-                      aria-label={"Adicionar " + item.name}
-                      className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#a7b86a] text-black transition hover:scale-105"
-                    >
-                      <Plus size={17} strokeWidth={3} />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-2 border-t border-white/10 bg-black/15 px-4 py-3.5 text-[11px] font-bold text-white/40 sm:px-6">
-            <ChefHat size={16} className="shrink-0 text-[#ef7d18]" />
-            <span>A porção de carne acompanha a opção disponível na produção do dia.</span>
-          </div>
-        </div>
-      </section>
 
       <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
         <div className="mb-4">
@@ -2250,7 +2232,6 @@ export default function Home() {
               <a href="#saladas" className="transition hover:text-white">Saladas</a>
               <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
-              <a href="#complementos-tradicionais" className="transition hover:text-white">Complementos</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
             </nav>
