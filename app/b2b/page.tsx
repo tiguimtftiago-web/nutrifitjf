@@ -64,8 +64,8 @@ export default function B2BPage() {
 
         <section className="mt-8 overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d]">
           <div className="relative overflow-hidden border-b border-white/10 p-7 md:p-12">
-            <img src="/images/page-32.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center opacity-20" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,#171d10_0%,rgba(23,29,16,.94)_48%,rgba(13,16,12,.88)_100%)]" />
+            <img src="/images/b2b-hero.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-center opacity-55" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,19,13,.96)_0%,rgba(15,19,13,.78)_42%,rgba(10,13,10,.52)_100%)]" />
             <div className="relative">
             <div className="flex items-center gap-3 text-[#ef7d18]">
               <Building2 size={25} />
