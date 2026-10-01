@@ -1070,6 +1070,7 @@ export default function Home() {
   const [comboLineIndex, setComboLineIndex] = useState(0);
   const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [cartHydrated, setCartHydrated] = useState(false);
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -1080,6 +1081,25 @@ export default function Home() {
       { label: "Mais saúde e resultados", icon: "clipboard" },
     ] },
   ] as const;
+
+  useEffect(() => {
+    try {
+      const savedCart = window.localStorage.getItem("nutrifit_cart");
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart) as OrderItem[];
+        if (Array.isArray(parsed)) setOrderItems(parsed);
+      }
+    } catch {}
+    setCartHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!cartHydrated) return;
+    try {
+      if (orderItems.length) window.localStorage.setItem("nutrifit_cart", JSON.stringify(orderItems));
+      else window.localStorage.removeItem("nutrifit_cart");
+    } catch {}
+  }, [cartHydrated, orderItems]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
