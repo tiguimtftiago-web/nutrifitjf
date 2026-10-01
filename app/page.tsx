@@ -1237,6 +1237,8 @@ export default function Home() {
     const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     if (!whatsappWindow) window.location.href = whatsappUrl;
 
+    setOrderItems([]);
+
     void (async () => {
       try {
         await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
