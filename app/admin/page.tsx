@@ -169,9 +169,9 @@ export default function AdminPage() {
           <form onSubmit={login} className="mt-7 grid gap-4">
             <input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
             <input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
-            {error && <p className="text-sm text-red-300">{error}</p>}
-            {recoverySent && <p className="text-sm text-[#d9e5a5]">E-mail de recuperação enviado.</p>}
-            <button disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
+            {error && <p role="alert" aria-live="assertive" className="text-sm text-red-300">{error}</p>}
+            {recoverySent && <p role="status" aria-live="polite" className="text-sm text-[#d9e5a5]">E-mail de recuperação enviado.</p>}
+            <button type="submit" disabled={busy} aria-busy={busy} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
               {busy ? "Aguarde..." : "Entrar"}
             </button>
             <button type="button" onClick={()=>void recover()} disabled={busy} className="text-sm font-bold text-white/55 underline underline-offset-4">
