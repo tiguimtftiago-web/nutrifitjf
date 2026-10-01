@@ -49,9 +49,12 @@ const steps = [
 
 export default function B2BPage() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const form = new FormData(event.currentTarget);
 
     const value = (name: string, fallback = "Não informado") => {
@@ -64,6 +67,7 @@ export default function B2BPage() {
     const selectedDays = form.getAll("dias").map(String);
     if (!selectedDays.length) {
       alert("Selecione pelo menos um dia de fornecimento.");
+      setSubmitting(false);
       return;
     }
     const days = selectedDays.join(", ");
@@ -187,6 +191,8 @@ export default function B2BPage() {
     } catch (error) {
       console.error(error);
       window.open(whatsapp(message), "_blank", "noopener,noreferrer");
+    } finally {
+      setSubmitting(false);
     }
   }
   return (
@@ -377,7 +383,7 @@ export default function B2BPage() {
                     <label className="flex cursor-pointer gap-3"><input required type="checkbox" name="confirmacao_dados" value="sim" className="mt-1 accent-[#ef7d18]" />Confirmo que os dados da empresa, endereço, quantidade, horários e faturamento informados estão corretos.</label>
                     <label className="flex cursor-pointer gap-3"><input required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]" />Autorizo a Nutrifit a utilizar os dados fornecidos para atendimento, proposta, faturamento e entrega do pedido.</label>
                   </div>
-                  <button type="submit" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105"><MessageCircle size={18} /> Enviar cadastro e abrir WhatsApp</button>
+                  <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"><MessageCircle size={18} /> {submitting ? "Enviando cadastro..." : "Enviar cadastro e abrir WhatsApp"}</button>
                   {sent && <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado. O WhatsApp da Nutrifit foi aberto com a ficha completa.</div>}
                 </div>
               </form>
