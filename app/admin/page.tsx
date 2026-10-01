@@ -174,7 +174,7 @@ export default function AdminPage() {
             <button type="submit" disabled={busy} aria-busy={busy} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
               {busy ? "Aguarde..." : "Entrar"}
             </button>
-            <button type="button" onClick={()=>void recover()} disabled={busy} className="text-sm font-bold text-white/55 underline underline-offset-4">
+            <button type="button" aria-label="Enviar e-mail de recuperação de senha" onClick={()=>void recover()} disabled={busy} className="text-sm font-bold text-white/55 underline underline-offset-4">
               Esqueci minha senha
             </button>
           </form>
