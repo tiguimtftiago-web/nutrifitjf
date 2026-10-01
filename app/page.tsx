@@ -917,8 +917,8 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           </div>
 
           <div className="mt-4 grid gap-3">
-            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" aria-label="Nome para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" aria-label="WhatsApp para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
           </div>
 
           <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 text-sm text-white/55">
@@ -2209,16 +2209,16 @@ export default function Home() {
               <p className="text-sm leading-6 text-white/50">Cadastre seus dados para agilizar seus próximos pedidos e participar do Clube Nutrifit.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
-                  <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">WhatsApp
-                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">E-mail
-                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" aria-label="E-mail do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">Data de nascimento
-                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" aria-label="Data de nascimento" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
                 </label>
                 <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs leading-5 text-white/55">
                   <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a]" />
