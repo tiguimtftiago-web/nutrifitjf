@@ -1771,10 +1771,12 @@ export default function Home() {
                           </button>
                         ))}
                       </div>
-                      <div className="mt-3 grid grid-cols-[1fr_auto] items-center gap-2 rounded-2xl border border-white/10 bg-white/[.025] p-2">
-                        <span className="px-2 text-[10px] font-bold leading-4 text-white/45">Escolha o tamanho e adicione ao carrinho</span>
-                        <ShoppingCart size={18} className="mr-1 shrink-0 text-[#a7b86a]" />
-                      </div>
+                      <button type="button" onClick={() => {
+                        const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
+                        if (product) addToOrder(product);
+                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#b7dc62] px-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
+                        <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
+                      </button>
                     </div>
                   </div>
                 ))}
