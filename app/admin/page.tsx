@@ -167,8 +167,8 @@ export default function AdminPage() {
           <h1 className="mt-4 text-3xl font-black">Painel B2B</h1>
           <p className="mt-2 text-sm text-white/45">Área administrativa da Nutrifit.</p>
           <form onSubmit={login} className="mt-7 grid gap-4">
-            <input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
-            <input required type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
+            <input required type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
+            <input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none" />
             {error && <p className="text-sm text-red-300">{error}</p>}
             {recoverySent && <p className="text-sm text-[#d9e5a5]">E-mail de recuperação enviado.</p>}
             <button disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
