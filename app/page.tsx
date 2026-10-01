@@ -2060,7 +2060,7 @@ export default function Home() {
                 <h2 id="cart-title" className="mt-1 text-xl font-black sm:text-2xl">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <button type="button" onClick={() => setOrderOpen(false)} className="hidden rounded-full border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-black text-white/75 sm:block">
+                <button type="button" onClick={() => setOrderOpen(false)} aria-label="Continuar comprando" className="hidden rounded-full border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-black text-white/75 sm:block">
                   Continuar comprando
                 </button>
                 <button type="button" onClick={() => setOrderOpen(false)} aria-label="Fechar carrinho" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70">
