@@ -194,7 +194,7 @@ export default function B2BPage() {
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <div className="mx-auto max-w-[1280px] px-4 py-5 sm:px-6 lg:px-8">
-        <a href="/" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.025] px-4 py-2 text-xs font-black text-white/60 transition hover:border-white/20 hover:text-white">
+        <a aria-label="Voltar para a Nutrifit" href="/" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.025] px-4 py-2 text-xs font-black text-white/60 transition hover:border-white/20 hover:text-white">
           <ArrowLeft size={15} /> Voltar para o site
         </a>
 
@@ -208,7 +208,7 @@ export default function B2BPage() {
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#ef7d18]/25 bg-black/30 px-3.5 py-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62] backdrop-blur"><Building2 size={14} /> Nutrifit para empresas</div>
                 <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[.98] tracking-[-.04em] sm:text-5xl lg:text-7xl">Alimentação de qualidade<span className="block text-[#ef7d18]">para sua equipe.</span></h1>
                 <p className="mt-6 max-w-2xl text-base leading-7 text-white/60 sm:text-lg">Refeições práticas e equilibradas para empresas que querem facilitar a rotina dos colaboradores, com atendimento ajustado ao volume e à frequência de cada equipe.</p>
-                <a href="#solicitar-proposta" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_35px_rgba(239,125,24,.22)] transition hover:-translate-y-0.5 hover:brightness-105">Solicitar proposta <ArrowRight size={17} /></a>
+                <a aria-label="Solicitar proposta Nutrifit Empresas" href="#solicitar-proposta" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_35px_rgba(239,125,24,.22)] transition hover:-translate-y-0.5 hover:brightness-105">Solicitar proposta <ArrowRight size={17} /></a>
               </div>
               <div className="mt-12 flex flex-wrap items-end justify-between gap-4">
                 <div className="rounded-2xl border border-white/10 bg-black/35 px-5 py-4 backdrop-blur-md"><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Nutrifit Empresas</div><div className="mt-1 text-sm font-bold text-white/75">Alimentação para a rotina da sua equipe</div></div>
@@ -246,7 +246,7 @@ export default function B2BPage() {
                   <span className="mt-5 block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Atendimento corporativo</span>
                   <h2 className="mt-2 text-3xl font-black leading-tight tracking-tight sm:text-5xl">Sua empresa precisa de refeições para a equipe?</h2>
                   <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Solicite uma proposta e conte para a Nutrifit o volume, a frequência e o tipo de atendimento que sua empresa precisa.</p>
-                  <a href="#solicitar-proposta" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_30px_rgba(239,125,24,.2)] transition hover:-translate-y-0.5 hover:brightness-105">Solicite uma proposta <ArrowRight size={17} /></a>
+                  <a aria-label="Solicitar proposta Nutrifit Empresas" href="#solicitar-proposta" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_30px_rgba(239,125,24,.2)] transition hover:-translate-y-0.5 hover:brightness-105">Solicite uma proposta <ArrowRight size={17} /></a>
                 </div>
               </div>
             </div>
