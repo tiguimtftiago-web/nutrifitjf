@@ -2091,7 +2091,7 @@ export default function Home() {
                             <h3 className="break-words font-black leading-tight">{item.name}</h3>
                             <div className="mt-1 text-xs text-white/40">{item.line} • {item.weight} • {money(item.price)} cada</div>
                           </div>
-                          <button type="button" onClick={() => removeOrderItem(item.name)} aria-label={`Remover ${item.name}`} className="shrink-0 rounded-full p-2 text-white/40 hover:bg-white/5 hover:text-white">
+                          <button type="button" onClick={() => removeOrderItem(item.name)} aria-label={`Remover ${item.name} do carrinho`} title="Remover do carrinho" className="shrink-0 rounded-full p-2 text-white/40 hover:bg-white/5 hover:text-white">
                             <X size={16} />
                           </button>
                         </div>
