@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 export default function RecoveryPage() {
   const [accessToken, setAccessToken] = useState("");
@@ -71,5 +71,5 @@ export default function RecoveryPage() {
     return <main className="min-h-screen bg-[#080a07] px-5 py-10 text-white grid place-items-center"><div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#10130d] p-8"><h1 className="text-2xl font-black">Senha alterada</h1><p className="mt-3 text-sm text-white/55">Sua senha foi atualizada. Redirecionando para o painel...</p></div></main>;
   }
 
-  return <main className="min-h-screen bg-[#080a07] px-5 py-10 text-white grid place-items-center"><div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#10130d] p-8"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><h1 className="mt-3 text-3xl font-black">Criar nova senha</h1><p className="mt-2 text-sm text-white/45">Digite a nova senha do painel administrativo.</p><form onSubmit={updatePassword} className="mt-7 grid gap-4"><input required minLength={6} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Nova senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"/><input required minLength={6} type="password" value={confirmation} onChange={e=>setConfirmation(e.target.value)} placeholder="Confirme a nova senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"/>{error&&<p className="text-sm text-red-300">{error}</p>}<button disabled={status==="saving"} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">{status==="saving"?"Salvando...":"Alterar senha"}</button></form></div></main>;
+  return <main className="min-h-screen bg-[#080a07] px-5 py-10 text-white grid place-items-center"><div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-[#10130d] p-8"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><h1 className="mt-3 text-3xl font-black">Criar nova senha</h1><p className="mt-2 text-sm text-white/45">Digite a nova senha do painel administrativo.</p><form onSubmit={updatePassword} className="mt-7 grid gap-4"><input required minLength={6} type="password" autoComplete="new-password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Nova senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"/><input required minLength={6} type="password" autoComplete="new-password" value={confirmation} onChange={e=>setConfirmation(e.target.value)} placeholder="Confirme a nova senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none"/>{error&&<p className="text-sm text-red-300">{error}</p>}<button type="submit" disabled={status==="saving"} aria-busy={status==="saving"} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">{status==="saving"?"Salvando...":"Alterar senha"}</button></form></div></main>;
 }
