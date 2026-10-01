@@ -197,13 +197,13 @@ export default function AdminPage() {
           </div>
           <div className="flex gap-2">
             <button type="button" aria-label="Atualizar dados do painel" aria-busy={busy} onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2 text-sm"><RefreshCw size={15} className="mr-2 inline" />Atualizar</button>
-            <button type="button" onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2 text-sm"><LogOut size={15} className="mr-2 inline" />Sair</button>
+            <button type="button" aria-label="Sair do painel administrativo" onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2 text-sm"><LogOut size={15} className="mr-2 inline" />Sair</button>
           </div>
         </header>
 
         <div className="mt-6 flex gap-2">
-          <button type="button" onClick={()=>setSection("b2b")} className={section==="b2b" ? "rounded-full bg-[#a7b86a] px-5 py-2.5 text-sm font-black text-black" : "rounded-full border border-white/10 px-5 py-2.5 text-sm font-black text-white/65"}><Building2 size={15} className="mr-2 inline" />B2B</button>
-          <button type="button" onClick={()=>setSection("customers")} className={section==="customers" ? "rounded-full bg-[#a7b86a] px-5 py-2.5 text-sm font-black text-black" : "rounded-full border border-white/10 px-5 py-2.5 text-sm font-black text-white/65"}><Users size={15} className="mr-2 inline" />Clientes</button>
+          <button type="button" aria-label="Abrir seção B2B" onClick={()=>setSection("b2b")} className={section==="b2b" ? "rounded-full bg-[#a7b86a] px-5 py-2.5 text-sm font-black text-black" : "rounded-full border border-white/10 px-5 py-2.5 text-sm font-black text-white/65"}><Building2 size={15} className="mr-2 inline" />B2B</button>
+          <button type="button" aria-label="Abrir seção Clientes" onClick={()=>setSection("customers")} className={section==="customers" ? "rounded-full bg-[#a7b86a] px-5 py-2.5 text-sm font-black text-black" : "rounded-full border border-white/10 px-5 py-2.5 text-sm font-black text-white/65"}><Users size={15} className="mr-2 inline" />Clientes</button>
         </div>
 
         {error && <div className="mt-4 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</div>}
@@ -284,7 +284,7 @@ export default function AdminPage() {
                 <label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes || ""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal" /></label>
                 <div className="flex flex-wrap gap-2">
                   <a href={`https://wa.me/${selected.whatsapp.replace(/\\D/g,"")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle className="mr-2 inline" size={16} />WhatsApp</a>
-                  <button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy ? "Salvando..." : "Salvar"}</button>
+                  <button type="button" onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy ? "Salvando..." : "Salvar"}</button>
                 </div>
                 {selected.notes && <div className="rounded-xl bg-black/20 p-4 text-sm text-white/55">{selected.notes}</div>}
               </div>
