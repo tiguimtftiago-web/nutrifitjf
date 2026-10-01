@@ -71,10 +71,6 @@ export default function B2BPage() {
       return;
     }
     const days = selectedDays.join(", ");
-    const billingAddress = form.get("cobranca_mesmo_endereco") === "sim"
-      ? "Mesmo da entrega"
-      : `${value("cobranca_rua")}, nº ${value("cobranca_numero")}, ${value("cobranca_bairro")}, ${value("cobranca_cidade")}`;
-
     const message = [
       "🟧 *NOVO LEAD B2B — NUTRIFIT*",
       "",
