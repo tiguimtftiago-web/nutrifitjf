@@ -2097,9 +2097,9 @@ export default function Home() {
                         </div>
                         <div className="mt-4 flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
-                            <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={15} /></button>
+                            <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} title="Diminuir quantidade" className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={15} /></button>
                             <span className="w-8 text-center font-black">{item.quantity}</span>
-                            <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} className="grid h-10 w-10 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                            <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} title="Aumentar quantidade" className="grid h-10 w-10 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
                           </div>
                           <div className="text-lg font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div>
                         </div>
