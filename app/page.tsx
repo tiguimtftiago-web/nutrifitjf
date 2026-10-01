@@ -2141,7 +2141,7 @@ export default function Home() {
                   </div>
 
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
-                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
                   </label>
                 </>
               )}
@@ -2172,7 +2172,7 @@ export default function Home() {
           <section role="dialog" aria-modal="true" aria-label="Buscar produtos" className="absolute left-1/2 top-16 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
             <div className="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
               <Search size={21} className="shrink-0 text-[#a7b86a]" />
-              <input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Busque por prato ou suco..." aria-label="Buscar produtos" className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:text-white/30" />
+              <input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Busque por prato ou suco..." aria-label="Buscar produtos" autoComplete="off" className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:text-white/30" />
               <button type="button" onClick={() => setSearchOpen(false)} aria-label="Fechar busca" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
             <div className="max-h-[65vh] overflow-y-auto p-3 sm:p-4">
