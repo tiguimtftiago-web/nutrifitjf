@@ -33,6 +33,7 @@ export default function GlobalError({
             </p>
             <button
               type="button"
+              aria-label="Tentar carregar o site novamente"
               onClick={() => reset()}
               className="mt-6 rounded-full bg-[#b7dc62] px-6 py-3 text-sm font-black text-black transition hover:scale-[1.01]"
             >
