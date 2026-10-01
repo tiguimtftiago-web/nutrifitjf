@@ -1102,6 +1102,25 @@ export default function Home() {
   }, [cartHydrated, orderItems]);
 
   useEffect(() => {
+    if (!cartHydrated) return;
+    try {
+      const savedOrderCustomer = JSON.parse(window.localStorage.getItem("nutrifit_order_customer") || "{}");
+      if (savedOrderCustomer && typeof savedOrderCustomer === "object") {
+        if (savedOrderCustomer.name) setCustomerName(String(savedOrderCustomer.name));
+        if (savedOrderCustomer.phone) setCustomerPhone(String(savedOrderCustomer.phone));
+        if (savedOrderCustomer.cep) setOrderCep(String(savedOrderCustomer.cep));
+      }
+    } catch {}
+  }, [cartHydrated]);
+
+  useEffect(() => {
+    if (!cartHydrated) return;
+    try {
+      window.localStorage.setItem("nutrifit_order_customer", JSON.stringify({ name: customerName, phone: customerPhone, cep: orderCep }));
+    } catch {}
+  }, [cartHydrated, customerName, customerPhone, orderCep]);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       setBannerIndex((current) => (current + 1) % bannerSlides.length);
     }, 3500);
