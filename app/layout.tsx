@@ -4,6 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Nutrifit | Marmitas Fit em Juiz de Fora",
+  applicationName: "Nutrifit",
   description: "Marmitas Fit, Performance e Tradicional, saladas e sucos da Nutrifit. Monte seu combo e peça pelo WhatsApp em Juiz de Fora.",
   metadataBase: new URL("https://www.nutrifitjf.com.br"),
   alternates: { canonical: "/" },
