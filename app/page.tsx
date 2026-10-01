@@ -1248,6 +1248,7 @@ export default function Home() {
             "Content-Type": "application/json",
             Prefer: "return=minimal",
           },
+          keepalive: true,
           body: JSON.stringify({
             customer_name: customerName.trim(),
             whatsapp: orderPhoneDigits,
