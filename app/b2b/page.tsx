@@ -380,7 +380,7 @@ export default function B2BPage() {
                     <label className="flex cursor-pointer gap-3"><input aria-label="Autorizo o uso dos dados para atendimento, proposta, faturamento e entrega" required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]" />Autorizo a Nutrifit a utilizar os dados fornecidos para atendimento, proposta, faturamento e entrega do pedido.</label>
                   </div>
                   <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"><MessageCircle size={18} /> {submitting ? "Enviando cadastro..." : "Enviar cadastro e abrir WhatsApp"}</button>
-                  {sent && <div className="mt-4 flex items-center gap-2 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado. O WhatsApp da Nutrifit foi aberto com a ficha completa.</div>}
+                  {sent && <div role="status" aria-live="polite" className="mt-4 flex items-center gap-2 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado. O WhatsApp da Nutrifit foi aberto com a ficha completa.</div>}
                 </div>
               </form>
 
