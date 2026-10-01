@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   appleWebApp: { capable: true, title: "Nutrifit", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },
+  referrer: "strict-origin-when-cross-origin",
   keywords: ["marmitas fit em Juiz de Fora", "marmitas fitness Juiz de Fora", "marmitas saudáveis Juiz de Fora", "Nutrifit Juiz de Fora", "marmitas para empresas Juiz de Fora"],
   icons: {
     icon: "/images/nutrifit-logo-icon.svg",
