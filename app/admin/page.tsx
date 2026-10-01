@@ -161,7 +161,7 @@ export default function AdminPage() {
 
   if (!token) {
     return (
-      <main className="min-h-screen bg-[#080a07] px-5 py-10 text-white">
+      <main aria-labelledby="admin-title" className="min-h-screen bg-[#080a07] px-5 py-10 text-white">
         <div className="mx-auto mt-20 max-w-md rounded-[2rem] border border-white/10 bg-[#10130d] p-8">
           <Building2 className="text-[#ef7d18]" />
           <h1 className="mt-4 text-3xl font-black">Painel B2B</h1>
@@ -192,7 +192,7 @@ export default function AdminPage() {
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div>
-            <h1 className="text-3xl font-black">Painel administrativo</h1>
+            <h1 id="admin-title" className="text-3xl font-black">Painel administrativo</h1>
             <p className="mt-1 text-sm text-white/40">B2B e cadastro de clientes</p>
           </div>
           <div className="flex gap-2">
