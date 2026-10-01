@@ -8,5 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: ["/admin/", "/adm/", "/auth/"],
     },
     sitemap: "https://www.nutrifitjf.com.br/sitemap.xml",
+    host: "https://www.nutrifitjf.com.br",
   };
 }
