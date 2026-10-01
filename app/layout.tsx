@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description: "Marmitas Fit, Performance e Tradicional, saladas e sucos da Nutrifit. Monte seu combo e peça pelo WhatsApp em Juiz de Fora.",
   metadataBase: new URL("https://www.nutrifitjf.com.br"),
   alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
   keywords: ["marmitas fit em Juiz de Fora", "marmitas fitness Juiz de Fora", "marmitas saudáveis Juiz de Fora", "Nutrifit Juiz de Fora", "marmitas para empresas Juiz de Fora"],
   icons: {
     icon: "/images/nutrifit-logo-icon.svg",
