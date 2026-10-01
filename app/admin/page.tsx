@@ -196,7 +196,7 @@ export default function AdminPage() {
             <p className="mt-1 text-sm text-white/40">B2B e cadastro de clientes</p>
           </div>
           <div className="flex gap-2">
-            <button type="button" aria-busy={busy} onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2 text-sm"><RefreshCw size={15} className="mr-2 inline" />Atualizar</button>
+            <button type="button" aria-label="Atualizar dados do painel" aria-busy={busy} onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2 text-sm"><RefreshCw size={15} className="mr-2 inline" />Atualizar</button>
             <button type="button" onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2 text-sm"><LogOut size={15} className="mr-2 inline" />Sair</button>
           </div>
         </header>
