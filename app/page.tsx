@@ -864,7 +864,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
                 <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
@@ -2076,7 +2076,7 @@ export default function Home() {
                     <ShoppingCart size={42} className="mx-auto text-[#a7b86a]" />
                     <h3 className="mt-4 text-xl font-black">Seu carrinho está vazio</h3>
                     <p className="mt-2 max-w-xs text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
-                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
+                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-label="Voltar ao cardápio" className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
                       Voltar ao cardápio
                     </button>
                   </div>
