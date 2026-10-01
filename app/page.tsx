@@ -932,7 +932,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           </div>
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" onClick={() => setStep(4)} aria-label="Voltar para os dados do pedido" className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={sendOrder} disabled={!canPay} aria-busy={paymentStatus === "loading"} aria-label="Finalizar pedido no WhatsApp" className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
