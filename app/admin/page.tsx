@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";\nimport Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, Package
@@ -13,7 +13,7 @@ type Order = { id:string; created_at:string; customer_name:string|null; whatsapp
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
-type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque";\ntype InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
+type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";\ntype InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -126,7 +126,7 @@ export default function AdminPage() {
     {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
     {id:"clientes" as Section,label:"Clientes",Icon:Users},
     {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-    {id:"b2b" as Section,label:"B2B",Icon:Building2},\n    {id:"estoque" as Section,label:"Estoque",Icon:Package},
+    {id:"b2b" as Section,label:"B2B",Icon:Building2},\n    {id:"estoque" as Section,label:"Estoque",Icon:Package},\n    {id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},\n    {id:"financeiro" as Section,label:"Financeiro",Icon:BarChart3},\n    {id:"entregas" as Section,label:"Entregas",Icon:Package},\n    {id:"producao" as Section,label:"Produção",Icon:ShoppingBag},\n    {id:"cupons" as Section,label:"Cupons",Icon:Package},
   ];
 
   return (
@@ -144,7 +144,7 @@ export default function AdminPage() {
         <section className="min-w-0">
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
-          {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
+          {["produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}\n\n                    {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
     {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
