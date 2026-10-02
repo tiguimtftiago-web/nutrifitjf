@@ -154,7 +154,7 @@ export default function AdminPage() {
         <section className="min-w-0">
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
-          {["produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
+          {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
 
                     {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
