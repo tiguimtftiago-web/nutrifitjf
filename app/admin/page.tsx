@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";\nimport Operations from "./operations";
+import { useEffect, useState } from "react";
+import Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, Package
@@ -13,7 +14,8 @@ type Order = { id:string; created_at:string; customer_name:string|null; whatsapp
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
-type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";\ntype InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
+type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";
+type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -40,6 +42,7 @@ export default function AdminPage() {
   const [search,setSearch] = useState("");
   const [error,setError] = useState("");
   const [busy,setBusy] = useState(false);
+  const [inventory,setInventory] = useState<InventoryItem[]>([]);
 
   async function load(t=token) {
     if (!t) return;
@@ -49,7 +52,8 @@ export default function AdminPage() {
         request(`${URL}/rest/v1/customer_orders?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/customer_profiles?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,from_phone,display_name,message_text,message_type,processed&order=created_at.desc&limit=100`,t),
-        request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),\n        request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
+        request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
       ]);
       setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]);
     } catch (e) {
@@ -126,7 +130,13 @@ export default function AdminPage() {
     {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
     {id:"clientes" as Section,label:"Clientes",Icon:Users},
     {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-    {id:"b2b" as Section,label:"B2B",Icon:Building2},\n    {id:"estoque" as Section,label:"Estoque",Icon:Package},\n    {id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},\n    {id:"financeiro" as Section,label:"Financeiro",Icon:BarChart3},\n    {id:"entregas" as Section,label:"Entregas",Icon:Package},\n    {id:"producao" as Section,label:"Produção",Icon:ShoppingBag},\n    {id:"cupons" as Section,label:"Cupons",Icon:Package},
+    {id:"b2b" as Section,label:"B2B",Icon:Building2},
+    {id:"estoque" as Section,label:"Estoque",Icon:Package},
+    {id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},
+    {id:"financeiro" as Section,label:"Financeiro",Icon:BarChart3},
+    {id:"entregas" as Section,label:"Entregas",Icon:Package},
+    {id:"producao" as Section,label:"Produção",Icon:ShoppingBag},
+    {id:"cupons" as Section,label:"Cupons",Icon:Package},
   ];
 
   return (
@@ -144,7 +154,9 @@ export default function AdminPage() {
         <section className="min-w-0">
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
-          {["produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}\n\n                    {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
+          {["produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
+
+                    {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
     {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
@@ -162,7 +174,9 @@ export default function AdminPage() {
 
           {section==="whatsapp"&&<Panel title="WhatsApp"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead><tbody>{messages.map(m=><tr key={m.id} className="border-t border-white/5"><td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td><td className="p-3">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</td><td className="p-3">{m.processed?"Processada":"Pendente"}</td></tr>)}</tbody></table></div></Panel>}
 
-          {section==="estoque"&&<Panel title="Estoque"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[{label:"Itens cadastrados",value:inventory.length},{label:"Itens abaixo do mínimo",value:inventory.filter(i=>Number(i.current_quantity)<=Number(i.minimum_quantity)).length},{label:"Valor estimado",value:money(inventory.reduce((s,i)=>s+Number(i.current_quantity)*Number(i.average_cost),0))}].map(x=><div key={x.label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xs text-white/35">{x.label}</div><div className="mt-2 text-2xl font-black">{x.value}</div></div>)}</div><div className="mt-5 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Insumo</th><th className="p-3">Categoria</th><th className="p-3">Estoque atual</th><th className="p-3">Mínimo</th><th className="p-3">Custo médio</th><th className="p-3">Situação</th></tr></thead><tbody>{inventory.map(i=><tr key={i.id} className="border-t border-white/5"><td className="p-3 font-black">{i.name}</td><td className="p-3">{i.category}</td><td className="p-3">{Number(i.current_quantity).toLocaleString("pt-BR")} {i.unit}</td><td className="p-3">{Number(i.minimum_quantity).toLocaleString("pt-BR")} {i.unit}</td><td className="p-3">{money(i.average_cost)}</td><td className="p-3">{Number(i.current_quantity)<=Number(i.minimum_quantity)?"Comprar":"OK"}</td></tr>)}</tbody></table></div></Panel>}\n\n          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></Panel>}
+          {section==="estoque"&&<Panel title="Estoque"><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[{label:"Itens cadastrados",value:inventory.length},{label:"Itens abaixo do mínimo",value:inventory.filter(i=>Number(i.current_quantity)<=Number(i.minimum_quantity)).length},{label:"Valor estimado",value:money(inventory.reduce((s,i)=>s+Number(i.current_quantity)*Number(i.average_cost),0))}].map(x=><div key={x.label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xs text-white/35">{x.label}</div><div className="mt-2 text-2xl font-black">{x.value}</div></div>)}</div><div className="mt-5 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Insumo</th><th className="p-3">Categoria</th><th className="p-3">Estoque atual</th><th className="p-3">Mínimo</th><th className="p-3">Custo médio</th><th className="p-3">Situação</th></tr></thead><tbody>{inventory.map(i=><tr key={i.id} className="border-t border-white/5"><td className="p-3 font-black">{i.name}</td><td className="p-3">{i.category}</td><td className="p-3">{Number(i.current_quantity).toLocaleString("pt-BR")} {i.unit}</td><td className="p-3">{Number(i.minimum_quantity).toLocaleString("pt-BR")} {i.unit}</td><td className="p-3">{money(i.average_cost)}</td><td className="p-3">{Number(i.current_quantity)<=Number(i.minimum_quantity)?"Comprar":"OK"}</td></tr>)}</tbody></table></div></Panel>}
+
+          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></Panel>}
         </section>
       </div>
 
