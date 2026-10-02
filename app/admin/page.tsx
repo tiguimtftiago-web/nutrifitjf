@@ -33,7 +33,7 @@ export default function AdminPage() {
   const [token,setToken] = useState("");
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
-  const [section,setSection] = useState<"resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b">("resumo");
+  const [section,setSection] = useState<Section>("resumo");
   const [orders,setOrders] = useState<Order[]>([]);
   const [customers,setCustomers] = useState<Customer[]>([]);
   const [messages,setMessages] = useState<Message[]>([]);
