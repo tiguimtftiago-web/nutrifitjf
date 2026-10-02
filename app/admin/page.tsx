@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X, type LucideIcon
+  ShoppingBag, Users, X
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -120,12 +120,12 @@ export default function AdminPage() {
     </main>
   );
 
-  const nav: Array<{id:Section; label:string; Icon:LucideIcon}>=[
-    {id:"resumo",label:"Resumo",Icon:BarChart3},
-    {id:"pedidos",label:"Pedidos",Icon:ShoppingBag},
-    {id:"clientes",label:"Clientes",Icon:Users},
-    {id:"whatsapp",label:"WhatsApp",Icon:MessageCircle},
-    {id:"b2b",label:"B2B",Icon:Building2},
+  const nav = [
+    {id:"resumo" as Section,label:"Resumo",Icon:BarChart3},
+    {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
+    {id:"clientes" as Section,label:"Clientes",Icon:Users},
+    {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
+    {id:"b2b" as Section,label:"B2B",Icon:Building2},
   ];
 
   return (
@@ -170,6 +170,6 @@ export default function AdminPage() {
   );
 }
 
-function Panel({title,children}:{title:string;children:ReactNode}) {
+function Panel({title,children}:{title:string;children:React.ReactNode}) {
   return <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>;
 }
