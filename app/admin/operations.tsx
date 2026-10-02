@@ -13,6 +13,7 @@ type Coupon = { id:string; created_at:string; code:string; description:string|nu
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
+type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -34,9 +35,12 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [inventory,setInventory]=useState<InventoryItem[]>([]);
   const [movements,setMovements]=useState<Movement[]>([]);
   const [recipes,setRecipes]=useState<Recipe[]>([]);
+  const [recipeItems,setRecipeItems]=useState<RecipeItem[]>([]);
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
+  const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
+  const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
   const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:""});
@@ -46,7 +50,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   async function load(){
     setBusy(true);setError("");
     try{
-      const [p,f,d,b,c,i,m,r]=await Promise.all([
+      const [p,f,d,b,c,i,m,r,ri]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
@@ -54,9 +58,10 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/inventory_items?select=*&order=name.asc&limit=500",token),
         req(URL+"/rest/v1/inventory_movements?select=id,created_at,item_id,movement_type,quantity,unit_cost,reason&order=created_at.desc&limit=100",token),
-        req(URL+"/rest/v1/inventory_recipes?select=id,name,product_name,yield_quantity,yield_unit,active&order=name.asc&limit=200",token)
+        req(URL+"/rest/v1/inventory_recipes?select=id,name,product_name,yield_quantity,yield_unit,active&order=name.asc&limit=200",token),
+        req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);
+      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);
     }catch{setError("Não foi possível carregar esta área.");}finally{setBusy(false);}
   }
   useEffect(()=>{void load();},[section]);
@@ -76,6 +81,22 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       await req(URL+"/rest/v1/inventory_movements",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({item_id:movementForm.item_id,movement_type:movementForm.movement_type,quantity:Number(movementForm.quantity),unit_cost:movementForm.unit_cost?Number(movementForm.unit_cost):null,reason:movementForm.reason||null})});
       setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});await load();
     }catch{setError("Não foi possível registrar a movimentação. Verifique o estoque disponível.");}finally{setBusy(false);}
+  }
+  async function addRecipe(){
+    if(!recipeForm.name.trim()||!recipeForm.yield_quantity)return;
+    setBusy(true);
+    try{
+      await req(URL+"/rest/v1/inventory_recipes",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:recipeForm.name.trim(),product_name:recipeForm.product_name||null,yield_quantity:Number(recipeForm.yield_quantity),yield_unit:recipeForm.yield_unit||"g"})});
+      setRecipeForm({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});await load();
+    }catch{setError("Não foi possível cadastrar a ficha técnica.");}finally{setBusy(false);}
+  }
+  async function addRecipeItem(){
+    if(!recipeItemForm.recipe_id||!recipeItemForm.item_id||!recipeItemForm.quantity)return;
+    setBusy(true);
+    try{
+      await req(URL+"/rest/v1/inventory_recipe_items",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:recipeItemForm.recipe_id,item_id:recipeItemForm.item_id,quantity:Number(recipeItemForm.quantity)})});
+      setRecipeItemForm({...recipeItemForm,item_id:"",quantity:""});await load();
+    }catch{setError("Não foi possível adicionar o insumo à ficha técnica.");}finally{setBusy(false);}
   }
   async function addProduction(){
     if(!productionForm.recipe_id||!productionForm.quantity)return;
@@ -147,6 +168,22 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   </Panel>;
   if(section==="producao")return <Panel title="Produção">
     <div className="grid gap-4 sm:grid-cols-3"><Stat label="Planejadas" value={production.filter(x=>x.status==="planejada").length}/><Stat label="Em produção" value={production.filter(x=>x.status==="em_producao").length}/><Stat label="Concluídas" value={production.filter(x=>x.status==="concluida").length}/></div>
+    <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+      <div className="mb-3 text-sm font-black">Fichas técnicas</div>
+      <div className="grid gap-3 sm:grid-cols-4">
+        <input value={recipeForm.name} onChange={e=>setRecipeForm({...recipeForm,name:e.target.value})} placeholder="Nome da ficha" className={input}/>
+        <input value={recipeForm.product_name} onChange={e=>setRecipeForm({...recipeForm,product_name:e.target.value})} placeholder="Produto / prato" className={input}/>
+        <input type="number" step="0.001" value={recipeForm.yield_quantity} onChange={e=>setRecipeForm({...recipeForm,yield_quantity:e.target.value})} placeholder="Rendimento" className={input}/>
+        <button onClick={()=>void addRecipe()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Criar ficha</button>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-4">
+        <select value={recipeItemForm.recipe_id} onChange={e=>setRecipeItemForm({...recipeItemForm,recipe_id:e.target.value})} className={input}><option value="">Ficha técnica</option>{recipes.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select>
+        <select value={recipeItemForm.item_id} onChange={e=>setRecipeItemForm({...recipeItemForm,item_id:e.target.value})} className={input}><option value="">Insumo</option>{inventory.map(i=><option key={i.id} value={i.id}>{i.name} ({i.unit})</option>)}</select>
+        <input type="number" step="0.001" value={recipeItemForm.quantity} onChange={e=>setRecipeItemForm({...recipeItemForm,quantity:e.target.value})} placeholder="Quantidade por rendimento" className={input}/>
+        <button onClick={()=>void addRecipeItem()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Adicionar insumo</button>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">{recipes.map(r=><div key={r.id} className="rounded-xl border border-white/5 p-3"><b>{r.name}</b><div className="text-xs text-white/35">{r.product_name||"Sem produto"} · rendimento {r.yield_quantity} {r.yield_unit}</div><div className="mt-2 text-xs text-white/55">{recipeItems.filter(x=>x.recipe_id===r.id).map(x=>{const item=inventory.find(i=>i.id===x.item_id);return item?item.name+" · "+x.quantity+" "+item.unit:null}).filter(Boolean).join(" · ")||"Nenhum insumo cadastrado"}</div></div>)}</div>
+    </div>
     <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-4">
       <select value={productionForm.recipe_id} onChange={e=>setProductionForm({...productionForm,recipe_id:e.target.value})} className={input}><option value="">Selecionar ficha técnica</option>{recipes.map(r=><option key={r.id} value={r.id}>{r.name} — rendimento {r.yield_quantity} {r.yield_unit}</option>)}</select>
       <input type="number" step="0.001" value={productionForm.quantity} onChange={e=>setProductionForm({...productionForm,quantity:e.target.value})} placeholder="Quantidade a produzir" className={input}/>
