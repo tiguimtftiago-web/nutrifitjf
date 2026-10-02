@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, type LucideIcon
@@ -120,9 +120,12 @@ export default function AdminPage() {
     </main>
   );
 
-  const nav: Array<[Section,string,LucideIcon]>=[
-    ["resumo","Resumo",BarChart3],["pedidos","Pedidos",ShoppingBag],["clientes","Clientes",Users],
-    ["whatsapp","WhatsApp",MessageCircle],["b2b","B2B",Building2],
+  const nav: Array<{id:Section; label:string; Icon:LucideIcon}>=[
+    {id:"resumo",label:"Resumo",Icon:BarChart3},
+    {id:"pedidos",label:"Pedidos",Icon:ShoppingBag},
+    {id:"clientes",label:"Clientes",Icon:Users},
+    {id:"whatsapp",label:"WhatsApp",Icon:MessageCircle},
+    {id:"b2b",label:"B2B",Icon:Building2},
   ];
 
   return (
@@ -135,14 +138,19 @@ export default function AdminPage() {
       </header>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[220px_1fr]">
         <aside className="h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24">
-          {nav.map(([id,label,Icon])=><button key={id} onClick={()=>setSection(id)} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>)}
+          {nav.map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>)}
         </aside>
         <section className="min-w-0">
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
           {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {([["Pedidos",orders.length,ShoppingBag],["Faturamento",money(revenue),BarChart3],["Clientes",customers.length,Users],["WhatsApp",messages.length,MessageCircle] ] as Array<[string,string|number,LucideIcon]>).map(([label,value,Icon])=><div key={String(label)} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
+              {[
+    {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
+    {label:"Faturamento",value:money(revenue),Icon:BarChart3},
+    {label:"Clientes",value:customers.length,Icon:Users},
+    {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
+  ].map(({label,value,Icon})=><div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">PEDIDOS EM ANDAMENTO</div><div className="mt-3 text-2xl font-black">{activeOrders}</div></div><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">LEADS B2B</div><div className="mt-3 text-2xl font-black">{leads.length}</div></div></div>
           </>}
@@ -162,6 +170,6 @@ export default function AdminPage() {
   );
 }
 
-function Panel({title,children}:{title:string;children:React.ReactNode}) {
+function Panel({title,children}:{title:string;children:ReactNode}) {
   return <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>;
 }
