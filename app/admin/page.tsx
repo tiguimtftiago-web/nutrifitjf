@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X
+  ShoppingBag, Users, X, type LucideIcon
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -12,7 +12,7 @@ const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_
 type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; item_count:number; subtotal:number; delivery_fee:number; total:number; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
-type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
+type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };\ntype Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b";
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -120,10 +120,10 @@ export default function AdminPage() {
     </main>
   );
 
-  const nav=[
+  const nav: Array<[Section,string,LucideIcon]>=[
     ["resumo","Resumo",BarChart3],["pedidos","Pedidos",ShoppingBag],["clientes","Clientes",Users],
     ["whatsapp","WhatsApp",MessageCircle],["b2b","B2B",Building2],
-  ] as const;
+  ];
 
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
@@ -142,7 +142,7 @@ export default function AdminPage() {
 
           {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {[["Pedidos",orders.length,ShoppingBag],["Faturamento",money(revenue),BarChart3],["Clientes",customers.length,Users],["WhatsApp",messages.length,MessageCircle]].map(([label,value,Icon])=><div key={String(label)} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
+              {([["Pedidos",orders.length,ShoppingBag],["Faturamento",money(revenue),BarChart3],["Clientes",customers.length,Users],["WhatsApp",messages.length,MessageCircle] ] as Array<[string,string|number,LucideIcon]>).map(([label,value,Icon])=><div key={String(label)} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
             </div>
             <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">PEDIDOS EM ANDAMENTO</div><div className="mt-3 text-2xl font-black">{activeOrders}</div></div><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">LEADS B2B</div><div className="mt-3 text-2xl font-black">{leads.length}</div></div></div>
           </>}
