@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
@@ -66,7 +66,7 @@ export default function AdminPage() {
     if(saved){setToken(saved);void load(saved);}
   },[]);
 
-  async function login(e:React.FormEvent){
+  async function login(e:FormEvent){
     e.preventDefault(); setBusy(true); setError("");
     try {
       const data=await request(`${URL}/auth/v1/token?grant_type=password`,"",{method:"POST",body:JSON.stringify({email:email.trim().toLowerCase(),password})});
@@ -183,6 +183,6 @@ export default function AdminPage() {
   );
 }
 
-function Panel({title,children}:{title:string;children:React.ReactNode}) {
+function Panel({title,children}:{title:string;children:ReactNode}) {
   return <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>;
 }
