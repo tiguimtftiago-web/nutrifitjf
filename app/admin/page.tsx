@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X
+  ShoppingBag, Users, X, Package
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -13,7 +13,7 @@ type Order = { id:string; created_at:string; customer_name:string|null; whatsapp
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
-type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b";
+type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque";\ntype InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -45,13 +45,13 @@ export default function AdminPage() {
     if (!t) return;
     setBusy(true); setError("");
     try {
-      const [o,c,m,l] = await Promise.all([
+      const [o,c,m,l,i] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/customer_profiles?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,from_phone,display_name,message_text,message_type,processed&order=created_at.desc&limit=100`,t),
-        request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),\n        request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
       ]);
-      setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]);
+      setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]);
     } catch (e) {
       console.error(e); setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");
     } finally { setBusy(false); }
@@ -126,7 +126,7 @@ export default function AdminPage() {
     {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
     {id:"clientes" as Section,label:"Clientes",Icon:Users},
     {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-    {id:"b2b" as Section,label:"B2B",Icon:Building2},
+    {id:"b2b" as Section,label:"B2B",Icon:Building2},\n    {id:"estoque" as Section,label:"Estoque",Icon:Package},
   ];
 
   return (
