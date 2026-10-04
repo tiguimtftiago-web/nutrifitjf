@@ -204,7 +204,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <select value={movementForm.movement_type} onChange={e=>setMovementForm({...movementForm,movement_type:e.target.value})} className={input}><option value="entrada">Entrada</option><option value="consumo">Consumo</option><option value="perda">Perda</option><option value="ajuste">Ajuste</option><option value="devolucao">Devolução</option></select>
       <input type="number" step="0.001" value={movementForm.quantity} onChange={e=>setMovementForm({...movementForm,quantity:e.target.value})} placeholder="Quantidade" className={input}/>
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
-      <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
+      <input value={movementForm.reason} onChange={e=>setMovementForm({...movementForm,reason:e.target.value})} placeholder="Motivo / observação" className={input}/>
+      <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black sm:col-span-5">Registrar movimentação</button>
     </div>
     {editingStock&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 sm:items-center">
       <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-5 shadow-2xl sm:p-6">
@@ -221,8 +222,36 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         <div className="mt-5 flex gap-2"><button onClick={()=>setEditingStock(null)} className="flex-1 rounded-full border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void updateStockItem()} disabled={busy} className="flex-1 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar alterações"}</button></div>
       </div>
     </div>}
-    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>startEditStock(x)} disabled={busy} className="rounded-full border border-[#a7b86a]/30 px-3 py-2 text-xs font-bold text-[#d9e5a5]">Editar</button><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
-    <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
+    <div className="grid gap-3 lg:hidden">
+      {inventory.map(x=>{
+        const current=Number(x.current_quantity), minimum=Number(x.minimum_quantity), total=current*Number(x.average_cost), low=current<=minimum;
+        return <div key={x.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div><div className="text-base font-black">{x.name}</div><div className="mt-1 text-xs text-white/35">{x.category} · {x.active?"Ativo":"Desativado"}</div></div>
+            <span className={"rounded-full px-2.5 py-1 text-[10px] font-black "+(low?"bg-[#ef7d18]/15 text-[#ef7d18]":"bg-[#a7b86a]/10 text-[#d9e5a5]")}>{low?"REPOR":"OK"}</span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div><div className="text-[10px] uppercase tracking-[.12em] text-white/35">Estoque atual</div><div className="mt-1 text-xl font-black">{current.toLocaleString("pt-BR")} {x.unit}</div><div className="text-xs text-white/35">Mínimo {minimum.toLocaleString("pt-BR")} {x.unit}</div></div>
+            <div><div className="text-[10px] uppercase tracking-[.12em] text-white/35">Custo médio</div><div className="mt-1 text-xl font-black">{money(x.average_cost)}</div><div className="text-xs text-white/35">Valor: {money(total)}</div></div>
+          </div>
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            <button onClick={()=>startEditStock(x)} disabled={busy} className="shrink-0 rounded-full border border-[#a7b86a]/30 px-3 py-2 text-xs font-bold text-[#d9e5a5]">Editar</button>
+            <button onClick={()=>void toggleStockItem(x)} disabled={busy} className="shrink-0 rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button>
+            <button onClick={()=>void deleteStockItem(x)} disabled={busy} className="shrink-0 rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button>
+          </div>
+        </div>
+      })}
+    </div>
+    <div className="hidden overflow-x-auto lg:block">
+      <table className="mt-5 w-full min-w-[900px] text-left text-sm"><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Valor</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{money(Number(x.current_quantity)*Number(x.average_cost))}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>startEditStock(x)} disabled={busy} className="rounded-full border border-[#a7b86a]/30 px-3 py-2 text-xs font-bold text-[#d9e5a5]">Editar</button><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></table>
+    </div>
+    <div className="mt-5">
+      <div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div>
+      <div className="grid gap-2 lg:hidden">
+        {movements.map(m=>{const item=inventory.find(i=>i.id===m.item_id);return <div key={m.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{item?.name||"Insumo"}</div><div className="mt-1 text-xs text-white/35">{new Date(m.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase">{m.movement_type}</span></div><div className="mt-3 text-xl font-black">{m.quantity} {item?.unit||""}</div><div className="mt-1 text-xs text-white/40">{m.reason||"Sem observação"}</div></div>})}
+      </div>
+      <div className="hidden lg:block"><Table><thead><tr><Th>Data</Th><Th>Insumo</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=>{const item=inventory.find(i=>i.id===m.item_id);return <tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{item?.name||"—"}</Td><Td>{m.movement_type}</Td><Td>{m.quantity} {item?.unit||""}</Td><Td>{m.reason||"—"}</Td></tr>})}</tbody></Table></div>
+    </div>
   </Panel>;
   if(section==="producao")return <Panel title="Produção">
     <div className="grid gap-4 sm:grid-cols-3"><Stat label="Planejadas" value={production.filter(x=>x.status==="planejada").length}/><Stat label="Em produção" value={production.filter(x=>x.status==="em_producao").length}/><Stat label="Concluídas" value={production.filter(x=>x.status==="concluida").length}/></div>
