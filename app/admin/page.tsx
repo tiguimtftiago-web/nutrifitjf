@@ -86,6 +86,11 @@ export default function AdminPage() {
   }, [token]);
 
   useEffect(() => {
+    if (!token) return;
+    void ensurePush(false);
+  }, [token, email]);
+
+  useEffect(() => {
     const count = purchaseAlerts.length;
     try {
       if (count > 0 && "setAppBadge" in navigator) {
@@ -124,26 +129,57 @@ export default function AdminPage() {
     const raw=window.atob(base64); return Uint8Array.from([...raw].map(char=>char.charCodeAt(0)));
   }
 
-  async function enablePush(){
+  async function ensurePush(requestPermission=false){
     if(!token)return;
-    setPushStatus("loading");
     try{
       if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)){setPushStatus("unsupported");return;}
-      const permission=await Notification.requestPermission();
-      if(permission!=="granted"){setPushStatus("denied");return;}
-      const publicKey=await request(URL+"/rest/v1/rpc/get_admin_push_public_key",token,{method:"POST",body:"{}"}); 
+      let permission=Notification.permission;
+      if(requestPermission && permission!=="granted"){
+        permission=await Notification.requestPermission();
+      }
+      if(permission!=="granted"){
+        setPushStatus(permission==="denied"?"denied":"idle");
+        return;
+      }
+
+      const publicKey=await request(URL+"/rest/v1/rpc/get_admin_push_public_key",token,{method:"POST",body:"{}"});
       const vapidPublicKey=publicKey||FALLBACK_VAPID_PUBLIC_KEY;
       const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
-      const existing=await registration.pushManager.getSubscription();
-      if(existing) {
-        try { await existing.unsubscribe(); } catch {}
+      let subscription=await registration.pushManager.getSubscription();
+
+      if(!subscription){
+        subscription=await registration.pushManager.subscribe({
+          userVisibleOnly:true,
+          applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
+        });
       }
-      const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)});
+
       const json=subscription.toJSON();
       if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error("Assinatura incompleta");
-      await request(URL+"/rest/v1/admin_push_subscriptions",token,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,user_email:email||"admin",user_agent:navigator.userAgent,active:true})});
+
+      await request(URL+"/rest/v1/admin_push_subscriptions",token,{
+        method:"POST",
+        headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+        body:JSON.stringify({
+          endpoint:json.endpoint,
+          p256dh:json.keys.p256dh,
+          auth:json.keys.auth,
+          user_email:email||"admin",
+          user_agent:navigator.userAgent,
+          active:true
+        })
+      });
       setPushStatus("enabled");
-    }catch(e){console.error(e);setPushStatus("idle");setError("Não foi possível ativar as notificações neste dispositivo. Verifique se as notificações do navegador estão permitidas.");}
+    }catch(e){
+      console.error(e);
+      setPushStatus("idle");
+      if(requestPermission)setError("Não foi possível ativar as notificações neste dispositivo. Verifique se as notificações do navegador estão permitidas.");
+    }
+  }
+
+  async function enablePush(){
+    setPushStatus("loading");
+    await ensurePush(true);
   }
 
   async function loadOrderProduction(orderId:string){
