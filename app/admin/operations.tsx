@@ -175,6 +175,27 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       setExpense({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});await load();
     }catch{setError("Não foi possível registrar o lançamento.");}finally{setBusy(false);}
   }
+  async function toggleCoupon(c:Coupon){
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/coupons?id=eq."+c.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({active:!c.active})});
+      await load();
+    }catch{setError("Não foi possível alterar o status do cupom.");}finally{setBusy(false);}
+  }
+  async function deleteCoupon(c:Coupon){
+    if(c.uses_count>0){
+      if(!window.confirm("Este cupom já foi usado. Ele será desativado para preservar o histórico. Continuar?")) return;
+      await toggleCoupon(c);
+      return;
+    }
+    if(!window.confirm("Excluir o cupom "+c.code+" definitivamente?")) return;
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/coupons?id=eq."+c.id,token,{method:"DELETE",headers:{Prefer:"return=minimal"}});
+      await load();
+    }catch{setError("Não foi possível excluir o cupom.");}finally{setBusy(false);}
+  }
+
   async function addCoupon(){
     if(!coupon.code.trim()||!coupon.discount_value)return;
     setBusy(true);
@@ -267,7 +288,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     </div>
     <Table><thead><tr><Th>Data</Th><Th>Quantidade</Th><Th>Status</Th><Th>Estoque</Th><Th>Observações</Th></tr></thead><tbody>{production.map(p=><tr key={p.id} className="border-t border-white/5"><Td>{new Date(p.produced_at).toLocaleString("pt-BR")}</Td><Td>{p.quantity}</Td><Td><select value={p.status} onChange={e=>void updateProductionStatus(p.id,e.target.value)} className="rounded-lg bg-white/5 px-2 py-1"><option value="planejada">Planejada</option><option value="em_producao">Em produção</option><option value="concluida">Concluída</option></select></Td><Td>{p.stock_consumed?"Baixado":"Pendente"}</Td><Td>{p.notes||"—"}</Td></tr>)}</tbody></Table>
   </Panel>;
-  return <Panel title="Cupons e campanhas"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><input value={coupon.code} onChange={e=>setCoupon({...coupon,code:e.target.value})} placeholder="Código" className={input}/><select value={coupon.discount_type} onChange={e=>setCoupon({...coupon,discount_type:e.target.value})} className={input}><option value="percent">Percentual</option><option value="fixed">Valor fixo</option></select><input type="number" step="0.01" value={coupon.discount_value} onChange={e=>setCoupon({...coupon,discount_value:e.target.value})} placeholder="Desconto" className={input}/><input type="number" step="0.01" value={coupon.minimum_order_value} onChange={e=>setCoupon({...coupon,minimum_order_value:e.target.value})} placeholder="Pedido mínimo" className={input}/><button onClick={()=>void addCoupon()} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">Criar cupom</button></div><Table><thead><tr><Th>Código</Th><Th>Desconto</Th><Th>Usos</Th><Th>Validade</Th><Th>Status</Th></tr></thead><tbody>{coupons.map(c=><tr key={c.id} className="border-t border-white/5"><Td><b>{c.code}</b><div className="text-xs text-white/35">{c.description||""}</div></Td><Td>{c.discount_type==="percent"?c.discount_value+"%":money(c.discount_value)}</Td><Td>{c.uses_count}{c.max_uses?"/"+c.max_uses:""}</Td><Td>{c.expires_at?new Date(c.expires_at).toLocaleDateString("pt-BR"):"Sem validade"}</Td><Td>{c.active?"Ativo":"Inativo"}</Td></tr>)}</tbody></Table></Panel>;
+  return <Panel title="Cupons e campanhas"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><input value={coupon.code} onChange={e=>setCoupon({...coupon,code:e.target.value})} placeholder="Código" className={input}/><select value={coupon.discount_type} onChange={e=>setCoupon({...coupon,discount_type:e.target.value})} className={input}><option value="percent">Percentual</option><option value="fixed">Valor fixo</option></select><input type="number" step="0.01" value={coupon.discount_value} onChange={e=>setCoupon({...coupon,discount_value:e.target.value})} placeholder="Desconto" className={input}/><input type="number" step="0.01" value={coupon.minimum_order_value} onChange={e=>setCoupon({...coupon,minimum_order_value:e.target.value})} placeholder="Pedido mínimo" className={input}/><button onClick={()=>void addCoupon()} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">Criar cupom</button></div><Table><thead><tr><Th>Código</Th><Th>Desconto</Th><Th>Usos</Th><Th>Validade</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{coupons.map(c=><tr key={c.id} className="border-t border-white/5"><Td><b>{c.code}</b><div className="text-xs text-white/35">{c.description||""}</div></Td><Td>{c.discount_type==="percent"?c.discount_value+"%":money(c.discount_value)}</Td><Td>{c.uses_count}{c.max_uses?"/"+c.max_uses:""}</Td><Td>{c.expires_at?new Date(c.expires_at).toLocaleDateString("pt-BR"):"Sem validade"}</Td><Td><span className={"rounded-full px-2.5 py-1 text-xs font-bold "+(c.active?"bg-[#a7b86a]/15 text-[#cbd99a]":"bg-white/5 text-white/40")}>{c.active?"Ativo":"Inativo"}</span></Td><Td><div className="flex flex-wrap gap-2"><button onClick={()=>void toggleCoupon(c)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">{c.active?"Desativar":"Ativar"}</button><button onClick={()=>void deleteCoupon(c)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-black text-[#ef9b55]">{c.uses_count>0?"Desativar":"Excluir"}</button></div></Td></tr>)}</tbody></Table></Panel>;
 }
 function Panel({title,children}:{title:string;children:ReactNode}){return <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>}
 function Table({children}:{children:ReactNode}){return <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm">{children}</table></div>}
