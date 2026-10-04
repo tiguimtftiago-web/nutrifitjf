@@ -167,11 +167,17 @@ export default function AdminPage() {
       let subscription=await registration.pushManager.getSubscription();
 
       if(subscription){
-        const existing=await request(
-          `${URL}/rest/v1/admin_push_subscriptions?select=id&endpoint=eq.${encodeURIComponent(subscription.endpoint)}&active=eq.true&limit=1`,
-          token
-        ).catch(()=>[]);
-        if(!Array.isArray(existing)||existing.length===0){
+        let existingCheckOk=true;
+        let existing:any[]=[];
+        try{
+          existing=await request(
+            `${URL}/rest/v1/admin_push_subscriptions?select=id&endpoint=eq.${encodeURIComponent(subscription.endpoint)}&active=eq.true&limit=1`,
+            token
+          );
+        }catch{
+          existingCheckOk=false;
+        }
+        if(existingCheckOk && (!Array.isArray(existing)||existing.length===0)){
           await subscription.unsubscribe().catch(()=>{});
           subscription=null;
         }
