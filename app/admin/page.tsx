@@ -74,6 +74,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     const saved=sessionStorage.getItem("nutrifit_admin_token")||"";
+    const savedEmail=sessionStorage.getItem("nutrifit_admin_email")||"";
+    if(savedEmail)setEmail(savedEmail);
     if(saved){setToken(saved);void load(saved);}
   },[]);
 
@@ -89,6 +91,7 @@ export default function AdminPage() {
       const data=await request(`${URL}/auth/v1/token?grant_type=password`,"",{method:"POST",body:JSON.stringify({email:email.trim().toLowerCase(),password})});
       if(!data?.access_token) throw new Error("Token ausente");
       sessionStorage.setItem("nutrifit_admin_token",data.access_token);
+      sessionStorage.setItem("nutrifit_admin_email",email.trim().toLowerCase());
       setToken(data.access_token); setPassword(""); await load(data.access_token);
     } catch { sessionStorage.removeItem("nutrifit_admin_token"); setError("E-mail ou senha inválidos."); }
     finally { setBusy(false); }
