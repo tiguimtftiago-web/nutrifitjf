@@ -863,7 +863,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           ) : (
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
-                <input value={cep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
+                <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
                 <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
@@ -2128,7 +2128,7 @@ export default function Home() {
                     {!orderFreeDelivery && (
                       <>
                         <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 8); setOrderCep(value.length > 5 ? `${value.slice(0, 5)}-${value.slice(5)}` : value); setOrderDelivery(null); setOrderDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
