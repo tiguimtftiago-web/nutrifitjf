@@ -14,6 +14,7 @@ type InventoryItem = { id:string; name:string; category:string; unit:string; cur
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
+type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -36,6 +37,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [movements,setMovements]=useState<Movement[]>([]);
   const [recipes,setRecipes]=useState<Recipe[]>([]);
   const [recipeItems,setRecipeItems]=useState<RecipeItem[]>([]);
+  const [purchaseAlerts,setPurchaseAlerts]=useState<PurchaseAlert[]>([]);
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
@@ -51,7 +53,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   async function load(){
     setBusy(true);setError("");
     try{
-      const [p,f,d,b,c,i,m,r,ri]=await Promise.all([
+      const [p,f,d,b,c,i,m,r,ri,a]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
@@ -60,9 +62,10 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         req(URL+"/rest/v1/inventory_items?select=*&order=name.asc&limit=500",token),
         req(URL+"/rest/v1/inventory_movements?select=id,created_at,item_id,movement_type,quantity,unit_cost,reason&order=created_at.desc&limit=100",token),
         req(URL+"/rest/v1/inventory_recipes?select=id,name,product_name,yield_quantity,yield_unit,active&order=name.asc&limit=200",token),
-        req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token)
+        req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
+        req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);
+      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);
     }catch{setError("Não foi possível carregar esta área.");}finally{setBusy(false);}
   }
   useEffect(()=>{void load();},[section]);
@@ -260,7 +263,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
     </div>
     <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
-    <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
+    <div className="mt-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-sm font-black text-[#f1b06e]">Lista de compras</div><div className="mt-1 text-xs text-white/45">Necessidades dos pedidos em aberto e itens abaixo do estoque mínimo.</div></div><div className="rounded-full bg-[#ef7d18]/15 px-3 py-1 text-xs font-black text-[#f1b06e]">{purchaseAlerts.length} item(ns)</div></div>{purchaseAlerts.length===0?<div className="mt-4 text-sm text-white/55">Nenhum item precisa de compra neste momento.</div>:<Table><thead><tr><Th>Insumo</Th><Th>Estoque</Th><Th>Necessário</Th><Th>Falta</Th><Th>Pedidos</Th><Th>Status</Th></tr></thead><tbody>{purchaseAlerts.map(a=><tr key={a.item_id} className="border-t border-white/5"><Td><b>{a.name}</b><div className="text-xs text-white/35">{a.category}</div></Td><Td>{Number(a.current_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td>{Number(a.required_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td><b className="text-[#ef9b55]">{Number(a.shortage_quantity).toLocaleString("pt-BR")} {a.unit}</b></Td><Td>{a.order_count||0}</Td><Td>{a.status}</Td></tr>)}</tbody></Table>}</div><div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel>;
   if(section==="producao")return <Panel title="Produção">
     <div className="grid gap-4 sm:grid-cols-3"><Stat label="Planejadas" value={production.filter(x=>x.status==="planejada").length}/><Stat label="Em produção" value={production.filter(x=>x.status==="em_producao").length}/><Stat label="Concluídas" value={production.filter(x=>x.status==="concluida").length}/></div>
