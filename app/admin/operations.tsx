@@ -21,6 +21,10 @@ async function req(path:string, token:string, init:RequestInit={}) {
   headers.Authorization="Bearer "+token;
   const r=await fetch(path,{...init,headers});
   const text=await r.text();
+  if(r.status===401){
+    window.dispatchEvent(new Event("nutrifit-admin-auth-expired"));
+    throw new Error("Sessão administrativa expirada.");
+  }
   if(!r.ok) throw new Error(text||"Erro");
   return text?JSON.parse(text):null;
 }
