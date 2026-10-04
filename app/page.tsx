@@ -1146,6 +1146,10 @@ export default function Home() {
   const [profileMarketing, setProfileMarketing] = useState(false);
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [clubDiscount, setClubDiscount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{code:string;discount_type:string;discount_value:number;minimum_order_value:number}|null>(null);
+  const [couponStatus, setCouponStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
+  const [couponMessage, setCouponMessage] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1159,7 +1163,13 @@ export default function Home() {
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
-  const orderDiscount = Math.min(clubDiscount, orderSubtotal);
+  const couponDiscount = appliedCoupon && orderSubtotal >= Number(appliedCoupon.minimum_order_value || 0)
+    ? appliedCoupon.discount_type === "percent"
+      ? Math.min(orderSubtotal, orderSubtotal * Number(appliedCoupon.discount_value || 0) / 100)
+      : Math.min(orderSubtotal, Number(appliedCoupon.discount_value || 0))
+    : 0;
+  const orderDiscount = couponDiscount > 0 ? couponDiscount : Math.min(clubDiscount, orderSubtotal);
+  const discountLabel = couponDiscount > 0 ? "Cupom " + appliedCoupon!.code : "Clube Nutrifit";
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
@@ -1182,6 +1192,39 @@ export default function Home() {
       setOrderDelivery(null);
       setOrderDeliveryStatus("error");
     }
+  };
+
+  const applyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) { setCouponMessage("Digite o código do cupom."); setCouponStatus("error"); return; }
+    setCouponStatus("loading"); setCouponMessage("");
+    try {
+      const response = await fetch(SUPABASE_URL + "/rest/v1/rpc/validate_nutrifit_coupon", {
+        method: "POST",
+        headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ p_code: code, p_order_total: orderSubtotal }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data?.valid) throw new Error(data?.message || "Cupom inválido.");
+      setAppliedCoupon({
+        code: String(data.code),
+        discount_type: String(data.discount_type),
+        discount_value: Number(data.discount_value || 0),
+        minimum_order_value: Number(data.minimum_order_value || 0),
+      });
+      setCouponStatus("success");
+      setCouponMessage("Cupom aplicado com sucesso.");
+    } catch (error) {
+      setAppliedCoupon(null);
+      setCouponStatus("error");
+      setCouponMessage(error instanceof Error ? error.message : "Não foi possível validar o cupom.");
+    }
+  };
+  const removeCoupon = () => {
+    setCouponCode("");
+    setAppliedCoupon(null);
+    setCouponStatus("idle");
+    setCouponMessage("");
   };
 
   const addToOrder = (product: Product) => {
@@ -1223,7 +1266,7 @@ export default function Home() {
       "━━━━━━━━━━━━━━━━━━━━",
       `📦 QUANTIDADE: ${orderCount} item(ns)`,
       `💰 SUBTOTAL: ${money(orderSubtotal)}`,
-      `🎁 DESCONTO CLUBE NUTRIFIT: -${money(orderDiscount)}`,
+      `🎁 ${discountLabel}: -${money(orderDiscount)}`,
       `🚚 FRETE: ${money(orderDeliveryFee)}`,
       `💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,
       "",
@@ -1246,7 +1289,7 @@ export default function Home() {
 
     void (async () => {
       try {
-        await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
+        const orderResponse = await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
           method: "POST",
           headers: {
             apikey: SUPABASE_PUBLISHABLE_KEY,
@@ -1269,7 +1312,17 @@ export default function Home() {
           }),
         });
 
-        if (clubDiscount > 0) {
+        if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
+          await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
+            method: "POST",
+            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ p_code: appliedCoupon.code }),
+          });
+          setAppliedCoupon(null);
+          setCouponCode("");
+          setCouponStatus("idle");
+          setCouponMessage("");
+        } else if (orderResponse.ok && clubDiscount > 0) {
           const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
             method: "POST",
             headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
@@ -2145,6 +2198,22 @@ export default function Home() {
                     {orderFreeDelivery && <div className="mt-3 text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
+                  <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Cupom de desconto</div>
+                    <div className="mt-1 text-xs text-white/45">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
+                    <div className="mt-3 flex gap-2">
+                      <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold outline-none focus:border-[#a7b86a] disabled:opacity-60" />
+                      {appliedCoupon ? (
+                        <button type="button" onClick={removeCoupon} className="shrink-0 rounded-full border border-white/10 px-4 py-3 text-xs font-black">Remover</button>
+                      ) : (
+                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
+                      )}
+                    </div>
+                    {couponMessage && <div className={"mt-2 text-xs font-bold " + (couponStatus === "error" ? "text-[#ef9b55]" : "text-[#cbd99a]")}>{couponMessage}</div>}
+                    {appliedCoupon && couponDiscount > 0 && <div className="mt-2 text-xs font-black text-[#cbd99a]">Desconto aplicado: -{money(couponDiscount)}</div>}
+                    {appliedCoupon && couponDiscount === 0 && <div className="mt-2 text-xs font-bold text-[#ef9b55]">O pedido ficou abaixo do mínimo deste cupom. Aumente o pedido ou remova o cupom.</div>}
+                  </div>
+
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
                     <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
                   </label>
@@ -2156,7 +2225,7 @@ export default function Home() {
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/98 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:p-7">
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
-                  <span className="text-white/45">Clube Nutrifit</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
+                  <span className="text-white/45">{discountLabel}</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
