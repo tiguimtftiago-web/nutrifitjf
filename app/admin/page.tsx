@@ -65,6 +65,22 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    const handler = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as InstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  async function installAdminShortcut(){
+    if(!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  }
+
+  useEffect(() => {
     const saved=sessionStorage.getItem("nutrifit_admin_token")||"";
     if(saved){setToken(saved);void load(saved);}
   },[]);
