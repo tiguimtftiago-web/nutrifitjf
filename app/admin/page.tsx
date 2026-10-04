@@ -85,6 +85,17 @@ export default function AdminPage() {
     return () => window.clearInterval(interval);
   }, [token]);
 
+  useEffect(() => {
+    const count = purchaseAlerts.length;
+    try {
+      if (count > 0 && "setAppBadge" in navigator) {
+        void navigator.setAppBadge(count);
+      } else if (count === 0 && "clearAppBadge" in navigator) {
+        void navigator.clearAppBadge();
+      }
+    } catch {}
+  }, [purchaseAlerts.length]);
+
   async function login(e:FormEvent){
     e.preventDefault(); setBusy(true); setError("");
     try {
