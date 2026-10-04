@@ -205,9 +205,9 @@ export default function AdminPage() {
         if(/permission|notallowed|denied/i.test(message+" "+name)){
           setError("As notificações estão bloqueadas pelo navegador neste dispositivo.");
         }else if(/push|service worker|subscribe|vapid|applicationserverkey/i.test(message+" "+name)){
-          setError("O navegador não conseguiu criar a assinatura. Atualize a página e tente novamente.");
+          setError(`Falha técnica ao criar a assinatura (${name||"erro"}). ${message||"O navegador recusou a assinatura."}`);
         }else{
-          setError("Não foi possível ativar as notificações agora. Tente novamente.");
+          setError(`Não foi possível ativar as notificações (${name||"erro"}). ${message||"Tente novamente."}`);
         }
       }
     }
