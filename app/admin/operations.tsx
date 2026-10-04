@@ -74,6 +74,28 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       setStockForm({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});await load();
     }catch{setError("Não foi possível cadastrar o insumo.");}finally{setBusy(false);}
   }
+  async function deleteStockItem(item:InventoryItem){
+    if(!window.confirm('Excluir o insumo "'+item.name+'"? Esta ação só deve ser usada para um cadastro inserido por engano e não pode ser desfeita.'))return;
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/inventory_items?id=eq."+item.id,token,{method:"DELETE",headers:{Prefer:"return=minimal"}});
+      await load();
+    }catch{
+      setError('Não foi possível excluir "'+item.name+'". Este insumo provavelmente já possui histórico ou está vinculado a uma ficha técnica, compra, inventário ou produção. Nesse caso, use "Desativar".');
+    }finally{setBusy(false);}
+  }
+  async function toggleStockItem(item:InventoryItem){
+    const action=item.active?"desativar":"reativar";
+    if(!window.confirm((item.active?'Desativar':'Reativar')+' o insumo "'+item.name+'"?'))return;
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/inventory_items?id=eq."+item.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({active:!item.active})});
+      await load();
+    }catch{
+      setError('Não foi possível '+action+' o insumo.');
+    }finally{setBusy(false);}
+  }
+
   async function addMovement(){
     if(!movementForm.item_id||!movementForm.quantity)return;
     setBusy(true);
@@ -157,13 +179,13 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <button onClick={()=>void addStockItem()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Cadastrar insumo</button>
     </div>
     <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-5">
-      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
+      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
       <select value={movementForm.movement_type} onChange={e=>setMovementForm({...movementForm,movement_type:e.target.value})} className={input}><option value="entrada">Entrada</option><option value="consumo">Consumo</option><option value="perda">Perda</option><option value="ajuste">Ajuste</option><option value="devolucao">Devolução</option></select>
       <input type="number" step="0.001" value={movementForm.quantity} onChange={e=>setMovementForm({...movementForm,quantity:e.target.value})} placeholder="Quantidade" className={input}/>
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
     </div>
-    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td></tr>)}</tbody></Table>
+    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
     <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel>;
   if(section==="producao")return <Panel title="Produção">
