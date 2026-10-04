@@ -9,7 +9,7 @@ import {
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
-const VAPID_PUBLIC_KEY = "BKdBw4qhOfXUxwtYU-Au-_bwoy8q-x8IzX2zrGf922w5xSLwydMKLAajMCSb_rNEqDB29XMPk0zROWfwpn14_sI";
+const FALLBACK_VAPID_PUBLIC_KEY = "BB0vbJzwFpvhg9vRY65tqKh220prqXjozkHCwBXAxesWCJntEJlxmX4QW-m6OAP4bnNcVIbrpJ62v-MawD9rBuc";
 
 type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
@@ -120,14 +120,16 @@ export default function AdminPage() {
       if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)){setPushStatus("unsupported");return;}
       const permission=await Notification.requestPermission();
       if(permission!=="granted"){setPushStatus("denied");return;}
+      const publicKey=await request(URL+"/rest/v1/rpc/get_admin_push_public_key",token,{method:"POST",body:"{}"}); 
+      const vapidPublicKey=publicKey||FALLBACK_VAPID_PUBLIC_KEY;
       const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
       const existing=await registration.pushManager.getSubscription();
-      const subscription=existing||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+      const subscription=existing||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)});
       const json=subscription.toJSON();
       if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error("Assinatura incompleta");
       await request(URL+"/rest/v1/admin_push_subscriptions",token,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,user_email:email||"admin",user_agent:navigator.userAgent,active:true})});
       setPushStatus("enabled");
-    }catch(e){console.error(e);setPushStatus("idle");setError("Não foi possível ativar as notificações neste dispositivo.");}
+    }catch(e){console.error(e);setPushStatus("idle");setError("Não foi possível ativar as notificações neste dispositivo. Verifique se as notificações do navegador estão permitidas.");}
   }
 
   async function loadOrderProduction(orderId:string){
