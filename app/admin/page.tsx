@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X, Package
+  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Plus
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -153,39 +153,85 @@ export default function AdminPage() {
           <div className="flex gap-2"><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
         </div>
       </header>
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[220px_1fr]">
-        <aside className="h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:grid-cols-[220px_1fr]">
+        <aside className="hidden h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24 lg:block">
           {nav.map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>)}
         </aside>
         <section className="min-w-0">
+          <div className="mb-5 lg:hidden">
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Painel</div>
+                <h1 className="mt-1 text-2xl font-black">{nav.find(n=>n.id===section)?.label || "Resumo"}</h1>
+              </div>
+              <button onClick={()=>void load()} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/></button>
+            </div>
+          </div>
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
           {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
 
-                    {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    {section==="resumo"&&<>
+            <div className="hidden lg:block"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
-    {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
-    {label:"Faturamento",value:money(revenue),Icon:BarChart3},
-    {label:"Clientes",value:customers.length,Icon:Users},
-    {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
-  ].map(({label,value,Icon})=><div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
+                {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
+                {label:"Faturamento",value:money(revenue),Icon:BarChart3},
+                {label:"Clientes",value:customers.length,Icon:Users},
+                {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
+              ].map(({label,value,Icon})=><div key={label} className="rounded-2xl border border-white/10 bg-[#0d110b] p-4 sm:rounded-3xl sm:p-5"><Icon size={18} className="text-[#a7b86a]"/><div className="mt-3 text-xl font-black sm:mt-5 sm:text-2xl">{value}</div><div className="mt-1 text-[11px] text-white/40">{label}</div></div>)}
             </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">PEDIDOS EM ANDAMENTO</div><div className="mt-3 text-2xl font-black">{activeOrders}</div></div><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">LEADS B2B</div><div className="mt-3 text-2xl font-black">{leads.length}</div></div></div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Em andamento</div><div className="mt-2 text-2xl font-black">{activeOrders}</div><div className="mt-1 text-xs text-white/35">pedidos</div></div>
+              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">B2B</div><div className="mt-2 text-2xl font-black">{leads.length}</div><div className="mt-1 text-xs text-white/35">leads</div></div>
+            </div>
+            <div className="mt-5 lg:hidden">
+              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Ações rápidas</div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
+                  {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
+                  {id:"estoque" as Section,label:"Estoque",Icon:Package},
+                  {id:"b2b" as Section,label:"B2B",Icon:Building2},
+                ].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left"><span className="flex items-center gap-3 text-sm font-black"><Icon size={18} className="text-[#a7b86a]"/>{label}</span><ChevronRight size={16} className="text-white/25"/></button>)}
+              </div>
+              <div className="mt-5 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4">
+                <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Operação</div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {[{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center gap-2 rounded-xl bg-black/20 px-3 py-3 text-xs font-bold"><Icon size={15}/>{label}</button>)}
+                </div>
+              </div>
+            </div>
           </>}
 
-          {section==="pedidos"&&<Panel title="Pedidos"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead><tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td></tr>)}</tbody></table></div></Panel>}
+          {section==="pedidos"&&<Panel title="Pedidos">
+            <div className="grid gap-3 lg:hidden">{orders.map(o=><div key={o.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div><div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div></div>)}</div>
+            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead><tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td></tr>)}</tbody></table></div></div></Panel>}
 
-          {section==="clientes"&&<Panel title="Clientes"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead><tbody>{filteredCustomers.map(c=><tr key={c.id} className="border-t border-white/5"><td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td></tr>)}</tbody></table></div></Panel>}
+          {section==="clientes"&&<Panel title="Clientes"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div>
+            <div className="grid gap-3 lg:hidden">{filteredCustomers.map(c=><div key={c.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="font-black">{c.name}</div><div className="mt-1 text-xs text-white/40">{c.whatsapp}</div><div className="mt-4 flex justify-between text-xs"><span>{c.order_count} pedidos</span><strong className="text-[#ef7d18]">{money(c.total_spend)}</strong></div></div>)}</div>
+            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead><tbody>{filteredCustomers.map(c=><tr key={c.id} className="border-t border-white/5"><td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td></tr>)}</tbody></table></div></div></Panel>}
 
-          {section==="whatsapp"&&<Panel title="WhatsApp"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead><tbody>{messages.map(m=><tr key={m.id} className="border-t border-white/5"><td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td><td className="p-3">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</td><td className="p-3">{m.processed?"Processada":"Pendente"}</td></tr>)}</tbody></table></div></Panel>}
+          {section==="whatsapp"&&<Panel title="WhatsApp">
+            <div className="grid gap-3 lg:hidden">{messages.map(m=><div key={m.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex justify-between gap-3"><div className="font-black">{m.display_name||"Contato"}</div><span className="text-[10px] text-white/35">{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div><div className="mt-1 text-xs text-white/35">{m.from_phone||""}</div><div className="mt-3 text-sm leading-6 text-white/75">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</div><div className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div></div>)}</div>
+            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead><tbody>{messages.map(m=><tr key={m.id} className="border-t border-white/5"><td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td><td className="p-3">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</td><td className="p-3">{m.processed?"Processada":"Pendente"}</td></tr>)}</tbody></table></div></div></Panel>}
 
-          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></Panel>}
+          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div>
+            <div className="grid gap-3 lg:hidden">{filteredLeads.map(l=><button key={l.id} onClick={()=>setSelected(l)} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{l.company}</div><div className="mt-1 text-xs text-white/40">{l.contact_name} · {l.whatsapp}</div></div><ChevronRight size={17} className="mt-1 text-white/25"/></div><div className="mt-4 flex items-center justify-between text-xs"><span>{l.estimated_meals||"Refeições não informadas"}</span><span className="rounded-full bg-white/5 px-2.5 py-1 font-bold">{l.status}</span></div></button>)}</div>
+            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></div></Panel>}
         </section>
       </div>
 
       {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.replace(/\D/g,"")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
     </main>
+      <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-white/10 bg-[#10130d]/95 p-2 shadow-2xl backdrop-blur lg:hidden">
+        <div className="grid grid-cols-4 gap-1">
+          <button onClick={()=>setSection("resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="resumo"?"bg-[#a7b86a] text-black":"text-white/55"}`}><Home size={17}/><span>Início</span></button>
+          <button onClick={()=>setSection("pedidos")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
+          <button onClick={()=>setSection("whatsapp")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="whatsapp"?"bg-[#a7b86a] text-black":"text-white/55"}`}><MessageCircle size={17}/><span>WhatsApp</span></button>
+          <button onClick={()=>setSection(section==="resumo"||section==="pedidos"||section==="whatsapp"||section==="b2b"?"estoque":"resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${!["resumo","pedidos","whatsapp"].includes(section)?"bg-[#a7b86a] text-black":"text-white/55"}`}><MoreHorizontal size={17}/><span>Mais</span></button>
+        </div>
+      </nav>
   );
 }
 
