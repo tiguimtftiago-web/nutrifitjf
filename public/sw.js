@@ -6,13 +6,14 @@ self.addEventListener("push", (event) => {
     : Promise.resolve();
   event.waitUntil(Promise.all([
     badgePromise,
-    self.registration.showNotification(data.title || "Nutrifit • Compras necessárias", {
-    body: data.body || "Há insumos que precisam de atenção no estoque.",
+    self.registration.showNotification(data.title || "NUTRIFIT • COMPRAS NECESSÁRIAS", {
+    body: data.body || "⚠️ Há insumos que precisam de atenção no estoque.",
     icon: "/images/nutrifit-logo-icon.svg",
     badge: "/images/nutrifit-logo-icon.svg",
     tag: data.tag || "nutrifit-purchase-alert",
     renotify: true,
-    data: { url: data.url || "/admin" }
+    data: { url: data.url || "/admin" },
+    actions: [{ action: "open-admin", title: "ABRIR PAINEL" }]
     }))
   ]));
 });
