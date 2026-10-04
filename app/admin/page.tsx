@@ -16,7 +16,8 @@ type Lead = { id:string; created_at:string; company:string; contact_name:string;
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
 type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
-type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };\ntype OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
+type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };
+type OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -46,7 +47,8 @@ export default function AdminPage() {
   const [inventory,setInventory] = useState<InventoryItem[]>([]);
   const [mobileMore,setMobileMore] = useState(false);
   const [selectedOrder,setSelectedOrder] = useState<Order|null>(null);
-  const [orderRequirements,setOrderRequirements] = useState<OrderRequirement[]>([]);\n  const [orderProductions,setOrderProductions] = useState<OrderProduction[]>([]);
+  const [orderRequirements,setOrderRequirements] = useState<OrderRequirement[]>([]);
+  const [orderProductions,setOrderProductions] = useState<OrderProduction[]>([]);
 
   async function load(t=token) {
     if (!t) return;
@@ -98,7 +100,14 @@ export default function AdminPage() {
     finally {setBusy(false);}
   }
 
-  async function loadOrderProduction(orderId:string){\n    try{\n      const rows=await request(`${URL}/rest/v1/production_batches?select=id,order_id,recipe_id,quantity,status,stock_consumed,inventory_recipes(name)&order_id=eq.${orderId}&order=created_at.asc`,token);\n      setOrderProductions((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,quantity:Number(x.quantity||0),status:x.status,stock_consumed:Boolean(x.stock_consumed),recipe_name:x.inventory_recipes?.name||null})));\n    }catch{setOrderProductions([]);}\n  }\n\n  async function loadOrderRequirements(orderId:string){
+  async function loadOrderProduction(orderId:string){
+    try{
+      const rows=await request(`${URL}/rest/v1/production_batches?select=id,order_id,recipe_id,quantity,status,stock_consumed,inventory_recipes(name)&order_id=eq.${orderId}&order=created_at.asc`,token);
+      setOrderProductions((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,quantity:Number(x.quantity||0),status:x.status,stock_consumed:Boolean(x.stock_consumed),recipe_name:x.inventory_recipes?.name||null})));
+    }catch{setOrderProductions([]);}
+  }
+
+  async function loadOrderRequirements(orderId:string){
     try{
       const rows=await request(`${URL}/rest/v1/order_inventory_requirements?select=id,order_id,recipe_id,item_id,required_quantity,inventory_items(name,unit,current_quantity)&order_id=eq.${orderId}&order=required_quantity.desc`,token);
       setOrderRequirements((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,item_id:x.item_id,required_quantity:Number(x.required_quantity||0),item_name:x.inventory_items?.name||"Insumo",unit:x.inventory_items?.unit||"",current_quantity:Number(x.inventory_items?.current_quantity||0)})));
