@@ -124,7 +124,10 @@ export default function AdminPage() {
       const vapidPublicKey=publicKey||FALLBACK_VAPID_PUBLIC_KEY;
       const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
       const existing=await registration.pushManager.getSubscription();
-      const subscription=existing||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)});
+      if(existing) {
+        try { await existing.unsubscribe(); } catch {}
+      }
+      const subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)});
       const json=subscription.toJSON();
       if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error("Assinatura incompleta");
       await request(URL+"/rest/v1/admin_push_subscriptions",token,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,user_email:email||"admin",user_agent:navigator.userAgent,active:true})});
