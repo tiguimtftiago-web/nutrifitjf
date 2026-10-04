@@ -26,6 +26,10 @@ async function request(path:string, token:string, init:RequestInit={}) {
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(path,{...init,headers});
   const text = await response.text();
+  if (response.status === 401) {
+    window.dispatchEvent(new Event("nutrifit-admin-auth-expired"));
+    throw new Error("Sessão administrativa expirada.");
+  }
   if (!response.ok) throw new Error(text || "Erro na solicitação.");
   return text ? JSON.parse(text) : null;
 }
@@ -74,6 +78,17 @@ export default function AdminPage() {
       if (!background) setBusy(false);
     }
   }
+
+  useEffect(() => {
+    const onExpired=()=>{
+      sessionStorage.removeItem("nutrifit_admin_token");
+      sessionStorage.removeItem("nutrifit_admin_email");
+      setToken("");
+      setError("Sua sessão administrativa expirou. Entre novamente para continuar.");
+    };
+    window.addEventListener("nutrifit-admin-auth-expired",onExpired);
+    return ()=>window.removeEventListener("nutrifit-admin-auth-expired",onExpired);
+  },[]);
 
   useEffect(() => {
     const saved=sessionStorage.getItem("nutrifit_admin_token")||"";
