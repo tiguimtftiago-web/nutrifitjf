@@ -98,11 +98,20 @@ export default function AdminPage() {
     finally {setBusy(false);}
   }
 
-  async function loadOrderRequirements(orderId:string){\n    try{\n      const rows=await request(`${URL}/rest/v1/order_inventory_requirements?select=id,order_id,recipe_id,item_id,required_quantity,inventory_items(name,unit,current_quantity)&order_id=eq.${orderId}&order=required_quantity.desc`,token);\n      setOrderRequirements((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,item_id:x.item_id,required_quantity:Number(x.required_quantity||0),item_name:x.inventory_items?.name||"Insumo",unit:x.inventory_items?.unit||"",current_quantity:Number(x.inventory_items?.current_quantity||0)})));\n    }catch{setOrderRequirements([]);}\n  }\n\n  async function updateOrderStatus(order:Order,status:string){
+  async function loadOrderRequirements(orderId:string){
+    try{
+      const rows=await request(`${URL}/rest/v1/order_inventory_requirements?select=id,order_id,recipe_id,item_id,required_quantity,inventory_items(name,unit,current_quantity)&order_id=eq.${orderId}&order=required_quantity.desc`,token);
+      setOrderRequirements((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,item_id:x.item_id,required_quantity:Number(x.required_quantity||0),item_name:x.inventory_items?.name||"Insumo",unit:x.inventory_items?.unit||"",current_quantity:Number(x.inventory_items?.current_quantity||0)})));
+    }catch{setOrderRequirements([]);}
+  }
+
+  async function updateOrderStatus(order:Order,status:string){
     setBusy(true); setError("");
     try{
       await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
-      setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));\n      if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)) await loadOrderRequirements(order.id);\n      if(status==="cancelado") setOrderRequirements([]);
+      setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
+      if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)) await loadOrderRequirements(order.id);
+      if(status==="cancelado") setOrderRequirements([]);
       setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
     }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
     finally{setBusy(false);}
