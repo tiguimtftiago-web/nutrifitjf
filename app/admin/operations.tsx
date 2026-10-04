@@ -88,7 +88,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   }
   function startEditStock(item:InventoryItem){
     setEditingStock(item);
-    setEditStockForm({name:item.name,category:item.category,unit:item.unit,minimum_quantity:String(item.minimum_quantity??0),average_cost:String(item.average_cost??0),supplier:item.supplier||"",notes:item.notes||""});
+    setEditStockForm({name:item.name,category:item.category,unit:/^(kg|g|litro|unidade|caixa|pacote)$/i.test(item.unit)?item.unit.toLowerCase():"kg",minimum_quantity:String(item.minimum_quantity??0),average_cost:String(item.average_cost??0),supplier:item.supplier||"",notes:item.notes||""});
     setError("");
   }
 
@@ -210,14 +210,14 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     {editingStock&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 sm:items-center">
       <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-5 shadow-2xl sm:p-6">
         <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Editar insumo</div><h3 className="mt-1 text-2xl font-black">{editingStock.name}</h3><p className="mt-1 text-xs text-white/35">Altere o cadastro sem apagar o histórico de movimentações.</p></div><button onClick={()=>setEditingStock(null)} className="rounded-full bg-white/5 p-2 text-white/60">×</button></div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <input value={editStockForm.name} onChange={e=>setEditStockForm({...editStockForm,name:e.target.value})} placeholder="Insumo" className={input}/>
-          <input value={editStockForm.category} onChange={e=>setEditStockForm({...editStockForm,category:e.target.value})} placeholder="Categoria" className={input}/>
-          <input value={editStockForm.unit} onChange={e=>setEditStockForm({...editStockForm,unit:e.target.value})} placeholder="Unidade" className={input}/>
-          <input type="number" step="0.001" value={editStockForm.minimum_quantity} onChange={e=>setEditStockForm({...editStockForm,minimum_quantity:e.target.value})} placeholder="Estoque mínimo" className={input}/>
-          <input type="number" step="0.01" value={editStockForm.average_cost} onChange={e=>setEditStockForm({...editStockForm,average_cost:e.target.value})} placeholder="Custo médio" className={input}/>
-          <input value={editStockForm.supplier} onChange={e=>setEditStockForm({...editStockForm,supplier:e.target.value})} placeholder="Fornecedor" className={input}/>
-          <textarea value={editStockForm.notes} onChange={e=>setEditStockForm({...editStockForm,notes:e.target.value})} placeholder="Observações" rows={3} className={"sm:col-span-2 "+input}/>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Nome do insumo</span><input value={editStockForm.name} onChange={e=>setEditStockForm({...editStockForm,name:e.target.value})} placeholder="Ex.: Carne moída" className={input}/></label>
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Categoria</span><input value={editStockForm.category} onChange={e=>setEditStockForm({...editStockForm,category:e.target.value})} placeholder="Ex.: insumo" className={input}/></label>
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Unidade</span><select value={editStockForm.unit} onChange={e=>setEditStockForm({...editStockForm,unit:e.target.value})} className={input}><option value="kg">kg</option><option value="g">g</option><option value="litro">litro</option><option value="unidade">unidade</option><option value="caixa">caixa</option><option value="pacote">pacote</option></select></label>
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Estoque mínimo</span><input type="number" step="0.001" min="0" value={editStockForm.minimum_quantity} onChange={e=>setEditStockForm({...editStockForm,minimum_quantity:e.target.value})} placeholder="Ex.: 1" className={input}/></label>
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Custo médio por {editStockForm.unit}</span><input type="number" step="0.01" min="0" value={editStockForm.average_cost} onChange={e=>setEditStockForm({...editStockForm,average_cost:e.target.value})} placeholder="0,00" className={input}/><span className="text-[11px] text-white/30">Valor em reais (R$) por {editStockForm.unit}.</span></label>
+          <label className="grid gap-1.5"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Fornecedor</span><input value={editStockForm.supplier} onChange={e=>setEditStockForm({...editStockForm,supplier:e.target.value})} placeholder="Nome do fornecedor" className={input}/></label>
+          <label className="grid gap-1.5 sm:col-span-2"><span className="text-xs font-black uppercase tracking-[.12em] text-white/45">Observações</span><textarea value={editStockForm.notes} onChange={e=>setEditStockForm({...editStockForm,notes:e.target.value})} placeholder="Informações adicionais sobre este insumo" rows={3} className={"sm:col-span-2 "+input}/></label>
         </div>
         <div className="mt-5 flex gap-2"><button onClick={()=>setEditingStock(null)} className="flex-1 rounded-full border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void updateStockItem()} disabled={busy} className="flex-1 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar alterações"}</button></div>
       </div>
