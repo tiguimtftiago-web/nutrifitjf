@@ -16,6 +16,7 @@ type Lead = { id:string; created_at:string; company:string; contact_name:string;
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
 type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
+type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed" }> };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -162,7 +163,7 @@ export default function AdminPage() {
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#090c08]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3"><img src="/images/nutrifit-logo-icon.svg" alt="" className="h-9 w-9"/><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><div className="font-black">Painel administrativo</div></div></div>
-          <div className="flex gap-2"><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
+          <div className="flex gap-2"><button onClick={()=>void installAdminShortcut()} disabled={!installPrompt} className={`rounded-full border px-4 py-2.5 text-xs font-black ${installPrompt?"border-[#a7b86a]/50 bg-[#a7b86a]/10 text-[#cbd99a]":"border-white/10 text-white/35"}`} title="Adicionar o painel à tela inicial">{installPrompt?"Instalar atalho":"Atalho instalado"}</button><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
         </div>
       </header>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:grid-cols-[220px_1fr]">
