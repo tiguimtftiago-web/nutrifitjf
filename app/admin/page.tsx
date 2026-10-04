@@ -99,9 +99,16 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!token) return;
-    const interval = window.setInterval(() => { void load(token, true); }, 30000);
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") void load(token, true);
+    }, 30000);
     return () => window.clearInterval(interval);
   }, [token]);
+
+  useEffect(() => {
+    setSearch("");
+    setMobileMore(false);
+  }, [section]);
 
   useEffect(() => {
     if (!token) return;
