@@ -144,7 +144,8 @@ export default function AdminPage() {
 
       const publicKey=await request(URL+"/rest/v1/rpc/get_admin_push_public_key",token,{method:"POST",body:"{}"});
       const vapidPublicKey=publicKey||FALLBACK_VAPID_PUBLIC_KEY;
-      const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
+      let registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
+      await navigator.serviceWorker.ready;
       let subscription=await registration.pushManager.getSubscription();
 
       if(subscription){
@@ -159,10 +160,21 @@ export default function AdminPage() {
       }
 
       if(!subscription){
-        subscription=await registration.pushManager.subscribe({
-          userVisibleOnly:true,
-          applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
-        });
+        try{
+          subscription=await registration.pushManager.subscribe({
+            userVisibleOnly:true,
+            applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
+          });
+        }catch(firstError){
+          console.warn("Primeira tentativa de push falhou. Recriando o Service Worker.",firstError);
+          await registration.unregister().catch(()=>{});
+          registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
+          await navigator.serviceWorker.ready;
+          subscription=await registration.pushManager.subscribe({
+            userVisibleOnly:true,
+            applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
+          });
+        }
       }
 
       const json=subscription.toJSON();
@@ -182,9 +194,18 @@ export default function AdminPage() {
       });
       setPushStatus("enabled");
     }catch(e){
-      console.error(e);
+      console.error("Nutrifit push activation error",e);
       setPushStatus("idle");
-      if(requestPermission)setError("Não foi possível ativar as notificações neste dispositivo. Verifique se as notificações do navegador estão permitidas.");
+      if(requestPermission){
+        const message=e instanceof Error?e.message:"erro desconhecido";
+        if(/permission|notallowed|denied/i.test(message)){
+          setError("As notificações estão bloqueadas pelo navegador neste dispositivo.");
+        }else if(/push|service worker|subscribe|vapid|applicationserverkey/i.test(message)){
+          setError("O navegador não conseguiu criar a assinatura de notificações. Atualize a página e tente novamente.");
+        }else{
+          setError("Não foi possível ativar as notificações agora. Tente novamente após atualizar a página.");
+        }
+      }
     }
   }
 
