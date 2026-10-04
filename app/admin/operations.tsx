@@ -43,6 +43,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
+  const [editingStock,setEditingStock]=useState<InventoryItem|null>(null);
+  const [editStockForm,setEditStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:"",notes:""});
   const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:""});
   const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});
   const [coupon,setCoupon]=useState({code:"",description:"",discount_type:"percent",discount_value:"",minimum_order_value:"0"});
@@ -84,6 +86,25 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       setError('Não foi possível excluir "'+item.name+'". Este insumo provavelmente já possui histórico ou está vinculado a uma ficha técnica, compra, inventário ou produção. Nesse caso, use "Desativar".');
     }finally{setBusy(false);}
   }
+  function startEditStock(item:InventoryItem){
+    setEditingStock(item);
+    setEditStockForm({name:item.name,category:item.category,unit:item.unit,minimum_quantity:String(item.minimum_quantity??0),average_cost:String(item.average_cost??0),supplier:item.supplier||"",notes:item.notes||""});
+    setError("");
+  }
+
+  async function updateStockItem(){
+    if(!editingStock||!editStockForm.name.trim())return;
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/inventory_items?id=eq."+editingStock.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({
+        name:editStockForm.name.trim(),category:editStockForm.category.trim()||"insumo",unit:editStockForm.unit.trim()||"kg",
+        minimum_quantity:Number(editStockForm.minimum_quantity||0),average_cost:Number(editStockForm.average_cost||0),
+        supplier:editStockForm.supplier.trim()||null,notes:editStockForm.notes.trim()||null
+      })});
+      setEditingStock(null);await load();
+    }catch{setError("Não foi possível atualizar o insumo.");}finally{setBusy(false);}
+  }
+
   async function toggleStockItem(item:InventoryItem){
     const action=item.active?"desativar":"reativar";
     if(!window.confirm((item.active?'Desativar':'Reativar')+' o insumo "'+item.name+'"?'))return;
@@ -185,7 +206,22 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
     </div>
-    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
+    {editingStock&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 sm:items-center">
+      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-5 shadow-2xl sm:p-6">
+        <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Editar insumo</div><h3 className="mt-1 text-2xl font-black">{editingStock.name}</h3><p className="mt-1 text-xs text-white/35">Altere o cadastro sem apagar o histórico de movimentações.</p></div><button onClick={()=>setEditingStock(null)} className="rounded-full bg-white/5 p-2 text-white/60">×</button></div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <input value={editStockForm.name} onChange={e=>setEditStockForm({...editStockForm,name:e.target.value})} placeholder="Insumo" className={input}/>
+          <input value={editStockForm.category} onChange={e=>setEditStockForm({...editStockForm,category:e.target.value})} placeholder="Categoria" className={input}/>
+          <input value={editStockForm.unit} onChange={e=>setEditStockForm({...editStockForm,unit:e.target.value})} placeholder="Unidade" className={input}/>
+          <input type="number" step="0.001" value={editStockForm.minimum_quantity} onChange={e=>setEditStockForm({...editStockForm,minimum_quantity:e.target.value})} placeholder="Estoque mínimo" className={input}/>
+          <input type="number" step="0.01" value={editStockForm.average_cost} onChange={e=>setEditStockForm({...editStockForm,average_cost:e.target.value})} placeholder="Custo médio" className={input}/>
+          <input value={editStockForm.supplier} onChange={e=>setEditStockForm({...editStockForm,supplier:e.target.value})} placeholder="Fornecedor" className={input}/>
+          <textarea value={editStockForm.notes} onChange={e=>setEditStockForm({...editStockForm,notes:e.target.value})} placeholder="Observações" rows={3} className={"sm:col-span-2 "+input}/>
+        </div>
+        <div className="mt-5 flex gap-2"><button onClick={()=>setEditingStock(null)} className="flex-1 rounded-full border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void updateStockItem()} disabled={busy} className="flex-1 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar alterações"}</button></div>
+      </div>
+    </div>}
+    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=Number(x.minimum_quantity)?"COMPRAR":"OK"}</Td><Td><div className="flex gap-2 whitespace-nowrap"><button onClick={()=>startEditStock(x)} disabled={busy} className="rounded-full border border-[#a7b86a]/30 px-3 py-2 text-xs font-bold text-[#d9e5a5]">Editar</button><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
     <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel>;
   if(section==="producao")return <Panel title="Produção">
