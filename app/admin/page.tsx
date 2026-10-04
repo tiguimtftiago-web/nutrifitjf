@@ -205,21 +205,136 @@ export default function AdminPage() {
             </div>
           </>}
 
-          {section==="pedidos"&&<Panel title="Pedidos">
-            <div className="grid gap-3 lg:hidden">{orders.map(o=><div key={o.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div><div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div></div>)}</div>
-            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead><tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td></tr>)}</tbody></table></div></div></Panel>}
+          {section==="pedidos"&&(
+            <Panel title="Pedidos">
+              <div className="grid gap-3 lg:hidden">
+                {orders.map(o=>(
+                  <div key={o.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-black">{o.customer_name||"Cliente"}</div>
+                        <div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div>
+                      </div>
+                      <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span>
+                    </div>
+                    <div className="mt-4 flex items-end justify-between">
+                      <div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div>
+                      <div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead>
+                  <tbody>
+                    {orders.map(o=>(
+                      <tr key={o.id} className="border-t border-white/5">
+                        <td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td>
+                        <td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td>
+                        <td className="p-3">{o.item_count}</td>
+                        <td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td>
+                        <td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          )}
 
-          {section==="clientes"&&<Panel title="Clientes"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div>
-            <div className="grid gap-3 lg:hidden">{filteredCustomers.map(c=><div key={c.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="font-black">{c.name}</div><div className="mt-1 text-xs text-white/40">{c.whatsapp}</div><div className="mt-4 flex justify-between text-xs"><span>{c.order_count} pedidos</span><strong className="text-[#ef7d18]">{money(c.total_spend)}</strong></div></div>)}</div>
-            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead><tbody>{filteredCustomers.map(c=><tr key={c.id} className="border-t border-white/5"><td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td></tr>)}</tbody></table></div></div></Panel>}
+          {section==="clientes"&&(
+            <Panel title="Clientes">
+              <div className="mb-4 flex justify-end">
+                <Search size={16} className="mr-2 mt-3 text-white/35"/>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
+              </div>
+              <div className="grid gap-3 lg:hidden">
+                {filteredCustomers.map(c=>(
+                  <div key={c.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="font-black">{c.name}</div>
+                    <div className="mt-1 text-xs text-white/40">{c.whatsapp}</div>
+                    <div className="mt-4 flex justify-between text-xs"><span>{c.order_count} pedidos</span><strong className="text-[#ef7d18]">{money(c.total_spend)}</strong></div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead>
+                  <tbody>
+                    {filteredCustomers.map(c=>(
+                      <tr key={c.id} className="border-t border-white/5">
+                        <td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          )}
 
-          {section==="whatsapp"&&<Panel title="WhatsApp">
-            <div className="grid gap-3 lg:hidden">{messages.map(m=><div key={m.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex justify-between gap-3"><div className="font-black">{m.display_name||"Contato"}</div><span className="text-[10px] text-white/35">{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div><div className="mt-1 text-xs text-white/35">{m.from_phone||""}</div><div className="mt-3 text-sm leading-6 text-white/75">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</div><div className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div></div>)}</div>
-            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead><tbody>{messages.map(m=><tr key={m.id} className="border-t border-white/5"><td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td><td className="p-3">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</td><td className="p-3">{m.processed?"Processada":"Pendente"}</td></tr>)}</tbody></table></div></div></Panel>}
+          {section==="whatsapp"&&(
+            <Panel title="WhatsApp">
+              <div className="grid gap-3 lg:hidden">
+                {messages.map(m=>(
+                  <div key={m.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex justify-between gap-3"><div className="font-black">{m.display_name||"Contato"}</div><span className="text-[10px] text-white/35">{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div>
+                    <div className="mt-1 text-xs text-white/35">{m.from_phone||""}</div>
+                    <div className="mt-3 text-sm leading-6 text-white/75">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</div>
+                    <div className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead>
+                  <tbody>
+                    {messages.map(m=>(
+                      <tr key={m.id} className="border-t border-white/5">
+                        <td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td>
+                        <td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td>
+                        <td className="p-3">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</td>
+                        <td className="p-3">{m.processed?"Processada":"Pendente"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          )}
 
-          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div>
-            <div className="grid gap-3 lg:hidden">{filteredLeads.map(l=><button key={l.id} onClick={()=>setSelected(l)} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{l.company}</div><div className="mt-1 text-xs text-white/40">{l.contact_name} · {l.whatsapp}</div></div><ChevronRight size={17} className="mt-1 text-white/25"/></div><div className="mt-4 flex items-center justify-between text-xs"><span>{l.estimated_meals||"Refeições não informadas"}</span><span className="rounded-full bg-white/5 px-2.5 py-1 font-bold">{l.status}</span></div></button>)}</div>
-            <div className="hidden overflow-x-auto lg:block"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></div></Panel>}
+          {section==="b2b"&&(
+            <Panel title="Leads B2B">
+              <div className="mb-4 flex justify-end">
+                <Search size={16} className="mr-2 mt-3 text-white/35"/>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
+              </div>
+              <div className="grid gap-3 lg:hidden">
+                {filteredLeads.map(l=>(
+                  <button key={l.id} onClick={()=>setSelected(l)} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
+                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{l.company}</div><div className="mt-1 text-xs text-white/40">{l.contact_name} · {l.whatsapp}</div></div><ChevronRight size={17} className="mt-1 text-white/25"/></div>
+                    <div className="mt-4 flex items-center justify-between text-xs"><span>{l.estimated_meals||"Refeições não informadas"}</span><span className="rounded-full bg-white/5 px-2.5 py-1 font-bold">{l.status}</span></div>
+                  </button>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="w-full min-w-[780px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead>
+                  <tbody>
+                    {filteredLeads.map(l=>(
+                      <tr key={l.id} className="border-t border-white/5">
+                        <td className="p-3 font-black">{l.company}</td>
+                        <td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td>
+                        <td className="p-3">{l.estimated_meals||"—"}</td>
+                        <td className="p-3">{l.status}</td>
+                        <td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          )}
         </section>
       </div>
 
