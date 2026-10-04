@@ -9,6 +9,7 @@ import {
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
+const VAPID_PUBLIC_KEY = "BKdBw4qhOfXUxwtYU-Au-_bwoy8q-x8IzX2zrGf922w5xSLwydMKLAajMCSb_rNEqDB29XMPk0zROWfwpn14_sI";
 
 type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
@@ -51,6 +52,7 @@ export default function AdminPage() {
   const [orderRequirements,setOrderRequirements] = useState<OrderRequirement[]>([]);
   const [orderProductions,setOrderProductions] = useState<OrderProduction[]>([]);
   const [purchaseAlerts,setPurchaseAlerts] = useState<PurchaseAlert[]>([]);
+  const [pushStatus,setPushStatus] = useState<"idle"|"loading"|"enabled"|"denied"|"unsupported">("idle");
 
   async function load(t=token) {
     if (!t) return;
@@ -101,6 +103,28 @@ export default function AdminPage() {
       setError("E-mail de recuperação enviado. Confira sua caixa de entrada.");
     } catch { setError("Não foi possível enviar o e-mail de recuperação."); }
     finally {setBusy(false);}
+  }
+
+  function urlBase64ToUint8Array(base64String:string){
+    const padding="=".repeat((4-base64String.length%4)%4); const base64=(base64String+padding).replace(/-/g,"+").replace(/_/g,"/");
+    const raw=window.atob(base64); return Uint8Array.from([...raw].map(char=>char.charCodeAt(0)));
+  }
+
+  async function enablePush(){
+    if(!token)return;
+    setPushStatus("loading");
+    try{
+      if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)){setPushStatus("unsupported");return;}
+      const permission=await Notification.requestPermission();
+      if(permission!=="granted"){setPushStatus("denied");return;}
+      const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
+      const existing=await registration.pushManager.getSubscription();
+      const subscription=existing||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)});
+      const json=subscription.toJSON();
+      if(!json.endpoint||!json.keys?.p256dh||!json.keys?.auth)throw new Error("Assinatura incompleta");
+      await request(URL+"/rest/v1/admin_push_subscriptions",token,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,user_email:email||"admin",user_agent:navigator.userAgent,active:true})});
+      setPushStatus("enabled");
+    }catch(e){console.error(e);setPushStatus("idle");setError("Não foi possível ativar as notificações neste dispositivo.");}
   }
 
   async function loadOrderProduction(orderId:string){
@@ -197,7 +221,7 @@ export default function AdminPage() {
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#090c08]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3"><img src="/images/nutrifit-logo-icon.svg" alt="" className="h-9 w-9"/><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><div className="font-black">Painel administrativo</div></div></div>
-          <div className="flex gap-2"><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
+          <div className="flex gap-2"><button onClick={()=>void enablePush()} disabled={pushStatus==="loading"||pushStatus==="enabled"} className={`rounded-full border px-4 py-2.5 text-xs font-black ${pushStatus==="enabled"?"border-[#a7b86a]/40 bg-[#a7b86a]/10 text-[#c4d38c]":"border-[#ef7d18]/30 bg-[#1b120a] text-[#f1b06e]"}`}>{pushStatus==="enabled"?"🔔 Alertas ativos":pushStatus==="loading"?"Ativando...":"🔔 Ativar alertas"}</button><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
         </div>
       </header>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:grid-cols-[220px_1fr]">
