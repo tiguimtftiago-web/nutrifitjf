@@ -54,9 +54,9 @@ export default function AdminPage() {
   const [purchaseAlerts,setPurchaseAlerts] = useState<PurchaseAlert[]>([]);
   const [pushStatus,setPushStatus] = useState<"idle"|"loading"|"enabled"|"denied"|"unsupported">("idle");
 
-  async function load(t=token) {
+  async function load(t=token, background=false) {
     if (!t) return;
-    setBusy(true); setError("");
+    if (!background) { setBusy(true); setError(""); }
     try {
       const [o,c,m,l,i,a] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=*&order=created_at.desc&limit=100`,t),
@@ -68,8 +68,11 @@ export default function AdminPage() {
       ]);
       setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]);
     } catch (e) {
-      console.error(e); setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");
-    } finally { setBusy(false); }
+      console.error(e);
+      if (!background) setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");
+    } finally {
+      if (!background) setBusy(false);
+    }
   }
 
   useEffect(() => {
@@ -81,7 +84,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!token) return;
-    const interval = window.setInterval(() => { void load(token); }, 20000);
+    const interval = window.setInterval(() => { void load(token, true); }, 30000);
     return () => window.clearInterval(interval);
   }, [token]);
 
