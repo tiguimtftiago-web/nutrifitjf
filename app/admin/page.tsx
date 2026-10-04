@@ -183,37 +183,16 @@ export default function AdminPage() {
 
           {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
 
-                    {section==="resumo"&&<>
-            <div className="hidden lg:block"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {section==="resumo"&&<><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {[
-                {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
-                {label:"Faturamento",value:money(revenue),Icon:BarChart3},
-                {label:"Clientes",value:customers.length,Icon:Users},
-                {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
-              ].map(({label,value,Icon})=><div key={label} className="rounded-2xl border border-white/10 bg-[#0d110b] p-4 sm:rounded-3xl sm:p-5"><Icon size={18} className="text-[#a7b86a]"/><div className="mt-3 text-xl font-black sm:mt-5 sm:text-2xl">{value}</div><div className="mt-1 text-[11px] text-white/40">{label}</div></div>)}
+    {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
+    {label:"Faturamento",value:money(revenue),Icon:BarChart3},
+    {label:"Clientes",value:customers.length,Icon:Users},
+    {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
+  ].map(({label,value,Icon})=><div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-5 text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Em andamento</div><div className="mt-2 text-2xl font-black">{activeOrders}</div><div className="mt-1 text-xs text-white/35">pedidos</div></div>
-              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">B2B</div><div className="mt-2 text-2xl font-black">{leads.length}</div><div className="mt-1 text-xs text-white/35">leads</div></div>
-            </div>
-            <div className="mt-5 lg:hidden">
-              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Ações rápidas</div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
-                  {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-                  {id:"estoque" as Section,label:"Estoque",Icon:Package},
-                  {id:"b2b" as Section,label:"B2B",Icon:Building2},
-                ].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left"><span className="flex items-center gap-3 text-sm font-black"><Icon size={18} className="text-[#a7b86a]"/>{label}</span><ChevronRight size={16} className="text-white/25"/></button>)}
-              </div>
-              <div className="mt-5 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4">
-                <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Operação</div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {[{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center gap-2 rounded-xl bg-black/20 px-3 py-3 text-xs font-bold"><Icon size={15}/>{label}</button>)}
-                </div>
-              </div>
-            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">PEDIDOS EM ANDAMENTO</div><div className="mt-3 text-2xl font-black">{activeOrders}</div></div><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">LEADS B2B</div><div className="mt-3 text-2xl font-black">{leads.length}</div></div></div>
           </>}
 
           {section==="pedidos"&&(
