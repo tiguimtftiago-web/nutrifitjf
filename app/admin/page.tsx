@@ -4,13 +4,13 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket
+  ShoppingBag, Users, X, Package
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
-type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
+type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; item_count:number; subtotal:number; delivery_fee:number; total:number; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
@@ -43,8 +43,6 @@ export default function AdminPage() {
   const [error,setError] = useState("");
   const [busy,setBusy] = useState(false);
   const [inventory,setInventory] = useState<InventoryItem[]>([]);
-  const [mobileMore,setMobileMore] = useState(false);
-  const [selectedOrder,setSelectedOrder] = useState<Order|null>(null);
 
   async function load(t=token) {
     if (!t) return;
@@ -94,16 +92,6 @@ export default function AdminPage() {
       setError("E-mail de recuperação enviado. Confira sua caixa de entrada.");
     } catch { setError("Não foi possível enviar o e-mail de recuperação."); }
     finally {setBusy(false);}
-  }
-
-  async function updateOrderStatus(order:Order,status:string){
-    setBusy(true); setError("");
-    try{
-      await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
-      setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
-      setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
-    }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
-    finally{setBusy(false);}
   }
 
   async function saveLead(){
@@ -165,20 +153,11 @@ export default function AdminPage() {
           <div className="flex gap-2"><button onClick={()=>void load()} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><RefreshCw size={14} className={`mr-2 inline ${busy?"animate-spin":""}`}/>Atualizar</button><button onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");setToken("");}} className="rounded-full border border-white/10 px-4 py-2.5 text-xs font-black"><LogOut size={14} className="mr-2 inline"/>Sair</button></div>
         </div>
       </header>
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:grid-cols-[220px_1fr]">
-        <aside className="hidden h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24 lg:block">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[220px_1fr]">
+        <aside className="h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24">
           {nav.map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>)}
         </aside>
         <section className="min-w-0">
-          <div className="mb-5 lg:hidden">
-            <div className="flex items-end justify-between">
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Painel</div>
-                <h1 className="mt-1 text-2xl font-black">{nav.find(n=>n.id===section)?.label || "Resumo"}</h1>
-              </div>
-              <button onClick={()=>void load()} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/></button>
-            </div>
-          </div>
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
           {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
@@ -195,134 +174,17 @@ export default function AdminPage() {
             <div className="mt-4 grid gap-4 md:grid-cols-2"><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">PEDIDOS EM ANDAMENTO</div><div className="mt-3 text-2xl font-black">{activeOrders}</div></div><div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5"><div className="text-xs text-white/35">LEADS B2B</div><div className="mt-3 text-2xl font-black">{leads.length}</div></div></div>
           </>}
 
-          {section==="pedidos"&&(
-            <Panel title="Pedidos">
-              <div className="grid gap-3 lg:hidden">
-                {orders.map(o=>(
-                  <button key={o.id} onClick={()=>setSelectedOrder(o)} className="w-full rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
-                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div>
-                    <div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div>
-                    <div className="mt-3 text-xs font-bold text-[#a7b86a]">Abrir pedido →</div>
-                  </button>
-                ))}
-              </div>
-              <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[900px] text-left text-sm">
-                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th><th className="p-3"/></tr></thead>
-                  <tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>setSelectedOrder(o)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
-                </table>
-              </div>
-            </Panel>
-          )}
-          {selectedOrder&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 sm:items-center">
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-5 shadow-2xl sm:p-6">
-              <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Pedido</div><h3 className="mt-1 text-2xl font-black">{selectedOrder.customer_name||"Cliente"}</h3><div className="mt-1 text-xs text-white/40">{new Date(selectedOrder.created_at).toLocaleString("pt-BR")}</div></div><button onClick={()=>setSelectedOrder(null)} className="rounded-full bg-white/5 p-2 text-white/60"><X size={18}/></button></div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/[.03] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Contato</div><div className="mt-2 font-bold">{selectedOrder.whatsapp||"—"}</div><div className="mt-1 text-xs text-white/45">{selectedOrder.email||"Sem e-mail"}</div></div>
-                <div className="rounded-2xl bg-white/[.03] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Entrega</div><div className="mt-2 font-bold">{selectedOrder.neighborhood||"Bairro não informado"}</div><div className="mt-1 text-xs text-white/45">{selectedOrder.cep||"CEP não informado"}</div></div>
-              </div>
-              <div className="mt-5 rounded-2xl border border-white/10 p-4"><div className="text-xs font-black uppercase tracking-[.12em] text-white/35">Itens</div><pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-white/75">{typeof selectedOrder.items==="string"?selectedOrder.items:JSON.stringify(selectedOrder.items,null,2)}</pre></div>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Subtotal</div><b className="mt-1 block">{money(selectedOrder.subtotal)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Entrega</div><b className="mt-1 block">{money(selectedOrder.delivery_fee)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Total</div><b className="mt-1 block text-[#ef7d18]">{money(selectedOrder.total)}</b></div></div>
-              <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Atualizar status</div><div className="grid gap-2 sm:grid-cols-2">{[{v:"enviado_whatsapp",l:"Novo / enviado no WhatsApp"},{v:"confirmado",l:"Confirmado"},{v:"pago_recebido",l:"Pagamento recebido"},{v:"em_preparo",l:"Em preparo"},{v:"saiu_entrega",l:"Saiu para entrega"},{v:"entregue",l:"Entregue"},{v:"cancelado",l:"Cancelado"}].map(s=><button key={s.v} onClick={()=>void updateOrderStatus(selectedOrder,s.v)} disabled={busy||selectedOrder.status===s.v} className={"rounded-xl border px-3 py-3 text-left text-xs font-black "+(selectedOrder.status===s.v?"border-[#a7b86a]/40 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.02]")}>{s.l}</button>)}</div></div>
-              <button onClick={()=>setSelectedOrder(null)} className="mt-5 w-full rounded-full border border-white/10 px-4 py-3 text-sm font-black">Fechar</button>
-            </div>
-          </div>}
-          {section==="clientes"&&(
-            <Panel title="Clientes">
-              <div className="mb-4 flex justify-end">
-                <Search size={16} className="mr-2 mt-3 text-white/35"/>
-                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
-              </div>
-              <div className="grid gap-3 lg:hidden">
-                {filteredCustomers.map(c=>(
-                  <div key={c.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                    <div className="font-black">{c.name}</div>
-                    <div className="mt-1 text-xs text-white/40">{c.whatsapp}</div>
-                    <div className="mt-4 flex justify-between text-xs"><span>{c.order_count} pedidos</span><strong className="text-[#ef7d18]">{money(c.total_spend)}</strong></div>
-                  </div>
-                ))}
-              </div>
-              <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[760px] text-left text-sm">
-                  <thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead>
-                  <tbody>
-                    {filteredCustomers.map(c=>(
-                      <tr key={c.id} className="border-t border-white/5">
-                        <td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-          )}
+          {section==="pedidos"&&<Panel title="Pedidos"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead><tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td></tr>)}</tbody></table></div></Panel>}
 
-          {section==="whatsapp"&&(
-            <Panel title="WhatsApp">
-              <div className="grid gap-3 lg:hidden">
-                {messages.map(m=>(
-                  <div key={m.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                    <div className="flex justify-between gap-3"><div className="font-black">{m.display_name||"Contato"}</div><span className="text-[10px] text-white/35">{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div>
-                    <div className="mt-1 text-xs text-white/35">{m.from_phone||""}</div>
-                    <div className="mt-3 text-sm leading-6 text-white/75">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</div>
-                    <div className="mt-3 flex items-center justify-between gap-3"><div className="text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div>{m.from_phone&&<a href={"https://wa.me/"+m.from_phone.replace(/\D/g,"")} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="rounded-full bg-[#25D366] px-3 py-1.5 text-[10px] font-black text-black">Abrir WhatsApp</a>}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[760px] text-left text-sm">
-                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead>
-                  <tbody>
-                    {messages.map(m=>(
-                      <tr key={m.id} className="border-t border-white/5">
-                        <td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td>
-                        <td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td>
-                        <td className="p-3">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</td>
-                        <td className="p-3"><div className="flex items-center gap-2"><span>{m.processed?"Processada":"Pendente"}</span>{m.from_phone&&<a href={"https://wa.me/"+m.from_phone.replace(/\D/g,"")} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-black text-black">WhatsApp</a>}</div></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-          )}
+          {section==="clientes"&&<Panel title="Clientes"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Cliente</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Pedidos</th><th className="p-3">Total</th></tr></thead><tbody>{filteredCustomers.map(c=><tr key={c.id} className="border-t border-white/5"><td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{c.order_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(c.total_spend)}</td></tr>)}</tbody></table></div></Panel>}
 
-          {section==="b2b"&&(
-            <Panel title="Leads B2B">
-              <div className="mb-4 flex justify-end">
-                <Search size={16} className="mr-2 mt-3 text-white/35"/>
-                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
-              </div>
-              <div className="grid gap-3 lg:hidden">
-                {filteredLeads.map(l=>(
-                  <button key={l.id} onClick={()=>setSelected(l)} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
-                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{l.company}</div><div className="mt-1 text-xs text-white/40">{l.contact_name} · {l.whatsapp}</div></div><ChevronRight size={17} className="mt-1 text-white/25"/></div>
-                    <div className="mt-4 flex items-center justify-between text-xs"><span>{l.estimated_meals||"Refeições não informadas"}</span><span className="rounded-full bg-white/5 px-2.5 py-1 font-bold">{l.status}</span></div>
-                  </button>
-                ))}
-              </div>
-              <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[780px] text-left text-sm">
-                  <thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead>
-                  <tbody>
-                    {filteredLeads.map(l=>(
-                      <tr key={l.id} className="border-t border-white/5">
-                        <td className="p-3 font-black">{l.company}</td>
-                        <td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td>
-                        <td className="p-3">{l.estimated_meals||"—"}</td>
-                        <td className="p-3">{l.status}</td>
-                        <td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-          )}
+          {section==="whatsapp"&&<Panel title="WhatsApp"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Contato</th><th className="p-3">Mensagem</th><th className="p-3">Status</th></tr></thead><tbody>{messages.map(m=><tr key={m.id} className="border-t border-white/5"><td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td><td className="p-3">{m.message_text||`Mensagem ${m.message_type||"não textual"}`}</td><td className="p-3">{m.processed?"Processada":"Pendente"}</td></tr>)}</tbody></table></div></Panel>}
+
+          {section==="b2b"&&<Panel title="Leads B2B"><div className="mb-4 flex justify-end"><Search size={16} className="mr-2 mt-3 text-white/35"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/></div><div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Empresa</th><th className="p-3">Contato</th><th className="p-3">Refeições</th><th className="p-3">Status</th><th/></tr></thead><tbody>{filteredLeads.map(l=><tr key={l.id} className="border-t border-white/5"><td className="p-3 font-black">{l.company}</td><td className="p-3">{l.contact_name}<div className="text-xs text-white/35">{l.whatsapp}</div></td><td className="p-3">{l.estimated_meals||"—"}</td><td className="p-3">{l.status}</td><td className="p-3 text-right"><button onClick={()=>setSelected(l)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody></table></div></Panel>}
         </section>
       </div>
 
-      {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.split("").filter(ch=>ch>="0"&&ch<="9").join("")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
+      {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.replace(/\D/g,"")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
     </main>
   );
 }
