@@ -1,0 +1,19 @@
+{
+  "name": "Nutrifit Admin",
+  "short_name": "Nutrifit Admin",
+  "description": "Acesso rápido ao painel administrativo Nutrifit",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#080a07",
+  "theme_color": "#080a07",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/nutrifit-logo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
