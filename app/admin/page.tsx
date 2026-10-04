@@ -166,10 +166,13 @@ export default function AdminPage() {
             applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
           });
         }catch(firstError){
-          console.warn("Primeira tentativa de push falhou. Recriando o Service Worker.",firstError);
-          await registration.unregister().catch(()=>{});
-          registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
+          console.warn("Primeira tentativa de push falhou. Recriando os Service Workers.",firstError);
+          const registrations=await navigator.serviceWorker.getRegistrations().catch(()=>[]);
+          await Promise.all(registrations.map((item)=>item.unregister().catch(()=>false)));
+          await new Promise((resolve)=>window.setTimeout(resolve,300));
+          registration=await navigator.serviceWorker.register("/sw.js?push-repair=1",{scope:"/"});
           await navigator.serviceWorker.ready;
+          await registration.update().catch(()=>{});
           subscription=await registration.pushManager.subscribe({
             userVisibleOnly:true,
             applicationServerKey:urlBase64ToUint8Array(vapidPublicKey)
@@ -198,12 +201,13 @@ export default function AdminPage() {
       setPushStatus("idle");
       if(requestPermission){
         const message=e instanceof Error?e.message:"erro desconhecido";
-        if(/permission|notallowed|denied/i.test(message)){
+        const name=e instanceof DOMException?e.name:"";
+        if(/permission|notallowed|denied/i.test(message+" "+name)){
           setError("As notificações estão bloqueadas pelo navegador neste dispositivo.");
-        }else if(/push|service worker|subscribe|vapid|applicationserverkey/i.test(message)){
-          setError("O navegador não conseguiu criar a assinatura de notificações. Atualize a página e tente novamente.");
+        }else if(/push|service worker|subscribe|vapid|applicationserverkey/i.test(message+" "+name)){
+          setError("O navegador não conseguiu criar a assinatura. Atualize a página e tente novamente.");
         }else{
-          setError("Não foi possível ativar as notificações agora. Tente novamente após atualizar a página.");
+          setError("Não foi possível ativar as notificações agora. Tente novamente.");
         }
       }
     }
