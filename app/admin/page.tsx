@@ -50,6 +50,7 @@ export default function AdminPage() {
   const [selectedOrder,setSelectedOrder] = useState<Order|null>(null);
   const [orderRequirements,setOrderRequirements] = useState<OrderRequirement[]>([]);
   const [orderProductions,setOrderProductions] = useState<OrderProduction[]>([]);
+  const [purchaseAlerts,setPurchaseAlerts] = useState<PurchaseAlert[]>([]);
 
   async function load(t=token) {
     if (!t) return;
