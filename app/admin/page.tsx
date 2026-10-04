@@ -66,6 +66,12 @@ export default function AdminPage() {
     if(saved){setToken(saved);void load(saved);}
   },[]);
 
+  useEffect(() => {
+    if (!token) return;
+    const interval = window.setInterval(() => { void load(token); }, 20000);
+    return () => window.clearInterval(interval);
+  }, [token]);
+
   async function login(e:FormEvent){
     e.preventDefault(); setBusy(true); setError("");
     try {
