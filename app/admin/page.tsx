@@ -43,6 +43,7 @@ export default function AdminPage() {
   const [error,setError] = useState("");
   const [busy,setBusy] = useState(false);
   const [inventory,setInventory] = useState<InventoryItem[]>([]);
+  const [mobileMore,setMobileMore] = useState(false);
 
   async function load(t=token) {
     if (!t) return;
@@ -229,9 +230,17 @@ export default function AdminPage() {
           <button onClick={()=>setSection("resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="resumo"?"bg-[#a7b86a] text-black":"text-white/55"}`}><Home size={17}/><span>Início</span></button>
           <button onClick={()=>setSection("pedidos")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
           <button onClick={()=>setSection("whatsapp")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="whatsapp"?"bg-[#a7b86a] text-black":"text-white/55"}`}><MessageCircle size={17}/><span>WhatsApp</span></button>
-          <button onClick={()=>setSection(section==="resumo"||section==="pedidos"||section==="whatsapp"||section==="b2b"?"estoque":"resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${!["resumo","pedidos","whatsapp"].includes(section)?"bg-[#a7b86a] text-black":"text-white/55"}`}><MoreHorizontal size={17}/><span>Mais</span></button>
+          <button onClick={()=>setMobileMore(v=>!v)} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${mobileMore||!["resumo","pedidos","whatsapp"].includes(section)?"bg-[#a7b86a] text-black":"text-white/55"}`}><MoreHorizontal size={17}/><span>Mais</span></button>
         </div>
       </nav>
+      {mobileMore&&<div className="fixed inset-0 z-30 bg-black/60 lg:hidden" onClick={()=>setMobileMore(false)}>
+        <div className="absolute inset-x-3 bottom-24 rounded-3xl border border-white/10 bg-[#10130d] p-4 shadow-2xl" onClick={e=>e.stopPropagation()}>
+          <div className="mb-3 flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Mais opções</div><div className="mt-1 text-xs text-white/35">Gestão operacional</div></div><button onClick={()=>setMobileMore(false)} className="rounded-full bg-white/5 p-2"><X size={16}/></button></div>
+          <div className="grid grid-cols-2 gap-2">
+            {[{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{setSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
+          </div>
+        </div>
+      </div>
   );
 }
 
