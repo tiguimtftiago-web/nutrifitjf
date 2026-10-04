@@ -147,6 +147,17 @@ export default function AdminPage() {
       const registration=await navigator.serviceWorker.register("/sw.js",{scope:"/"});
       let subscription=await registration.pushManager.getSubscription();
 
+      if(subscription){
+        const existing=await request(
+          `${URL}/rest/v1/admin_push_subscriptions?select=id&endpoint=eq.${encodeURIComponent(subscription.endpoint)}&active=eq.true&limit=1`,
+          token
+        ).catch(()=>[]);
+        if(!Array.isArray(existing)||existing.length===0){
+          await subscription.unsubscribe().catch(()=>{});
+          subscription=null;
+        }
+      }
+
       if(!subscription){
         subscription=await registration.pushManager.subscribe({
           userVisibleOnly:true,
