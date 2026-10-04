@@ -16,6 +16,7 @@ type Lead = { id:string; created_at:string; company:string; contact_name:string;
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
 type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
+type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -45,6 +46,7 @@ export default function AdminPage() {
   const [inventory,setInventory] = useState<InventoryItem[]>([]);
   const [mobileMore,setMobileMore] = useState(false);
   const [selectedOrder,setSelectedOrder] = useState<Order|null>(null);
+  const [orderRequirements,setOrderRequirements] = useState<OrderRequirement[]>([]);
 
   async function load(t=token) {
     if (!t) return;
@@ -96,11 +98,20 @@ export default function AdminPage() {
     finally {setBusy(false);}
   }
 
+  async function loadOrderRequirements(orderId:string){
+    try{
+      const rows=await request(`${URL}/rest/v1/order_inventory_requirements?select=id,order_id,recipe_id,item_id,required_quantity,inventory_items(name,unit,current_quantity)&order_id=eq.${orderId}&order=required_quantity.desc`,token);
+      setOrderRequirements((rows||[]).map((x:any)=>({id:x.id,order_id:x.order_id,recipe_id:x.recipe_id,item_id:x.item_id,required_quantity:Number(x.required_quantity||0),item_name:x.inventory_items?.name||"Insumo",unit:x.inventory_items?.unit||"",current_quantity:Number(x.inventory_items?.current_quantity||0)})));
+    }catch{setOrderRequirements([]);}
+  }
+
   async function updateOrderStatus(order:Order,status:string){
     setBusy(true); setError("");
     try{
       await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
       setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
+      if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)) await loadOrderRequirements(order.id);
+      if(status==="cancelado") setOrderRequirements([]);
       setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
     }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
     finally{setBusy(false);}
@@ -230,7 +241,7 @@ export default function AdminPage() {
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full min-w-[900px] text-left text-sm">
                   <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th><th className="p-3"/></tr></thead>
-                  <tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>setSelectedOrder(o)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
+                  <tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>{setSelectedOrder(o);setOrderRequirements([]);if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)) void loadOrderRequirements(o.id)}} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
                 </table>
               </div>
             </Panel>
@@ -244,7 +255,8 @@ export default function AdminPage() {
               </div>
               <div className="mt-5 rounded-2xl border border-white/10 p-4"><div className="text-xs font-black uppercase tracking-[.12em] text-white/35">Itens</div><pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-white/75">{typeof selectedOrder.items==="string"?selectedOrder.items:JSON.stringify(selectedOrder.items,null,2)}</pre></div>
               <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Subtotal</div><b className="mt-1 block">{money(selectedOrder.subtotal)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Entrega</div><b className="mt-1 block">{money(selectedOrder.delivery_fee)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Total</div><b className="mt-1 block text-[#ef7d18]">{money(selectedOrder.total)}</b></div></div>
-              <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Atualizar status</div><div className="grid gap-2 sm:grid-cols-2">{[{v:"enviado_whatsapp",l:"Novo / enviado no WhatsApp"},{v:"confirmado",l:"Confirmado"},{v:"pago_recebido",l:"Pagamento recebido"},{v:"em_preparo",l:"Em preparo"},{v:"saiu_entrega",l:"Saiu para entrega"},{v:"entregue",l:"Entregue"},{v:"cancelado",l:"Cancelado"}].map(s=><button key={s.v} onClick={()=>void updateOrderStatus(selectedOrder,s.v)} disabled={busy||selectedOrder.status===s.v} className={"rounded-xl border px-3 py-3 text-left text-xs font-black "+(selectedOrder.status===s.v?"border-[#a7b86a]/40 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.02]")}>{s.l}</button>)}</div></div>
+              <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Insumos necessários</div>{orderRequirements.length===0?<div className="rounded-xl border border-white/5 bg-white/[.02] p-4 text-sm text-white/45">{["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(selectedOrder.status)?"Nenhuma ficha técnica correspondente encontrada para os itens deste pedido.":"Confirme o pedido para calcular automaticamente os insumos necessários."}</div>:<div className="overflow-x-auto rounded-xl border border-white/5"><table className="w-full text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Insumo</th><th className="p-3">Necessário</th><th className="p-3">Estoque</th><th className="p-3">Situação</th></tr></thead><tbody>{orderRequirements.map(x=>{const shortage=x.required_quantity>x.current_quantity;return <tr key={x.id} className="border-t border-white/5"><td className="p-3 font-bold">{x.item_name}</td><td className="p-3">{x.required_quantity.toLocaleString("pt-BR",{maximumFractionDigits:3})} {x.unit}</td><td className="p-3">{x.current_quantity.toLocaleString("pt-BR",{maximumFractionDigits:3})} {x.unit}</td><td className={"p-3 font-black "+(shortage?"text-[#ef7d18]":"text-[#a7b86a]")}>{shortage?"Falta "+(x.required_quantity-x.current_quantity).toLocaleString("pt-BR",{maximumFractionDigits:3})+" "+x.unit:"OK"}</td></tr>})}</tbody></table></div>}</div>
+<div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Atualizar status</div><div className="grid gap-2 sm:grid-cols-2">{[{v:"enviado_whatsapp",l:"Novo / enviado no WhatsApp"},{v:"confirmado",l:"Confirmado"},{v:"pago_recebido",l:"Pagamento recebido"},{v:"em_preparo",l:"Em preparo"},{v:"saiu_entrega",l:"Saiu para entrega"},{v:"entregue",l:"Entregue"},{v:"cancelado",l:"Cancelado"}].map(s=><button key={s.v} onClick={()=>void updateOrderStatus(selectedOrder,s.v)} disabled={busy||selectedOrder.status===s.v} className={"rounded-xl border px-3 py-3 text-left text-xs font-black "+(selectedOrder.status===s.v?"border-[#a7b86a]/40 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.02]")}>{s.l}</button>)}</div></div>
               <button onClick={()=>setSelectedOrder(null)} className="mt-5 w-full rounded-full border border-white/10 px-4 py-3 text-sm font-black">Fechar</button>
             </div>
           </div>}
