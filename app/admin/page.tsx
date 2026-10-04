@@ -10,7 +10,7 @@ import {
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
-type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; item_count:number; subtotal:number; delivery_fee:number; total:number; neighborhood:string|null; status:string; };
+type Order = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
@@ -44,6 +44,7 @@ export default function AdminPage() {
   const [busy,setBusy] = useState(false);
   const [inventory,setInventory] = useState<InventoryItem[]>([]);
   const [mobileMore,setMobileMore] = useState(false);
+  const [selectedOrder,setSelectedOrder] = useState<Order|null>(null);
 
   async function load(t=token) {
     if (!t) return;
@@ -93,6 +94,16 @@ export default function AdminPage() {
       setError("E-mail de recuperação enviado. Confira sua caixa de entrada.");
     } catch { setError("Não foi possível enviar o e-mail de recuperação."); }
     finally {setBusy(false);}
+  }
+
+  async function updateOrderStatus(order:Order,status:string){
+    setBusy(true); setError("");
+    try{
+      await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
+      setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
+      setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
+    }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
+    finally{setBusy(false);}
   }
 
   async function saveLead(){
@@ -209,40 +220,34 @@ export default function AdminPage() {
             <Panel title="Pedidos">
               <div className="grid gap-3 lg:hidden">
                 {orders.map(o=>(
-                  <div key={o.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-black">{o.customer_name||"Cliente"}</div>
-                        <div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div>
-                      </div>
-                      <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span>
-                    </div>
-                    <div className="mt-4 flex items-end justify-between">
-                      <div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div>
-                      <div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div>
-                    </div>
-                  </div>
+                  <button key={o.id} onClick={()=>setSelectedOrder(o)} className="w-full rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
+                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div>
+                    <div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div>
+                    <div className="mt-3 text-xs font-bold text-[#a7b86a]">Abrir pedido →</div>
+                  </button>
                 ))}
               </div>
               <div className="hidden overflow-x-auto lg:block">
-                <table className="w-full min-w-[760px] text-left text-sm">
-                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th></tr></thead>
-                  <tbody>
-                    {orders.map(o=>(
-                      <tr key={o.id} className="border-t border-white/5">
-                        <td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td>
-                        <td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td>
-                        <td className="p-3">{o.item_count}</td>
-                        <td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td>
-                        <td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
+                <table className="w-full min-w-[900px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th><th className="p-3"/></tr></thead>
+                  <tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>setSelectedOrder(o)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
                 </table>
               </div>
             </Panel>
           )}
-
+          {selectedOrder&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 sm:items-center">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-5 shadow-2xl sm:p-6">
+              <div className="flex items-start justify-between gap-4"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Pedido</div><h3 className="mt-1 text-2xl font-black">{selectedOrder.customer_name||"Cliente"}</h3><div className="mt-1 text-xs text-white/40">{new Date(selectedOrder.created_at).toLocaleString("pt-BR")}</div></div><button onClick={()=>setSelectedOrder(null)} className="rounded-full bg-white/5 p-2 text-white/60"><X size={18}/></button></div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white/[.03] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Contato</div><div className="mt-2 font-bold">{selectedOrder.whatsapp||"—"}</div><div className="mt-1 text-xs text-white/45">{selectedOrder.email||"Sem e-mail"}</div></div>
+                <div className="rounded-2xl bg-white/[.03] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Entrega</div><div className="mt-2 font-bold">{selectedOrder.neighborhood||"Bairro não informado"}</div><div className="mt-1 text-xs text-white/45">{selectedOrder.cep||"CEP não informado"}</div></div>
+              </div>
+              <div className="mt-5 rounded-2xl border border-white/10 p-4"><div className="text-xs font-black uppercase tracking-[.12em] text-white/35">Itens</div><pre className="mt-3 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-white/75">{typeof selectedOrder.items==="string"?selectedOrder.items:JSON.stringify(selectedOrder.items,null,2)}</pre></div>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Subtotal</div><b className="mt-1 block">{money(selectedOrder.subtotal)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Entrega</div><b className="mt-1 block">{money(selectedOrder.delivery_fee)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Total</div><b className="mt-1 block text-[#ef7d18]">{money(selectedOrder.total)}</b></div></div>
+              <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Atualizar status</div><div className="grid gap-2 sm:grid-cols-2">{[{v:"enviado_whatsapp",l:"Novo / enviado no WhatsApp"},{v:"confirmado",l:"Confirmado"},{v:"pago_recebido",l:"Pagamento recebido"},{v:"em_preparo",l:"Em preparo"},{v:"saiu_entrega",l:"Saiu para entrega"},{v:"entregue",l:"Entregue"},{v:"cancelado",l:"Cancelado"}].map(s=><button key={s.v} onClick={()=>void updateOrderStatus(selectedOrder,s.v)} disabled={busy||selectedOrder.status===s.v} className={"rounded-xl border px-3 py-3 text-left text-xs font-black "+(selectedOrder.status===s.v?"border-[#a7b86a]/40 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.02]")}>{s.l}</button>)}</div></div>
+              <button onClick={()=>setSelectedOrder(null)} className="mt-5 w-full rounded-full border border-white/10 px-4 py-3 text-sm font-black">Fechar</button>
+            </div>
+          </div>}
           {section==="clientes"&&(
             <Panel title="Clientes">
               <div className="mb-4 flex justify-end">
