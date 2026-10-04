@@ -179,6 +179,11 @@ const traditionalComplements: Product[] = [
 
 const DELIVERY_FREE_FROM = 20;
 
+function formatCepInput(raw:string){
+  const digits=raw.replace(/\D/g,"").slice(0,8);
+  return digits.length>5?digits.slice(0,5)+"-"+digits.slice(5):digits;
+}
+
 type DeliveryResult = {
   zone: string;
   fee: number;
