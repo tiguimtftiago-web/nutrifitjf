@@ -18,6 +18,7 @@ type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produto
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };
 type OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
+type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
@@ -54,14 +55,15 @@ export default function AdminPage() {
     if (!t) return;
     setBusy(true); setError("");
     try {
-      const [o,c,m,l,i] = await Promise.all([
+      const [o,c,m,l,i,a] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/customer_profiles?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,from_phone,display_name,message_text,message_type,processed&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
+        request(`${URL}/rest/v1/inventory_purchase_alerts?select=*&limit=500`,t),
       ]);
-      setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]);
+      setOrders(o||[]); setCustomers(c||[]); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]);
     } catch (e) {
       console.error(e); setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");
     } finally { setBusy(false); }
@@ -217,6 +219,7 @@ export default function AdminPage() {
 
                     {section==="resumo"&&<>
             <div className="hidden lg:block"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
+            {purchaseAlerts.length>0&&<button onClick={()=>setSection("estoque")} className="mb-4 w-full rounded-2xl border border-[#ef7d18]/40 bg-[#1b120a] p-4 text-left transition hover:bg-[#24170d] sm:rounded-3xl sm:p-5"><div className="flex items-center justify-between gap-3"><div><div className="text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18]">Atenção • Compras necessárias</div><div className="mt-1 text-lg font-black">{purchaseAlerts.length} {purchaseAlerts.length===1?"insumo precisa":"insumos precisam"} de atenção</div></div><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ef7d18]/15 text-[#ef9b55]"><Package size={17}/></div></div><div className="mt-3 flex flex-wrap gap-2">{purchaseAlerts.slice(0,4).map(a=><span key={a.item_id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#f1b06e]">{a.name}: {Number(a.shortage_quantity)>0?("falta "+Number(a.shortage_quantity).toLocaleString("pt-BR")+" "+a.unit):"estoque baixo"}</span>)}</div>{purchaseAlerts.length>4&&<div className="mt-2 text-xs text-white/40">+ {purchaseAlerts.length-4} outro(s) • toque para abrir a Lista de compras</div>}</button>}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
                 {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
