@@ -286,7 +286,7 @@ export default function AdminPage() {
                     <div className="flex justify-between gap-3"><div className="font-black">{m.display_name||"Contato"}</div><span className="text-[10px] text-white/35">{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div>
                     <div className="mt-1 text-xs text-white/35">{m.from_phone||""}</div>
                     <div className="mt-3 text-sm leading-6 text-white/75">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</div>
-                    <div className="mt-3 text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div>
+                    <div className="mt-3 flex items-center justify-between gap-3"><div className="text-[10px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{m.processed?"Processada":"Pendente"}</div>{m.from_phone&&<a href={"https://wa.me/"+m.from_phone.replace(/\D/g,"")} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} className="rounded-full bg-[#25D366] px-3 py-1.5 text-[10px] font-black text-black">Abrir WhatsApp</a>}</div>
                   </div>
                 ))}
               </div>
@@ -299,7 +299,7 @@ export default function AdminPage() {
                         <td className="p-3">{new Date(m.created_at).toLocaleString("pt-BR")}</td>
                         <td className="p-3 font-black">{m.display_name||"Contato"}<div className="text-xs text-white/35">{m.from_phone||""}</div></td>
                         <td className="p-3">{m.message_text||(`Mensagem ${m.message_type||"não textual"}`)}</td>
-                        <td className="p-3">{m.processed?"Processada":"Pendente"}</td>
+                        <td className="p-3"><div className="flex items-center gap-2"><span>{m.processed?"Processada":"Pendente"}</span>{m.from_phone&&<a href={"https://wa.me/"+m.from_phone.replace(/\D/g,"")} target="_blank" rel="noreferrer" className="rounded-full bg-[#25D366] px-2.5 py-1 text-[10px] font-black text-black">WhatsApp</a>}</div></td>
                       </tr>
                     ))}
                   </tbody>
