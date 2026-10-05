@@ -1410,6 +1410,13 @@ export default function Home() {
     setProfileOpen(true);
   };
 
+  const dismissLeadPrompt = () => {
+    try {
+      window.sessionStorage.setItem("nutrifit_lead_prompt_seen", "1");
+    } catch {}
+    setLeadPromptOpen(false);
+  };
+
   useEffect(() => {
     try {
       const acquisition = getAcquisitionData();
@@ -1434,7 +1441,8 @@ export default function Home() {
     } catch {}
     try {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
-      if (!saved?.nutrifitClub) setLeadPromptOpen(true);
+      const leadPromptSeen = window.sessionStorage.getItem("nutrifit_lead_prompt_seen") === "1";
+      if (!saved?.nutrifitClub && !leadPromptSeen) setLeadPromptOpen(true);
     } catch {
       setLeadPromptOpen(true);
     }
@@ -2358,15 +2366,15 @@ export default function Home() {
 
       {leadPromptOpen && !profileOpen && (
         <div className="fixed inset-0 z-[115]">
-          <button type="button" aria-label="Fechar benefício" onClick={() => setLeadPromptOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <button type="button" aria-label="Fechar benefício" onClick={dismissLeadPrompt} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <section role="dialog" aria-modal="true" aria-labelledby="lead-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-[#ef7d18]/25 bg-[#0d100c] shadow-2xl">
             <div className="p-6 sm:p-7">
-              <button type="button" onClick={() => setLeadPromptOpen(false)} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
+              <button type="button" onClick={dismissLeadPrompt} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Clube Nutrifit</div>
               <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 5 na sua primeira compra.</h2>
               <p className="mt-2 text-sm leading-6 text-white/50">Faça um cadastro rápido. Não precisa criar senha agora.</p>
               <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">Cadastrar e receber benefício <ArrowRight size={17} /></button>
-              <button type="button" onClick={() => setLeadPromptOpen(false)} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
+              <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
           </section>
         </div>
