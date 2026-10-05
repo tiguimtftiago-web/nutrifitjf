@@ -88,7 +88,7 @@ export default function NFCorePage(){
         request(`${URL}/rest/v1/catalog_products?select=id,name,active,line,size_grams&active=eq.true&limit=500`,t)
       ]);
       setOrders(o||[]);setInventory(i||[]);setLeads(l||[]);setMessages(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setCatalog(cp||[]);
-       try{const events=await request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source&order=created_at.desc&limit=5000`,t);setAcquisitionEvents(events||[]);}catch{setAcquisitionEvents([]);}
+       try{const events=await request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,metadata&order=created_at.desc&limit=5000`,t);setAcquisitionEvents(events||[]);}catch{setAcquisitionEvents([]);}
     }catch(e){setError("Não consegui carregar os dados do painel.");}
     finally{setBusy(false);}
   }
@@ -113,6 +113,30 @@ export default function NFCorePage(){
   const recipeMap=useMemo(()=>new Map(recipes.map(r=>[r.catalog_product_id,r])),[recipes]);
   const plannedNeeds=useMemo(()=>{const totals=new Map<string,number>();let mapped=0;for(const order of actionableOrders){const raw:any=(order as any).items;const lines=Array.isArray(raw)?raw:(raw?.items&&Array.isArray(raw.items)?raw.items:[]);for(const line of lines){const qty=Number(line.quantity||line.qty||line.amount||1);if(!qty)continue;const pid=line.product_id||line.productId||line.catalog_product_id||line.id;const name=String(line.name||line.product_name||line.product||"").trim();const recipe=recipeMap.get(pid)||recipes.find(r=>r.name===name||r.product_name===name);if(!recipe)continue;mapped+=qty;const yieldQty=Number(recipe.yield_quantity||1)||1;for(const ri of recipeItems.filter(x=>x.recipe_id===recipe.id)){const need=Number(ri.quantity||0)*(qty/yieldQty);totals.set(ri.item_id,(totals.get(ri.item_id)||0)+need);}}}const rows=[...totals.entries()].map(([item_id,required])=>{const i=inventoryMap.get(item_id);const current=Number(i?.current_quantity||0);return {item_id,required,current,shortage:Math.max(required-current,0),name:i?.name||"Insumo não cadastrado",unit:i?.unit||"un",cost:Number(i?.average_cost||0)};}).filter(x=>x.required>0).sort((a,b)=>b.shortage-a.shortage);return {rows,mapped};},[actionableOrders,inventoryMap,recipeItems,recipes,recipeMap]);
   const productionSummary=useMemo(()=>({orders:actionableOrders.length,mapped:plannedNeeds.mapped,items:plannedNeeds.rows.filter(x=>x.shortage>0).length,estimated:plannedNeeds.rows.reduce((s,x)=>s+x.shortage*x.cost,0)}),[actionableOrders.length,plannedNeeds]);
+
+  const campaignSummary=useMemo(()=> {
+    const map=new Map<string,{campaign:string;source:string;visits:number;leads:number;orders:number;revenue:number}>();
+    acquisitionEvents.forEach(e=>{
+      const campaign=String(e?.metadata?.campaign||"").trim();
+      if(!campaign) return;
+      const key=(e.source||"direct")+"::"+campaign;
+      const current=map.get(key)||{campaign,source:e.source||"direct",visits:0,leads:0,orders:0,revenue:0};
+      if(e.event==="site_visit") current.visits++;
+      if(e.event==="lead_captured") current.leads++;
+      map.set(key,current);
+    });
+    orders.forEach(o=>{
+      const campaign=String(o.acquisition_campaign||"").trim();
+      if(!campaign) return;
+      const source=o.acquisition_source||"direct";
+      const key=source+"::"+campaign;
+      const current=map.get(key)||{campaign,source,visits:0,leads:0,orders:0,revenue:0};
+      current.orders++;
+      current.revenue+=Number(o.total||0);
+      map.set(key,current);
+    });
+    return [...map.values()].sort((a,b)=>b.revenue-a.revenue).slice(0,10);
+  },[acquisitionEvents,orders]);
 
   const acquisitionSummary=useMemo<Acquisition[]>(()=>{
     const sources=["instagram","google","facebook","tiktok","direct"];
@@ -458,6 +482,12 @@ export default function NFCorePage(){
       </section>
 
       <section className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#0d0a07] p-5">
+        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.02] p-4">
+          <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Campanhas</div>
+          <h3 className="mt-1 text-base font-black">Quais campanhas estão vendendo?</h3>
+          <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-xs"><thead><tr className="border-b border-white/8 text-[9px] uppercase tracking-wider text-white/25"><th className="pb-3">Campanha</th><th>Origem</th><th>Visitas</th><th>Cadastros</th><th>Pedidos</th><th>Vendas</th></tr></thead><tbody>{campaignSummary.length?campaignSummary.map(a=><tr key={a.source+"-"+a.campaign} className="border-b border-white/5"><td className="py-3 font-black">{a.campaign}</td><td className="uppercase text-white/45">{a.source}</td><td>{a.visits}</td><td>{a.leads}</td><td>{a.orders}</td><td className="font-black text-[#ef7d18]">{money(a.revenue)}</td></tr>):<tr><td colSpan={6} className="py-6 text-center text-white/30">As campanhas aparecerão aqui quando os links UTM começarem a receber acessos.</td></tr>}</tbody></table></div>
+        </div>
+
         <div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Aquisição</div><h2 className="mt-1 text-lg font-black">De onde estão vindo os clientes?</h2><p className="mt-1 text-xs text-white/35">Instagram, Google, Facebook, TikTok e acesso direto.</p></div>
         <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs"><thead><tr className="border-b border-white/8 text-[9px] uppercase tracking-wider text-white/25"><th className="pb-3">Origem</th><th>Visitas</th><th>Cadastros</th><th>Pedidos</th><th>Vendas</th><th>Ticket médio</th><th>Conversão</th></tr></thead><tbody>{acquisitionSummary.map(a=>{const conversion=a.visits?((a.orders/a.visits)*100):0;return <tr key={a.source} className="border-b border-white/5"><td className="py-3 font-black uppercase">{a.source}</td><td>{a.visits}</td><td>{a.leads}</td><td>{a.orders}</td><td>{money(a.revenue)}</td><td>{money(a.avgTicket)}</td><td className="font-black text-[#a7b86a]">{conversion.toFixed(1)}%</td></tr>})}</tbody></table></div>
       </section>
