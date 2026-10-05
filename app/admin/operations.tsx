@@ -44,6 +44,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [recipeItems,setRecipeItems]=useState<RecipeItem[]>([]);
   const [purchaseAlerts,setPurchaseAlerts]=useState<PurchaseAlert[]>([]);
   const [suppliers,setSuppliers]=useState<Supplier[]>([]);
+  const [supplierForm,setSupplierForm]=useState({name:"",contact_name:"",whatsapp:"",email:""});
   const [purchaseSupplier,setPurchaseSupplier]=useState<string>("Todos os fornecedores");
   const [inventorySearch,setInventorySearch]=useState("");
   const [inventoryCategory,setInventoryCategory]=useState("Todas as categorias");
@@ -89,6 +90,25 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const interval=window.setInterval(()=>{void load(true);},30000);
     return ()=>window.clearInterval(interval);
   },[section]);
+
+  async function addSupplier(){
+    if(!supplierForm.name.trim())return;
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/suppliers",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:supplierForm.name.trim(),contact_name:supplierForm.contact_name.trim()||null,whatsapp:supplierForm.whatsapp.trim()||null,email:supplierForm.email.trim()||null,active:true})});
+      setSupplierForm({name:"",contact_name:"",whatsapp:"",email:""});await load();
+    }catch{setError("Não foi possível cadastrar o fornecedor. Confira se o nome já existe.");}
+    finally{setBusy(false);}
+  }
+  async function toggleSupplier(s:Supplier){
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/suppliers?id=eq."+s.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({active:!s.active})});
+      if(purchaseSupplier===s.name&&s.active)setPurchaseSupplier("Todos os fornecedores");
+      await load();
+    }catch{setError("Não foi possível alterar o fornecedor.");}
+    finally{setBusy(false);}
+  }
 
   async function addStockItem(){
     if(!stockForm.name.trim())return;
@@ -334,7 +354,10 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <input value={stockForm.unit} onChange={e=>setStockForm({...stockForm,unit:e.target.value})} placeholder="Unidade" className={input}/>
       <input type="number" step="0.001" value={stockForm.minimum_quantity} onChange={e=>setStockForm({...stockForm,minimum_quantity:e.target.value})} placeholder="Estoque mínimo" className={input}/>
       <input type="number" step="0.01" value={stockForm.average_cost} onChange={e=>setStockForm({...stockForm,average_cost:e.target.value})} placeholder="Custo médio" className={input}/>
-      <input value={stockForm.supplier} onChange={e=>setStockForm({...stockForm,supplier:e.target.value})} placeholder="Fornecedor" className={input}/>
+      <select value={stockForm.supplier} onChange={e=>setStockForm({...stockForm,supplier:e.target.value})} className={input}>
+        <option value="">Fornecedor (opcional)</option>
+        {suppliers.filter(s=>s.active).map(s=><option key={s.id} value={s.name}>{s.name}</option>)}
+      </select>
       <button onClick={()=>void addStockItem()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Cadastrar insumo</button>
     </div>
     <div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.05] p-4">
@@ -408,6 +431,20 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-xl border border-[#ef7d18]/30 px-3 py-2.5 text-xs font-bold text-[#ef7d18]">Excluir</button>
         </div>
       </div>)}
+    </div>
+    <div className="mb-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div><div className="text-sm font-black">Fornecedores</div><div className="mt-1 text-xs text-white/40">Cadastre os fornecedores para aparecerem no estoque e no registro de compras.</div></div>
+        <div className="text-xs font-bold text-white/35">{suppliers.length} fornecedor(es)</div>
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <input value={supplierForm.name} onChange={e=>setSupplierForm({...supplierForm,name:e.target.value})} placeholder="Nome do fornecedor *" className={input}/>
+        <input value={supplierForm.contact_name} onChange={e=>setSupplierForm({...supplierForm,contact_name:e.target.value})} placeholder="Contato" className={input}/>
+        <input value={supplierForm.whatsapp} onChange={e=>setSupplierForm({...supplierForm,whatsapp:e.target.value})} placeholder="WhatsApp" className={input}/>
+        <input type="email" value={supplierForm.email} onChange={e=>setSupplierForm({...supplierForm,email:e.target.value})} placeholder="E-mail" className={input}/>
+        <button onClick={()=>void addSupplier()} disabled={busy||!supplierForm.name.trim()} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black disabled:opacity-40">Cadastrar fornecedor</button>
+      </div>
+      {suppliers.length>0&&<div className="mt-3 flex flex-wrap gap-2">{suppliers.map(s=><button key={s.id} onClick={()=>void toggleSupplier(s)} disabled={busy} title={s.active?"Desativar fornecedor":"Reativar fornecedor"} className={"rounded-full border px-3 py-2 text-xs font-bold "+(s.active?"border-[#a7b86a]/30 bg-[#a7b86a]/10 text-[#c4d38c]":"border-white/10 bg-white/5 text-white/40")}>{s.name} · {s.active?"Ativo":"Inativo"}</button>)}</div>}
     </div>
     <div className="mb-5">
       <div className="mb-3 grid gap-3 sm:grid-cols-3">
