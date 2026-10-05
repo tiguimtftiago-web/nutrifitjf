@@ -206,8 +206,8 @@ export default function NFCorePage(){
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g,"")
-      .replace(/[^a-z0-9\\s]/g," ")
-      .replace(/\\s+/g," ")
+      .replace(/[^a-z0-9\s]/g," ")
+      .replace(/\s+/g," ")
       .trim();
 
     const original=raw.trim();
@@ -230,7 +230,8 @@ export default function NFCorePage(){
     const asksCloseRoutine=has("fechar o dia","encerrar o dia","fechamento do dia","fim do dia");
 
     // Super comandos: atalhos curtos que sempre têm prioridade sobre a interpretação natural.
-    const slash=original.toLowerCase().match(/^\\/([a-z0-9_]+)/)?.[1]||"";
+    const slashMatch=original.toLowerCase().match(/^\/([a-z0-9_]+)/);
+    const slash=slashMatch?.[1]||"";
     const slashHandlers:Record<string,()=>void>={
       vendas:()=>respond(`Vendas hoje: ${todayOrders.length} pedido(s), ${money(todayRevenue)} faturados. ${todayOrders.length?"Posso detalhar o movimento por pedido.":"Ainda não há vendas registradas hoje."}`),
       pedidos:()=>respond(`Pedidos: ${pending.length} aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota. Total carregado: ${orders.length}.`),
