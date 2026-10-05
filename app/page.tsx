@@ -29,18 +29,25 @@ const trackClick = (event: string, source: string) => {
   }
 };
 
-const getAcquisitionSource = () => {
-  if (typeof window === "undefined") return "direct";
+const getAcquisitionData = () => {
+  if (typeof window === "undefined") return { source: "direct", campaign: "", medium: "", content: "" };
   const params = new URLSearchParams(window.location.search);
   const explicitSource = params.get("utm_source") || params.get("source") || "";
-  if (explicitSource) return explicitSource.toLowerCase();
   const referrer = document.referrer.toLowerCase();
-  if (referrer.includes("instagram.com")) return "instagram";
-  if (referrer.includes("facebook.com") || referrer.includes("fb.com")) return "facebook";
-  if (referrer.includes("tiktok.com")) return "tiktok";
-  if (referrer.includes("google.")) return "google";
-  return "direct";
+  const source = (explicitSource || (
+    referrer.includes("instagram.com") ? "instagram" :
+    referrer.includes("facebook.com") || referrer.includes("fb.com") ? "facebook" :
+    referrer.includes("tiktok.com") ? "tiktok" :
+    referrer.includes("google.") ? "google" : "direct"
+  )).toLowerCase();
+  return {
+    source,
+    campaign: (params.get("utm_campaign") || "").trim(),
+    medium: (params.get("utm_medium") || "").trim(),
+    content: (params.get("utm_content") || "").trim(),
+  };
 };
+const getAcquisitionSource = () => getAcquisitionData().source;
 
 type Product = {
   name: string;
@@ -1334,6 +1341,10 @@ export default function Home() {
             cep: orderCep.replace(/\D/g, "") || null,
             neighborhood: orderDelivery?.neighborhood || null,
             notes: notesText || null,
+            acquisition_source: acquisitionSource,
+            acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
+            acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
+            acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
           }),
         });
 
@@ -1392,21 +1403,32 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
-      if (saved?.nutrifitClub) return;
-      const source = getAcquisitionSource();
+      const acquisition = getAcquisitionData();
       const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
-      if (!previousSource || source !== "direct") {
-        window.localStorage.setItem("nutrifit_acquisition_source", source);
+      if (!previousSource || acquisition.source !== "direct") {
+        window.localStorage.setItem("nutrifit_acquisition_source", acquisition.source);
       }
+      if (acquisition.campaign) window.localStorage.setItem("nutrifit_acquisition_campaign", acquisition.campaign);
+      if (acquisition.medium) window.localStorage.setItem("nutrifit_acquisition_medium", acquisition.medium);
+      if (acquisition.content) window.localStorage.setItem("nutrifit_acquisition_content", acquisition.content);
       void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
         method: "POST",
         headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
         keepalive: true,
-        body: JSON.stringify({ event: "site_visit", source, page: window.location.pathname }),
+        body: JSON.stringify({
+          event: "site_visit",
+          source: acquisition.source,
+          page: window.location.pathname,
+          metadata: { campaign: acquisition.campaign || null, medium: acquisition.medium || null, content: acquisition.content || null },
+        }),
       }).catch(() => {});
     } catch {}
-    setLeadPromptOpen(true);
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
+      if (!saved?.nutrifitClub) setLeadPromptOpen(true);
+    } catch {
+      setLeadPromptOpen(true);
+    }
   }, []);
 
   const saveProfile = async () => {
@@ -1434,6 +1456,10 @@ export default function Home() {
           nutrifit_club_joined_at: new Date().toISOString(),
           marketing_consent: profileMarketing,
           marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
+          acquisition_source: window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource(),
+          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
+          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
+          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
         }),
       });
 
@@ -1457,6 +1483,7 @@ export default function Home() {
       setCustomerPhone(phone);
       setProfileStatus("success");
       const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+      const acquisition = getAcquisitionData();
       trackClick("profile_save", acquisitionSource);
       trackClick("lead_captured", acquisitionSource);
       window.setTimeout(() => setProfileOpen(false), 700);
