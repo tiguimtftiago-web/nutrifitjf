@@ -206,13 +206,14 @@ export default function NFCorePage(){
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g,"")
-      .replace(/[^a-z0-9\s]/g," ")
-      .replace(/\s+/g," ")
+      .replace(/[^a-z0-9\\s]/g," ")
+      .replace(/\\s+/g," ")
       .trim();
 
+    const original=raw.trim();
     const q=normalize(raw);
     if(!q)return;
-    setLastCommand(raw.trim());
+    setLastCommand(original);
 
     const has=(...terms:string[])=>terms.some(term=>q.includes(term));
     const asksAttention=has("atencao","problema","problemas","alerta","alertas","urgente","preocupacao","preocupacoes","pegando","complicado","critico","criticos","o que esta acontecendo","o que esta errado");
@@ -228,11 +229,50 @@ export default function NFCorePage(){
     const asksMorningRoutine=has("rotina de abertura","abrir o dia","comecei o dia","inicio do dia","comecar o dia");
     const asksCloseRoutine=has("fechar o dia","encerrar o dia","fechamento do dia","fim do dia");
 
+    // Super comandos: atalhos curtos que sempre têm prioridade sobre a interpretação natural.
+    const slash=original.toLowerCase().match(/^\\/([a-z0-9_]+)/)?.[1]||"";
+    const slashHandlers:Record<string,()=>void>={
+      vendas:()=>respond(`Vendas hoje: ${todayOrders.length} pedido(s), ${money(todayRevenue)} faturados. ${todayOrders.length?"Posso detalhar o movimento por pedido.":"Ainda não há vendas registradas hoje."}`),
+      pedidos:()=>respond(`Pedidos: ${pending.length} aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota. Total carregado: ${orders.length}.`),
+      estoque:()=>respond(lowStock.length?`Estoque crítico: ${lowStock.length} item(ns). ${lowStock.slice(0,6).map(i=>`${i.name}: ${i.current_quantity} ${i.unit}, mínimo ${i.minimum_quantity}.`).join(" ")}`:"Estoque dentro dos mínimos cadastrados."),
+      compras:()=>{ if(lowStock.length){setPurchaseDraft(true);respond(`Encontrei ${lowStock.length} item(ns) para compra. O rascunho está pronto para sua confirmação.`);}else respond("Não há itens abaixo dos mínimos para montar uma compra agora."); },
+      producao:()=>{setPlanning(true);respond(productionSummary.orders?`Produção: ${productionSummary.orders} pedido(s) elegíveis, ${productionSummary.mapped} unidade(s) mapeadas e ${productionSummary.items} insumo(s) com falta.`:"Não há pedidos elegíveis para planejamento agora.");},
+      b2b:()=>respond(`B2B: ${openLeads.length} lead(s) em aberto de ${leads.length} cadastrados.`),
+      whatsapp:()=>respond(`WhatsApp: ${messages.length} mensagens carregadas e ${messages.filter(m=>!m.processed).length} pendente(s) de processamento.`),
+      alertas:()=>respond(insight),
+      resumo:()=>respond(`Resumo: ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas, ${pending.length} aguardando, ${prep.length} em preparo, ${delivery.length} em rota, ${lowStock.length} alerta(s) de estoque e ${openLeads.length} lead(s) B2B em aberto.`),
+      hoje:()=>respond(`Hoje: ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas. Prioridades: ${[lowStock.length?`${lowStock.length} alerta(s) de estoque`:"estoque OK",pending.length?`${pending.length} pedido(s) aguardando`:"sem pedidos pendentes",openLeads.length?`${openLeads.length} lead(s) B2B`:"sem lead(s) B2B pendente(s)"].join("; ")}.`),
+      amanha:()=>respond("Amanhã: ainda não existe uma agenda operacional futura consolidada nesta tela. Posso usar os pedidos já registrados e o planejamento de produção para preparar a próxima operação."),
+      cliente:()=>respond(`Clientes: há ${orders.length} pedido(s) carregados. Para um cliente específico, diga o nome depois de /cliente e eu procuro nos pedidos carregados.`),
+      produto:()=>respond(`Produtos: o catálogo tem ${catalog.length} produto(s) ativo(s) carregado(s). Diga o nome do produto depois de /produto para eu localizar o item.`),
+      cardapio:()=>respond(`Cardápio: ${catalog.length} produto(s) ativo(s) carregado(s). Posso cruzar os produtos com os pedidos para orientar a operação.`),
+      marketing:()=>respond("Marketing: posso estruturar uma ação comercial da Nutrifit com oferta, público, argumento, conteúdo e chamada para ação. Diga o objetivo ou produto."),
+      conteudo:()=>respond("Conteúdo: posso criar um plano de posts, Reels e Stories baseado em um produto, campanha ou objetivo da Nutrifit."),
+      followup:()=>respond(`Follow-up: ${openLeads.length} lead(s) B2B estão em aberto. Posso priorizar os contatos pelo status cadastrado.`),
+      prioridades:()=>{const p:string[]=[];if(lowStock.length)p.push(`${lowStock.length} alerta(s) de estoque`);if(pending.length)p.push(`${pending.length} pedido(s) aguardando`);if(openLeads.length)p.push(`${openLeads.length} lead(s) B2B em aberto`);respond(p.length?`Minhas prioridades agora: ${p.join("; ")}.`:"Nenhuma prioridade crítica identificada agora.");},
+      offer:()=>respond("Oferta: diga qual produto ou campanha você quer vender e eu estruturo a oferta com preço, benefício, argumento e CTA."),
+      standout:()=>respond("Destaque: diga qual produto, serviço ou diferencial da Nutrifit você quer posicionar e eu monto o argumento de diferenciação."),
+      content:()=>respond("Conteúdo: diga o tema ou produto e eu preparo a estrutura do conteúdo."),
+      ad:()=>respond("Anúncio: diga o produto, público e objetivo. Eu estruturo benefício, mensagem e chamada para ação."),
+      proposal:()=>respond("Proposta: diga a empresa ou cliente e o objetivo. Eu estruturo uma proposta objetiva."),
+      objections:()=>respond("Objeções: diga qual produto ou oferta está sendo vendida e eu preparo respostas para as principais objeções."),
+      negotiation:()=>respond("Negociação: diga o cliente, oferta e limite desejado. Eu organizo argumentos, concessões e próximos passos."),
+      retention:()=>respond("Retenção: posso montar uma ação para recuperar clientes. Diga o produto ou público que quer recuperar.")
+    };
+
+    if(slash){
+      const handler=slashHandlers[slash];
+      if(handler){handler();setCommand("");return;}
+      respond(`O comando /${slash} ainda não está cadastrado. Use /vendas, /pedidos, /estoque, /compras, /producao, /b2b, /whatsapp, /alertas, /resumo, /hoje, /cliente, /produto, /marketing ou /prioridades.`);
+      setCommand("");
+      return;
+    }
+
     if(asksMorningRoutine){
       const parts=[
         `Bom dia. A operação tem ${todayOrders.length} pedido(s) hoje, ${money(todayRevenue)} em vendas, ${pending.length} pendente(s), ${lowStock.length} alerta(s) de estoque e ${openLeads.length} lead(s) B2B em aberto.`,
         lowStock.length?`Prioridade de compra: ${lowStock.slice(0,3).map(i=>i.name).join(", ")}.`:"",
-        pending.length?`Prioridade de pedidos: ${pending}.`:""
+        pending.length?`Prioridade de pedidos: ${pending.slice(0,3).map(o=>o.customer_name||"cliente").join(", ")}.`:""
       ].filter(Boolean);
       respond(parts.join(" "));
     }else if(asksCloseRoutine){
@@ -276,14 +316,11 @@ export default function NFCorePage(){
       respond(`Tenho ${openLeads.length} lead(s) B2B em aberto de ${leads.length} cadastrados.`);
     }else if(asksWhatsApp){
       respond(`Há ${messages.length} mensagens carregadas; ${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.`);
-    }else if(has("resumo","status","situacao","como estamos","como esta a operacao","como esta tudo","me atualiza","me atualize","me fala como esta","me diga como esta")){
-      respond(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
     }else{
-      respond("Entendi a pergunta, mas ainda não encontrei uma área operacional correspondente. Tente falar naturalmente sobre vendas, pedidos, estoque, produção, compras, B2B, WhatsApp ou problemas da operação.");
+      respond(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
     }
     setCommand("");
   }
-
   if(!token)return <main className="min-h-screen bg-[#080a07] p-6 text-white"><div className="mx-auto mt-20 max-w-md rounded-3xl border border-white/10 bg-[#0d110b] p-6"><Bot className="text-[#a7b86a]" size={32}/><h1 className="mt-4 text-2xl font-black">NF CORE</h1><p className="mt-2 text-sm text-white/50">Entre no painel administrativo primeiro para usar o agente.</p><a href="/admin" className="mt-5 block rounded-full bg-[#a7b86a] px-5 py-3 text-center font-black text-black">Abrir painel</a></div></main>;
 
   const cards=[
@@ -380,17 +417,37 @@ export default function NFCorePage(){
 
 
       <section className="mt-4 rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Habilidades do NF CORE</div><div className="mt-1 text-xs text-white/35">Cada atalho chama uma função operacional específica.</div></div>
-          <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-2.5 py-1 text-[8px] font-black uppercase tracking-widest text-[#a7b86a]">4 módulos</span>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Super comandos do NF CORE</div><div className="mt-1 text-xs text-white/35">Fale naturalmente ou use /comando para acionar uma habilidade diretamente.</div></div>
+          <span className="w-fit rounded-full border border-[#ef7d18]/20 bg-[#ef7d18]/5 px-2.5 py-1 text-[8px] font-black uppercase tracking-widest text-[#ef7d18]">20 habilidades</span>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
           {[
-            ["Resumo","Faça meu resumo do dia","rotina",BarChart3],
-            ["Atenção","O que precisa da minha atenção?","rotina",Target],
-            ["Produção","Planeje a produção","exec",Factory],
-            ["Compras","Prepare um rascunho de compra","exec",Package]
-          ].map(([label,cmd,kind,Icon]:any)=><button key={label} onClick={()=>runCommand(String(cmd))} className="rounded-xl border border-white/7 bg-white/[.025] p-3 text-left transition hover:border-[#a7b86a]/30 hover:bg-[#a7b86a]/5"><div className="flex items-center justify-between"><Icon size={15} className="text-[#a7b86a]"/><span className={"rounded-full px-1.5 py-0.5 text-[7px] font-black uppercase tracking-wider "+(kind==="exec"?"bg-[#ef7d18]/10 text-[#ef7d18]":"bg-[#a7b86a]/10 text-[#a7b86a]")}>{kind==="exec"?"AÇÃO":"LEITURA"}</span></div><div className="mt-2 text-[10px] font-black uppercase tracking-wider">{label}</div><div className="mt-1 line-clamp-2 text-[9px] leading-4 text-white/30">{cmd}</div></button>)}
+            ["/vendas","Vendas","Analisar faturamento",BarChart3],
+            ["/pedidos","Pedidos","Status da operação",ShoppingBag],
+            ["/estoque","Estoque","Itens críticos",Package],
+            ["/compras","Compras","Preparar compra",Wallet],
+            ["/producao","Produção","Planejar produção",Factory],
+            ["/b2b","B2B","Leads e empresas",Users],
+            ["/whatsapp","WhatsApp","Mensagens",MessageCircle],
+            ["/alertas","Alertas","O que exige atenção",Target],
+            ["/resumo","Resumo","Visão completa",Activity],
+            ["/hoje","Hoje","Prioridades do dia",CircleDot],
+            ["/cliente","Cliente","Histórico de pedidos",Users],
+            ["/produto","Produto","Análise do item",Package],
+            ["/cardapio","Cardápio","Produtos ativos",ShoppingBag],
+            ["/marketing","Marketing","Ação comercial",Sparkles],
+            ["/conteudo","Conteúdo","Posts e Reels",MessageCircle],
+            ["/followup","Follow-up","Retornos pendentes",RefreshCw],
+            ["/prioridades","Prioridades","Top ações agora",Target],
+            ["/offer","Oferta","Estruturar oferta",Wallet],
+            ["/negotiation","Negociação","Argumentos e limites",Users],
+            ["/retention","Retenção","Recuperar clientes",RefreshCw]
+          ].map(([cmd,label,desc,Icon]:any)=><button key={cmd} onClick={()=>runCommand(String(cmd))} className="group rounded-xl border border-white/7 bg-white/[.025] p-3 text-left transition hover:border-[#a7b86a]/35 hover:bg-[#a7b86a]/5">
+            <div className="flex items-center justify-between"><Icon size={15} className="text-[#a7b86a]"/><span className="text-[8px] font-black text-[#ef7d18]">{cmd}</span></div>
+            <div className="mt-2 text-[10px] font-black uppercase tracking-wider">{label}</div>
+            <div className="mt-1 line-clamp-2 text-[9px] leading-4 text-white/30">{desc}</div>
+          </button>)}
         </div>
       </section>
 
