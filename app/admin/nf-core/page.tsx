@@ -219,12 +219,32 @@ export default function NFCorePage(){
     const asksSales=has("venda","vendas","faturamento","faturar","receita","receitas","faturou","faturamos","quanto vendemos","quanto entrou","dinheiro entrou","movimento");
     const asksOrders=has("pedido","pedidos","encomenda","encomendas","cliente pediu","aguardando","atrasado","atrasados","em rota","entrega");
     const asksStock=has("estoque","estoques","insumo","insumos","ingrediente","ingredientes","material","materiais","comprar","compra","compras","faltando","falta","acabando","baixo","minimo");
-    const asksProduction=has("producao","produzir","produzindo","preparo","preparar","fabricar","fabricacao","montagem","cozinha","ficha tecnica","fichas tecnicas","planejamento");
+    const asksProduction=has("producao","produzir","produzindo","preparo","preparar","fabricar","fabricacao","montagem","cozinha","ficha tecnica","fichas tecnicas","planejamento","planejar");
     const asksB2B=has("b2b","empresa","empresas","corporativo","corporativas","cliente empresarial","lead","leads");
     const asksWhatsApp=has("whatsapp","mensagem","mensagens","conversa","conversas","atendimento");
-    const asksPurchaseDraft=has("rascunho de compra","preparar compra","montar compra","criar compra");
+    const asksPurchaseDraft=has("rascunho de compra","preparar compra","montar compra","criar compra","prepare a compra","prepara a compra");
+    const asksDailyBrief=has("resumo do dia","resumo de hoje","briefing","me atualiza","me atualize","como esta tudo","como estamos");
+    const asksPlan=has("planejar producao","planejamento de producao","organizar producao","organize a producao","o que produzir","planeje a producao");
+    const asksMorningRoutine=has("rotina de abertura","abrir o dia","comecei o dia","inicio do dia","comecar o dia");
+    const asksCloseRoutine=has("fechar o dia","encerrar o dia","fechamento do dia","fim do dia");
 
-    if(asksPurchaseDraft){
+    if(asksMorningRoutine){
+      const parts=[
+        `Bom dia. A operação tem ${todayOrders.length} pedido(s) hoje, ${money(todayRevenue)} em vendas, ${pending.length} pendente(s), ${lowStock.length} alerta(s) de estoque e ${openLeads.length} lead(s) B2B em aberto.`,
+        lowStock.length?`Prioridade de compra: ${lowStock.slice(0,3).map(i=>i.name).join(", ")}.`:"",
+        pending.length?`Prioridade de pedidos: ${pending}.`:""
+      ].filter(Boolean);
+      respond(parts.join(" "));
+    }else if(asksCloseRoutine){
+      respond(`Fechamento: ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas, ${delivery.length} em rota e ${messages.filter(m=>!m.processed).length} mensagem(ns) do WhatsApp pendente(s). ${lowStock.length?lowStock.length+" alerta(s) de estoque ainda precisam de atenção.":"Sem alerta crítico de estoque."}`);
+    }else if(asksDailyBrief){
+      respond(`Resumo do dia: ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas, ${pending.length} aguardando ação, ${prep.length} em preparo, ${delivery.length} em rota, ${lowStock.length} alerta(s) de estoque e ${openLeads.length} lead(s) B2B em aberto.`);
+    }else if(asksPlan){
+      setPlanning(true);
+      respond(productionSummary.orders
+        ? `Planejamento executado. Cruzei ${productionSummary.orders} pedido(s) com as fichas técnicas: ${productionSummary.mapped} unidade(s) mapeadas e ${productionSummary.items} insumo(s) com falta. O painel abaixo mostra o que precisa ser comprado.`
+        : "Não há pedidos elegíveis para planejamento neste momento.");
+    }else if(asksPurchaseDraft){
       if(lowStock.length){
         setPurchaseDraft(true);
         respond(`Posso preparar um rascunho com ${lowStock.length} item(ns) abaixo ou no mínimo do estoque. Nada será enviado sem sua confirmação.`);
@@ -343,8 +363,8 @@ export default function NFCorePage(){
             <button onClick={()=>runCommand()} className="min-w-[104px] rounded-2xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-[0_0_28px_rgba(239,125,24,.20)]">EXECUTAR</button>
           </div>
           <div className="mt-2 flex items-center gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"shrink-0 text-[#ef7d18]":"shrink-0 text-[#a7b86a]"}/><span className="min-w-0 flex-1">{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":"Toque no microfone, permita o acesso ao microfone se o navegador solicitar e fale normalmente.")}</span><button type="button" onClick={()=>setVoiceReply(v=>!v)} className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white/40">{voiceReply?"Voz ON":"Voz OFF"}</button></div>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {["Faça meu resumo do dia","O que precisa da minha atenção?","Planeje a produção","Prepare um rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
 
         </div>
@@ -366,11 +386,11 @@ export default function NFCorePage(){
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {[
-            ["Métricas","Como estão as vendas hoje?",BarChart3],
-            ["Estoque","O que preciso comprar?",Package],
-            ["Pedidos","Quantos pedidos estão pendentes?",ShoppingBag],
-            ["B2B","Como está o B2B?",Users]
-          ].map(([label,cmd,Icon]:any)=><button key={label} onClick={()=>runCommand(String(cmd))} className="rounded-xl border border-white/7 bg-white/[.025] p-3 text-left transition hover:border-[#a7b86a]/30 hover:bg-[#a7b86a]/5"><Icon size={15} className="text-[#a7b86a]"/><div className="mt-2 text-[10px] font-black uppercase tracking-wider">{label}</div><div className="mt-1 line-clamp-2 text-[9px] leading-4 text-white/30">{cmd}</div></button>)}
+            ["Resumo","Faça meu resumo do dia","rotina",BarChart3],
+            ["Atenção","O que precisa da minha atenção?","rotina",Target],
+            ["Produção","Planeje a produção","exec",Factory],
+            ["Compras","Prepare um rascunho de compra","exec",Package]
+          ].map(([label,cmd,kind,Icon]:any)=><button key={label} onClick={()=>runCommand(String(cmd))} className="rounded-xl border border-white/7 bg-white/[.025] p-3 text-left transition hover:border-[#a7b86a]/30 hover:bg-[#a7b86a]/5"><div className="flex items-center justify-between"><Icon size={15} className="text-[#a7b86a]"/><span className={"rounded-full px-1.5 py-0.5 text-[7px] font-black uppercase tracking-wider "+(kind==="exec"?"bg-[#ef7d18]/10 text-[#ef7d18]":"bg-[#a7b86a]/10 text-[#a7b86a]")}>{kind==="exec"?"AÇÃO":"LEITURA"}</span></div><div className="mt-2 text-[10px] font-black uppercase tracking-wider">{label}</div><div className="mt-1 line-clamp-2 text-[9px] leading-4 text-white/30">{cmd}</div></button>)}
         </div>
       </section>
 
