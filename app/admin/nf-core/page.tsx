@@ -51,6 +51,25 @@ export default function NFCorePage(){
   const [error,setError]=useState("");
   const [purchaseDraft,setPurchaseDraft]=useState(false);
   const [purchaseMessage,setPurchaseMessage]=useState("");
+  const [lastCommand,setLastCommand]=useState("");
+  const [voiceReply,setVoiceReply]=useState(true);
+
+  function speak(text:string){
+    if(typeof window==="undefined" || !voiceReply || !("speechSynthesis" in window))return;
+    try{
+      window.speechSynthesis.cancel();
+      const utterance=new SpeechSynthesisUtterance(text);
+      utterance.lang="pt-BR";
+      utterance.rate=1;
+      utterance.pitch=1;
+      window.speechSynthesis.speak(utterance);
+    }catch{}
+  }
+
+  function respond(text:string){
+    setAnswer(text);
+    speak(text);
+  }
 
   async function load(t=token){
     if(!t)return;
@@ -193,6 +212,7 @@ export default function NFCorePage(){
 
     const q=normalize(raw);
     if(!q)return;
+    setLastCommand(raw.trim());
 
     const has=(...terms:string[])=>terms.some(term=>q.includes(term));
     const asksAttention=has("atencao","problema","problemas","alerta","alertas","urgente","preocupacao","preocupacoes","pegando","complicado","critico","criticos","o que esta acontecendo","o que esta errado");
@@ -207,9 +227,9 @@ export default function NFCorePage(){
     if(asksPurchaseDraft){
       if(lowStock.length){
         setPurchaseDraft(true);
-        setAnswer(`Posso preparar um rascunho com ${lowStock.length} item(ns) abaixo ou no mínimo do estoque. Nada será enviado sem sua confirmação.`);
+        respond(`Posso preparar um rascunho com ${lowStock.length} item(ns) abaixo ou no mínimo do estoque. Nada será enviado sem sua confirmação.`);
       }else{
-        setAnswer("Não encontrei itens abaixo dos mínimos cadastrados para montar uma compra agora.");
+        respond("Não encontrei itens abaixo dos mínimos cadastrados para montar uma compra agora.");
       }
     }else if(asksAttention){
       const parts:string[]=[];
@@ -217,29 +237,29 @@ export default function NFCorePage(){
       if(pending.length)parts.push(`${pending.length} pedido(s) aguardam ação`);
       if(prep.length)parts.push(`${prep.length} pedido(s) estão em preparo`);
       if(openLeads.length)parts.push(`${openLeads.length} lead(s) B2B estão em aberto`);
-      setAnswer(parts.length
+      respond(parts.length
         ? `Minha leitura agora: ${parts.join("; ")}. ${insight}`
         : "Neste momento não identifiquei alertas críticos nos dados carregados.");
     }else if(asksSales){
-      setAnswer(`Hoje tivemos ${todayOrders.length} pedido(s) e ${money(todayRevenue)} em vendas. ${todayOrders.length===0?"Ainda não há pedidos registrados hoje.":"Posso detalhar os pedidos e o movimento comercial a partir desses dados."}`);
+      respond(`Hoje tivemos ${todayOrders.length} pedido(s) e ${money(todayRevenue)} em vendas. ${todayOrders.length===0?"Ainda não há pedidos registrados hoje.":"Posso detalhar os pedidos e o movimento comercial a partir desses dados."}`);
     }else if(asksOrders){
-      setAnswer(`Agora existem ${pending.length} pedido(s) aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota. Total carregado: ${orders.length} pedido(s).`);
+      respond(`Agora existem ${pending.length} pedido(s) aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota. Total carregado: ${orders.length} pedido(s).`);
     }else if(asksStock){
-      setAnswer(lowStock.length
+      respond(lowStock.length
         ? `Encontrei ${lowStock.length} item(ns) que merecem atenção: ${lowStock.slice(0,8).map(i=>`${i.name} (${i.current_quantity} ${i.unit}, mínimo ${i.minimum_quantity} ${i.unit})`).join("; ")}.`
         : "O estoque está acima dos mínimos cadastrados. Não há item crítico neste momento.");
     }else if(asksProduction){
-      setAnswer(productionSummary.orders
+      respond(productionSummary.orders
         ? `Tenho ${productionSummary.orders} pedido(s) elegíveis para planejamento, ${productionSummary.mapped} unidade(s) mapeadas pelas fichas técnicas e ${productionSummary.items} insumo(s) com falta.`
         : "Não há pedidos em confirmado, pago ou em preparo para planejar agora.");
     }else if(asksB2B){
-      setAnswer(`Tenho ${openLeads.length} lead(s) B2B em aberto de ${leads.length} cadastrados.`);
+      respond(`Tenho ${openLeads.length} lead(s) B2B em aberto de ${leads.length} cadastrados.`);
     }else if(asksWhatsApp){
-      setAnswer(`Há ${messages.length} mensagens carregadas; ${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.`);
+      respond(`Há ${messages.length} mensagens carregadas; ${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.`);
     }else if(has("resumo","status","situacao","como estamos","como esta a operacao","como esta tudo","me atualiza","me atualize","me fala como esta","me diga como esta")){
-      setAnswer(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
+      respond(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
     }else{
-      setAnswer("Entendi a pergunta, mas ainda não encontrei uma área operacional correspondente. Tente falar naturalmente sobre vendas, pedidos, estoque, produção, compras, B2B, WhatsApp ou problemas da operação.");
+      respond("Entendi a pergunta, mas ainda não encontrei uma área operacional correspondente. Tente falar naturalmente sobre vendas, pedidos, estoque, produção, compras, B2B, WhatsApp ou problemas da operação.");
     }
     setCommand("");
   }
@@ -304,7 +324,11 @@ export default function NFCorePage(){
         <div className="border-t border-[#ef7d18]/20 bg-gradient-to-b from-[#100b06]/90 to-black/30 p-4 sm:p-6">
           <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/80 p-4 shadow-[0_0_35px_rgba(167,184,106,.07)]">
             <div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 text-[#a7b86a]"><Bot size={16}/></div><div><div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Resposta do NF CORE</div><div className="text-[9px] text-white/25">ANÁLISE EM TEMPO REAL</div></div><span className="ml-auto flex items-center gap-1 text-[9px] font-bold text-[#a7b86a]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]"/> ONLINE</span></div>
-            <p className="mt-3 text-sm font-medium leading-6 text-white/80">{answer}</p>
+            {lastCommand&&<div className="mt-3 rounded-xl border border-white/6 bg-black/20 px-3 py-2"><div className="text-[8px] font-black uppercase tracking-[.18em] text-white/25">Comando recebido</div><div className="mt-1 text-xs text-white/50">“{lastCommand}”</div></div>}
+            <div className="mt-3 flex items-start gap-3">
+              <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#a7b86a] shadow-[0_0_12px_rgba(167,184,106,.7)]"/>
+              <p className="text-sm font-medium leading-6 text-white/85">{answer}</p>
+            </div>
           </div>
 
           <div className="mb-3 flex items-center gap-2 px-1"><Sparkles size={14} className="text-[#ef7d18]"/><span className="text-[10px] font-black uppercase tracking-[.22em] text-[#f4aa67]">Fale com o NF CORE</span><span className="ml-auto text-[9px] text-white/25">COMANDO DIRETO</span></div>
@@ -318,7 +342,7 @@ export default function NFCorePage(){
             </div>
             <button onClick={()=>runCommand()} className="min-w-[104px] rounded-2xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-[0_0_28px_rgba(239,125,24,.20)]">EXECUTAR</button>
           </div>
-          <div className="mt-2 flex items-start gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"mt-0.5 shrink-0 text-[#ef7d18]":"mt-0.5 shrink-0 text-[#a7b86a]"}/><span>{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":"Toque no microfone, permita o acesso ao microfone se o navegador solicitar e fale normalmente.")}</span></div>
+          <div className="mt-2 flex items-center gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"shrink-0 text-[#ef7d18]":"shrink-0 text-[#a7b86a]"}/><span className="min-w-0 flex-1">{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":"Toque no microfone, permita o acesso ao microfone se o navegador solicitar e fale normalmente.")}</span><button type="button" onClick={()=>setVoiceReply(v=>!v)} className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white/40">{voiceReply?"Voz ON":"Voz OFF"}</button></div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
@@ -334,6 +358,21 @@ export default function NFCorePage(){
       </section>
 
 
+
+      <section className="mt-4 rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Habilidades do NF CORE</div><div className="mt-1 text-xs text-white/35">Cada atalho chama uma função operacional específica.</div></div>
+          <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-2.5 py-1 text-[8px] font-black uppercase tracking-widest text-[#a7b86a]">4 módulos</span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            ["Métricas","Como estão as vendas hoje?",BarChart3],
+            ["Estoque","O que preciso comprar?",Package],
+            ["Pedidos","Quantos pedidos estão pendentes?",ShoppingBag],
+            ["B2B","Como está o B2B?",Users]
+          ].map(([label,cmd,Icon]:any)=><button key={label} onClick={()=>runCommand(String(cmd))} className="rounded-xl border border-white/7 bg-white/[.025] p-3 text-left transition hover:border-[#a7b86a]/30 hover:bg-[#a7b86a]/5"><Icon size={15} className="text-[#a7b86a]"/><div className="mt-2 text-[10px] font-black uppercase tracking-wider">{label}</div><div className="mt-1 line-clamp-2 text-[9px] leading-4 text-white/30">{cmd}</div></button>)}
+        </div>
+      </section>
 
       <section className="mt-4 rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
