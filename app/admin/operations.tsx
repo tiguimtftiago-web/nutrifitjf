@@ -349,11 +349,17 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
     </div>
     <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-7">
-      <input value={stockForm.name} onChange={e=>setStockForm({...stockForm,name:e.target.value})} placeholder="Insumo" className={input}/>
-      <input value={stockForm.category} onChange={e=>setStockForm({...stockForm,category:e.target.value})} placeholder="Categoria" className={input}/>
-      <input value={stockForm.unit} onChange={e=>setStockForm({...stockForm,unit:e.target.value})} placeholder="Unidade" className={input}/>
-      <input type="number" step="0.001" value={stockForm.minimum_quantity} onChange={e=>setStockForm({...stockForm,minimum_quantity:e.target.value})} placeholder="Estoque mínimo" className={input}/>
-      <input type="number" step="0.01" value={stockForm.average_cost} onChange={e=>setStockForm({...stockForm,average_cost:e.target.value})} placeholder="Custo médio" className={input}/>
+      <input value={stockForm.name} onChange={e=>setStockForm({...stockForm,name:e.target.value})} placeholder="Insumo" aria-label="Nome do insumo" className={input}/>
+      <input value={stockForm.category} onChange={e=>setStockForm({...stockForm,category:e.target.value})} placeholder="Categoria" aria-label="Categoria do insumo" className={input}/>
+      <input value={stockForm.unit} onChange={e=>setStockForm({...stockForm,unit:e.target.value})} placeholder="Unidade" aria-label="Unidade (kg, g, L ou un.)" className={input}/>
+      <div className="min-w-0">
+        <input type="number" min="0" step="0.001" value={stockForm.minimum_quantity} onChange={e=>setStockForm({...stockForm,minimum_quantity:e.target.value})} placeholder="Estoque mínimo" aria-label="Estoque mínimo" className={input}/>
+        <div className="mt-1 px-1 text-[11px] leading-4 text-white/40">Quantidade mínima que deve permanecer no estoque. Ex.: 10 kg.</div>
+      </div>
+      <div className="min-w-0">
+        <input type="number" min="0" step="0.01" value={stockForm.average_cost} onChange={e=>setStockForm({...stockForm,average_cost:e.target.value})} placeholder="Custo médio" aria-label="Custo médio por unidade" className={input}/>
+        <div className="mt-1 px-1 text-[11px] leading-4 text-white/40">Custo médio por unidade. Ex.: R$ 18,50/kg.</div>
+      </div>
       <select value={stockForm.supplier} onChange={e=>setStockForm({...stockForm,supplier:e.target.value})} className={input}>
         <option value="">Fornecedor (opcional)</option>
         {suppliers.filter(s=>s.active).map(s=><option key={s.id} value={s.name}>{s.name}</option>)}
