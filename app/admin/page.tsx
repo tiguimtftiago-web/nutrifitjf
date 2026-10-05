@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [orderProductions,setOrderProductions] = useState<OrderProduction[]>([]);
   const [purchaseAlerts,setPurchaseAlerts] = useState<PurchaseAlert[]>([]);
   const [pushStatus,setPushStatus] = useState<"idle"|"loading"|"enabled"|"denied"|"unsupported">("idle");
+  const [greeting,setGreeting] = useState("Bom dia");
 
   async function load(t=token, background=false) {
     if (!t) return;
@@ -109,6 +110,10 @@ export default function AdminPage() {
     setSearch("");
     setMobileMore(false);
   }, [section]);
+  useEffect(() => {
+    const hour=new Date().getHours();
+    setGreeting(hour>=18 ? "Boa noite" : hour>=12 ? "Boa tarde" : "Bom dia");
+  },[]);
 
   useEffect(() => {
     if (!token) return;
@@ -304,6 +309,13 @@ export default function AdminPage() {
   const filteredLeads=leads.filter(x=>!q||[x.company,x.contact_name,x.whatsapp,x.email].join(" ").toLowerCase().includes(q));
   const revenue=orders.reduce((s,x)=>s+Number(x.total||0),0);
   const activeOrders=orders.filter(x=>!["entregue","cancelado"].includes(x.status)).length;
+  const todayKey=new Date().toLocaleDateString("pt-BR");
+  const todayOrders=orders.filter(x=>new Date(x.created_at).toLocaleDateString("pt-BR")===todayKey);
+  const todayRevenue=todayOrders.reduce((s,x)=>s+Number(x.total||0),0);
+  const pendingOrders=orders.filter(x=>["enviado_whatsapp","novo","confirmado","pago_recebido"].includes(x.status));
+  const prepOrders=orders.filter(x=>["em_preparo"].includes(x.status));
+  const deliveryOrders=orders.filter(x=>x.status==="saiu_entrega");
+  const todayNewCustomers=customers.filter(x=>new Date(x.created_at).toLocaleDateString("pt-BR")===todayKey).length;
 
   if(!token) return (
     <main className="min-h-screen bg-[#080a07] px-5 py-10 text-white">
@@ -369,37 +381,103 @@ export default function AdminPage() {
           {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
 
                     {section==="resumo"&&<>
-            <div className="hidden lg:block"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div><h1 className="mt-1 text-3xl font-black">Nutrifit</h1></div>
-            {purchaseAlerts.length>0&&<button onClick={()=>setSection("estoque")} className="mb-4 w-full rounded-2xl border border-[#ef7d18]/40 bg-[#1b120a] p-4 text-left transition hover:bg-[#24170d] sm:rounded-3xl sm:p-5"><div className="flex items-center justify-between gap-3"><div><div className="text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18]">Atenção • Compras necessárias</div><div className="mt-1 text-lg font-black">{purchaseAlerts.length} {purchaseAlerts.length===1?"insumo precisa":"insumos precisam"} de atenção</div></div><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ef7d18]/15 text-[#ef9b55]"><Package size={17}/></div></div><div className="mt-3 flex flex-wrap gap-2">{purchaseAlerts.slice(0,4).map(a=><span key={a.item_id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#f1b06e]">{a.name}: {Number(a.shortage_quantity)>0?("falta "+Number(a.shortage_quantity).toLocaleString("pt-BR")+" "+a.unit):"estoque baixo"}</span>)}</div>{purchaseAlerts.length>4&&<div className="mt-2 text-xs text-white/40">+ {purchaseAlerts.length-4} outro(s) • toque para abrir a Lista de compras</div>}</button>}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                {label:"Pedidos",value:orders.length,Icon:ShoppingBag},
-                {label:"Faturamento",value:money(revenue),Icon:BarChart3},
-                {label:"Clientes",value:customers.length,Icon:Users},
-                {label:"WhatsApp",value:messages.length,Icon:MessageCircle},
-              ].map(({label,value,Icon})=><div key={label} className="rounded-2xl border border-white/10 bg-[#0d110b] p-4 sm:rounded-3xl sm:p-5"><Icon size={18} className="text-[#a7b86a]"/><div className="mt-3 text-xl font-black sm:mt-5 sm:text-2xl">{value}</div><div className="mt-1 text-[11px] text-white/40">{label}</div></div>)}
+            <div className="mb-6">
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão operacional</div>
+              <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{greeting}. O que precisa de atenção?</h1>
+              <p className="mt-2 text-sm text-white/40">Tudo que importa agora, em um único lugar.</p>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Em andamento</div><div className="mt-2 text-2xl font-black">{activeOrders}</div><div className="mt-1 text-xs text-white/35">pedidos</div></div>
-              <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">B2B</div><div className="mt-2 text-2xl font-black">{leads.length}</div><div className="mt-1 text-xs text-white/35">leads</div></div>
-            </div>
-            <div className="mt-5 lg:hidden">
-              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Ações rápidas</div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
-                  {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-                  {id:"estoque" as Section,label:"Estoque",Icon:Package},
-                  {id:"b2b" as Section,label:"B2B",Icon:Building2},
-                ].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left"><span className="flex items-center gap-3 text-sm font-black"><Icon size={18} className="text-[#a7b86a]"/>{label}</span><ChevronRight size={16} className="text-white/25"/></button>)}
+
+            {purchaseAlerts.length>0&&<button onClick={()=>setSection("estoque")} className="mb-5 w-full rounded-3xl border border-[#ef7d18]/35 bg-[#1b120a] p-4 text-left transition hover:bg-[#24170d] sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><Package size={19}/></div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18]">Precisa da sua atenção</div>
+                  <div className="mt-1 text-lg font-black">{purchaseAlerts.length} {purchaseAlerts.length===1?"item precisa":"itens precisam"} ser comprados</div>
+                  <div className="mt-3 flex flex-wrap gap-2">{purchaseAlerts.slice(0,4).map(a=><span key={a.item_id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#f1b06e]">{a.name} • {Number(a.shortage_quantity)>0?("falta "+Number(a.shortage_quantity).toLocaleString("pt-BR")+" "+a.unit):"estoque baixo"}</span>)}</div>
+                  {purchaseAlerts.length>4&&<div className="mt-2 text-xs text-white/40">+ {purchaseAlerts.length-4} outro(s) • abrir lista completa</div>}
+                </div>
+                <ChevronRight size={18} className="mt-2 shrink-0 text-[#ef9b55]"/>
               </div>
-              <div className="mt-5 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4">
-                <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Operação</div>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {[{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className="flex items-center gap-2 rounded-xl bg-black/20 px-3 py-3 text-xs font-bold"><Icon size={15}/>{label}</button>)}
+            </button>}
+
+            <section>
+              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Hoje</div>
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {[
+                  {label:"Pedidos",value:todayOrders.length,sub:pendingOrders.length+" aguardando ação",Icon:ShoppingBag},
+                  {label:"Produção",value:prepOrders.length,sub:"em preparo",Icon:Factory},
+                  {label:"Estoque",value:purchaseAlerts.length,sub:purchaseAlerts.length===1?"item para comprar":"itens para comprar",Icon:Package},
+                  {label:"Entregas",value:deliveryOrders.length,sub:"em rota",Icon:Truck},
+                ].map(({label,value,sub,Icon})=><button key={label} onClick={()=>setSection(label==="Pedidos"?"pedidos":label==="Produção"?"producao":label==="Estoque"?"estoque":"entregas")} className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 text-left transition hover:border-white/20 sm:p-5">
+                  <Icon size={19} className="text-[#a7b86a]"/>
+                  <div className="mt-4 text-2xl font-black">{value}</div>
+                  <div className="mt-1 text-sm font-bold">{label}</div>
+                  <div className="mt-1 text-xs text-white/35">{sub}</div>
+                </button>)}
+              </div>
+            </section>
+
+            <section className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_.6fr]">
+              <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Vendas de hoje</div>
+                    <div className="mt-2 text-3xl font-black">{money(todayRevenue)}</div>
+                    <div className="mt-1 text-xs text-white/35">{todayOrders.length} {todayOrders.length===1?"pedido":"pedidos"} registrados hoje</div>
+                  </div>
+                  <BarChart3 className="text-[#a7b86a]" size={22}/>
+                </div>
+                <div className="mt-5 grid grid-cols-3 gap-2">
+                  <button onClick={()=>setSection("pedidos")} className="rounded-2xl bg-white/[.035] p-3 text-left">
+                    <div className="text-[10px] text-white/35">Pedidos</div><b className="mt-1 block text-sm">{todayOrders.length}</b>
+                  </button>
+                  <button onClick={()=>setSection("clientes")} className="rounded-2xl bg-white/[.035] p-3 text-left">
+                    <div className="text-[10px] text-white/35">Novos clientes</div><b className="mt-1 block text-sm">{todayNewCustomers}</b>
+                  </button>
+                  <button onClick={()=>setSection("financeiro")} className="rounded-2xl bg-[#a7b86a]/10 p-3 text-left">
+                    <div className="text-[10px] text-[#a7b86a]">Financeiro</div><b className="mt-1 block text-sm text-[#d9e5a5]">Abrir</b>
+                  </button>
                 </div>
               </div>
-            </div>
+              <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+                <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Resumo rápido</div>
+                <div className="mt-4 space-y-3">
+                  <button onClick={()=>setSection("pedidos")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Pedidos em andamento</span><span className="font-black text-[#ef7d18]">{activeOrders}</span></button>
+                  <button onClick={()=>setSection("b2b")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Leads B2B</span><span className="font-black text-[#a7b86a]">{leads.length}</span></button>
+                  <button onClick={()=>setSection("whatsapp")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Mensagens WhatsApp</span><span className="font-black">{messages.length}</span></button>
+                </div>
+              </div>
+            </section>
+
+            <section className="mt-6">
+              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Ações rápidas</div>
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                {[
+                  {id:"pedidos" as Section,label:"Novo pedido",Icon:ShoppingBag},
+                  {id:"estoque" as Section,label:"Entrada de estoque",Icon:Package},
+                  {id:"financeiro" as Section,label:"Registrar despesa",Icon:Wallet},
+                  {id:"estoque" as Section,label:"Lista de compras",Icon:Package},
+                ].map(({id,label,Icon})=><button key={label} onClick={()=>setSection(id)} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left transition hover:border-white/20">
+                  <Icon size={18} className="text-[#a7b86a]"/><span className="text-xs font-black sm:text-sm">{label}</span>
+                </button>)}
+              </div>
+            </section>
+
+            <section className="mt-6">
+              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Operação</div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {[
+                  {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
+                  {id:"producao" as Section,label:"Produção",Icon:Factory},
+                  {id:"estoque" as Section,label:"Estoque",Icon:Package},
+                  {id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},
+                  {id:"entregas" as Section,label:"Entregas",Icon:Truck},
+                  {id:"b2b" as Section,label:"B2B",Icon:Building2},
+                ].map(({id,label,Icon})=><button key={label} onClick={()=>setSection(id)} className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left transition hover:border-white/20">
+                  <span className="flex items-center gap-2 text-xs font-black"><Icon size={16} className="text-[#a7b86a]"/>{label}</span><ChevronRight size={14} className="text-white/20"/>
+                </button>)}
+              </div>
+            </section>
           </>}
 
           {section==="pedidos"&&(
