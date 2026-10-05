@@ -1,0 +1,171 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Bot, CheckCircle2, ChevronRight, Factory, MessageCircle, Package, RefreshCw, Search, ShoppingBag, Sparkles, Truck, Users, Wallet } from "lucide-react";
+
+const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
+
+type Order = { id:string; created_at:string; customer_name:string|null; item_count:number; total:number; status:string };
+type Inventory = { id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; active:boolean };
+type Lead = { id:string; company:string; contact_name:string; status:string; estimated_meals:string|null };
+type Message = { id:string; created_at:string; display_name:string|null; message_text:string|null; processed:boolean };
+
+async function request(path:string, token:string) {
+  const r=await fetch(path,{headers:{apikey:KEY,Authorization:`Bearer ${token}`}});
+  const t=await r.text();
+  if(!r.ok) throw new Error(t||"Erro");
+  return t?JSON.parse(t):null;
+}
+
+const money=(v:number)=>`R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
+
+export default function NFCorePage(){
+  const [token,setToken]=useState("");
+  const [email,setEmail]=useState("");
+  const [orders,setOrders]=useState<Order[]>([]);
+  const [inventory,setInventory]=useState<Inventory[]>([]);
+  const [leads,setLeads]=useState<Lead[]>([]);
+  const [messages,setMessages]=useState<Message[]>([]);
+  const [command,setCommand]=useState("");
+  const [answer,setAnswer]=useState("Estou pronto. Pergunte sobre vendas, pedidos, estoque, produção, B2B ou WhatsApp.");
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+
+  async function load(t=token){
+    if(!t)return;
+    setBusy(true);setError("");
+    try{
+      const [o,i,l,m]=await Promise.all([
+        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/inventory_items?select=id,name,unit,current_quantity,minimum_quantity,average_cost,active&active=eq.true&order=name.asc&limit=500`,t),
+        request(`${URL}/rest/v1/b2b_leads?select=id,company,contact_name,status,estimated_meals&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,display_name,message_text,processed&order=created_at.desc&limit=100`,t)
+      ]);
+      setOrders(o||[]);setInventory(i||[]);setLeads(l||[]);setMessages(m||[]);
+    }catch(e){setError("Não consegui carregar os dados do painel.");}
+    finally{setBusy(false);}
+  }
+
+  useEffect(()=>{
+    const t=sessionStorage.getItem("nutrifit_admin_token")||"";
+    const e=sessionStorage.getItem("nutrifit_admin_email")||"";
+    setToken(t);setEmail(e);
+    if(t)void load(t);
+  },[]);
+
+  const today=new Date().toLocaleDateString("pt-BR");
+  const todayOrders=orders.filter(o=>new Date(o.created_at).toLocaleDateString("pt-BR")===today);
+  const todayRevenue=todayOrders.reduce((s,o)=>s+Number(o.total||0),0);
+  const lowStock=inventory.filter(i=>Number(i.current_quantity)<=Number(i.minimum_quantity));
+  const pending=orders.filter(o=>["enviado_whatsapp","novo","confirmado","pago_recebido"].includes(o.status));
+  const prep=orders.filter(o=>o.status==="em_preparo");
+  const delivery=orders.filter(o=>o.status==="saiu_entrega");
+  const openLeads=leads.filter(l=>!["Perdido","Cliente ativo"].includes(l.status));
+
+  const insight=useMemo(()=>{
+    if(lowStock.length)return `Atenção: ${lowStock.length} item(ns) estão no mínimo ou abaixo dele. O primeiro é ${lowStock[0].name}.`;
+    if(pending.length)return `Há ${pending.length} pedido(s) aguardando uma ação.`;
+    if(prep.length)return `Há ${prep.length} pedido(s) em preparo.`;
+    return "A operação não apresenta alertas críticos nos dados carregados.";
+  },[lowStock.length,pending.length,prep.length]);
+
+  function runCommand(raw=command){
+    const q=raw.toLowerCase().trim();
+    if(!q)return;
+    if(/estoque|comprar|compra/.test(q)){
+      setAnswer(lowStock.length
+        ? `Encontrei ${lowStock.length} item(ns) que merecem atenção: ${lowStock.slice(0,8).map(i=>`${i.name} (${i.current_quantity} ${i.unit}, mínimo ${i.minimum_quantity} ${i.unit})`).join("; ")}.`
+        : "O estoque está acima dos mínimos cadastrados.");
+    }else if(/venda|fatur|faturamento|quanto.*hoje/.test(q)){
+      setAnswer(`Hoje: ${todayOrders.length} pedido(s) e ${money(todayRevenue)} em vendas.`);
+    }else if(/pedido|pedidos/.test(q)){
+      setAnswer(`Existem ${pending.length} pedido(s) aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota.`);
+    }else if(/b2b|empresa|lead/.test(q)){
+      setAnswer(`Tenho ${openLeads.length} lead(s) B2B em aberto de ${leads.length} cadastrados.`);
+    }else if(/whatsapp|mensagem/.test(q)){
+      setAnswer(`Há ${messages.length} mensagens recentes carregadas no painel; ${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.`);
+    }else if(/produção|producao/.test(q)){
+      setAnswer(`Há ${prep.length} pedido(s) marcado(s) como em preparo. A produção detalhada continua na área Produção.`);
+    }else if(/resumo|status|atenção|atencao|como.*está|como.*esta/.test(q)){
+      setAnswer(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
+    }else{
+      setAnswer("Consigo responder, nesta primeira versão, sobre vendas, pedidos, estoque, produção, B2B e WhatsApp. Tente: “o que precisa da minha atenção?”");
+    }
+    setCommand("");
+  }
+
+  if(!token)return <main className="min-h-screen bg-[#080a07] p-6 text-white"><div className="mx-auto mt-20 max-w-md rounded-3xl border border-white/10 bg-[#0d110b] p-6"><Bot className="text-[#a7b86a]" size={32}/><h1 className="mt-4 text-2xl font-black">NF CORE</h1><p className="mt-2 text-sm text-white/50">Entre no painel administrativo primeiro para usar o agente.</p><a href="/admin" className="mt-5 block rounded-full bg-[#a7b86a] px-5 py-3 text-center font-black text-black">Abrir painel</a></div></main>;
+
+  const cards=[
+    {label:"Vendas hoje",value:money(todayRevenue),icon:Wallet},
+    {label:"Pedidos pendentes",value:pending.length,icon:ShoppingBag},
+    {label:"Estoque crítico",value:lowStock.length,icon:Package},
+    {label:"B2B em aberto",value:openLeads.length,icon:Users},
+  ];
+
+  return <main className="min-h-screen bg-[#080a07] text-white">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#090c08]/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <div className="flex items-center gap-3">
+          <a href="/admin" className="rounded-full border border-white/10 p-2" aria-label="Voltar"><ArrowLeft size={17}/></a>
+          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[#a7b86a] text-black"><Bot size={22}/></div>
+          <div><div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Nutrifit</div><div className="font-black">NF CORE</div></div>
+        </div>
+        <button onClick={()=>void load()} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={busy?"animate-spin":""}/></button>
+      </div>
+    </header>
+
+    <div className="mx-auto max-w-7xl px-4 py-6 pb-12 sm:px-6">
+      <section className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/20 bg-gradient-to-br from-[#11170d] to-[#0c0f0a] p-5 sm:p-7">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]"><Sparkles size={15}/> Inteligência operacional</div>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">NF CORE</h1>
+            <p className="mt-3 text-sm leading-6 text-white/45">O núcleo inteligente da Nutrifit. Nesta primeira versão ele já lê os dados do painel e transforma a operação em respostas rápidas.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs text-white/45"><span className="text-white/70">Conectado como</span><br/><b className="text-[#d9e5a5]">{email||"Administrador"}</b></div>
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-white/10 bg-black/20 p-4 sm:p-5">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Bot size={15} className="text-[#a7b86a]"/> Comando NF CORE</div>
+          <div className="mt-3 flex gap-2">
+            <input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder="Ex.: O que precisa da minha atenção?" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]"/>
+            <button onClick={()=>runCommand()} className="rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">Executar</button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {["O que precisa da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?"].map(x=><button key={x} onClick={()=>runCommand(x)} className="rounded-full border border-white/10 px-3 py-2 text-[11px] font-bold text-white/55 hover:border-[#a7b86a]/40 hover:text-white">{x}</button>)}
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-3xl border border-[#a7b86a]/20 bg-[#a7b86a]/5 p-5">
+          <div className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-[#a7b86a]" size={19}/><p className="text-sm leading-6 text-white/75">{answer}</p></div>
+        </div>
+      </section>
+
+      {error&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
+
+      <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {cards.map(({label,value,icon:Icon})=><div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-4 text-2xl font-black">{value}</div><div className="mt-1 text-xs font-bold text-white/40">{label}</div></div>)}
+      </section>
+
+      <section className="mt-5 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Package size={16}/> Atenção</div>
+          <h2 className="mt-2 text-xl font-black">{insight}</h2>
+          <div className="mt-4 space-y-2">{lowStock.slice(0,6).map(i=><div key={i.id} className="flex items-center justify-between rounded-2xl bg-white/[.025] p-3"><span className="text-sm font-bold">{i.name}</span><span className="text-xs font-black text-[#ef7d18]">{i.current_quantity} {i.unit} / mín. {i.minimum_quantity}</span></div>)}{!lowStock.length&&<p className="text-sm text-white/40">Nenhum alerta de estoque.</p>}</div>
+        </div>
+        <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Factory size={16}/> Operação</div>
+          <div className="mt-4 space-y-3">
+            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><ShoppingBag size={17} className="text-[#a7b86a]"/> Pedidos</span><span className="text-xs text-white/40">{orders.length} carregados <ChevronRight size={15} className="ml-1 inline"/></span></a>
+            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><Truck size={17} className="text-[#a7b86a]"/> Entregas em rota</span><b className="text-[#d9e5a5]">{delivery.length}</b></a>
+            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><MessageCircle size={17} className="text-[#a7b86a]"/> WhatsApp pendente</span><b className="text-[#d9e5a5]">{messages.filter(m=>!m.processed).length}</b></a>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-5 text-xs text-white/25">NF CORE v1 • leitura operacional conectada ao painel Nutrifit. Ações de alteração ainda exigirão confirmação explícita.</div>
+    </div>
+  </main>;
+}
