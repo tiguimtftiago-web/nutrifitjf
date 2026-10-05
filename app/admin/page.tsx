@@ -331,7 +331,7 @@ export default function AdminPage() {
           <button disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-50">{busy?"Aguarde...":"Entrar no painel"}</button>
           <button type="button" onClick={()=>void recover()} disabled={busy} className="text-xs font-bold text-white/45 underline">Esqueci minha senha</button>
         </form>
-        <a href="/" className="mt-5 block text-center text-xs text-white/30">Voltar para o site</a>
+        <a href="/" className="mt-2 block rounded-full bg-[#a7b86a] px-5 py-3.5 text-center font-black text-black transition hover:opacity-90">Voltar para o site</a>
       </div>
     </main>
   );
