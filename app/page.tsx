@@ -19,6 +19,14 @@ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ
 
 const trackClick = (event: string, source: string) => {
   track(event, { source });
+  if (typeof window !== "undefined" && event !== "site_visit") {
+    void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
+      method: "POST",
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+      keepalive: true,
+      body: JSON.stringify({ event, source, page: window.location.pathname }),
+    }).catch(() => {});
+  }
 };
 
 const getAcquisitionSource = () => {
@@ -1391,7 +1399,12 @@ export default function Home() {
       if (!previousSource || source !== "direct") {
         window.localStorage.setItem("nutrifit_acquisition_source", source);
       }
-      trackClick("site_visit", source);
+      void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
+        method: "POST",
+        headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+        keepalive: true,
+        body: JSON.stringify({ event: "site_visit", source, page: window.location.pathname }),
+      }).catch(() => {});
     } catch {}
     setLeadPromptOpen(true);
   }, []);
