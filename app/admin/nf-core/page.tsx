@@ -53,6 +53,7 @@ export default function NFCorePage(){
   const [purchaseMessage,setPurchaseMessage]=useState("");
   const [lastCommand,setLastCommand]=useState("");
   const [voiceReply,setVoiceReply]=useState(true);
+  const [microphonePermission,setMicrophonePermission]=useState<"unknown"|"granted"|"prompt"|"denied">("unknown");
 
   function speak(text:string){
     if(typeof window==="undefined" || !voiceReply || !("speechSynthesis" in window))return;
@@ -136,6 +137,39 @@ export default function NFCorePage(){
     finally{setBusy(false);}
   }
 
+  async function ensureMicrophonePermission(){
+    if(typeof window==="undefined" || !navigator.mediaDevices?.getUserMedia){
+      setMicrophonePermission("denied");
+      return false;
+    }
+    try{
+      const permissions=(navigator as any).permissions;
+      if(permissions?.query){
+        try{
+          const status=await permissions.query({name:"microphone" as PermissionName});
+          setMicrophonePermission(status.state as any);
+          if(status.state==="denied"){
+            setVoiceStatus("Microfone bloqueado para este site. No Chrome, toque no ícone de configurações ao lado do endereço, abra Permissões e deixe Microfone como Permitir.");
+            return false;
+          }
+        }catch{}
+      }
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(track=>track.stop());
+      setMicrophonePermission("granted");
+      return true;
+    }catch(error:any){
+      setMicrophonePermission("denied");
+      const code=String(error?.name||"");
+      const message=code==="NotAllowedError"||code==="PermissionDeniedError"
+        ?"Microfone bloqueado para este site. No Chrome, toque no ícone de configurações ao lado do endereço, abra Permissões e deixe Microfone como Permitir. Depois volte e toque no microfone do NF CORE."
+        :"Não consegui acessar o microfone. Verifique se ele não está sendo usado por outro aplicativo.";
+      setVoiceStatus(message);
+      setAnswer(message);
+      return false;
+    }
+  }
+
   async function startVoiceCommand(){
     if(typeof window === "undefined" || listening)return;
     const SpeechRecognition=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition;
@@ -146,8 +180,9 @@ export default function NFCorePage(){
     }
 
     try{
-      // No Android/Chrome, o próprio SpeechRecognition controla a permissão do microfone.
-      // Não fazemos getUserMedia antes, pois isso pode deixar a sessão de reconhecimento em estado "not-allowed".
+      // Solicita a permissão explicitamente no clique do usuário e só depois inicia o reconhecimento.
+      const allowed=await ensureMicrophonePermission();
+      if(!allowed)return;
       const recognition=new SpeechRecognition();
       recognitionRef.current=recognition;
       recognition.lang="pt-BR";
@@ -163,7 +198,7 @@ export default function NFCorePage(){
         recognitionRef.current=null;
         const code=String(event?.error||"");
         const message=code==="not-allowed"||code==="service-not-allowed"
-          ?"O navegador bloqueou o microfone. No Chrome, abra as permissões deste site, deixe Microfone como Permitir e toque novamente no microfone."
+          ?"Microfone bloqueado para este site. No Chrome, toque no ícone de configurações ao lado do endereço, abra Permissões e deixe Microfone como Permitir. Depois toque novamente no microfone do NF CORE."
           :code==="audio-capture"
           ?"O microfone não está disponível. Verifique se outro aplicativo está usando o microfone e tente novamente."
           :code==="no-speech"
@@ -400,7 +435,7 @@ export default function NFCorePage(){
             </div>
             <button onClick={()=>runCommand()} className="min-w-[104px] rounded-2xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-[0_0_28px_rgba(239,125,24,.20)]">EXECUTAR</button>
           </div>
-          <div className="mt-2 flex items-center gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"shrink-0 text-[#ef7d18]":"shrink-0 text-[#a7b86a]"}/><span className="min-w-0 flex-1">{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":"Toque no microfone, permita o acesso ao microfone se o navegador solicitar e fale normalmente.")}</span><button type="button" onClick={()=>setVoiceReply(v=>!v)} className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white/40">{voiceReply?"Voz ON":"Voz OFF"}</button></div>
+          <div className="mt-2 flex items-center gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"shrink-0 text-[#ef7d18]":"shrink-0 text-[#a7b86a]"}/><span className="min-w-0 flex-1">{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":microphonePermission==="granted"?"Microfone liberado. Toque no microfone e fale.":"Toque no microfone para liberar e iniciar o comando de voz.")}</span><button type="button" onClick={()=>setVoiceReply(v=>!v)} className="shrink-0 rounded-full border border-white/10 px-2 py-1 text-[8px] font-black uppercase tracking-wider text-white/40">{voiceReply?"Voz ON":"Voz OFF"}</button></div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {["Faça meu resumo do dia","O que precisa da minha atenção?","Planeje a produção","Prepare um rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
