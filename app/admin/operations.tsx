@@ -307,11 +307,11 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         available_after_all:availableAfterAll,
         purchase_quantity:purchaseQuantity
       };
-    }).filter(a=>a.purchase_quantity>0||a.order_count>0||a.planned_production_quantity>0);
+    }).filter(a=>a.purchase_quantity>0);
     const filteredPurchasePlans=purchasePlans.filter(a=>purchaseSupplier==="Todos os fornecedores"||a.supplier===purchaseSupplier);
     const today=purchasePlans.filter(a=>a.status==="Comprar hoje").length;
     const soon=purchasePlans.filter(a=>a.status==="Comprar em breve").length;
-    const sufficient=purchasePlans.filter(a=>a.status==="Acompanhar").length;
+    const sufficient=Math.max(0,inventory.filter(x=>x.active).length-purchasePlans.length);
     return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Estoque e insumos">
