@@ -9,7 +9,13 @@ import {
 const money=(v:number)=>`R$ ${v.toFixed(2).replace(".",",")}`;
 
 export default function DashboardPreview(){
-  const [attention,setAttention]=useState(true);\n  const [greeting,setGreeting]=useState("Bom dia");\n\n  useEffect(()=>{\n    const hour=new Date().getHours();\n    setGreeting(hour>=18 ? "Boa noite" : hour>=12 ? "Boa tarde" : "Bom dia");\n  },[]);
+  const [attention,setAttention]=useState(true);
+  const [greeting,setGreeting]=useState("Bom dia");
+
+  useEffect(()=>{
+    const hour=new Date().getHours();
+    setGreeting(hour>=18 ? "Boa noite" : hour>=12 ? "Boa tarde" : "Bom dia");
+  },[]);
   const actions=[
     {label:"Novo pedido",icon:ShoppingBag},
     {label:"Entrada de estoque",icon:Package},
