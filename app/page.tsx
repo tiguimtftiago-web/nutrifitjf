@@ -24,7 +24,16 @@ const trackClick = (event: string, source: string) => {
       method: "POST",
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
       keepalive: true,
-      body: JSON.stringify({ event, source, page: window.location.pathname }),
+      body: JSON.stringify({
+        event,
+        source,
+        page: window.location.pathname,
+        metadata: {
+          campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
+          medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
+          content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+        },
+      }),
     }).catch(() => {});
   }
 };
@@ -1483,7 +1492,6 @@ export default function Home() {
       setCustomerPhone(phone);
       setProfileStatus("success");
       const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
-      const acquisition = getAcquisitionData();
       trackClick("profile_save", acquisitionSource);
       trackClick("lead_captured", acquisitionSource);
       window.setTimeout(() => setProfileOpen(false), 700);
