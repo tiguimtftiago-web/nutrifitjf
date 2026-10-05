@@ -1146,6 +1146,7 @@ export default function Home() {
   const [profileMarketing, setProfileMarketing] = useState(false);
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [clubDiscount, setClubDiscount] = useState(0);
+  const [leadPromptOpen, setLeadPromptOpen] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{code:string;discount_type:string;discount_value:number;minimum_order_value:number}|null>(null);
   const [couponStatus, setCouponStatus] = useState<"idle"|"loading"|"success"|"error">("idle");
@@ -1365,6 +1366,15 @@ export default function Home() {
     setProfileOpen(true);
   };
 
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
+      if (saved?.nutrifitClub) return;
+    } catch {}
+    const timer = window.setTimeout(() => setLeadPromptOpen(true), 10000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   const saveProfile = async () => {
     const name = profileName.trim();
     const phone = profilePhone.replace(/\D/g, "");
@@ -1539,6 +1549,13 @@ export default function Home() {
     <button type="button" onClick={() => setBannerIndex((bannerIndex + 1) % bannerSlides.length)} aria-label="Próximo banner" className="absolute right-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">›</button>
   </div>
 </section>
+
+      <section aria-label="Benefício de cadastro" className="border-b border-[#ef7d18]/20 bg-[#15120d]">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left md:px-8">
+          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Cadastre-se e ganhe R$ 5 de desconto na primeira compra.</div><div className="text-[11px] text-white/45">Seu cadastro também agiliza seus próximos pedidos.</div></div>
+          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">Quero meu benefício <ArrowRight size={15} className="ml-2" /></button>
+        </div>
+      </section>
 
       <section aria-label="Escolha sua refeição" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-5 md:px-8">
@@ -2263,6 +2280,22 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {leadPromptOpen && !profileOpen && (
+        <div className="fixed inset-0 z-[115]">
+          <button type="button" aria-label="Fechar benefício" onClick={() => setLeadPromptOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <section role="dialog" aria-modal="true" aria-labelledby="lead-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-[#ef7d18]/25 bg-[#0d100c] shadow-2xl">
+            <div className="p-6 sm:p-7">
+              <button type="button" onClick={() => setLeadPromptOpen(false)} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Clube Nutrifit</div>
+              <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 5 na sua primeira compra.</h2>
+              <p className="mt-2 text-sm leading-6 text-white/50">Faça um cadastro rápido. Não precisa criar senha agora.</p>
+              <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">Cadastrar e receber benefício <ArrowRight size={17} /></button>
+              <button type="button" onClick={() => setLeadPromptOpen(false)} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
           </section>
         </div>
