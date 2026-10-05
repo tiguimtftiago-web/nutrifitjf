@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Operations from "./operations";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket
+  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -364,6 +364,7 @@ export default function AdminPage() {
       </header>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-24 sm:px-6 lg:grid-cols-[220px_1fr]">
         <aside className="hidden h-fit rounded-3xl border border-white/10 bg-[#0d110b] p-2 lg:sticky lg:top-24 lg:block">
+          <button onClick={()=>{window.location.href="/admin/nf-core"}} className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] px-4 py-3 text-left text-sm font-black text-[#f4aa67] shadow-[0_0_24px_rgba(239,125,24,.08)] hover:border-[#ef7d18]/50 hover:bg-[#21140b]"><Bot size={18}/><span><span className="block">NF CORE</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-[#f4aa67]/60">Central inteligente</span></span></button>
           {nav.map(({id,label,Icon})=><button key={id} onClick={()=>setSection(id)} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>)}
         </aside>
         <section className="min-w-0">
@@ -621,6 +622,7 @@ export default function AdminPage() {
         <div className="absolute inset-x-3 bottom-24 rounded-3xl border border-white/10 bg-[#10130d] p-4 shadow-2xl" onClick={e=>e.stopPropagation()}>
           <div className="mb-3 flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Mais opções</div><div className="mt-1 text-xs text-white/35">Gestão operacional</div></div><button onClick={()=>setMobileMore(false)} className="rounded-full bg-white/5 p-2"><X size={16}/></button></div>
           <div className="grid grid-cols-2 gap-2">
+            <button onClick={()=>{window.location.href="/admin/nf-core"}} className="col-span-2 flex items-center gap-3 rounded-2xl border border-[#ef7d18]/40 bg-[#1b120a] p-3 text-left shadow-[0_0_28px_rgba(239,125,24,.10)]"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[#ef7d18]/15"><Bot size={19} className="text-[#ef7d18]"/></span><span><span className="block text-sm font-black text-[#f4aa67]">NF CORE</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-white/35">Central inteligente da Nutrifit</span></span><ChevronRight size={16} className="ml-auto text-[#ef7d18]"/></button>
             {[{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{setSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
           </div>
         </div>
