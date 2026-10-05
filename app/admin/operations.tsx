@@ -402,8 +402,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Mínimo</div><div className="mt-1 text-sm font-black">{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</div></div>
           <div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Custo médio</div><div className="mt-1 text-sm font-black">{money(x.average_cost)}</div></div>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <button onClick={()=>void openStockDetail(x)} disabled={busy} className="rounded-xl bg-white/5 px-3 py-2.5 text-xs font-black">Detalhes</button>
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button>
           <button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-xl border border-[#ef7d18]/30 px-3 py-2.5 text-xs font-bold text-[#ef7d18]">Excluir</button>
         </div>
