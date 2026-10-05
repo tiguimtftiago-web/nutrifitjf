@@ -14,7 +14,8 @@ type InventoryItem = { id:string; name:string; category:string; unit:string; cur
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
-type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };\ntype Supplier = { id:string; name:string; active:boolean; };
+type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
+type Supplier = { id:string; name:string; active:boolean; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -41,7 +42,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [movements,setMovements]=useState<Movement[]>([]);
   const [recipes,setRecipes]=useState<Recipe[]>([]);
   const [recipeItems,setRecipeItems]=useState<RecipeItem[]>([]);
-  const [purchaseAlerts,setPurchaseAlerts]=useState<PurchaseAlert[]>([]);\n  const [suppliers,setSuppliers]=useState<Supplier[]>([]);
+  const [purchaseAlerts,setPurchaseAlerts]=useState<PurchaseAlert[]>([]);
+  const [suppliers,setSuppliers]=useState<Supplier[]>([]);
   const [detailItem,setDetailItem]=useState<InventoryItem|null>(null);
   const [detailRequirements,setDetailRequirements]=useState<{required_quantity:number;order_id:string;status:string;customer_name:string|null}[]>([]);
   const [detailBusy,setDetailBusy]=useState(false);
@@ -50,7 +52,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [inventoryCategory,setInventoryCategory]=useState("Todas as categorias");
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
-  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});\n  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
+  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
+  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
   const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
