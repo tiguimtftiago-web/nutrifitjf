@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Bot, CheckCircle2, ChevronRight, Factory, MessageCircle, Package, RefreshCw, Search, ShoppingBag, Sparkles, Truck, Users, Wallet } from "lucide-react";
+import { Activity, ArrowLeft, Bot, CheckCircle2, ChevronRight, Factory, MessageCircle, Package, RefreshCw, Search, ShoppingBag, Sparkles, Truck, Users, Wallet, Mic, Target, BarChart3, CircleDot } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
@@ -19,6 +19,17 @@ async function request(path:string, token:string) {
 }
 
 const money=(v:number)=>`R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
+
+const hudCss = `
+@keyframes nf-pulse { 0%,100%{transform:scale(1);opacity:.7} 50%{transform:scale(1.05);opacity:1} }
+@keyframes nf-spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes nf-spin-rev { from{transform:rotate(360deg)} to{transform:rotate(0deg)} }
+@keyframes nf-scan { 0%{transform:translateY(-45px);opacity:0} 25%{opacity:.6} 100%{transform:translateY(45px);opacity:0} }
+.nf-hud-ring{animation:nf-spin 18s linear infinite}
+.nf-hud-ring-rev{animation:nf-spin-rev 12s linear infinite}
+.nf-hud-core{animation:nf-pulse 3s ease-in-out infinite}
+.nf-scan{animation:nf-scan 3.5s ease-in-out infinite}
+`;
 
 export default function NFCorePage(){
   const [token,setToken]=useState("");
@@ -137,77 +148,105 @@ export default function NFCorePage(){
     {label:"B2B em aberto",value:openLeads.length,icon:Users},
   ];
 
-  return <main className="min-h-screen bg-[#080a07] text-white">
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#090c08]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+  return <main className="min-h-screen bg-[#050706] text-white">
+    <style>{hudCss}</style>
+    <div className="pointer-events-none fixed inset-0 opacity-40" style={{backgroundImage:"radial-gradient(circle at 50% 10%,rgba(167,184,106,.10),transparent 35%),linear-gradient(rgba(167,184,106,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(167,184,106,.025) 1px,transparent 1px)",backgroundSize:"100% 100%,32px 32px,32px 32px"}}/>
+    <header className="sticky top-0 z-30 border-b border-[#a7b86a]/15 bg-[#050706]/90 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
-          <a href="/admin" className="rounded-full border border-white/10 p-2" aria-label="Voltar"><ArrowLeft size={17}/></a>
-          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-[#a7b86a] text-black"><Bot size={22}/></div>
-          <div><div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Nutrifit</div><div className="font-black">NF CORE</div></div>
+          <a href="/admin" className="rounded-xl border border-white/10 bg-white/[.03] p-2.5" aria-label="Voltar"><ArrowLeft size={17}/></a>
+          <div className="grid h-9 w-9 place-items-center rounded-xl border border-[#a7b86a]/40 bg-[#a7b86a]/10 text-[#d9e5a5]"><Bot size={20}/></div>
+          <div><div className="text-[9px] font-black uppercase tracking-[.28em] text-[#a7b86a]">NUTRIFIT SYSTEM</div><div className="font-black tracking-wide">NF CORE</div></div>
         </div>
-        <button onClick={()=>void load()} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={busy?"animate-spin":""}/></button>
+        <div className="hidden items-center gap-5 text-[10px] font-bold uppercase tracking-widest text-white/35 md:flex">
+          <span className="text-[#a7b86a]">● Sistema online</span><span>{email||"Administrador"}</span>
+        </div>
+        <button onClick={()=>void load()} disabled={busy} className="rounded-xl border border-white/10 bg-white/[.03] p-2.5"><RefreshCw size={15} className={busy?"animate-spin":""}/></button>
       </div>
     </header>
 
-    <div className="mx-auto max-w-7xl px-4 py-6 pb-12 sm:px-6">
-      <section className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/20 bg-gradient-to-br from-[#11170d] to-[#0c0f0a] p-5 sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]"><Sparkles size={15}/> Inteligência operacional</div>
-            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">NF CORE</h1>
-            <p className="mt-3 text-sm leading-6 text-white/45">O núcleo inteligente da Nutrifit. Nesta primeira versão ele já lê os dados do painel e transforma a operação em respostas rápidas.</p>
+    <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-5 pb-12 sm:px-6">
+      <section className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/20 bg-[#080b09]/90 shadow-[0_0_80px_rgba(76,180,100,.06)]">
+        <div className="grid lg:grid-cols-[.9fr_1.1fr]">
+          <div className="flex flex-col justify-center p-5 sm:p-8">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]"><Activity size={13}/> Inteligência operacional</div>
+            <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-6xl">NF <span className="text-[#ef7d18]">CORE</span></h1>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-white/45">O cérebro operacional da Nutrifit. Pergunte, analise e acompanhe a operação em uma única tela.</p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-3 py-1.5 text-[10px] font-black text-[#cbdc92]">VENDAS</span>
+              <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-3 py-1.5 text-[10px] font-black text-[#cbdc92]">ESTOQUE</span>
+              <span className="rounded-full border border-[#ef7d18]/20 bg-[#ef7d18]/5 px-3 py-1.5 text-[10px] font-black text-[#f4aa67]">PRODUÇÃO</span>
+              <span className="rounded-full border border-[#24b8e6]/20 bg-[#24b8e6]/5 px-3 py-1.5 text-[10px] font-black text-[#61ccec]">B2B</span>
+            </div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-xs text-white/45"><span className="text-white/70">Conectado como</span><br/><b className="text-[#d9e5a5]">{email||"Administrador"}</b></div>
+
+          <div className="relative flex min-h-[310px] items-center justify-center overflow-hidden p-4 sm:min-h-[390px]">
+            <div className="absolute h-[330px] w-[330px] rounded-full border border-[#a7b86a]/10"></div>
+            <div className="nf-hud-ring absolute h-[275px] w-[275px] rounded-full border border-dashed border-[#a7b86a]/40"></div>
+            <div className="nf-hud-ring-rev absolute h-[225px] w-[225px] rounded-full border border-[#ef7d18]/40" style={{borderLeftColor:"transparent",borderBottomColor:"transparent"}}></div>
+            <div className="nf-scan absolute h-px w-64 bg-gradient-to-r from-transparent via-[#a7b86a] to-transparent"></div>
+            <div className="nf-hud-core relative grid h-32 w-32 place-items-center rounded-full border border-[#a7b86a]/70 bg-[#080d08] shadow-[0_0_50px_rgba(167,184,106,.22)]">
+              <div className="absolute inset-2 rounded-full border border-[#ef7d18]/40"></div>
+              <div className="text-center"><Bot size={34} className="mx-auto text-[#a7b86a]"/><div className="mt-1 text-[9px] font-black tracking-[.25em] text-[#ef7d18]">ONLINE</div></div>
+            </div>
+            <div className="absolute left-3 top-8 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/90 px-3 py-2 backdrop-blur"><div className="flex items-center gap-2 text-[10px] font-black text-[#9ee6b1]"><BarChart3 size={14}/> VENDAS</div><div className="mt-0.5 text-[11px] text-white/45">Em análise</div></div>
+            <div className="absolute right-3 top-10 rounded-2xl border border-[#ef7d18]/25 bg-[#120c07]/90 px-3 py-2 backdrop-blur"><div className="flex items-center gap-2 text-[10px] font-black text-[#f4aa67]"><Package size={14}/> ESTOQUE</div><div className="mt-0.5 text-[11px] text-white/45">{lowStock.length} alerta(s)</div></div>
+            <div className="absolute bottom-8 left-3 rounded-2xl border border-[#24b8e6]/25 bg-[#071014]/90 px-3 py-2 backdrop-blur"><div className="flex items-center gap-2 text-[10px] font-black text-[#61ccec]"><ShoppingBag size={14}/> PEDIDOS</div><div className="mt-0.5 text-[11px] text-white/45">{pending.length} pendentes</div></div>
+            <div className="absolute bottom-8 right-3 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/90 px-3 py-2 backdrop-blur"><div className="flex items-center gap-2 text-[10px] font-black text-[#cbdc92]"><Factory size={14}/> PRODUÇÃO</div><div className="mt-0.5 text-[11px] text-white/45">{prep.length} em preparo</div></div>
+          </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-white/10 bg-black/20 p-4 sm:p-5">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Bot size={15} className="text-[#a7b86a]"/> Comando NF CORE</div>
-          <div className="mt-3 flex gap-2">
-            <input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder="Ex.: O que precisa da minha atenção?" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]"/>
-            <button onClick={()=>runCommand()} className="rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">Executar</button>
+        <div className="border-t border-white/10 bg-black/20 p-4 sm:p-5">
+          <div className="flex gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[.035] px-4"><Bot size={17} className="shrink-0 text-[#a7b86a]"/><input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder="Digite o que você precisa..." className="min-w-0 flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-white/30"/><Mic size={16} className="text-white/25"/></div>
+            <button onClick={()=>runCommand()} className="rounded-2xl bg-[#ef7d18] px-5 py-3 text-sm font-black text-black shadow-[0_0_24px_rgba(239,125,24,.16)]">EXECUTAR</button>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {["O que precisa da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map(x=><button key={x} onClick={()=>runCommand(x)} className="rounded-full border border-white/10 px-3 py-2 text-[11px] font-bold text-white/55 hover:border-[#a7b86a]/40 hover:text-white">{x}</button>)}
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
-        </div>
-
-        <div className="mt-4 rounded-3xl border border-[#a7b86a]/20 bg-[#a7b86a]/5 p-5">
-          <div className="flex gap-3"><CheckCircle2 className="mt-0.5 shrink-0 text-[#a7b86a]" size={19}/><p className="text-sm leading-6 text-white/75">{answer}</p></div>
         </div>
       </section>
 
-      <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Factory size={16}/> Planejamento inteligente</div><h2 className="mt-2 text-xl font-black">Produção baseada nos pedidos</h2><p className="mt-1 text-sm leading-6 text-white/45">O NF CORE cruza pedidos, fichas técnicas e estoque para estimar o que falta antes da produção.</p></div><button onClick={()=>{setPlanning(true);setAnswer(productionSummary.orders?"Planejamento atualizado: "+productionSummary.orders+" pedido(s), "+productionSummary.mapped+" unidade(s) mapeadas e "+productionSummary.items+" insumo(s) com falta.":"Não há pedidos elegíveis para planejamento.")}} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">{planning?"Atualizar planejamento":"Calcular produção"}</button></div>{planning&&<div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4"><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.orders}</div><div className="text-xs text-white/40">Pedidos</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.mapped}</div><div className="text-xs text-white/40">Unidades mapeadas</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.items}</div><div className="text-xs text-white/40">Faltas de insumo</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{money(productionSummary.estimated)}</div><div className="text-xs text-white/40">Custo estimado da falta</div></div></div>}{planning&&plannedNeeds.rows.length>0&&<div className="mt-4 space-y-2">{plannedNeeds.rows.slice(0,8).map(x=><div key={x.item_id} className="flex items-center justify-between rounded-2xl bg-white/[.025] p-3"><div><div className="text-sm font-bold">{x.name}</div><div className="text-[11px] text-white/35">Necessário {x.required.toFixed(1)} {x.unit} • disponível {x.current.toFixed(1)} {x.unit}</div></div><b className={x.shortage>0?"text-[#ef7d18]":"text-[#a7b86a]"}>{x.shortage>0?"Comprar "+x.shortage.toFixed(1)+" "+x.unit:"OK"}</b></div>)}</div>}{planning&&plannedNeeds.mapped===0&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">Nenhum pedido conseguiu ser ligado a uma ficha técnica. Confira se os itens do pedido carregam o ID do produto do catálogo.</div>}</section>
-      {lowStock.length>0&&<section className="mt-5 rounded-3xl border border-[#ef7d18]/25 bg-[#1b120a] p-5 sm:p-6">
+      <section className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {cards.map(({label,value,icon:Icon},i)=><div key={label} className={"rounded-2xl border p-4 "+(i===0?"border-[#a7b86a]/25 bg-[#071008]":i===1?"border-[#ef7d18]/25 bg-[#120c07]":i===2?"border-red-500/20 bg-red-950/10":"border-[#24b8e6]/20 bg-[#071014]")}>
+          <Icon size={18} className={i===0?"text-[#a7b86a]":i===1?"text-[#ef7d18]":i===2?"text-red-400":"text-[#24b8e6]"}/>
+          <div className="mt-3 text-xl font-black sm:text-2xl">{value}</div><div className="mt-1 text-[10px] font-black uppercase tracking-wider text-white/35">{label}</div>
+        </div>)}
+      </section>
+
+      <section className="mt-4 grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
+        <div className="rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
+          <div className="flex items-center justify-between"><div><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]"><Bot size={13}/> NF CORE</div><h2 className="mt-2 text-lg font-black">Análise operacional</h2></div><span className="text-[10px] text-white/25">AGORA</span></div>
+          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[.025] p-4"><p className="text-sm leading-6 text-white/70">{answer}</p></div>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-[#080b09] p-5"><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Activity size={13}/> Status</div><div className="mt-4 space-y-3 text-sm"><div className="flex justify-between"><span className="text-white/45">Pedidos em preparo</span><b>{prep.length}</b></div><div className="flex justify-between"><span className="text-white/45">Entregas em rota</span><b>{delivery.length}</b></div><div className="flex justify-between"><span className="text-white/45">WhatsApp pendente</span><b>{messages.filter(m=>!m.processed).length}</b></div><div className="flex justify-between"><span className="text-white/45">B2B em aberto</span><b>{openLeads.length}</b></div></div></div>
+      </section>
+
+      <section className="mt-4 rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Ação assistida</div><h2 className="mt-1 text-xl font-black">NF CORE encontrou {lowStock.length} item(ns) para compra.</h2><p className="mt-1 text-sm text-white/45">Preparar rascunho com as quantidades mínimas. Nada será enviado ao fornecedor.</p></div>
-          <button onClick={()=>setPurchaseDraft(true)} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Preparar compra</button>
+          <div><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Factory size={14}/> Planejamento inteligente</div><h2 className="mt-1 text-lg font-black">Produção baseada nos pedidos</h2><p className="mt-1 text-xs leading-5 text-white/40">Cruza pedidos, fichas técnicas e estoque para estimar as necessidades.</p></div>
+          <button onClick={()=>{setPlanning(true);setAnswer(productionSummary.orders?"Planejamento atualizado: "+productionSummary.orders+" pedido(s), "+productionSummary.mapped+" unidade(s) mapeadas e "+productionSummary.items+" insumo(s) com falta.":"Não há pedidos elegíveis para planejamento.")}} className="rounded-xl bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">{planning?"ATUALIZAR":"CALCULAR PRODUÇÃO"}</button>
         </div>
-        {purchaseMessage&&<div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3 text-sm text-white/65">{'{'}purchaseMessage{'}'}</div>}
+        {planning&&<div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">{[["Pedidos",productionSummary.orders],["Unidades mapeadas",productionSummary.mapped],["Faltas de insumo",productionSummary.items],["Custo estimado",money(productionSummary.estimated)]].map(([a,b])=><div key={String(a)} className="rounded-xl bg-white/[.025] p-3"><div className="text-lg font-black">{b}</div><div className="text-[10px] text-white/35">{a}</div></div>)}</div>}
+        {planning&&plannedNeeds.rows.length>0&&<div className="mt-3 space-y-2">{plannedNeeds.rows.slice(0,8).map(x=><div key={x.item_id} className="flex items-center justify-between rounded-xl border border-white/6 bg-white/[.02] p-3"><div><div className="text-xs font-bold">{x.name}</div><div className="text-[10px] text-white/30">Necessário {x.required.toFixed(1)} {x.unit} • disponível {x.current.toFixed(1)} {x.unit}</div></div><b className={"text-xs "+(x.shortage>0?"text-[#ef7d18]":"text-[#a7b86a]")}>{x.shortage>0?"Comprar "+x.shortage.toFixed(1)+" "+x.unit:"OK"}</b></div>)}</div>}
+        {planning&&plannedNeeds.mapped===0&&<div className="mt-3 rounded-xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-[#f1b06e]">Nenhum pedido conseguiu ser ligado a uma ficha técnica. Confira os IDs dos produtos nos itens do pedido.</div>}
+      </section>
+
+      {lowStock.length>0&&<section className="mt-4 rounded-2xl border border-[#ef7d18]/25 bg-[#120c07] p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Ação assistida</div><h2 className="mt-1 text-lg font-black">NF CORE encontrou {lowStock.length} item(ns) para compra.</h2><p className="mt-1 text-xs text-white/40">Preparar rascunho com as quantidades mínimas. Nada será enviado.</p></div><button onClick={()=>setPurchaseDraft(true)} className="rounded-xl bg-[#ef7d18] px-4 py-2.5 text-xs font-black text-black">PREPARAR COMPRA</button></div>
+        {purchaseMessage&&<div className="mt-3 rounded-xl border border-white/8 bg-black/20 p-3 text-xs text-white/60">{purchaseMessage}</div>}
       </section>}
-      {purchaseDraft&&<div className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4"><div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#10130d] p-6 shadow-2xl"><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Confirmação necessária</div><h2 className="mt-2 text-2xl font-black">Criar rascunho de compra?</h2><p className="mt-3 text-sm leading-6 text-white/50">O NF CORE registrará a compra como rascunho. Não haverá envio, pagamento ou entrada no estoque.</p><div className="mt-5 flex gap-2"><button onClick={()=>setPurchaseDraft(false)} className="flex-1 rounded-full border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void createPurchaseDraft()} disabled={busy} className="flex-1 rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">{'{'}busy?"Criando...":"Confirmar"{'}'}</button></div></div></div>}
-      {error&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
-      <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {cards.map(({label,value,icon:Icon})=><div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-5"><Icon size={19} className="text-[#a7b86a]"/><div className="mt-4 text-2xl font-black">{value}</div><div className="mt-1 text-xs font-bold text-white/40">{label}</div></div>)}
+      {purchaseDraft&&<div className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-4 backdrop-blur-sm"><div className="w-full max-w-lg rounded-3xl border border-[#a7b86a]/25 bg-[#0b100c] p-6 shadow-[0_0_80px_rgba(167,184,106,.12)]"><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Confirmação necessária</div><h2 className="mt-2 text-2xl font-black">Criar rascunho de compra?</h2><p className="mt-3 text-sm leading-6 text-white/45">O NF CORE registrará a compra como rascunho. Não haverá envio, pagamento ou entrada no estoque.</p><div className="mt-5 flex gap-2"><button onClick={()=>setPurchaseDraft(false)} className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void createPurchaseDraft()} disabled={busy} className="flex-1 rounded-xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">{busy?"Criando...":"Confirmar"}</button></div></div></div>}
+
+      {error&&<div className="mt-4 rounded-xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
+
+      <section className="mt-4 grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-white/10 bg-[#080b09] p-5"><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Package size={14}/> Estoque crítico</div><div className="mt-3 space-y-2">{lowStock.slice(0,6).map(i=><div key={i.id} className="flex items-center justify-between rounded-xl bg-white/[.025] p-3"><span className="text-xs font-bold">{i.name}</span><span className="text-[10px] font-black text-[#ef7d18]">{i.current_quantity} {i.unit} / mín. {i.minimum_quantity}</span></div>)}{!lowStock.length&&<p className="text-xs text-white/35">Nenhum alerta de estoque.</p>}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-[#080b09] p-5"><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><ShoppingBag size={14}/> Operação</div><div className="mt-3 space-y-2"><a href="/admin" className="flex items-center justify-between rounded-xl bg-white/[.025] p-3"><span className="text-xs font-bold">Pedidos</span><b className="text-xs">{orders.length}</b></a><a href="/admin" className="flex items-center justify-between rounded-xl bg-white/[.025] p-3"><span className="text-xs font-bold">Entregas em rota</span><b className="text-xs text-[#a7b86a]">{delivery.length}</b></a><a href="/admin" className="flex items-center justify-between rounded-xl bg-white/[.025] p-3"><span className="text-xs font-bold">WhatsApp pendente</span><b className="text-xs text-[#a7b86a]">{messages.filter(m=>!m.processed).length}</b></a></div></div>
       </section>
 
-      <section className="mt-5 grid gap-5 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Package size={16}/> Atenção</div>
-          <h2 className="mt-2 text-xl font-black">{insight}</h2>
-          <div className="mt-4 space-y-2">{lowStock.slice(0,6).map(i=><div key={i.id} className="flex items-center justify-between rounded-2xl bg-white/[.025] p-3"><span className="text-sm font-bold">{i.name}</span><span className="text-xs font-black text-[#ef7d18]">{i.current_quantity} {i.unit} / mín. {i.minimum_quantity}</span></div>)}{!lowStock.length&&<p className="text-sm text-white/40">Nenhum alerta de estoque.</p>}</div>
-        </div>
-        <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Factory size={16}/> Operação</div>
-          <div className="mt-4 space-y-3">
-            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><ShoppingBag size={17} className="text-[#a7b86a]"/> Pedidos</span><span className="text-xs text-white/40">{orders.length} carregados <ChevronRight size={15} className="ml-1 inline"/></span></a>
-            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><Truck size={17} className="text-[#a7b86a]"/> Entregas em rota</span><b className="text-[#d9e5a5]">{delivery.length}</b></a>
-            <a href="/admin" className="flex items-center justify-between rounded-2xl bg-white/[.025] p-4"><span className="flex items-center gap-3 text-sm font-black"><MessageCircle size={17} className="text-[#a7b86a]"/> WhatsApp pendente</span><b className="text-[#d9e5a5]">{messages.filter(m=>!m.processed).length}</b></a>
-          </div>
-        </div>
-      </section>
-
-      <div className="mt-5 text-xs text-white/25">NF CORE v1 • leitura operacional conectada ao painel Nutrifit. Ações de alteração ainda exigirão confirmação explícita.</div>
+      <div className="mt-5 flex items-center justify-between text-[9px] uppercase tracking-[.18em] text-white/20"><span>NF CORE v1 • Nutrifit Intelligence</span><span>Secure operational interface</span></div>
     </div>
   </main>;
 }
