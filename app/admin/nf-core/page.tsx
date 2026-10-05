@@ -127,12 +127,8 @@ export default function NFCorePage(){
     }
 
     try{
-      // Garante que o navegador solicite/valide a permissão do microfone antes de iniciar o reconhecimento.
-      if(navigator.mediaDevices?.getUserMedia){
-        const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-        stream.getTracks().forEach(track=>track.stop());
-      }
-
+      // No Android/Chrome, o próprio SpeechRecognition controla a permissão do microfone.
+      // Não fazemos getUserMedia antes, pois isso pode deixar a sessão de reconhecimento em estado "not-allowed".
       const recognition=new SpeechRecognition();
       recognitionRef.current=recognition;
       recognition.lang="pt-BR";
@@ -148,10 +144,12 @@ export default function NFCorePage(){
         recognitionRef.current=null;
         const code=String(event?.error||"");
         const message=code==="not-allowed"||code==="service-not-allowed"
-          ?"Permissão do microfone bloqueada. Libere o microfone para este site nas configurações do navegador e tente novamente."
+          ?"O navegador bloqueou o microfone. No Chrome, abra as permissões deste site, deixe Microfone como Permitir e toque novamente no microfone."
+          :code==="audio-capture"
+          ?"O microfone não está disponível. Verifique se outro aplicativo está usando o microfone e tente novamente."
           :code==="no-speech"
           ?"Não detectei sua fala. Toque no microfone e fale normalmente."
-          :"Não consegui iniciar o reconhecimento de voz. Tente novamente no Google Chrome.";
+          :"Não consegui iniciar o reconhecimento de voz. Tente novamente.";
         setVoiceStatus(message);
         setAnswer(message);
       };
@@ -175,7 +173,7 @@ export default function NFCorePage(){
       recognitionRef.current=null;
       const code=String(error?.name||"");
       const message=code==="NotAllowedError"||code==="PermissionDeniedError"
-        ?"Permissão do microfone bloqueada. Libere o microfone para este site nas configurações do navegador e tente novamente."
+        ?"O navegador bloqueou o microfone. No Chrome, abra as permissões deste site, deixe Microfone como Permitir e toque novamente no microfone."
         :"Não consegui acessar o microfone. Verifique a permissão do navegador e tente novamente.";
       setVoiceStatus(message);
       setAnswer(message);
