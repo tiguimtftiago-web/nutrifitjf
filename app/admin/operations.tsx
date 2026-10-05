@@ -29,7 +29,7 @@ async function req(path:string, token:string, init:RequestInit={}) {
   return text?JSON.parse(text):null;
 }
 const money=(v:number)=>"R$ "+Number(v||0).toFixed(2).replace(".",",");
-const input="rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none";
+const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none";
 
 export default function Operations({section,token}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string}) {
   const [products,setProducts]=useState<Product[]>([]);
@@ -48,6 +48,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [purchaseSupplier,setPurchaseSupplier]=useState<string>("Todos os fornecedores");
   const [inventorySearch,setInventorySearch]=useState("");
   const [inventoryCategory,setInventoryCategory]=useState("Todas as categorias");
+  const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});\n  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
@@ -449,25 +450,66 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel></div>;
   }
-  if(section==="producao")return <div>
+  if(section==="producao"){
+    const recipeQuery=recipeSearch.trim().toLocaleLowerCase("pt-BR");
+    const filteredRecipes=recipes.filter(r=>{
+      if(!recipeQuery)return true;
+      return [r.name,r.product_name||""].join(" ").toLocaleLowerCase("pt-BR").includes(recipeQuery);
+    });
+    return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Produção">
     <div className="grid gap-4 sm:grid-cols-3"><Stat label="Planejadas" value={production.filter(x=>x.status==="planejada").length}/><Stat label="Em produção" value={production.filter(x=>x.status==="em_producao").length}/><Stat label="Concluídas" value={production.filter(x=>x.status==="concluida").length}/></div>
-    <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-      <div className="mb-3 text-sm font-black">Fichas técnicas</div>
-      <div className="grid gap-3 sm:grid-cols-4">
+    <div className="mt-5 min-w-0 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="text-sm font-black">Fichas técnicas</div>
+          <div className="mt-1 text-xs text-white/40">Cadastre o rendimento e associe os insumos de cada preparo.</div>
+        </div>
+        <div className="text-xs font-bold text-white/35">{filteredRecipes.length} ficha(s) exibida(s)</div>
+      </div>
+
+      <div className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <input value={recipeForm.name} onChange={e=>setRecipeForm({...recipeForm,name:e.target.value})} placeholder="Nome da ficha" className={input}/>
         <input value={recipeForm.product_name} onChange={e=>setRecipeForm({...recipeForm,product_name:e.target.value})} placeholder="Produto / prato" className={input}/>
         <input type="number" step="0.001" value={recipeForm.yield_quantity} onChange={e=>setRecipeForm({...recipeForm,yield_quantity:e.target.value})} placeholder="Rendimento" className={input}/>
-        <button onClick={()=>void addRecipe()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Criar ficha</button>
+        <button onClick={()=>void addRecipe()} disabled={busy} className="w-full min-w-0 rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black sm:w-auto">Criar ficha</button>
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-4">
-        <select value={recipeItemForm.recipe_id} onChange={e=>setRecipeItemForm({...recipeItemForm,recipe_id:e.target.value})} className={input}><option value="">Ficha técnica</option>{recipes.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select>
-        <select value={recipeItemForm.item_id} onChange={e=>setRecipeItemForm({...recipeItemForm,item_id:e.target.value})} className={input}><option value="">Insumo</option>{inventory.map(i=><option key={i.id} value={i.id}>{i.name} ({i.unit})</option>)}</select>
+
+      <div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-3">
+        <div className="relative">
+          <input
+            value={recipeSearch}
+            onChange={e=>setRecipeSearch(e.target.value)}
+            placeholder="Buscar ficha técnica ou prato..."
+            aria-label="Buscar ficha técnica ou prato"
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-4 pr-10 outline-none focus:border-[#a7b86a]/60"
+          />
+          {recipeSearch&&<button type="button" onClick={()=>setRecipeSearch("")} aria-label="Limpar busca" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-2 py-1 text-xs font-black text-white/55 hover:bg-white/10">×</button>}
+        </div>
+      </div>
+
+      <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+        <select value={recipeItemForm.recipe_id} onChange={e=>setRecipeItemForm({...recipeItemForm,recipe_id:e.target.value})} className={input}>
+          <option value="">Ficha técnica</option>
+          {recipes.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}
+        </select>
+        <select value={recipeItemForm.item_id} onChange={e=>setRecipeItemForm({...recipeItemForm,item_id:e.target.value})} className={input}>
+          <option value="">Insumo</option>
+          {inventory.map(i=><option key={i.id} value={i.id}>{i.name} ({i.unit})</option>)}
+        </select>
         <input type="number" step="0.001" value={recipeItemForm.quantity} onChange={e=>setRecipeItemForm({...recipeItemForm,quantity:e.target.value})} placeholder="Quantidade por rendimento" className={input}/>
-        <button onClick={()=>void addRecipeItem()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Adicionar insumo</button>
+        <button onClick={()=>void addRecipeItem()} disabled={busy} className="w-full min-w-0 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black sm:w-auto">Adicionar insumo</button>
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">{recipes.map(r=><div key={r.id} className="rounded-xl border border-white/5 p-3"><b>{r.name}</b><div className="text-xs text-white/35">{r.product_name||"Sem produto"} · rendimento {r.yield_quantity} {r.yield_unit}</div><div className="mt-2 text-xs text-white/55">{recipeItems.filter(x=>x.recipe_id===r.id).map(x=>{const item=inventory.find(i=>i.id===x.item_id);return item?item.name+" · "+x.quantity+" "+item.unit:null}).filter(Boolean).join(" · ")||"Nenhum insumo cadastrado"}</div></div>)}</div>
+
+      {filteredRecipes.length===0&&<div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-5 text-center text-sm text-white/45">Nenhuma ficha técnica encontrada. Tente outro nome.</div>}
+      <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2">
+        {filteredRecipes.map(r=><div key={r.id} className="min-w-0 overflow-hidden rounded-xl border border-white/5 bg-black/10 p-3">
+          <div className="truncate font-black">{r.name}</div>
+          <div className="mt-1 truncate text-xs text-white/35">{r.product_name||"Sem produto"} · rendimento {r.yield_quantity} {r.yield_unit}</div>
+          <div className="mt-2 break-words text-xs text-white/55">{recipeItems.filter(x=>x.recipe_id===r.id).map(x=>{const item=inventory.find(i=>i.id===x.item_id);return item?item.name+" · "+x.quantity+" "+item.unit:null}).filter(Boolean).join(" · ")||"Nenhum insumo cadastrado"}</div>
+        </div>)}
+      </div>
     </div>
     <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-4">
       <select value={productionForm.recipe_id} onChange={e=>setProductionForm({...productionForm,recipe_id:e.target.value})} className={input}><option value="">Selecionar ficha técnica</option>{recipes.map(r=><option key={r.id} value={r.id}>{r.name} — rendimento {r.yield_quantity} {r.yield_unit}</option>)}</select>
@@ -475,13 +517,13 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <select value={productionForm.status} onChange={e=>setProductionForm({...productionForm,status:e.target.value})} className={input}><option value="planejada">Planejada</option><option value="em_producao">Em produção</option><option value="concluida">Concluída</option></select>
       <button onClick={()=>void addProduction()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Criar produção</button>
     </div>
-    <Table><thead><tr><Th>Data</Th><Th>Quantidade</Th><Th>Status</Th><Th>Estoque</Th><Th>Observações</Th></tr></thead><tbody>{production.map(p=><tr key={p.id} className="border-t border-white/5"><Td>{new Date(p.produced_at).toLocaleString("pt-BR")}</Td><Td>{p.quantity}</Td><Td><select value={p.status} onChange={e=>void updateProductionStatus(p.id,e.target.value)} className="rounded-lg bg-white/5 px-2 py-1"><option value="planejada">Planejada</option><option value="em_producao">Em produção</option><option value="concluida">Concluída</option></select></Td><Td>{p.stock_consumed?"Baixado":"Pendente"}</Td><Td>{p.notes||"—"}</Td></tr>)}</tbody></Table>
+    <div className="min-w-0"><Table><thead><tr><Th>Data</Th><Th>Quantidade</Th><Th>Status</Th><Th>Estoque</Th><Th>Observações</Th></tr></thead><tbody>{production.map(p=><tr key={p.id} className="border-t border-white/5"><Td>{new Date(p.produced_at).toLocaleString("pt-BR")}</Td><Td>{p.quantity}</Td><Td><select value={p.status} onChange={e=>void updateProductionStatus(p.id,e.target.value)} className="rounded-lg bg-white/5 px-2 py-1"><option value="planejada">Planejada</option><option value="em_producao">Em produção</option><option value="concluida">Concluída</option></select></Td><Td>{p.stock_consumed?"Baixado":"Pendente"}</Td><Td>{p.notes||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel></div>;
   return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Cupons e campanhas"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><input value={coupon.code} onChange={e=>setCoupon({...coupon,code:e.target.value})} placeholder="Código" className={input}/><select value={coupon.discount_type} onChange={e=>setCoupon({...coupon,discount_type:e.target.value})} className={input}><option value="percent">Percentual</option><option value="fixed">Valor fixo</option></select><input type="number" step="0.01" value={coupon.discount_value} onChange={e=>setCoupon({...coupon,discount_value:e.target.value})} placeholder="Desconto" className={input}/><input type="number" step="0.01" value={coupon.minimum_order_value} onChange={e=>setCoupon({...coupon,minimum_order_value:e.target.value})} placeholder="Pedido mínimo" className={input}/><button onClick={()=>void addCoupon()} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">Criar cupom</button></div><Table><thead><tr><Th>Código</Th><Th>Desconto</Th><Th>Usos</Th><Th>Validade</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{coupons.map(c=><tr key={c.id} className="border-t border-white/5"><Td><b>{c.code}</b><div className="text-xs text-white/35">{c.description||""}</div></Td><Td>{c.discount_type==="percent"?c.discount_value+"%":money(c.discount_value)}</Td><Td>{c.uses_count}{c.max_uses?"/"+c.max_uses:""}</Td><Td>{c.expires_at?new Date(c.expires_at).toLocaleDateString("pt-BR"):"Sem validade"}</Td><Td><span className={"rounded-full px-2.5 py-1 text-xs font-bold "+(c.active?"bg-[#a7b86a]/15 text-[#cbd99a]":"bg-white/5 text-white/40")}>{c.active?"Ativo":"Inativo"}</span></Td><Td><div className="flex flex-wrap gap-2"><button onClick={()=>void toggleCoupon(c)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">{c.active?"Desativar":"Ativar"}</button><button onClick={()=>void deleteCoupon(c)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-black text-[#ef9b55]">{c.uses_count>0?"Desativar":"Excluir"}</button></div></Td></tr>)}</tbody></Table></Panel></div>;
 }
-function Panel({title,children}:{title:string;children:ReactNode}){return <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>}
+function Panel({title,children}:{title:string;children:ReactNode}){return <div className="min-w-0 w-full overflow-hidden rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6"><h2 className="mb-5 text-2xl font-black">{title}</h2>{children}</div>}
 function Table({children}:{children:ReactNode}){return <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm">{children}</table></div>}
 function Th({children}:{children:ReactNode}){return <th className="p-3 text-xs text-white/35">{children}</th>}
 function Td({children}:{children:ReactNode}){return <td className="p-3">{children}</td>}
