@@ -21,6 +21,19 @@ const trackClick = (event: string, source: string) => {
   track(event, { source });
 };
 
+const getAcquisitionSource = () => {
+  if (typeof window === "undefined") return "direct";
+  const params = new URLSearchParams(window.location.search);
+  const explicitSource = params.get("utm_source") || params.get("source") || "";
+  if (explicitSource) return explicitSource.toLowerCase();
+  const referrer = document.referrer.toLowerCase();
+  if (referrer.includes("instagram.com")) return "instagram";
+  if (referrer.includes("facebook.com") || referrer.includes("fb.com")) return "facebook";
+  if (referrer.includes("tiktok.com")) return "tiktok";
+  if (referrer.includes("google.")) return "google";
+  return "direct";
+};
+
 type Product = {
   name: string;
   line: string;
@@ -1282,6 +1295,9 @@ export default function Home() {
       "✅ Pedido conferido pelo cliente."
     ].join("\n");
 
+    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+    trackClick("order_started", acquisitionSource);
+
     const whatsappUrl = whatsappOrder(message);
     const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
     if (!whatsappWindow) window.location.href = whatsappUrl;
@@ -1370,6 +1386,12 @@ export default function Home() {
     try {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
       if (saved?.nutrifitClub) return;
+      const source = getAcquisitionSource();
+      const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
+      if (!previousSource || source !== "direct") {
+        window.localStorage.setItem("nutrifit_acquisition_source", source);
+      }
+      trackClick("site_visit", source);
     } catch {}
     setLeadPromptOpen(true);
   }, []);
@@ -1421,7 +1443,9 @@ export default function Home() {
       setCustomerName(name);
       setCustomerPhone(phone);
       setProfileStatus("success");
-      trackClick("profile_save", "header");
+      const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+      trackClick("profile_save", acquisitionSource);
+      trackClick("lead_captured", acquisitionSource);
       window.setTimeout(() => setProfileOpen(false), 700);
     } catch {
       setProfileStatus("error");
