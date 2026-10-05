@@ -384,7 +384,7 @@ export default function AdminPage() {
             <div className="mb-6">
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão operacional</div>
               <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{greeting}. O que precisa de atenção?</h1>
-              <p className="mt-2 text-sm text-white/40">Tudo que importa agora, em um único lugar.</p>
+              <p className="mt-2 text-sm text-white/40 ">Tudo que importa agora, em um único lugar.</p>
             </div>
 
             {purchaseAlerts.length>0&&<button onClick={()=>setSection("estoque")} className="mb-5 w-full rounded-3xl border border-[#ef7d18]/35 bg-[#1b120a] p-4 text-left transition hover:bg-[#24170d] sm:p-5">
