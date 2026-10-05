@@ -1371,8 +1371,7 @@ export default function Home() {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
       if (saved?.nutrifitClub) return;
     } catch {}
-    const timer = window.setTimeout(() => setLeadPromptOpen(true), 10000);
-    return () => window.clearTimeout(timer);
+    setLeadPromptOpen(true);
   }, []);
 
   const saveProfile = async () => {
