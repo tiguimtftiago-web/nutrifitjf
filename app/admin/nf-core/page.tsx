@@ -27,6 +27,10 @@ export default function NFCorePage(){
   const [inventory,setInventory]=useState<Inventory[]>([]);
   const [leads,setLeads]=useState<Lead[]>([]);
   const [messages,setMessages]=useState<Message[]>([]);
+  const [recipes,setRecipes]=useState<any[]>([]);
+  const [recipeItems,setRecipeItems]=useState<any[]>([]);
+  const [catalog,setCatalog]=useState<any[]>([]);
+  const [planning,setPlanning]=useState(false);
   const [command,setCommand]=useState("");
   const [answer,setAnswer]=useState("Estou pronto. Pergunte sobre vendas, pedidos, estoque, produção, B2B ou WhatsApp.");
   const [busy,setBusy]=useState(false);
@@ -38,13 +42,16 @@ export default function NFCorePage(){
     if(!t)return;
     setBusy(true);setError("");
     try{
-      const [o,i,l,m]=await Promise.all([
+      const [o,i,l,m,r,ri,cp]=await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/inventory_items?select=id,name,unit,current_quantity,minimum_quantity,average_cost,active&active=eq.true&order=name.asc&limit=500`,t),
         request(`${URL}/rest/v1/b2b_leads?select=id,company,contact_name,status,estimated_meals&order=created_at.desc&limit=100`,t),
-        request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,display_name,message_text,processed&order=created_at.desc&limit=100`,t)
+        request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,display_name,message_text,processed&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/inventory_recipes?select=id,name,product_name,yield_quantity,yield_unit,active,catalog_product_id&active=eq.true&limit=500`,t),
+        request(`${URL}/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=5000`,t),
+        request(`${URL}/rest/v1/catalog_products?select=id,name,active,line,size_grams&active=eq.true&limit=500`,t)
       ]);
-      setOrders(o||[]);setInventory(i||[]);setLeads(l||[]);setMessages(m||[]);
+      setOrders(o||[]);setInventory(i||[]);setLeads(l||[]);setMessages(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setCatalog(cp||[]);
     }catch(e){setError("Não consegui carregar os dados do painel.");}
     finally{setBusy(false);}
   }
@@ -64,6 +71,11 @@ export default function NFCorePage(){
   const prep=orders.filter(o=>o.status==="em_preparo");
   const delivery=orders.filter(o=>o.status==="saiu_entrega");
   const openLeads=leads.filter(l=>!["Perdido","Cliente ativo"].includes(l.status));
+  const actionableOrders=orders.filter(o=>["confirmado","pago_recebido","em_preparo"].includes(o.status));
+  const inventoryMap=useMemo(()=>new Map(inventory.map(i=>[i.id,i])),[inventory]);
+  const recipeMap=useMemo(()=>new Map(recipes.map(r=>[r.catalog_product_id,r])),[recipes]);
+  const plannedNeeds=useMemo(()=>{const totals=new Map<string,number>();let mapped=0;for(const order of actionableOrders){const raw:any=(order as any).items;const lines=Array.isArray(raw)?raw:(raw?.items&&Array.isArray(raw.items)?raw.items:[]);for(const line of lines){const qty=Number(line.quantity||line.qty||line.amount||1);if(!qty)continue;const pid=line.product_id||line.productId||line.catalog_product_id||line.id;const name=String(line.name||line.product_name||line.product||"").trim();const recipe=recipeMap.get(pid)||recipes.find(r=>r.name===name||r.product_name===name);if(!recipe)continue;mapped+=qty;const yieldQty=Number(recipe.yield_quantity||1)||1;for(const ri of recipeItems.filter(x=>x.recipe_id===recipe.id)){const need=Number(ri.quantity||0)*(qty/yieldQty);totals.set(ri.item_id,(totals.get(ri.item_id)||0)+need);}}}const rows=[...totals.entries()].map(([item_id,required])=>{const i=inventoryMap.get(item_id);const current=Number(i?.current_quantity||0);return {item_id,required,current,shortage:Math.max(required-current,0),name:i?.name||"Insumo não cadastrado",unit:i?.unit||"un",cost:Number(i?.average_cost||0)};}).filter(x=>x.required>0).sort((a,b)=>b.shortage-a.shortage);return {rows,mapped};},[actionableOrders,inventoryMap,recipeItems,recipes,recipeMap]);
+  const productionSummary=useMemo(()=>({orders:actionableOrders.length,mapped:plannedNeeds.mapped,items:plannedNeeds.rows.filter(x=>x.shortage>0).length,estimated:plannedNeeds.rows.reduce((s,x)=>s+x.shortage*x.cost,0)}),[actionableOrders.length,plannedNeeds]);
 
   const insight=useMemo(()=>{
     if(lowStock.length)return `Atenção: ${lowStock.length} item(ns) estão no mínimo ou abaixo dele. O primeiro é ${lowStock[0].name}.`;
@@ -94,7 +106,7 @@ export default function NFCorePage(){
   function runCommand(raw=command){
     const q=raw.toLowerCase().trim();
     if(!q)return;
-    if(/estoque|comprar|compra/.test(q)){
+    if(/produção|producao|produzir/.test(q)){setAnswer(productionSummary.orders?"Tenho "+productionSummary.orders+" pedido(s) prontos para planejamento. Consegui mapear "+productionSummary.mapped+" unidade(s) pelas fichas técnicas. "+productionSummary.items+" insumo(s) apresentam falta.":"Não há pedidos em confirmado, pago ou em preparo para planejar agora.");}else if(/estoque|comprar|compra/.test(q)){
       setAnswer(lowStock.length
         ? `Encontrei ${lowStock.length} item(ns) que merecem atenção: ${lowStock.slice(0,8).map(i=>`${i.name} (${i.current_quantity} ${i.unit}, mínimo ${i.minimum_quantity} ${i.unit})`).join("; ")}.`
         : "O estoque está acima dos mínimos cadastrados.");
@@ -164,6 +176,7 @@ export default function NFCorePage(){
         </div>
       </section>
 
+      <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.15em] text-white/35"><Factory size={16}/> Planejamento inteligente</div><h2 className="mt-2 text-xl font-black">Produção baseada nos pedidos</h2><p className="mt-1 text-sm leading-6 text-white/45">O NF CORE cruza pedidos, fichas técnicas e estoque para estimar o que falta antes da produção.</p></div><button onClick={()=>{setPlanning(true);setAnswer(productionSummary.orders?"Planejamento atualizado: "+productionSummary.orders+" pedido(s), "+productionSummary.mapped+" unidade(s) mapeadas e "+productionSummary.items+" insumo(s) com falta.":"Não há pedidos elegíveis para planejamento.")}} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">{planning?"Atualizar planejamento":"Calcular produção"}</button></div>{planning&&<div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4"><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.orders}</div><div className="text-xs text-white/40">Pedidos</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.mapped}</div><div className="text-xs text-white/40">Unidades mapeadas</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{productionSummary.items}</div><div className="text-xs text-white/40">Faltas de insumo</div></div><div className="rounded-2xl bg-white/[.03] p-4"><div className="text-2xl font-black">{money(productionSummary.estimated)}</div><div className="text-xs text-white/40">Custo estimado da falta</div></div></div>}{planning&&plannedNeeds.rows.length>0&&<div className="mt-4 space-y-2">{plannedNeeds.rows.slice(0,8).map(x=><div key={x.item_id} className="flex items-center justify-between rounded-2xl bg-white/[.025] p-3"><div><div className="text-sm font-bold">{x.name}</div><div className="text-[11px] text-white/35">Necessário {x.required.toFixed(1)} {x.unit} • disponível {x.current.toFixed(1)} {x.unit}</div></div><b className={x.shortage>0?"text-[#ef7d18]":"text-[#a7b86a]"}>{x.shortage>0?"Comprar "+x.shortage.toFixed(1)+" "+x.unit:"OK"}</b></div>)}</div>}{planning&&plannedNeeds.mapped===0&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">Nenhum pedido conseguiu ser ligado a uma ficha técnica. Confira se os itens do pedido carregam o ID do produto do catálogo.</div>}</section>
       {lowStock.length>0&&<section className="mt-5 rounded-3xl border border-[#ef7d18]/25 bg-[#1b120a] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Ação assistida</div><h2 className="mt-1 text-xl font-black">NF CORE encontrou {lowStock.length{'}'} item(ns) para compra.</h2><p className="mt-1 text-sm text-white/45">Preparar rascunho com as quantidades mínimas. Nada será enviado ao fornecedor.</p></div>
