@@ -6,11 +6,11 @@ import { Activity, ArrowLeft, Bot, CheckCircle2, ChevronRight, Factory, MessageC
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
-type Order = { id:string; created_at:string; customer_name:string|null; item_count:number; total:number; status:string; acquisition_source?:string|null };
+type Order = { id:string; created_at:string; customer_name:string|null; item_count:number; total:number; status:string; acquisition_source?:string|null; acquisition_campaign?:string|null; acquisition_medium?:string|null };
 type Inventory = { id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; active:boolean };
 type Lead = { id:string; company:string; contact_name:string; status:string; estimated_meals:string|null };
 type Message = { id:string; created_at:string; display_name:string|null; message_text:string|null; processed:boolean };
-type Acquisition = { source:string; visits:number; leads:number; orders:number; revenue:number };
+type Acquisition = { source:string; visits:number; leads:number; orders:number; revenue:number; avgTicket:number };
 
 async function request(path:string, token:string) {
   const r=await fetch(path,{headers:{apikey:KEY,Authorization:`Bearer ${token}`}});
@@ -79,7 +79,7 @@ export default function NFCorePage(){
     setBusy(true);setError("");
     try{
       const [o,i,l,m,r,ri,cp]=await Promise.all([
-        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,acquisition_source&order=created_at.desc&limit=100`,t),
+        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,acquisition_source,acquisition_campaign,acquisition_medium&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/inventory_items?select=id,name,unit,current_quantity,minimum_quantity,average_cost,active&active=eq.true&order=name.asc&limit=500`,t),
         request(`${URL}/rest/v1/b2b_leads?select=id,company,contact_name,status,estimated_meals&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,display_name,message_text,processed&order=created_at.desc&limit=100`,t),
@@ -120,7 +120,8 @@ export default function NFCorePage(){
       const visits=acquisitionEvents.filter(e=>e.source===source&&e.event==="site_visit").length;
       const leads=acquisitionEvents.filter(e=>e.source===source&&e.event==="lead_captured").length;
       const sourceOrders=orders.filter(o=>(o.acquisition_source||"direct")===source);
-      return {source,visits,leads,orders:sourceOrders.length,revenue:sourceOrders.reduce((s,o)=>s+Number(o.total||0),0)};
+      const revenue=sourceOrders.reduce((s,o)=>s+Number(o.total||0),0);
+      return {source,visits,leads,orders:sourceOrders.length,revenue,avgTicket:sourceOrders.length?revenue/sourceOrders.length:0};
     });
   },[acquisitionEvents,orders]);
 
@@ -458,7 +459,7 @@ export default function NFCorePage(){
 
       <section className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#0d0a07] p-5">
         <div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Aquisição</div><h2 className="mt-1 text-lg font-black">De onde estão vindo os clientes?</h2><p className="mt-1 text-xs text-white/35">Instagram, Google, Facebook, TikTok e acesso direto.</p></div>
-        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[620px] text-left text-xs"><thead><tr className="border-b border-white/8 text-[9px] uppercase tracking-wider text-white/25"><th className="pb-3">Origem</th><th>Visitas</th><th>Cadastros</th><th>Pedidos</th><th>Vendas</th><th>Conversão</th></tr></thead><tbody>{acquisitionSummary.map(a=>{const conversion=a.visits?((a.orders/a.visits)*100):0;return <tr key={a.source} className="border-b border-white/5"><td className="py-3 font-black uppercase">{a.source}</td><td>{a.visits}</td><td>{a.leads}</td><td>{a.orders}</td><td>{money(a.revenue)}</td><td className="font-black text-[#a7b86a]">{conversion.toFixed(1)}%</td></tr>})}</tbody></table></div>
+        <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs"><thead><tr className="border-b border-white/8 text-[9px] uppercase tracking-wider text-white/25"><th className="pb-3">Origem</th><th>Visitas</th><th>Cadastros</th><th>Pedidos</th><th>Vendas</th><th>Ticket médio</th><th>Conversão</th></tr></thead><tbody>{acquisitionSummary.map(a=>{const conversion=a.visits?((a.orders/a.visits)*100):0;return <tr key={a.source} className="border-b border-white/5"><td className="py-3 font-black uppercase">{a.source}</td><td>{a.visits}</td><td>{a.leads}</td><td>{a.orders}</td><td>{money(a.revenue)}</td><td>{money(a.avgTicket)}</td><td className="font-black text-[#a7b86a]">{conversion.toFixed(1)}%</td></tr>})}</tbody></table></div>
       </section>
 
       <section className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
