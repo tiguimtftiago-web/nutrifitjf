@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity, ArrowLeft, Bot, CheckCircle2, ChevronRight, Factory, MessageCircle, Package, RefreshCw, Search, ShoppingBag, Sparkles, Truck, Users, Wallet, Mic, Target, BarChart3, CircleDot } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
@@ -44,6 +44,8 @@ export default function NFCorePage(){
   const [planning,setPlanning]=useState(false);
   const [command,setCommand]=useState("");
   const [listening,setListening]=useState(false);
+  const [voiceStatus,setVoiceStatus]=useState("");
+  const recognitionRef=useRef<any>(null);
   const [answer,setAnswer]=useState("Estou pronto. Pergunte sobre vendas, pedidos, estoque, produção, B2B ou WhatsApp.");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
@@ -115,31 +117,72 @@ export default function NFCorePage(){
     finally{setBusy(false);}
   }
 
-  function startVoiceCommand(){
-    if(typeof window === "undefined")return;
+  async function startVoiceCommand(){
+    if(typeof window === "undefined" || listening)return;
     const SpeechRecognition=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition;
     if(!SpeechRecognition){
-      setAnswer("O comando de voz não está disponível neste navegador. Use o Chrome no celular ou digite o comando.");
+      setVoiceStatus("Seu navegador não oferece reconhecimento de voz. Abra esta página no Google Chrome.");
+      setAnswer("O comando de voz não está disponível neste navegador. Use o Google Chrome no celular ou digite o comando.");
       return;
     }
-    if(listening)return;
-    const recognition=new SpeechRecognition();
-    recognition.lang="pt-BR";
-    recognition.interimResults=false;
-    recognition.maxAlternatives=1;
-    recognition.onstart=()=>setListening(true);
-    recognition.onerror=()=>{setListening(false);setAnswer("Não consegui entender o comando. Toque no microfone e tente novamente.");};
-    recognition.onend=()=>setListening(false);
-    recognition.onresult=(event:any)=>{
-      const transcript=String(event.results?.[0]?.[0]?.transcript||"").trim();
-      if(!transcript)return;
-      setCommand(transcript);
-      runCommand(transcript);
-    };
-    recognition.start();
+
+    try{
+      // Garante que o navegador solicite/valide a permissão do microfone antes de iniciar o reconhecimento.
+      if(navigator.mediaDevices?.getUserMedia){
+        const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+        stream.getTracks().forEach(track=>track.stop());
+      }
+
+      const recognition=new SpeechRecognition();
+      recognitionRef.current=recognition;
+      recognition.lang="pt-BR";
+      recognition.continuous=false;
+      recognition.interimResults=false;
+      recognition.maxAlternatives=1;
+      recognition.onstart=()=>{
+        setListening(true);
+        setVoiceStatus("Ouvindo… fale agora.");
+      };
+      recognition.onerror=(event:any)=>{
+        setListening(false);
+        recognitionRef.current=null;
+        const code=String(event?.error||"");
+        const message=code==="not-allowed"||code==="service-not-allowed"
+          ?"Permissão do microfone bloqueada. Libere o microfone para este site nas configurações do navegador e tente novamente."
+          :code==="no-speech"
+          ?"Não detectei sua fala. Toque no microfone e fale normalmente."
+          :"Não consegui iniciar o reconhecimento de voz. Tente novamente no Google Chrome.";
+        setVoiceStatus(message);
+        setAnswer(message);
+      };
+      recognition.onend=()=>{
+        setListening(false);
+        recognitionRef.current=null;
+      };
+      recognition.onresult=(event:any)=>{
+        const transcript=String(event.results?.[0]?.[0]?.transcript||"").trim();
+        if(!transcript){
+          setVoiceStatus("Não detectei uma frase. Tente novamente.");
+          return;
+        }
+        setCommand(transcript);
+        setVoiceStatus("Comando reconhecido. Processando…");
+        runCommand(transcript);
+      };
+      recognition.start();
+    }catch(error:any){
+      setListening(false);
+      recognitionRef.current=null;
+      const code=String(error?.name||"");
+      const message=code==="NotAllowedError"||code==="PermissionDeniedError"
+        ?"Permissão do microfone bloqueada. Libere o microfone para este site nas configurações do navegador e tente novamente."
+        :"Não consegui acessar o microfone. Verifique a permissão do navegador e tente novamente.";
+      setVoiceStatus(message);
+      setAnswer(message);
+    }
   }
 
-  function runCommand(raw=command){
+  useEffect(()=>()=>{try{recognitionRef.current?.abort();}catch{}},[]);\n\n  function runCommand(raw=command){
     const q=raw.toLowerCase().trim();
     if(!q)return;
     if(/produção|producao|produzir/.test(q)){setAnswer(productionSummary.orders?"Tenho "+productionSummary.orders+" pedido(s) prontos para planejamento. Consegui mapear "+productionSummary.mapped+" unidade(s) pelas fichas técnicas. "+productionSummary.items+" insumo(s) apresentam falta.":"Não há pedidos em confirmado, pago ou em preparo para planejar agora.");}else if(/estoque|comprar|compra/.test(q)){
@@ -233,7 +276,7 @@ export default function NFCorePage(){
             </div>
             <button onClick={()=>runCommand()} className="min-w-[104px] rounded-2xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-[0_0_28px_rgba(239,125,24,.20)]">EXECUTAR</button>
           </div>
-          <div className="mt-2 flex items-center gap-2 px-1 text-[10px] text-white/30"><Mic size={12} className={listening?"text-[#ef7d18]":"text-[#a7b86a]"}/>{listening?"O NF CORE está ouvindo. Fale normalmente.":"Comando de voz ativo: toque no microfone, fale e o NF CORE executará a consulta."}</div>
+          <div className="mt-2 flex items-start gap-2 px-1 text-[10px] leading-4 text-white/30"><Mic size={12} className={listening?"mt-0.5 shrink-0 text-[#ef7d18]":"mt-0.5 shrink-0 text-[#a7b86a]"}/><span>{voiceStatus|| (listening?"O NF CORE está ouvindo. Fale normalmente.":"Toque no microfone, permita o acesso ao microfone se o navegador solicitar e fale normalmente.")}</span></div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
