@@ -31,6 +31,8 @@ export default function NFCorePage(){
   const [answer,setAnswer]=useState("Estou pronto. Pergunte sobre vendas, pedidos, estoque, produção, B2B ou WhatsApp.");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
+  const [purchaseDraft,setPurchaseDraft]=useState(false);
+  const [purchaseMessage,setPurchaseMessage]=useState("");
 
   async function load(t=token){
     if(!t)return;
@@ -69,6 +71,25 @@ export default function NFCorePage(){
     if(prep.length)return `Há ${prep.length} pedido(s) em preparo.`;
     return "A operação não apresenta alertas críticos nos dados carregados.";
   },[lowStock.length,pending.length,prep.length]);
+
+  async function createPurchaseDraft(){
+    if(!token||!lowStock.length)return;
+    setBusy(true);setPurchaseMessage("");
+    try{
+      const response=await fetch(`${URL}/rest/v1/inventory_purchases`,{method:"POST",headers:{apikey:KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json",Prefer:"return=representation"},body:JSON.stringify({status:"rascunho",total_cost:0,notes:"Rascunho gerado pelo NF CORE a partir dos alertas de estoque."})});
+      const created=await response.json();
+      if(!response.ok)throw new Error(JSON.stringify(created));
+      const id=created?.[0]?.id;
+      if(id){
+        const items=lowStock.map(i=>{const q=Math.max(Number(i.minimum_quantity)-Number(i.current_quantity),1);return {purchase_id:id,item_id:i.id,quantity:q,unit_cost:Number(i.average_cost||0),total_cost:q*Number(i.average_cost||0),is_promotion:false};});
+        const itemResponse=await fetch(`${URL}/rest/v1/inventory_purchase_items`,{method:"POST",headers:{apikey:KEY,Authorization:`Bearer ${token}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(items)});
+        if(!itemResponse.ok)throw new Error(await itemResponse.text());
+      }
+      setPurchaseMessage("Rascunho de compra criado. Ele ainda não foi enviado nem marcado como recebido.");
+      setPurchaseDraft(false);
+    }catch(e){console.error(e);setPurchaseMessage("Não foi possível criar o rascunho de compra.");}
+    finally{setBusy(false);}
+  }
 
   function runCommand(raw=command){
     const q=raw.toLowerCase().trim();
@@ -134,7 +155,7 @@ export default function NFCorePage(){
             <button onClick={()=>runCommand()} className="rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">Executar</button>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            {["O que precisa da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?"].map(x=><button key={x} onClick={()=>runCommand(x)} className="rounded-full border border-white/10 px-3 py-2 text-[11px] font-bold text-white/55 hover:border-[#a7b86a]/40 hover:text-white">{x}</button>)}
+            {["O que precisa da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map(x=><button key={x} onClick={()=>runCommand(x)} className="rounded-full border border-white/10 px-3 py-2 text-[11px] font-bold text-white/55 hover:border-[#a7b86a]/40 hover:text-white">{x}</button>)}
           </div>
         </div>
 
@@ -143,6 +164,14 @@ export default function NFCorePage(){
         </div>
       </section>
 
+      {lowStock.length>0&&<section className="mt-5 rounded-3xl border border-[#ef7d18]/25 bg-[#1b120a] p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Ação assistida</div><h2 className="mt-1 text-xl font-black">NF CORE encontrou {lowStock.length{'}'} item(ns) para compra.</h2><p className="mt-1 text-sm text-white/45">Preparar rascunho com as quantidades mínimas. Nada será enviado ao fornecedor.</p></div>
+          <button onClick={()=>setPurchaseDraft(true)} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Preparar compra</button>
+        </div>
+        {purchaseMessage&&<div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-3 text-sm text-white/65">{'{'}purchaseMessage{'}'}</div>}
+      </section>}
+      {purchaseDraft&&<div className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4"><div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#10130d] p-6 shadow-2xl"><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Confirmação necessária</div><h2 className="mt-2 text-2xl font-black">Criar rascunho de compra?</h2><p className="mt-3 text-sm leading-6 text-white/50">O NF CORE registrará a compra como rascunho. Não haverá envio, pagamento ou entrada no estoque.</p><div className="mt-5 flex gap-2"><button onClick={()=>setPurchaseDraft(false)} className="flex-1 rounded-full border border-white/10 px-4 py-3 text-sm font-black">Cancelar</button><button onClick={()=>void createPurchaseDraft()} disabled={busy} className="flex-1 rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">{'{'}busy?"Criando...":"Confirmar"{'}'}</button></div></div></div>}
       {error&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
       <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
