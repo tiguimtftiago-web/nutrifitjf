@@ -43,6 +43,7 @@ export default function NFCorePage(){
   const [catalog,setCatalog]=useState<any[]>([]);
   const [planning,setPlanning]=useState(false);
   const [command,setCommand]=useState("");
+  const [listening,setListening]=useState(false);
   const [answer,setAnswer]=useState("Estou pronto. Pergunte sobre vendas, pedidos, estoque, produção, B2B ou WhatsApp.");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
@@ -112,6 +113,30 @@ export default function NFCorePage(){
       setPurchaseDraft(false);
     }catch(e){console.error(e);setPurchaseMessage("Não foi possível criar o rascunho de compra.");}
     finally{setBusy(false);}
+  }
+
+  function startVoiceCommand(){
+    if(typeof window === "undefined")return;
+    const SpeechRecognition=(window as any).SpeechRecognition||(window as any).webkitSpeechRecognition;
+    if(!SpeechRecognition){
+      setAnswer("O comando de voz não está disponível neste navegador. Use o Chrome no celular ou digite o comando.");
+      return;
+    }
+    if(listening)return;
+    const recognition=new SpeechRecognition();
+    recognition.lang="pt-BR";
+    recognition.interimResults=false;
+    recognition.maxAlternatives=1;
+    recognition.onstart=()=>setListening(true);
+    recognition.onerror=()=>{setListening(false);setAnswer("Não consegui entender o comando. Toque no microfone e tente novamente.");};
+    recognition.onend=()=>setListening(false);
+    recognition.onresult=(event:any)=>{
+      const transcript=String(event.results?.[0]?.[0]?.transcript||"").trim();
+      if(!transcript)return;
+      setCommand(transcript);
+      runCommand(transcript);
+    };
+    recognition.start();
   }
 
   function runCommand(raw=command){
@@ -198,9 +223,16 @@ export default function NFCorePage(){
 
         <div className="border-t border-white/10 bg-black/20 p-4 sm:p-5">
           <div className="flex gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/[.035] px-4"><Bot size={17} className="shrink-0 text-[#a7b86a]"/><input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder="Digite o que você precisa..." className="min-w-0 flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-white/30"/><Mic size={16} className="text-white/25"/></div>
+            <div className={"flex min-w-0 flex-1 items-center gap-2 rounded-2xl border px-3 transition-all "+(listening?"border-[#ef7d18]/70 bg-[#1b1008] shadow-[0_0_28px_rgba(239,125,24,.14)]":"border-white/10 bg-white/[.035]")}>
+              <Bot size={17} className="shrink-0 text-[#a7b86a]"/>
+              <input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder={listening?"Estou ouvindo...":"Toque no microfone e fale seu comando"} className="min-w-0 flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-white/30"/>
+              <button type="button" onClick={startVoiceCommand} aria-label={listening?"Comando de voz ativo":"Falar com o NF CORE"} className={"grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all "+(listening?"bg-[#ef7d18] text-black animate-pulse":"bg-[#a7b86a]/10 text-[#a7b86a] hover:bg-[#a7b86a]/20")}>
+                <Mic size={19}/>
+              </button>
+            </div>
             <button onClick={()=>runCommand()} className="rounded-2xl bg-[#ef7d18] px-5 py-3 text-sm font-black text-black shadow-[0_0_24px_rgba(239,125,24,.16)]">EXECUTAR</button>
           </div>
+          <div className="mt-2 flex items-center gap-2 px-1 text-[10px] text-white/30"><Mic size={12} className={listening?"text-[#ef7d18]":"text-[#a7b86a]"}/>{listening?"O NF CORE está ouvindo. Fale normalmente.":"Comando de voz ativo: toque no microfone, fale e o NF CORE executará a consulta."}</div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
