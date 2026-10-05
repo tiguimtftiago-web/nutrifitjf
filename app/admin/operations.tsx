@@ -46,6 +46,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [detailRequirements,setDetailRequirements]=useState<{required_quantity:number;order_id:string;status:string;customer_name:string|null}[]>([]);
   const [detailBusy,setDetailBusy]=useState(false);
   const [purchaseSupplier,setPurchaseSupplier]=useState<string>("Todos os fornecedores");
+  const [inventorySearch,setInventorySearch]=useState("");
+  const [inventoryCategory,setInventoryCategory]=useState("Todas as categorias");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});\n  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
@@ -322,6 +324,13 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const today=purchasePlans.filter(a=>a.status==="Comprar hoje").length;
     const soon=purchasePlans.filter(a=>a.status==="Comprar em breve").length;
     const sufficient=Math.max(0,inventory.filter(x=>x.active).length-purchasePlans.length);
+    const inventoryCategories=[...new Set(inventory.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+    const filteredInventory=inventory.filter(x=>{
+      const q=inventorySearch.trim().toLocaleLowerCase("pt-BR");
+      const matchesSearch=!q||x.name.toLocaleLowerCase("pt-BR").includes(q)||x.category.toLocaleLowerCase("pt-BR").includes(q)||(x.supplier||"").toLocaleLowerCase("pt-BR").includes(q);
+      const matchesCategory=inventoryCategory==="Todas as categorias"||x.category===inventoryCategory;
+      return matchesSearch&&matchesCategory;
+    });
     return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Estoque e insumos">
@@ -363,7 +372,56 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
     </div>
-    <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Fornecedor</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{inventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{x.supplier||"—"}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=0?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">SEM ESTOQUE</span>:Number(x.current_quantity)<=Number(x.minimum_quantity)?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR</span>:<span className="inline-flex rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[11px] font-black text-[#c4d38c]">OK</span>}</Td><Td><div className="flex flex-wrap gap-2 whitespace-nowrap"><button onClick={()=>void openStockDetail(x)} disabled={busy} className="rounded-full bg-white/5 px-3 py-2 text-xs font-black">Detalhes</button><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
+    <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-sm font-black">Insumos cadastrados</div>
+          <div className="mt-1 text-xs text-white/40">{filteredInventory.length} de {inventory.length} itens exibidos</div>
+        </div>
+        <div className="flex w-full flex-col gap-2 sm:flex-row lg:max-w-2xl">
+          <div className="relative flex-1">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40">⌕</span>
+            <input
+              value={inventorySearch}
+              onChange={e=>setInventorySearch(e.target.value)}
+              placeholder="Buscar insumo..."
+              aria-label="Buscar insumo"
+              className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-10 pr-10 outline-none focus:border-[#a7b86a]/60"
+            />
+            {inventorySearch&&<button onClick={()=>setInventorySearch("")} aria-label="Limpar busca" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-2 py-1 text-xs font-black text-white/55 hover:bg-white/10">×</button>}
+          </div>
+          <select value={inventoryCategory} onChange={e=>setInventoryCategory(e.target.value)} className="rounded-xl border border-white/10 bg-black/20 px-3 py-3 outline-none sm:w-56">
+            <option>Todas as categorias</option>
+            {inventoryCategories.map(category=><option key={category}>{category}</option>)}
+          </select>
+        </div>
+      </div>
+    </div>
+    {filteredInventory.length===0&&<div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-6 text-center text-sm text-white/50">Nenhum insumo encontrado. Tente outro nome ou categoria.</div>}
+    <div className="mt-3 hidden md:block">
+      <Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Fornecedor</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{filteredInventory.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{x.supplier||"—"}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{Number(x.current_quantity)<=0?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">SEM ESTOQUE</span>:Number(x.current_quantity)<=Number(x.minimum_quantity)?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR</span>:<span className="inline-flex rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[11px] font-black text-[#c4d38c]">OK</span>}</Td><Td><div className="flex flex-wrap gap-2 whitespace-nowrap"><button onClick={()=>void openStockDetail(x)} disabled={busy} className="rounded-full bg-white/5 px-3 py-2 text-xs font-black">Detalhes</button><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table>
+    </div>
+    <div className="mt-3 space-y-2 md:hidden">
+      {filteredInventory.map(x=><div key={x.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="truncate text-base font-black">{x.name}</div>
+            <div className="mt-1 text-xs text-white/45">{x.category} · {x.active?"Ativo":"Desativado"}{x.supplier?" · "+x.supplier:""}</div>
+          </div>
+          {Number(x.current_quantity)<=0?<span className="shrink-0 rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[10px] font-black text-[#f1b06e]">SEM ESTOQUE</span>:Number(x.current_quantity)<=Number(x.minimum_quantity)?<span className="shrink-0 rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[10px] font-black text-[#f1b06e]">COMPRAR</span>:<span className="shrink-0 rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[10px] font-black text-[#c4d38c]">OK</span>}
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Atual</div><div className="mt-1 text-sm font-black">{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</div></div>
+          <div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Mínimo</div><div className="mt-1 text-sm font-black">{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</div></div>
+          <div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Custo médio</div><div className="mt-1 text-sm font-black">{money(x.average_cost)}</div></div>
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <button onClick={()=>void openStockDetail(x)} disabled={busy} className="rounded-xl bg-white/5 px-3 py-2.5 text-xs font-black">Detalhes</button>
+          <button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button>
+          <button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-xl border border-[#ef7d18]/30 px-3 py-2.5 text-xs font-bold text-[#ef7d18]">Excluir</button>
+        </div>
+      </div>)}
+    </div>
     {detailItem&&(()=>{const committed=detailRequirements.filter(x=>!['cancelada','entregue','concluida'].includes(String(x.status).toLowerCase())).reduce((s,x)=>s+Number(x.required_quantity||0),0);const available=Math.max(0,Number(detailItem.current_quantity||0)-committed);const purchase=Math.max(0,Number(detailItem.minimum_quantity||0)-available);const recent=movements.filter(m=>m.item_id===detailItem.id).slice(0,8);return <div className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.05] p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-sm font-black">Detalhes do insumo</div><div className="mt-1 text-lg font-black">{detailItem.name}</div><div className="text-xs text-white/45">{detailItem.category} · {detailItem.supplier||"Fornecedor não informado"}</div></div><button onClick={()=>setDetailItem(null)} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Fechar</button></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><Stat label="Estoque atual" value={Number(detailItem.current_quantity).toLocaleString("pt-BR")+" "+detailItem.unit}/><Stat label="Mínimo" value={Number(detailItem.minimum_quantity).toLocaleString("pt-BR")+" "+detailItem.unit}/><Stat label="Comprometido" value={committed.toLocaleString("pt-BR")+" "+detailItem.unit}/><Stat label="Disponível real" value={available.toLocaleString("pt-BR")+" "+detailItem.unit}/><Stat label="Comprar" value={purchase.toLocaleString("pt-BR")+" "+detailItem.unit}/></div><div className="mt-4 grid gap-4 lg:grid-cols-2"><div className="rounded-2xl border border-white/10 bg-black/10 p-4"><div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Pedidos que comprometem estoque</div>{detailBusy?<div className="text-sm text-white/50">Carregando…</div>:detailRequirements.filter(x=>!['cancelada','entregue','concluida'].includes(String(x.status).toLowerCase())).length===0?<div className="text-sm text-white/50">Nenhum pedido aberto comprometendo este insumo.</div>:<div className="space-y-2">{detailRequirements.filter(x=>!['cancelada','entregue','concluida'].includes(String(x.status).toLowerCase())).map((x,i)=><div key={x.order_id+"-"+i} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 p-3 text-sm"><span>{x.customer_name||"Pedido"}<span className="ml-2 text-xs text-white/35">{x.status}</span></span><b>{Number(x.required_quantity).toLocaleString("pt-BR")} {detailItem.unit}</b></div>)}</div>}</div><div className="rounded-2xl border border-white/10 bg-black/10 p-4"><div className="mb-3 flex items-center justify-between gap-2"><div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><span className="text-xs text-white/35">Custo médio {money(detailItem.average_cost)}</span></div>{recent.length===0?<div className="text-sm text-white/50">Nenhuma movimentação registrada.</div>:<div className="space-y-2">{recent.map(m=><div key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 p-3 text-sm"><span>{m.movement_type}<span className="ml-2 text-xs text-white/35">{m.reason||"Sem motivo"}</span></span><b>{Number(m.quantity).toLocaleString("pt-BR")} {detailItem.unit}</b></div>)}</div>}</div></div>{detailItem.notes&&<div className="mt-4 rounded-xl border border-white/5 p-3 text-sm text-white/60"><b className="text-white">Observações:</b> {detailItem.notes}</div>}</div>})()}
     <div className="mb-5">
       <div className="mb-3 grid gap-3 sm:grid-cols-3">
