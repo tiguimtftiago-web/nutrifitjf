@@ -61,7 +61,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,d,b,c,i,m,r,ri,a]=await Promise.all([
+      const [p,f,d,b,c,i,m,r,ri,a,s]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
