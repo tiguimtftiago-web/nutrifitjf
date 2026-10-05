@@ -183,26 +183,63 @@ export default function NFCorePage(){
   }
 
   useEffect(()=>()=>{try{recognitionRef.current?.abort();}catch{}},[]);\n\n  function runCommand(raw=command){
-    const q=raw.toLowerCase().trim();
+    const normalize=(value:string)=>value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9\s]/g," ")
+      .replace(/\s+/g," ")
+      .trim();
+
+    const q=normalize(raw);
     if(!q)return;
-    if(/produção|producao|produzir/.test(q)){setAnswer(productionSummary.orders?"Tenho "+productionSummary.orders+" pedido(s) prontos para planejamento. Consegui mapear "+productionSummary.mapped+" unidade(s) pelas fichas técnicas. "+productionSummary.items+" insumo(s) apresentam falta.":"Não há pedidos em confirmado, pago ou em preparo para planejar agora.");}else if(/estoque|comprar|compra/.test(q)){
+
+    const has=(...terms:string[])=>terms.some(term=>q.includes(term));
+    const asksAttention=has("atencao","problema","problemas","alerta","alertas","urgente","preocupacao","preocupacoes","pegando","complicado","critico","criticos","o que esta acontecendo","o que esta errado");
+    const asksSales=has("venda","vendas","faturamento","faturar","receita","receitas","faturou","faturamos","quanto vendemos","quanto entrou","dinheiro entrou","movimento");
+    const asksOrders=has("pedido","pedidos","encomenda","encomendas","cliente pediu","aguardando","atrasado","atrasados","em rota","entrega");
+    const asksStock=has("estoque","estoques","insumo","insumos","ingrediente","ingredientes","material","materiais","comprar","compra","compras","faltando","falta","acabando","baixo","minimo");
+    const asksProduction=has("producao","produzir","produzindo","preparo","preparar","fabricar","fabricacao","montagem","cozinha","ficha tecnica","fichas tecnicas","planejamento");
+    const asksB2B=has("b2b","empresa","empresas","corporativo","corporativas","cliente empresarial","lead","leads");
+    const asksWhatsApp=has("whatsapp","mensagem","mensagens","conversa","conversas","atendimento");
+    const asksPurchaseDraft=has("rascunho de compra","preparar compra","montar compra","criar compra");
+
+    if(asksPurchaseDraft){
+      if(lowStock.length){
+        setPurchaseDraft(true);
+        setAnswer(\`Posso preparar um rascunho com \${lowStock.length} item(ns) abaixo ou no mínimo do estoque. Nada será enviado sem sua confirmação.\`);
+      }else{
+        setAnswer("Não encontrei itens abaixo dos mínimos cadastrados para montar uma compra agora.");
+      }
+    }else if(asksAttention){
+      const parts:string[]=[];
+      if(lowStock.length)parts.push(\`\${lowStock.length} item(ns) de estoque precisam de atenção\`);
+      if(pending.length)parts.push(\`\${pending.length} pedido(s) aguardam ação\`);
+      if(prep.length)parts.push(\`\${prep.length} pedido(s) estão em preparo\`);
+      if(openLeads.length)parts.push(\`\${openLeads.length} lead(s) B2B estão em aberto\`);
+      setAnswer(parts.length
+        ? \`Minha leitura agora: \${parts.join("; ")}. \${insight}\`
+        : "Neste momento não identifiquei alertas críticos nos dados carregados.");
+    }else if(asksSales){
+      setAnswer(\`Hoje tivemos \${todayOrders.length} pedido(s) e \${money(todayRevenue)} em vendas. \${todayOrders.length===0?"Ainda não há pedidos registrados hoje.":"Posso detalhar os pedidos e o movimento comercial a partir desses dados."}\`);
+    }else if(asksOrders){
+      setAnswer(\`Agora existem \${pending.length} pedido(s) aguardando ação, \${prep.length} em preparo e \${delivery.length} em rota. Total carregado: \${orders.length} pedido(s).\`);
+    }else if(asksStock){
       setAnswer(lowStock.length
-        ? `Encontrei ${lowStock.length} item(ns) que merecem atenção: ${lowStock.slice(0,8).map(i=>`${i.name} (${i.current_quantity} ${i.unit}, mínimo ${i.minimum_quantity} ${i.unit})`).join("; ")}.`
-        : "O estoque está acima dos mínimos cadastrados.");
-    }else if(/venda|fatur|faturamento|quanto.*hoje/.test(q)){
-      setAnswer(`Hoje: ${todayOrders.length} pedido(s) e ${money(todayRevenue)} em vendas.`);
-    }else if(/pedido|pedidos/.test(q)){
-      setAnswer(`Existem ${pending.length} pedido(s) aguardando ação, ${prep.length} em preparo e ${delivery.length} em rota.`);
-    }else if(/b2b|empresa|lead/.test(q)){
-      setAnswer(`Tenho ${openLeads.length} lead(s) B2B em aberto de ${leads.length} cadastrados.`);
-    }else if(/whatsapp|mensagem/.test(q)){
-      setAnswer(`Há ${messages.length} mensagens recentes carregadas no painel; ${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.`);
-    }else if(/produção|producao/.test(q)){
-      setAnswer(`Há ${prep.length} pedido(s) marcado(s) como em preparo. A produção detalhada continua na área Produção.`);
-    }else if(/resumo|status|atenção|atencao|como.*está|como.*esta/.test(q)){
-      setAnswer(insight+` Hoje são ${todayOrders.length} pedido(s), ${money(todayRevenue)} em vendas e ${openLeads.length} lead(s) B2B em aberto.`);
+        ? \`Encontrei \${lowStock.length} item(ns) que merecem atenção: \${lowStock.slice(0,8).map(i=>\`\${i.name} (\${i.current_quantity} \${i.unit}, mínimo \${i.minimum_quantity} \${i.unit})\`).join("; ")}.\`
+        : "O estoque está acima dos mínimos cadastrados. Não há item crítico neste momento.");
+    }else if(asksProduction){
+      setAnswer(productionSummary.orders
+        ? \`Tenho \${productionSummary.orders} pedido(s) elegíveis para planejamento, \${productionSummary.mapped} unidade(s) mapeadas pelas fichas técnicas e \${productionSummary.items} insumo(s) com falta.\`
+        : "Não há pedidos em confirmado, pago ou em preparo para planejar agora.");
+    }else if(asksB2B){
+      setAnswer(\`Tenho \${openLeads.length} lead(s) B2B em aberto de \${leads.length} cadastrados.\`);
+    }else if(asksWhatsApp){
+      setAnswer(\`Há \${messages.length} mensagens carregadas; \${messages.filter(m=>!m.processed).length} ainda estão pendentes de processamento.\`);
+    }else if(has("resumo","status","situacao","como estamos","como esta a operacao","como esta tudo","me atualiza","me atualize","me fala como esta","me diga como esta")){
+      setAnswer(insight+\` Hoje são \${todayOrders.length} pedido(s), \${money(todayRevenue)} em vendas e \${openLeads.length} lead(s) B2B em aberto.\`);
     }else{
-      setAnswer("Consigo responder, nesta primeira versão, sobre vendas, pedidos, estoque, produção, B2B e WhatsApp. Tente: “o que precisa da minha atenção?”");
+      setAnswer("Entendi a pergunta, mas ainda não encontrei uma área operacional correspondente. Tente falar naturalmente sobre vendas, pedidos, estoque, produção, compras, B2B, WhatsApp ou problemas da operação.");
     }
     setCommand("");
   }
