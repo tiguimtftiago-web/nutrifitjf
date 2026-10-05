@@ -193,10 +193,10 @@ export default function NFCorePage(){
     <div className="relative z-10 mx-auto max-w-[1400px] px-4 py-5 pb-12 sm:px-6">
       <section className="overflow-hidden rounded-[2rem] border border-[#a7b86a]/20 bg-[#080b09]/90 shadow-[0_0_80px_rgba(76,180,100,.06)]">
         <div className="grid lg:grid-cols-[.9fr_1.1fr]">
-          <div className="flex flex-col justify-center p-5 sm:p-8">
+          <div className="flex flex-col justify-center p-5 pb-4 sm:p-8">
             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]"><Activity size={13}/> Inteligência operacional</div>
             <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-6xl">NF <span className="text-[#ef7d18]">CORE</span></h1>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-white/45">O cérebro operacional da Nutrifit. Pergunte, analise e acompanhe a operação em uma única tela.</p>
+            <p className="mt-2 max-w-lg text-sm leading-6 text-white/45">O cérebro operacional da Nutrifit. Pergunte, analise e acompanhe a operação em uma única tela.</p>
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-3 py-1.5 text-[10px] font-black text-[#cbdc92]">VENDAS</span>
               <span className="rounded-full border border-[#a7b86a]/20 bg-[#a7b86a]/5 px-3 py-1.5 text-[10px] font-black text-[#cbdc92]">ESTOQUE</span>
@@ -206,11 +206,11 @@ export default function NFCorePage(){
           </div>
 
           <div className="relative flex min-h-[310px] items-center justify-center overflow-hidden p-4 sm:min-h-[390px]">
-            <div className="absolute h-[330px] w-[330px] rounded-full border border-[#a7b86a]/10"></div>
-            <div className="nf-hud-ring absolute h-[275px] w-[275px] rounded-full border border-dashed border-[#a7b86a]/40"></div>
-            <div className="nf-hud-ring-rev absolute h-[225px] w-[225px] rounded-full border border-[#ef7d18]/40" style={{borderLeftColor:"transparent",borderBottomColor:"transparent"}}></div>
+            <div className="absolute h-[290px] w-[290px] sm:h-[330px] sm:w-[330px] rounded-full border border-[#a7b86a]/10"></div>
+            <div className="nf-hud-ring absolute h-[235px] w-[235px] sm:h-[275px] sm:w-[275px] rounded-full border border-dashed border-[#a7b86a]/40"></div>
+            <div className="nf-hud-ring-rev absolute h-[190px] w-[190px] sm:h-[225px] sm:w-[225px] rounded-full border border-[#ef7d18]/40" style={{borderLeftColor:"transparent",borderBottomColor:"transparent"}}></div>
             <div className="nf-scan absolute h-px w-64 bg-gradient-to-r from-transparent via-[#a7b86a] to-transparent"></div>
-            <div className="nf-hud-core relative grid h-32 w-32 place-items-center rounded-full border border-[#a7b86a]/70 bg-[#080d08] shadow-[0_0_50px_rgba(167,184,106,.22)]">
+            <div className="nf-hud-core relative grid h-28 w-28 sm:h-32 sm:w-32 place-items-center rounded-full border border-[#a7b86a]/70 bg-[#080d08] shadow-[0_0_50px_rgba(167,184,106,.22)]">
               <div className="absolute inset-2 rounded-full border border-[#ef7d18]/40"></div>
               <div className="text-center"><Bot size={34} className="mx-auto text-[#a7b86a]"/><div className="mt-1 text-[9px] font-black tracking-[.25em] text-[#ef7d18]">ONLINE</div></div>
             </div>
@@ -221,20 +221,25 @@ export default function NFCorePage(){
           </div>
         </div>
 
-        <div className="border-t border-white/10 bg-black/20 p-4 sm:p-5">
+        <div className="border-t border-[#ef7d18]/20 bg-gradient-to-b from-[#100b06]/90 to-black/30 p-4 sm:p-6">
+          <div className="mb-3 flex items-center gap-2 px-1"><Sparkles size={14} className="text-[#ef7d18]"/><span className="text-[10px] font-black uppercase tracking-[.22em] text-[#f4aa67]">Fale com o NF CORE</span><span className="ml-auto text-[9px] text-white/25">COMANDO DIRETO</span></div>
           <div className="flex gap-2">
-            <div className={"flex min-w-0 flex-1 items-center gap-2 rounded-2xl border px-3 transition-all "+(listening?"border-[#ef7d18]/70 bg-[#1b1008] shadow-[0_0_28px_rgba(239,125,24,.14)]":"border-white/10 bg-white/[.035]")}>
+            <div className={"flex min-h-[58px] min-w-0 flex-1 items-center gap-2 rounded-2xl border px-3 transition-all "+(listening?"border-[#ef7d18]/70 bg-[#1b1008] shadow-[0_0_28px_rgba(239,125,24,.14)]":"border-white/10 bg-white/[.035]")}>
               <Bot size={17} className="shrink-0 text-[#a7b86a]"/>
-              <input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder={listening?"Estou ouvindo...":"Toque no microfone e fale seu comando"} className="min-w-0 flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-white/30"/>
+              <input value={command} onChange={e=>setCommand(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")runCommand()}} placeholder={listening?"Estou ouvindo...":"Ex.: Como estão as vendas hoje?"} className="min-w-0 flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-white/30"/>
               <button type="button" onClick={startVoiceCommand} aria-label={listening?"Comando de voz ativo":"Falar com o NF CORE"} className={"grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all "+(listening?"bg-[#ef7d18] text-black animate-pulse":"bg-[#a7b86a]/10 text-[#a7b86a] hover:bg-[#a7b86a]/20")}>
                 <Mic size={19}/>
               </button>
             </div>
-            <button onClick={()=>runCommand()} className="rounded-2xl bg-[#ef7d18] px-5 py-3 text-sm font-black text-black shadow-[0_0_24px_rgba(239,125,24,.16)]">EXECUTAR</button>
+            <button onClick={()=>runCommand()} className="min-w-[104px] rounded-2xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-[0_0_28px_rgba(239,125,24,.20)]">EXECUTAR</button>
           </div>
           <div className="mt-2 flex items-center gap-2 px-1 text-[10px] text-white/30"><Mic size={12} className={listening?"text-[#ef7d18]":"text-[#a7b86a]"}/>{listening?"O NF CORE está ouvindo. Fale normalmente.":"Comando de voz ativo: toque no microfone, fale e o NF CORE executará a consulta."}</div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
+          </div>
+          <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/80 p-4 shadow-[0_0_35px_rgba(167,184,106,.07)]">
+            <div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 text-[#a7b86a]"><Bot size={16}/></div><div><div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Resposta do NF CORE</div><div className="text-[9px] text-white/25">ANÁLISE EM TEMPO REAL</div></div><span className="ml-auto flex items-center gap-1 text-[9px] font-bold text-[#a7b86a]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]"/> ONLINE</span></div>
+            <p className="mt-3 text-sm font-medium leading-6 text-white/80">{answer}</p>
           </div>
         </div>
       </section>
@@ -246,13 +251,7 @@ export default function NFCorePage(){
         </div>)}
       </section>
 
-      <section className="mt-4 grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
-        <div className="rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
-          <div className="flex items-center justify-between"><div><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]"><Bot size={13}/> NF CORE</div><h2 className="mt-2 text-lg font-black">Análise operacional</h2></div><span className="text-[10px] text-white/25">AGORA</span></div>
-          <div className="mt-4 rounded-2xl border border-white/8 bg-white/[.025] p-4"><p className="text-sm leading-6 text-white/70">{answer}</p></div>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-[#080b09] p-5"><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-white/35"><Activity size={13}/> Status</div><div className="mt-4 space-y-3 text-sm"><div className="flex justify-between"><span className="text-white/45">Pedidos em preparo</span><b>{prep.length}</b></div><div className="flex justify-between"><span className="text-white/45">Entregas em rota</span><b>{delivery.length}</b></div><div className="flex justify-between"><span className="text-white/45">WhatsApp pendente</span><b>{messages.filter(m=>!m.processed).length}</b></div><div className="flex justify-between"><span className="text-white/45">B2B em aberto</span><b>{openLeads.length}</b></div></div></div>
-      </section>
+
 
       <section className="mt-4 rounded-2xl border border-[#a7b86a]/15 bg-[#080b09] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
