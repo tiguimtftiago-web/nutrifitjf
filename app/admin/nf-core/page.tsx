@@ -265,6 +265,11 @@ export default function NFCorePage(){
         </div>
 
         <div className="border-t border-[#ef7d18]/20 bg-gradient-to-b from-[#100b06]/90 to-black/30 p-4 sm:p-6">
+          <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/80 p-4 shadow-[0_0_35px_rgba(167,184,106,.07)]">
+            <div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 text-[#a7b86a]"><Bot size={16}/></div><div><div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Resposta do NF CORE</div><div className="text-[9px] text-white/25">ANÁLISE EM TEMPO REAL</div></div><span className="ml-auto flex items-center gap-1 text-[9px] font-bold text-[#a7b86a]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]"/> ONLINE</span></div>
+            <p className="mt-3 text-sm font-medium leading-6 text-white/80">{answer}</p>
+          </div>
+
           <div className="mb-3 flex items-center gap-2 px-1"><Sparkles size={14} className="text-[#ef7d18]"/><span className="text-[10px] font-black uppercase tracking-[.22em] text-[#f4aa67]">Fale com o NF CORE</span><span className="ml-auto text-[9px] text-white/25">COMANDO DIRETO</span></div>
           <div className="flex gap-2">
             <div className={"flex min-h-[58px] min-w-0 flex-1 items-center gap-2 rounded-2xl border px-3 transition-all "+(listening?"border-[#ef7d18]/70 bg-[#1b1008] shadow-[0_0_28px_rgba(239,125,24,.14)]":"border-white/10 bg-white/[.035]")}>
@@ -280,10 +285,7 @@ export default function NFCorePage(){
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {["O que preciso da minha atenção?","Como estão as vendas hoje?","O que preciso comprar?","Quantos pedidos estão pendentes?","Criar rascunho de compra"].map((x,i)=><button key={x} onClick={()=>runCommand(x)} className="rounded-xl border border-white/8 bg-white/[.025] px-3 py-2.5 text-left text-[10px] font-bold text-white/55 hover:border-[#a7b86a]/30 hover:text-white"><span className="mb-1 block text-[#a7b86a]">{i===0?<Target size={13}/>:i===1?<BarChart3 size={13}/>:i===2?<ShoppingBag size={13}/>:i===3?<Package size={13}/>:<CircleDot size={13}/>}</span>{x}</button>)}
           </div>
-          <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#071008]/80 p-4 shadow-[0_0_35px_rgba(167,184,106,.07)]">
-            <div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 text-[#a7b86a]"><Bot size={16}/></div><div><div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Resposta do NF CORE</div><div className="text-[9px] text-white/25">ANÁLISE EM TEMPO REAL</div></div><span className="ml-auto flex items-center gap-1 text-[9px] font-bold text-[#a7b86a]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]"/> ONLINE</span></div>
-            <p className="mt-3 text-sm font-medium leading-6 text-white/80">{answer}</p>
-          </div>
+
         </div>
       </section>
 
