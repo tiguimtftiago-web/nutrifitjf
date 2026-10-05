@@ -383,7 +383,7 @@ export default function AdminPage() {
                     {section==="resumo"&&<>
             <div className="mb-6">
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão operacional</div>
-              <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{greeting}. O que precisa de atenção?</h1>
+              <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{greeting}, Tiago e Elaine, o que precisa da sua atenção?</h1>
               <p className="mt-2 text-sm text-white/40 ">Tudo que importa agora, em um único lugar.</p>
             </div>
 
