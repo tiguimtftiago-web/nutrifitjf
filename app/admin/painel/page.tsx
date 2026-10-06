@@ -446,4 +446,8 @@ export default function PainelNutrifit() {
             <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Próxima evolução</div><div className="mt-1 text-lg font-black">Recompra e produção inteligente</div><div className="mt-1 text-sm text-white/45">A base já está pronta para receber previsão de produção, clientes para recompra e indicadores de conversão.</div></div>
             <a href="/admin" className="rounded-full bg-[#ef7d18] px-5 py-3 text-center text-xs font-black text-black">Voltar ao painel operacional</a>
           </div>
-        </section>\n      </div>\n    </main>\n  );\n}\n
+        </section>
+      </div>
+    </main>
+  );
+}
