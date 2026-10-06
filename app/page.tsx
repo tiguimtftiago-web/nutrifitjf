@@ -1518,6 +1518,22 @@ export default function Home() {
       setClubDiscount(5);
       setCustomerName(name);
       setCustomerPhone(phone);
+
+      if (email && profileMarketing) {
+        void fetch("/api/club-automation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          keepalive: true,
+          body: JSON.stringify({
+            email,
+            firstName: name.split(/\s+/)[0] || name,
+            whatsapp: phone,
+            clubMember: true,
+            marketingConsent: true,
+          }),
+        }).catch((error) => console.error("club automation trigger", error));
+      }
+
       setProfileStatus("success");
       const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
       trackClick("profile_save", acquisitionSource);
