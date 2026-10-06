@@ -14,12 +14,20 @@ type Order = {
   total: number | null;
   status: string;
   items: unknown;
+  acquisition_source: string | null;
+  acquisition_campaign: string | null;
+  acquisition_medium: string | null;
+  acquisition_content: string | null;
 };
 
 type Customer = {
   id: string;
   created_at: string;
   name: string;
+  acquisition_source: string | null;
+  acquisition_campaign: string | null;
+  acquisition_medium: string | null;
+  acquisition_content: string | null;
 };
 
 type Alert = {
@@ -30,6 +38,15 @@ type Alert = {
   required_quantity: number;
   shortage_quantity: number;
   status: string;
+};
+
+type AcquisitionEvent = {
+  id: string;
+  created_at: string;
+  event: string;
+  source: string;
+  page: string | null;
+  metadata: { campaign?: string | null; medium?: string | null; content?: string | null } | null;
 };
 
 type Finance = {
@@ -71,22 +88,25 @@ export default function PainelNutrifit() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [finance, setFinance] = useState<Finance[]>([]);
+  const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   async function load(t: string) {
     try {
       setError("");
-      const [o, c, a, f] = await Promise.all([
-        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name&order=created_at.desc&limit=500`, t),
+      const [o, c, a, f, ae] = await Promise.all([
+        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
+        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
         request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
+        request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,page,metadata&order=created_at.desc&limit=1000`, t),
       ]);
       setOrders(o || []);
       setCustomers(c || []);
       setAlerts(a || []);
       setFinance(f || []);
+      setAcquisitionEvents(ae || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível carregar o painel.");
     } finally {
@@ -118,6 +138,22 @@ export default function PainelNutrifit() {
   const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
+
+  const acquisition = useMemo(() => {
+    const sources = new Set<string>([
+      ...customers.map(c => c.acquisition_source || "direct"),
+      ...orders.map(o => o.acquisition_source || "direct"),
+      ...acquisitionEvents.map(e => e.source || "direct"),
+    ]);
+    return Array.from(sources).map(source => {
+      const customerCount = customers.filter(c => (c.acquisition_source || "direct") === source).length;
+      const sourceOrders = orders.filter(o => (o.acquisition_source || "direct") === source);
+      const revenue = sourceOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+      const leads = acquisitionEvents.filter(e => e.event === "lead_captured" && (e.source || "direct") === source).length;
+      const visits = acquisitionEvents.filter(e => e.event === "site_visit" && (e.source || "direct") === source).length;
+      return { source, customerCount, orders: sourceOrders.length, revenue, leads, visits };
+    }).sort((a, b) => b.revenue - a.revenue || b.customerCount - a.customerCount);
+  }, [customers, orders, acquisitionEvents]);
 
   const week = useMemo(() => {
     return Array.from({ length: 7 }, (_, index) => {
@@ -230,6 +266,31 @@ export default function PainelNutrifit() {
             <div className="mt-1 text-xs text-white/35">clientes cadastrados</div>
             <div className="mt-5 flex items-center gap-2 text-xs font-bold text-[#a7b86a]"><Users size={15}/> {newCustomers} novos hoje</div>
             <div className="mt-5 border-t border-white/10 pt-4 text-xs text-white/45"><b className="text-white">{pending}</b> pedidos aguardando ação</div>
+          </div>
+        </section>
+
+        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Origem dos clientes e vendas</div>
+              <div className="mt-1 text-sm text-white/40">Mostra de onde vieram os visitantes, cadastros e pedidos.</div>
+            </div>
+            <div className="rounded-full bg-[#a7b86a]/10 px-3 py-2 text-[10px] font-black text-[#d9e5a5]">Rastreamento ativo</div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] text-left text-xs">
+              <thead className="text-white/35"><tr className="border-b border-white/10"><th className="px-3 py-3">Origem</th><th className="px-3 py-3">Visitas</th><th className="px-3 py-3">Leads</th><th className="px-3 py-3">Clientes</th><th className="px-3 py-3">Pedidos</th><th className="px-3 py-3">Faturamento</th></tr></thead>
+              <tbody>
+                {acquisition.map(row => (
+                  <tr key={row.source} className="border-b border-white/5">
+                    <td className="px-3 py-3 font-black capitalize">{row.source}</td><td className="px-3 py-3 text-white/55">{row.visits}</td><td className="px-3 py-3 text-white/55">{row.leads}</td><td className="px-3 py-3 font-bold">{row.customerCount}</td><td className="px-3 py-3 font-bold">{row.orders}</td><td className="px-3 py-3 font-black">{money(row.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-white/45">
+            Use links com <b className="text-[#efb06e]">utm_source</b>, <b className="text-[#efb06e]">utm_campaign</b> e <b className="text-[#efb06e]">utm_content</b> nas divulgações. O sistema guarda a origem e leva essa informação até o cadastro e o pedido.
           </div>
         </section>
 
