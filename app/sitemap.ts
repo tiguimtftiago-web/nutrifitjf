@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 
+const baseUrl = "https://www.nutrifitjf.com.br";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.nutrifitjf.com.br";
   const now = new Date();
 
   return [
@@ -15,7 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/marmitas-fit-juiz-de-fora`,
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/b2b`,
