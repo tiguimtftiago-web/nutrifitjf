@@ -97,6 +97,8 @@ const structuredData = {
     },
   },
   hasMenu: siteUrl + "/marmitas-fit-juiz-de-fora",
+  hasMap:
+    "https://www.google.com/maps/search/?api=1&query=NutriFit%2C%20Juiz%20de%20Fora&query_place_id=ChIJuyiAyo2dmAARYrAmd8603w4",
   sameAs: ["https://www.instagram.com/nutrifit_jf/"],
   contactPoint: {
     "@type": "ContactPoint",
