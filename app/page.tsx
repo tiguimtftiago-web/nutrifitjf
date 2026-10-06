@@ -623,45 +623,59 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 
     const items = option.products
       .filter((product) => selected[product.name])
-      .map((product) => `${selected[product.name]}x ${product.name} — ${money((subtotal / quantity) * selected[product.name])}`)
-      .join("\n");
+      .map((product, i) => {
+        const qty = selected[product.name];
+        const itemTotal = (subtotal / quantity) * qty;
+        return `*${i + 1}. ${qty}x ${product.name}*\n   ${product.line} • ${product.weight} • ${money(itemTotal)}`;
+      })
+      .join("\n\n");
 
     const deliveryText =
       deliveryMode === "pickup"
-        ? "Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
+        ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : quantity >= DELIVERY_FREE_FROM
-          ? "Entrega grátis — combo com 20 marmitas ou mais"
+          ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais"
           : delivery?.fee === 0
-            ? `Entrega grátis — CEP ${cep}`
-            : `Entrega ${money(delivery?.fee ?? 0)} — CEP ${cep}`;
+            ? `🚚 *Entrega grátis* — CEP ${cep}`
+            : `🚚 *Entrega ${money(delivery?.fee ?? 0)}* — CEP ${cep}`;
 
     const message = [
-      "🥗 PEDIDO NUTRIFIT",
+      "🥗 *NUTRIFIT • NOVO PEDIDO*",
+      "━━━━━━━━━━━━━━━━━━━━",
       "",
-      `Cliente: ${customerName.trim()}`,
+      "👤 *CLIENTE*",
+      `Nome: ${customerName.trim()}`,
       `WhatsApp: ${customerPhone.trim()}`,
       "",
-      "📦 ITENS DO PEDIDO",
+      "🛒 *ITENS DO PEDIDO*",
       "",
       items,
+      ...(complementItems.length ? [
+        "",
+        "➕ *COMPLEMENTOS*",
+        ...complementItems.map((item) => {
+          const qty = selectedComplements[item.name] || 0;
+          const total = item.price === null ? "preço a confirmar" : money((item.price ?? 0) * qty);
+          return `• *${qty}x ${item.name}* — ${total}`;
+        }),
+      ] : []),
       "",
-      ...(complementItems.length ? ["➕ COMPLEMENTOS", ...complementItems.map((item) => `${selectedComplements[item.name]}x ${item.name}${item.price === null ? " — preço a confirmar" : ` — ${money((item.price ?? 0) * (selectedComplements[item.name] || 0))}`}`), ""] : []),
-      `Quantidade: ${quantity} marmitas`,
-      `Subtotal: ${money(subtotal)}`,
-      `Frete: ${money(deliveryFee)}`,
-      `${hasPendingComplementPrice ? "TOTAL PARCIAL DO PEDIDO" : "TOTAL A PAGAR"}: ${money(grandTotal)}`,
+      "━━━━━━━━━━━━━━━━━━━━",
+      "💰 *RESUMO DO PEDIDO*",
+      `🍱 Quantidade: *${quantity} marmitas*`,
+      `Subtotal: *${money(subtotal)}*`,
+      `🚚 Frete: *${money(deliveryFee)}*`,
+      `${hasPendingComplementPrice ? "🟠 TOTAL PARCIAL" : "🟢 TOTAL A PAGAR"}: *${money(grandTotal)}*`,
       "",
-      "📍 RECEBIMENTO",
+      "📍 *RECEBIMENTO*",
       deliveryText,
       "",
-      "💳 PAGAMENTO VIA PIX",
+      "💳 *PAGAMENTO VIA PIX*",
       `Chave Pix: ${PIX_KEY}`,
-      "Após realizar o Pix, envie o comprovante por aqui para confirmarmos o pedido.",
+      "📲 Depois do pagamento, envie o comprovante por este WhatsApp.",
+      "",
+      "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
-
-    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
-    setPaymentStatus("idle");
-  };
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
@@ -1280,45 +1294,46 @@ export default function Home() {
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
-      return `${i + 1}. ${item.quantity}x ${item.name}\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   Subtotal: ${money(itemSubtotal)}`;
+      return `*${i + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   💵 ${money(itemSubtotal)}`;
     }).join("\n\n");
 
     const notesText = orderNotes.trim();
     const deliverySummary = orderFreeDelivery
-      ? `Entrega grátis — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
+      ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
-        ? `${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)} — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
-        : "Taxa de entrega a confirmar pelo WhatsApp";
+        ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
+        : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
 
     const message = [
-      "🥗 NUTRIFIT • NOVO PEDIDO",
+      "🥗 *NUTRIFIT • NOVO PEDIDO*",
       "━━━━━━━━━━━━━━━━━━━━",
       "",
-      `Cliente: ${customerName.trim() || "A informar"}`,
+      "👤 *CLIENTE*",
+      `Nome: ${customerName.trim() || "A informar"}`,
       `WhatsApp: ${customerPhone.trim() || "A informar"}`,
       "",
-      "🛒 ITENS DO PEDIDO",
+      "🛒 *ITENS DO PEDIDO*",
       "",
       lines,
       "",
       "━━━━━━━━━━━━━━━━━━━━",
-      `📦 QUANTIDADE: ${orderCount} item(ns)`,
-      `💰 SUBTOTAL: ${money(orderSubtotal)}`,
-      `🎁 ${discountLabel}: -${money(orderDiscount)}`,
-      `🚚 FRETE: ${money(orderDeliveryFee)}`,
-      `💵 TOTAL A PAGAR: ${money(orderGrandTotal)}`,
+      "💰 *RESUMO DO PEDIDO*",
+      `📦 Quantidade: *${orderCount} item(ns)*`,
+      `Subtotal: *${money(orderSubtotal)}*`,
+      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,
+      `🚚 Frete: *${money(orderDeliveryFee)}*`,
+      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
       "",
-      "📍 ENTREGA",
+      "📍 *ENTREGA*",
       deliverySummary,
-      ...(notesText ? ["", "📝 OBSERVAÇÕES", notesText] : []),
+      ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
       "",
-      "💳 PAGAMENTO VIA PIX",
+      "💳 *PAGAMENTO VIA PIX*",
       `Chave Pix: ${PIX_KEY}`,
-      "Enviar o comprovante por este WhatsApp após o pagamento.",
+      "📲 Envie o comprovante por este WhatsApp após o pagamento.",
       "",
-      "✅ Pedido conferido pelo cliente."
+      "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
-
     const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
     trackClick("order_started", acquisitionSource);
 
