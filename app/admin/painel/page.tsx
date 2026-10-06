@@ -246,7 +246,63 @@ export default function PainelNutrifit() {
 
 
 
-        <section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#0d110b] p-5 sm:p-6">
+        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes</div>
+              <div className="mt-1 text-sm text-white/40">Cadastro completo, origem, cupom e histórico de cada cliente.</div>
+            </div>
+            <div className="relative w-full sm:w-80">
+              <Users size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25"/>
+              <input value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} placeholder="Buscar por nome ou WhatsApp" className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"/>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.length}</div><div className="text-xs text-white/40">Cadastrados</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{newCustomers}</div><div className="text-xs text-white/40">Novos hoje</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.reduce((n,c)=>n+Number(c.order_count||0),0)}</div><div className="text-xs text-white/40">Pedidos</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(customers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos clientes</div></div>
+          </div>
+          <div className="space-y-2">
+            {customers.filter(c => {
+              const q=customerSearch.trim().toLowerCase();
+              return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q);
+            }).slice(0, customerSearch.trim() || showAllCustomers ? undefined : 5).map(c => {
+              const open=expandedCustomer===c.id;
+              return <div key={c.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.025]">
+                <button type="button" onClick={()=>setExpandedCustomer(open?null:c.id)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.025]">
+                  <div className="min-w-0 flex-1"><div className="font-black">{c.name||"Cliente"}</div><div className="mt-1 text-xs text-white/35">{c.whatsapp||"Sem WhatsApp"} · {c.email||"Sem e-mail"}</div></div>
+                  <div className="hidden text-right sm:block"><div className="text-xs font-bold text-[#a7b86a]">{c.acquisition_source||"direct"}</div><div className="text-xs text-white/35">{Number(c.order_count||0)} pedidos · {money(Number(c.total_spend||0))}</div></div>
+                  {open?<ChevronDown size={18} className="text-[#ef7d18]"/>:<ChevronRight size={18} className="text-white/25"/>}
+                </button>
+                {open && <div className="border-t border-white/10 bg-black/10 p-4">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div><div className="text-[10px] uppercase text-white/30">Nome</div><div className="mt-1 font-bold">{c.name||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">WhatsApp</div><div className="mt-1 font-bold">{c.whatsapp||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">E-mail</div><div className="mt-1 font-bold break-all">{c.email||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Nascimento</div><div className="mt-1 font-bold">{c.birth_date?new Date(c.birth_date+"T00:00:00").toLocaleDateString("pt-BR"):"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Cadastro</div><div className="mt-1 font-bold">{new Date(c.created_at).toLocaleString("pt-BR")}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Cupom</div><div className="mt-1 font-bold">{c.coupon_code||"—"} · <span className={c.coupon_used?"text-[#a7b86a]":"text-white/45"}>{c.coupon_used?"USADO":"NÃO USADO"}</span></div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Marketing</div><div className="mt-1 font-bold">{c.marketing_consent?"Autorizado":"Não autorizado"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Nutrifit Club</div><div className="mt-1 font-bold">{c.nutrifit_club_member?"Membro":"Não membro"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Origem</div><div className="mt-1 font-bold capitalize">{c.acquisition_source||"direct"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Campanha</div><div className="mt-1 font-bold">{c.acquisition_campaign||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Pedidos</div><div className="mt-1 font-bold">{Number(c.order_count||0)}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Total gasto</div><div className="mt-1 font-black">{money(Number(c.total_spend||0))}</div></div>
+                  </div>
+                </div>}
+              </div>;
+            })}
+          </div>
+          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length===0 && <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>}
+          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length > 5 && !customerSearch.trim() && (
+            <button type="button" onClick={() => setShowAllCustomers(v => !v)} className="mt-4 w-full rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-4 py-3 text-xs font-black text-[#efb06e] hover:bg-[#ef7d18]/15">
+              {showAllCustomers ? "Mostrar menos clientes" : "Ver todos os clientes (" + customers.length + ")"}
+            </button>
+          )}
+        </section>
+
+<section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-5">
             <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Links de divulgação</div>
             <div className="mt-1 text-sm text-white/40">Use um link diferente em cada canal para o sistema saber exatamente de onde veio o cliente.</div>
@@ -278,60 +334,7 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-
-
-        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes</div>
-              <div className="mt-1 text-sm text-white/40">Cadastro completo, origem, cupom e histórico de cada cliente.</div>
-            </div>
-            <div className="relative w-full sm:w-80">
-              <Users size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25"/>
-              <input value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} placeholder="Buscar por nome ou WhatsApp" className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"/>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.length}</div><div className="text-xs text-white/40">Cadastrados</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{newCustomers}</div><div className="text-xs text-white/40">Novos hoje</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.reduce((n,c)=>n+Number(c.order_count||0),0)}</div><div className="text-xs text-white/40">Pedidos</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(customers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos clientes</div></div>
-          </div>
-          <div className="space-y-2">
-            {customers.filter(c => {
-              const q=customerSearch.trim().toLowerCase();
-              return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q);
-            }).map(c => {
-              const open=expandedCustomer===c.id;
-              return <div key={c.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.025]">
-                <button type="button" onClick={()=>setExpandedCustomer(open?null:c.id)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.025]">
-                  <div className="min-w-0 flex-1"><div className="font-black">{c.name||"Cliente"}</div><div className="mt-1 text-xs text-white/35">{c.whatsapp||"Sem WhatsApp"} · {c.email||"Sem e-mail"}</div></div>
-                  <div className="hidden text-right sm:block"><div className="text-xs font-bold text-[#a7b86a]">{c.acquisition_source||"direct"}</div><div className="text-xs text-white/35">{Number(c.order_count||0)} pedidos · {money(Number(c.total_spend||0))}</div></div>
-                  {open?<ChevronDown size={18} className="text-[#ef7d18]"/>:<ChevronRight size={18} className="text-white/25"/>}
-                </button>
-                {open && <div className="border-t border-white/10 bg-black/10 p-4">
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <div><div className="text-[10px] uppercase text-white/30">Nome</div><div className="mt-1 font-bold">{c.name||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">WhatsApp</div><div className="mt-1 font-bold">{c.whatsapp||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">E-mail</div><div className="mt-1 font-bold break-all">{c.email||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Nascimento</div><div className="mt-1 font-bold">{c.birth_date?new Date(c.birth_date+"T00:00:00").toLocaleDateString("pt-BR"):"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Cadastro</div><div className="mt-1 font-bold">{new Date(c.created_at).toLocaleString("pt-BR")}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Cupom</div><div className="mt-1 font-bold">{c.coupon_code||"—"} · <span className={c.coupon_used?"text-[#a7b86a]":"text-white/45"}>{c.coupon_used?"USADO":"NÃO USADO"}</span></div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Marketing</div><div className="mt-1 font-bold">{c.marketing_consent?"Autorizado":"Não autorizado"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Nutrifit Club</div><div className="mt-1 font-bold">{c.nutrifit_club_member?"Membro":"Não membro"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Origem</div><div className="mt-1 font-bold capitalize">{c.acquisition_source||"direct"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Campanha</div><div className="mt-1 font-bold">{c.acquisition_campaign||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Pedidos</div><div className="mt-1 font-bold">{Number(c.order_count||0)}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Total gasto</div><div className="mt-1 font-black">{money(Number(c.total_spend||0))}</div></div>
-                  </div>
-                </div>}
-              </div>;
-            })}
-          </div>
-          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length===0 && <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>}
-        </section>
-
-        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+<section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Origem dos clientes e vendas</div>
@@ -356,9 +359,7 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-
-
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+<section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
             ["Vendas hoje", money(todayRevenue), CircleDollarSign],
             ["Pedidos hoje", String(todayOrders.length), ShoppingBag],
@@ -373,9 +374,7 @@ export default function PainelNutrifit() {
           ))}
         </section>
 
-
-
-        <section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
+<section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-4">
             <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Resultado do dia</div>
             <div className="mt-1 text-sm text-white/40">Visão financeira baseada nas vendas dos pedidos e nas despesas lançadas no financeiro.</div>
@@ -398,9 +397,7 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-
-
-        <section className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_.5fr]">
+<section className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_.5fr]">
           <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -431,9 +428,7 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-
-
-        <section className="mt-5 grid gap-5 lg:grid-cols-2">
+<section className="mt-5 grid gap-5 lg:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Alertas importantes</div><div className="mt-1 text-sm text-white/40">O que pode exigir ação hoje.</div></div><ChevronRight size={18} className="text-white/20"/></div>
             {alerts.length === 0 ? <div className="rounded-2xl bg-[#a7b86a]/10 p-4 text-sm font-bold text-[#d9e5a5]">Nenhum alerta de compra no momento.</div> :
@@ -446,15 +441,9 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-
-
-        <section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#1b120a] p-5 sm:p-6">
+<section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#1b120a] p-5 sm:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Próxima evolução</div><div className="mt-1 text-lg font-black">Recompra e produção inteligente</div><div className="mt-1 text-sm text-white/45">A base já está pronta para receber previsão de produção, clientes para recompra e indicadores de conversão.</div></div>
             <a href="/admin" className="rounded-full bg-[#ef7d18] px-5 py-3 text-center text-xs font-black text-black">Voltar ao painel operacional</a>
           </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+        </section>\n      </div>\n    </main>\n  );\n}\n
