@@ -2534,14 +2534,18 @@ export default function Home() {
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
         aria-label="Abrir Assistente Nutrifit"
-        className="fixed bottom-5 right-4 z-[90] flex min-h-14 items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-2xl shadow-black/40 ring-1 ring-white/10 transition-transform hover:scale-[1.03] active:scale-[.98] sm:bottom-6 sm:right-6 sm:px-5"
+        className="group fixed bottom-4 right-3 z-[90] flex min-h-12 items-center gap-2 rounded-full border border-[#a7b86a]/70 bg-black/95 px-2.5 py-2 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#ef7d18] hover:shadow-[0_10px_35px_rgba(239,125,24,.22)] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:min-h-14 sm:gap-2.5 sm:px-3.5"
       >
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/15">
-          <MessageCircle size={19} strokeWidth={2.5} />
+        <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/80 bg-black sm:h-11 sm:w-11">
+          <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black bg-[#a7b86a]" aria-hidden="true" />
         </span>
-        <span className="leading-tight">
-          <span className="block">Assistente Nutrifit</span>
-          <span className="block text-[10px] font-bold opacity-65">Posso ajudar você</span>
+        <span className="hidden pr-1 text-left leading-tight sm:block">
+          <span className="block text-sm font-black">Assistente Nutrifit</span>
+          <span className="mt-0.5 block text-[10px] font-bold text-white/55">Posso ajudar você?</span>
+        </span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#ef7d18] text-black sm:h-9 sm:w-9">
+          <MessageCircle size={17} strokeWidth={2.6} />
         </span>
       </a>
 
