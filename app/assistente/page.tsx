@@ -142,7 +142,7 @@ export default function AssistenteNutrifitPage() {
 
               {messages.some((m) => m.text.includes("opções da Linha Fit")) && (
                 <div className="space-y-2">
-                  {fit.slice(0, 5).map(([name, price]) => (
+                  {fit.map(([name, price]) => (
                     <button key={name} onClick={() => add(name)} className={`w-full rounded-2xl border px-3 py-3 text-left ${selected.includes(name) ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}>
                       <div className="flex items-center justify-between gap-3">
                         <div><div className="text-sm font-black">{name}</div><div className="mt-0.5 text-xs text-white/40">Fit • 350 g</div></div>
