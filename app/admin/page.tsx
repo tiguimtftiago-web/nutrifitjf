@@ -287,6 +287,29 @@ export default function AdminPage() {
       setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
       if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)){ await loadOrderRequirements(order.id); await loadOrderProduction(order.id); }
       if(status==="cancelado") setOrderRequirements([]);
+
+      if(status==="pago_recebido" && order.whatsapp){
+        try{
+          const profiles=await request(URL+"/rest/v1/customer_profiles?select=email,name&whatsapp=eq."+encodeURIComponent(order.whatsapp)+"&limit=1",token);
+          const profile=Array.isArray(profiles) ? profiles[0] : null;
+          if(profile?.email){
+            await fetch("/api/club-automation",{
+              method:"POST",
+              headers:{
+                "Content-Type":"application/json",
+                Authorization:"Bearer "+token,
+              },
+              body:JSON.stringify({
+                event:"order.purchased",
+                email:profile.email,
+                firstName:String(profile.name||order.customer_name||"").trim().split(/\\s+/)[0]||"",
+                orderId:order.id,
+              }),
+            });
+          }
+        }catch(error){ console.error("purchase automation trigger",error); }
+      }
+
       setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
     }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
     finally{setBusy(false);}
