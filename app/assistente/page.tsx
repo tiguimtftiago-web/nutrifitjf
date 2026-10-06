@@ -13,6 +13,12 @@ const fit = [
   ["Carne Acebolada com Legumes", "R$ 23,97"],
   ["Frango ao Molho de Ervas com Legumes", "R$ 23,97"],
   ["Lombo Suíno com Legumes Assados", "R$ 23,97"],
+  ["Pernil Acebolado com Batata Inglesa", "R$ 23,97"],
+  ["Frango com Purê de Batata Inglesa", "R$ 23,97"],
+  ["Frango ao Molho de Mostarda com Batata", "R$ 23,97"],
+  ["Escondidinho de Patinho Fit", "R$ 23,97"],
+  ["Frango Empanado Assado com Arroz Integral", "R$ 23,97"],
+  ["Pernil Desfiado ao Molho com Arroz Integral", "R$ 23,97"],
 ] as const;
 
 const combos = [
