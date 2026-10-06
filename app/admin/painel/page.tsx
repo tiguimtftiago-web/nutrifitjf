@@ -24,6 +24,7 @@ type Customer = {
   id: string;
   created_at: string;
   name: string;
+  whatsapp: string | null;
   acquisition_source: string | null;
   acquisition_campaign: string | null;
   acquisition_medium: string | null;
@@ -90,6 +91,7 @@ export default function PainelNutrifit() {
   const [finance, setFinance] = useState<Finance[]>([]);
   const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
   const [copiedLink, setCopiedLink] = useState("");
+  const [customerSearch, setCustomerSearch] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -98,7 +100,7 @@ export default function PainelNutrifit() {
       setError("");
       const [o, c, a, f, ae] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
+        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,whatsapp,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
         request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,page,metadata&order=created_at.desc&limit=1000`, t),
@@ -328,6 +330,69 @@ export default function PainelNutrifit() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes cadastrados</div>
+              <div className="mt-1 text-sm text-white/40">Acompanhe cada cliente, sua origem, pedidos e quanto já gastou.</div>
+            </div>
+            <div className="relative w-full sm:w-80">
+              <Users size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25"/>
+              <input
+                value={customerSearch}
+                onChange={e => setCustomerSearch(e.target.value)}
+                placeholder="Buscar por nome ou WhatsApp"
+                className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"
+              />
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] text-left text-xs">
+              <thead className="text-white/35">
+                <tr className="border-b border-white/10">
+                  <th className="px-3 py-3">Cliente</th>
+                  <th className="px-3 py-3">WhatsApp</th>
+                  <th className="px-3 py-3">Cadastro</th>
+                  <th className="px-3 py-3">Origem</th>
+                  <th className="px-3 py-3">Pedidos</th>
+                  <th className="px-3 py-3">Total gasto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers
+                  .filter(c => {
+                    const q = customerSearch.trim().toLowerCase();
+                    if (!q) return true;
+                    return c.name.toLowerCase().includes(q) || (c.whatsapp || "").toLowerCase().includes(q);
+                  })
+                  .map(c => {
+                    const customerOrders = orders.filter(o => (o.customer_name || "").trim().toLowerCase() === c.name.trim().toLowerCase());
+                    const totalSpent = customerOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+                    return (
+                      <tr key={c.id} className="border-b border-white/5">
+                        <td className="px-3 py-3">
+                          <div className="font-black">{c.name || "Cliente"}</div>
+                          <div className="mt-0.5 text-[10px] text-white/25">{c.id.slice(0, 8)}</div>
+                        </td>
+                        <td className="px-3 py-3 font-mono text-white/60">{c.whatsapp || "—"}</td>
+                        <td className="px-3 py-3 text-white/55">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td>
+                        <td className="px-3 py-3 font-bold capitalize">{c.acquisition_source || "direct"}</td>
+                        <td className="px-3 py-3 font-bold">{customerOrders.length}</td>
+                        <td className="px-3 py-3 font-black">{money(totalSpent)}</td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+          {customers.filter(c => {
+            const q = customerSearch.trim().toLowerCase();
+            return !q || c.name.toLowerCase().includes(q) || (c.whatsapp || "").toLowerCase().includes(q);
+          }).length === 0 && (
+            <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>
+          )}
         </section>
 
         <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
