@@ -123,15 +123,21 @@ export default function AssistenteNutrifitPage() {
               ))}
 
               <div className="grid gap-2 pt-2">
-                <button onClick={() => choose("Ver marmitas", "Aqui estão algumas opções da Linha Fit 350 g. Escolha as que você gostaria de colocar no seu pedido.")} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
-                  🍱 Ver marmitas <ArrowRight size={16} className="text-[#a7b86a]" />
-                </button>
-                <button onClick={() => choose("Montar meu combo", "Claro. Qual quantidade você quer montar?") } className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
-                  📦 Montar meu combo <ArrowRight size={16} className="text-[#a7b86a]" />
-                </button>
-                <button onClick={() => choose("Entrega em Juiz de Fora", "Sim. Posso orientar sobre a entrega e, para confirmar o endereço e a taxa, encaminhar você para o WhatsApp.")} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
-                  <span className="flex items-center gap-2"><MapPin size={16} /> Entrega em Juiz de Fora</span><ArrowRight size={16} className="text-[#a7b86a]" />
-                </button>
+                {!messages.some((m) => m.role === "user" && m.text === "Ver marmitas") && (
+                  <button onClick={() => choose("Ver marmitas", "Aqui estão algumas opções da Linha Fit 350 g. Escolha as que você gostaria de colocar no seu pedido.")} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
+                    🍱 Ver marmitas <ArrowRight size={16} className="text-[#a7b86a]" />
+                  </button>
+                )}
+                {!messages.some((m) => m.role === "user" && m.text === "Montar meu combo") && (
+                  <button onClick={() => choose("Montar meu combo", "Claro. Qual quantidade você quer montar?")} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
+                    📦 Montar meu combo <ArrowRight size={16} className="text-[#a7b86a]" />
+                  </button>
+                )}
+                {!messages.some((m) => m.role === "user" && m.text === "Entrega em Juiz de Fora") && (
+                  <button onClick={() => choose("Entrega em Juiz de Fora", "Sim. Posso orientar sobre a entrega e, para confirmar o endereço e a taxa, encaminhar você para o WhatsApp.")} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[.025] px-4 py-3 text-left text-sm font-bold hover:border-[#a7b86a]/50">
+                    <span className="flex items-center gap-2"><MapPin size={16} /> Entrega em Juiz de Fora</span><ArrowRight size={16} className="text-[#a7b86a]" />
+                  </button>
+                )}
               </div>
 
               {messages.some((m) => m.text.includes("opções da Linha Fit")) && (
