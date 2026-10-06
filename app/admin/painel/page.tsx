@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, Bell, ChevronRight, CircleDollarSign, Package, ShoppingBag, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Bell, ChevronRight, CircleDollarSign, Copy, Package, ShoppingBag, Users } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
@@ -89,6 +89,7 @@ export default function PainelNutrifit() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [finance, setFinance] = useState<Finance[]>([]);
   const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
+  const [copiedLink, setCopiedLink] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -138,6 +139,34 @@ export default function PainelNutrifit() {
   const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
+
+  const campaignLinks = [
+    {
+      label: "Instagram • Bio",
+      description: "Link principal do perfil",
+      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil",
+    },
+    {
+      label: "Instagram • Reels",
+      description: "Para Reels de divulgação",
+      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=reel&utm_campaign=combo&utm_content=reel_combo",
+    },
+    {
+      label: "Instagram • Stories",
+      description: "Para Stories com chamada para pedido",
+      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=story&utm_campaign=combo&utm_content=story_combo",
+    },
+    {
+      label: "WhatsApp • Status",
+      description: "Para publicar no Status",
+      url: "https://nutrifitjf.com.br/?utm_source=whatsapp&utm_medium=status&utm_campaign=combo",
+    },
+    {
+      label: "Google • Perfil",
+      description: "Para o Perfil da Empresa no Google",
+      url: "https://nutrifitjf.com.br/?utm_source=google&utm_medium=perfil&utm_campaign=local",
+    },
+  ];
 
   const acquisition = useMemo(() => {
     const sources = new Set<string>([
@@ -266,6 +295,38 @@ export default function PainelNutrifit() {
             <div className="mt-1 text-xs text-white/35">clientes cadastrados</div>
             <div className="mt-5 flex items-center gap-2 text-xs font-bold text-[#a7b86a]"><Users size={15}/> {newCustomers} novos hoje</div>
             <div className="mt-5 border-t border-white/10 pt-4 text-xs text-white/45"><b className="text-white">{pending}</b> pedidos aguardando ação</div>
+          </div>
+        </section>
+
+        <section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#0d110b] p-5 sm:p-6">
+          <div className="mb-5">
+            <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Links de divulgação</div>
+            <div className="mt-1 text-sm text-white/40">Use um link diferente em cada canal para o sistema saber exatamente de onde veio o cliente.</div>
+          </div>
+          <div className="space-y-3">
+            {campaignLinks.map(link => (
+              <div key={link.label} className="rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:flex sm:items-center sm:gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-black">{link.label}</div>
+                  <div className="mt-1 text-xs text-white/40">{link.description}</div>
+                  <div className="mt-2 truncate rounded-xl bg-black/20 px-3 py-2 font-mono text-[10px] text-white/35">{link.url}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(link.url);
+                      setCopiedLink(link.label);
+                      window.setTimeout(() => setCopiedLink(""), 1600);
+                    } catch {}
+                  }}
+                  className="mt-3 inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-xs font-black text-black sm:mt-0"
+                >
+                  <Copy size={14} />
+                  {copiedLink === link.label ? "Copiado" : "Copiar link"}
+                </button>
+              </div>
+            ))}
           </div>
         </section>
 
