@@ -154,6 +154,9 @@ export default function PainelNutrifit() {
   const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
+  const clubMembers = customers.filter(c => c.nutrifit_club_member);
+  const clubNewToday = clubMembers.filter(c => dayKey(new Date(c.nutrifit_club_joined_at || c.created_at)) === today).length;
+  const clubWithoutPurchase = clubMembers.filter(c => Number(c.order_count || 0) === 0 && c.marketing_consent && c.email);
 
   const campaignLinks = [
     {
@@ -245,6 +248,27 @@ export default function PainelNutrifit() {
         {error && <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200">{error}</div>}
 
 
+
+        <section className="rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Club Nutrifit</div>
+              <div className="mt-1 text-xl font-black">Mais perto da marca. Mais benefícios para o cliente.</div>
+              <div className="mt-1 text-sm text-white/40">Acompanhe quem entrou no Club e identifique membros que ainda não fizeram a primeira compra.</div>
+            </div>
+            <div className="rounded-full bg-[#a7b86a]/10 px-4 py-2 text-xs font-black text-[#d9e5a5]">{clubMembers.length} membros</div>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubMembers.length}</div><div className="text-xs text-white/40">Membros</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubNewToday}</div><div className="text-xs text-white/40">Novos hoje</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubWithoutPurchase.length}</div><div className="text-xs text-white/40">Sem primeira compra</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(clubMembers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos membros</div></div>
+          </div>
+          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4">
+            <div className="text-sm font-black text-[#efb06e]">Primeira compra</div>
+            <div className="mt-1 text-xs text-white/45">{clubWithoutPurchase.length > 0 ? clubWithoutPurchase.length + " membro(s) autorizaram marketing, têm e-mail e ainda não compraram. Eles são os primeiros candidatos para a jornada de boas-vindas do Club Nutrifit." : "Nenhum membro elegível para a jornada de primeira compra no momento."}</div>
+          </div>
+        </section>
 
         <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
