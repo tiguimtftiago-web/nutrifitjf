@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   creator: "Nutrifit",
   publisher: "Nutrifit",
   description:
-    "Nutrifit em Juiz de Fora: marmitas Fit, Performance e Tradicional, sucos e combos. Confira o cardápio, monte seu combo e peça online.",
+    "Nutrifit em Juiz de Fora: marmitas Fit, Performance e Tradicional, saladas, sucos e combos. Confira o cardápio, monte seu combo e peça online.",
   metadataBase: new URL(siteUrl),
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
@@ -27,6 +27,8 @@ export const metadata: Metadata = {
     "marmitas congeladas Juiz de Fora",
     "marmitas para empresas Juiz de Fora",
     "combo de marmitas Juiz de Fora",
+    "saladas em Juiz de Fora",
+    "sucos naturais Juiz de Fora",
   ],
   icons: {
     icon: "/images/nutrifit-logo-icon.svg",
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nutrifit | Marmitas Fit em Juiz de Fora",
     description:
-      "Marmitas Fit, Performance e Tradicional da Nutrifit. Confira o cardápio, monte seu combo e peça online.",
+      "Marmitas Fit, Performance e Tradicional, saladas, sucos e combos da Nutrifit em Juiz de Fora. Confira o cardápio e peça online.",
     locale: "pt_BR",
     type: "website",
     url: siteUrl,
@@ -65,12 +67,25 @@ export const viewport: Viewport = {
 
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "FoodEstablishment",
-  "@id": siteUrl,
+  "@type": "Restaurant",
+  "@id": siteUrl + "/#restaurant",
   name: "Nutrifit",
   url: siteUrl,
+  logo: siteUrl + "/images/nutrifit-logo-icon.svg",
+  image: siteUrl + "/images/banner-site-1.jpg",
   description:
-    "Marmitas Fit, Performance e Tradicional, sucos e combos em Juiz de Fora.",
+    "Nutrifit: marmitas Fit, Performance e Tradicional, saladas, sucos e combos em Juiz de Fora, MG.",
+  telephone: "+55 32 99803-0038",
+  priceRange: "$$",
+  servesCuisine: ["Marmitas fitness", "Alimentação saudável", "Comida brasileira"],
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "R. Enéas Mascarenhas",
+    addressLocality: "Juiz de Fora",
+    addressRegion: "MG",
+    postalCode: "36081-110",
+    addressCountry: "BR",
+  },
   areaServed: {
     "@type": "City",
     name: "Juiz de Fora",
@@ -81,9 +96,15 @@ const structuredData = {
       addressCountry: "BR",
     },
   },
-  servesCuisine: ["Marmitas fitness", "Alimentação saudável"],
+  hasMenu: siteUrl + "/marmitas-fit-juiz-de-fora",
   sameAs: ["https://www.instagram.com/nutrifit_jf/"],
-  priceRange: "$$",
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+55 32 99803-0038",
+    contactType: "customer service",
+    areaServed: "BR",
+    availableLanguage: ["pt-BR"],
+  },
 };
 
 export default function RootLayout({
