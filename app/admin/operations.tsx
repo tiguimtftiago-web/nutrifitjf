@@ -10,7 +10,7 @@ type Finance = { id:string; created_at:string; type:string; category:string; des
 type Delivery = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
-type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
+type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
@@ -302,7 +302,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       const recipe=recipes.find(r=>r.id===p.recipe_id);
       if(!recipe||!Number(recipe.yield_quantity))return;
       recipeItems.filter(ri=>ri.recipe_id===recipe.id).forEach(ri=>{
-        const needed=Number(p.quantity||0)*Number(ri.quantity||0)/Number(recipe.yield_quantity||1);
+        const needed=Number(p.quantity||0)*Number(ri.quantity||0);
         plannedProductionByItem.set(ri.item_id,(plannedProductionByItem.get(ri.item_id)||0)+needed);
       });
     });
@@ -315,6 +315,10 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       const availableAfterOrders=current-orderRequired;
       const availableAfterAll=availableAfterOrders-plannedProduction;
       const purchaseQuantity=Math.max(0,minimum-availableAfterAll);
+      const packSize=Number(item.purchase_pack_size||0);
+      const packCost=Number(item.purchase_pack_cost||0);
+      const packagesToBuy=packSize>0&&purchaseQuantity>0?Math.ceil(purchaseQuantity/packSize):0;
+      const estimatedPurchaseCost=packagesToBuy>0&&packCost>0?packagesToBuy*packCost:purchaseQuantity*Number(item.average_cost||0);
       const priority=availableAfterAll<=0?"Comprar hoje":availableAfterAll<=minimum?"Comprar em breve":"Acompanhar";
       return {
         item_id:item.id,name:item.name,category:item.category,unit:item.unit,
@@ -325,7 +329,11 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         planned_production_quantity:plannedProduction,
         available_after_orders:availableAfterOrders,
         available_after_all:availableAfterAll,
-        purchase_quantity:purchaseQuantity
+        purchase_quantity:purchaseQuantity,
+        purchase_pack_size:packSize,
+        purchase_pack_cost:packCost,
+        packages_to_buy:packagesToBuy,
+        estimated_purchase_cost:estimatedPurchaseCost
       };
     }).filter(a=>a.purchase_quantity>0);
     const filteredPurchasePlans=purchasePlans.filter(a=>purchaseSupplier==="Todos os fornecedores"||a.supplier===purchaseSupplier);
@@ -344,7 +352,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     <Panel title="Estoque e insumos">
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <Stat label="Itens cadastrados" value={inventory.length}/>
-      <Stat label="Comprar agora" value={inventory.filter(x=>Number(x.current_quantity)<=0).length}/>
+      <Stat label="Comprar agora" value={today}/>
       <Stat label="Estoque baixo" value={inventory.filter(x=>Number(x.current_quantity)>0&&Number(x.current_quantity)<=Number(x.minimum_quantity)).length}/>
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
     </div>
@@ -473,7 +481,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <button onClick={()=>{const groups=new Map<string,typeof filteredPurchasePlans>();filteredPurchasePlans.forEach(a=>{if(!groups.has(a.supplier))groups.set(a.supplier,[]);groups.get(a.supplier)!.push(a);});const text="LISTA DE COMPRAS NUTRIFIT\n"+[...groups.entries()].map(([s,items])=>"\n"+s+"\n"+items.map(a=>"• "+a.name+": "+Number(a.purchase_quantity||0).toLocaleString("pt-BR")+" "+a.unit).join("\n")).join("\n");navigator.clipboard?.writeText(text);}} disabled={!filteredPurchasePlans.length} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black disabled:opacity-40">Copiar lista</button>
         </div>
       </div>
-      {filteredPurchasePlans.length===0?<div className="mt-4 text-sm text-white/55">Nenhum item precisa de compra neste momento.</div>:<Table><thead><tr><Th>Insumo</Th><Th>Estoque</Th><Th>Pedidos</Th><Th>Produção planejada</Th><Th>Disponível após tudo</Th><Th>Comprar</Th><Th>Prioridade</Th></tr></thead><tbody>{filteredPurchasePlans.map(a=><tr key={a.item_id} className="border-t border-white/5"><Td><b>{a.name}</b><div className="text-xs text-white/35">{a.category} · {a.supplier}</div></Td><Td>{Number(a.current_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td>{Number(a.required_quantity).toLocaleString("pt-BR")} {a.unit}<div className="text-xs text-white/35">{a.order_count} pedido(s)</div></Td><Td>{Number(a.planned_production_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td>{Number(a.available_after_all).toLocaleString("pt-BR")} {a.unit}</Td><Td><b className="text-[#ef9b55]">{Number(a.purchase_quantity).toLocaleString("pt-BR")} {a.unit}</b></Td><Td>{a.status==="Comprar hoje"?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR HOJE</span>:<span className="inline-flex rounded-full bg-[#ef9b55]/10 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR EM BREVE</span>}</Td></tr>)}</tbody></Table>}
+      {filteredPurchasePlans.length===0?<div className="mt-4 text-sm text-white/55">Nenhum item precisa de compra neste momento.</div>:<Table><thead><tr><Th>Insumo</Th><Th>Estoque</Th><Th>Pedidos</Th><Th>Produção planejada</Th><Th>Disponível após tudo</Th><Th>Comprar</Th><Th>Pacotes</Th><Th>Custo estimado</Th><Th>Prioridade</Th></tr></thead><tbody>{filteredPurchasePlans.map(a=><tr key={a.item_id} className="border-t border-white/5"><Td><b>{a.name}</b><div className="text-xs text-white/35">{a.category} · {a.supplier}</div></Td><Td>{Number(a.current_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td>{Number(a.required_quantity).toLocaleString("pt-BR")} {a.unit}<div className="text-xs text-white/35">{a.order_count} pedido(s)</div></Td><Td>{Number(a.planned_production_quantity).toLocaleString("pt-BR")} {a.unit}</Td><Td>{Number(a.available_after_all).toLocaleString("pt-BR")} {a.unit}</Td><Td><b className="text-[#ef9b55]">{Number(a.purchase_quantity).toLocaleString("pt-BR")} {a.unit}</b></Td><Td>{a.packages_to_buy>0?<><b>{a.packages_to_buy}</b><div className="text-xs text-white/35">{a.purchase_pack_size} un/pacote</div></>:"—"}</Td><Td>{money(a.estimated_purchase_cost)}</Td><Td>{a.status==="Comprar hoje"?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR HOJE</span>:<span className="inline-flex rounded-full bg-[#ef9b55]/10 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR EM BREVE</span>}</Td></tr>)}</tbody></Table>}
     </div>
     <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.15em] text-white/35">Últimas movimentações</div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Quantidade</Th><Th>Motivo</Th></tr></thead><tbody>{movements.map(m=><tr key={m.id} className="border-t border-white/5"><Td>{new Date(m.created_at).toLocaleString("pt-BR")}</Td><Td>{m.movement_type}</Td><Td>{m.quantity}</Td><Td>{m.reason||"—"}</Td></tr>)}</tbody></Table></div>
   </Panel></div>;
