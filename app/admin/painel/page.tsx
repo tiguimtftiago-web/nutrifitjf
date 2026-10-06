@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, Bell, ChevronRight, CircleDollarSign, Copy, Package, ShoppingBag, Users } from "lucide-react";
+import { ArrowLeft, BarChart3, Bell, ChevronDown, ChevronRight, CircleDollarSign, Copy, Package, ShoppingBag, Users } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
@@ -25,6 +25,17 @@ type Customer = {
   created_at: string;
   name: string;
   whatsapp: string | null;
+  email: string | null;
+  marketing_consent: boolean;
+  marketing_consent_at: string | null;
+  coupon_code: string | null;
+  coupon_used: boolean;
+  last_order_at: string | null;
+  order_count: number;
+  total_spend: number;
+  birth_date: string | null;
+  nutrifit_club_member: boolean;
+  nutrifit_club_joined_at: string | null;
   acquisition_source: string | null;
   acquisition_campaign: string | null;
   acquisition_medium: string | null;
@@ -92,6 +103,7 @@ export default function PainelNutrifit() {
   const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
   const [copiedLink, setCopiedLink] = useState("");
   const [customerSearch, setCustomerSearch] = useState("");
+  const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -100,7 +112,7 @@ export default function PainelNutrifit() {
       setError("");
       const [o, c, a, f, ae] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,whatsapp,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
+        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,whatsapp,email,marketing_consent,marketing_consent_at,coupon_code,coupon_used,last_order_at,order_count,total_spend,birth_date,nutrifit_club_member,nutrifit_club_joined_at,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
         request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,page,metadata&order=created_at.desc&limit=1000`, t),
@@ -335,64 +347,52 @@ export default function PainelNutrifit() {
         <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes cadastrados</div>
-              <div className="mt-1 text-sm text-white/40">Acompanhe cada cliente, sua origem, pedidos e quanto já gastou.</div>
+              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes</div>
+              <div className="mt-1 text-sm text-white/40">Cadastro completo, origem, cupom e histórico de cada cliente.</div>
             </div>
             <div className="relative w-full sm:w-80">
               <Users size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25"/>
-              <input
-                value={customerSearch}
-                onChange={e => setCustomerSearch(e.target.value)}
-                placeholder="Buscar por nome ou WhatsApp"
-                className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"
-              />
+              <input value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} placeholder="Buscar por nome ou WhatsApp" className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"/>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-xs">
-              <thead className="text-white/35">
-                <tr className="border-b border-white/10">
-                  <th className="px-3 py-3">Cliente</th>
-                  <th className="px-3 py-3">WhatsApp</th>
-                  <th className="px-3 py-3">Cadastro</th>
-                  <th className="px-3 py-3">Origem</th>
-                  <th className="px-3 py-3">Pedidos</th>
-                  <th className="px-3 py-3">Total gasto</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers
-                  .filter(c => {
-                    const q = customerSearch.trim().toLowerCase();
-                    if (!q) return true;
-                    return c.name.toLowerCase().includes(q) || (c.whatsapp || "").toLowerCase().includes(q);
-                  })
-                  .map(c => {
-                    const customerOrders = orders.filter(o => (o.customer_name || "").trim().toLowerCase() === c.name.trim().toLowerCase());
-                    const totalSpent = customerOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-                    return (
-                      <tr key={c.id} className="border-b border-white/5">
-                        <td className="px-3 py-3">
-                          <div className="font-black">{c.name || "Cliente"}</div>
-                          <div className="mt-0.5 text-[10px] text-white/25">{c.id.slice(0, 8)}</div>
-                        </td>
-                        <td className="px-3 py-3 font-mono text-white/60">{c.whatsapp || "—"}</td>
-                        <td className="px-3 py-3 text-white/55">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td>
-                        <td className="px-3 py-3 font-bold capitalize">{c.acquisition_source || "direct"}</td>
-                        <td className="px-3 py-3 font-bold">{customerOrders.length}</td>
-                        <td className="px-3 py-3 font-black">{money(totalSpent)}</td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.length}</div><div className="text-xs text-white/40">Cadastrados</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{newCustomers}</div><div className="text-xs text-white/40">Novos hoje</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.reduce((n,c)=>n+Number(c.order_count||0),0)}</div><div className="text-xs text-white/40">Pedidos</div></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(customers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos clientes</div></div>
           </div>
-          {customers.filter(c => {
-            const q = customerSearch.trim().toLowerCase();
-            return !q || c.name.toLowerCase().includes(q) || (c.whatsapp || "").toLowerCase().includes(q);
-          }).length === 0 && (
-            <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>
-          )}
+          <div className="space-y-2">
+            {customers.filter(c => {
+              const q=customerSearch.trim().toLowerCase();
+              return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q);
+            }).map(c => {
+              const open=expandedCustomer===c.id;
+              return <div key={c.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.025]">
+                <button type="button" onClick={()=>setExpandedCustomer(open?null:c.id)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.025]">
+                  <div className="min-w-0 flex-1"><div className="font-black">{c.name||"Cliente"}</div><div className="mt-1 text-xs text-white/35">{c.whatsapp||"Sem WhatsApp"} · {c.email||"Sem e-mail"}</div></div>
+                  <div className="hidden text-right sm:block"><div className="text-xs font-bold text-[#a7b86a]">{c.acquisition_source||"direct"}</div><div className="text-xs text-white/35">{Number(c.order_count||0)} pedidos · {money(Number(c.total_spend||0))}</div></div>
+                  {open?<ChevronDown size={18} className="text-[#ef7d18]"/>:<ChevronRight size={18} className="text-white/25"/>}
+                </button>
+                {open && <div className="border-t border-white/10 bg-black/10 p-4">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div><div className="text-[10px] uppercase text-white/30">Nome</div><div className="mt-1 font-bold">{c.name||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">WhatsApp</div><div className="mt-1 font-bold">{c.whatsapp||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">E-mail</div><div className="mt-1 font-bold break-all">{c.email||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Nascimento</div><div className="mt-1 font-bold">{c.birth_date?new Date(c.birth_date+"T00:00:00").toLocaleDateString("pt-BR"):"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Cadastro</div><div className="mt-1 font-bold">{new Date(c.created_at).toLocaleString("pt-BR")}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Cupom</div><div className="mt-1 font-bold">{c.coupon_code||"—"} · <span className={c.coupon_used?"text-[#a7b86a]":"text-white/45"}>{c.coupon_used?"USADO":"NÃO USADO"}</span></div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Marketing</div><div className="mt-1 font-bold">{c.marketing_consent?"Autorizado":"Não autorizado"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Nutrifit Club</div><div className="mt-1 font-bold">{c.nutrifit_club_member?"Membro":"Não membro"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Origem</div><div className="mt-1 font-bold capitalize">{c.acquisition_source||"direct"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Campanha</div><div className="mt-1 font-bold">{c.acquisition_campaign||"—"}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Pedidos</div><div className="mt-1 font-bold">{Number(c.order_count||0)}</div></div>
+                    <div><div className="text-[10px] uppercase text-white/30">Total gasto</div><div className="mt-1 font-black">{money(Number(c.total_spend||0))}</div></div>
+                  </div>
+                </div>}
+              </div>;
+            })}
+          </div>
+          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length===0 && <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>}
         </section>
 
         <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
