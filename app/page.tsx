@@ -1501,7 +1501,77 @@ export default function Home() {
       });
 
       if (response.status === 409) {
-        setProfileStatus("exists");
+        // Cliente já cadastrado: transformar o cadastro existente em Club sem duplicar o perfil.
+        const existingResponse = await fetch(
+          SUPABASE_URL + "/rest/v1/customer_profiles?select=id,nutrifit_club_member,nutrifit_club_joined_at,marketing_consent,email,name&whatsapp=eq." + encodeURIComponent(phone) + "&limit=1",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+        );
+        const existingProfiles = await existingResponse.json();
+        const existing = Array.isArray(existingProfiles) ? existingProfiles[0] : null;
+        if (!existingResponse.ok || !existing?.id) throw new Error("existing-profile");
+
+        const wasClubMember = existing.nutrifit_club_member === true;
+        const existingPatch = {
+          name,
+          email: email || existing.email || null,
+          birth_date: birthDate,
+          nutrifit_club_member: true,
+          nutrifit_club_joined_at: existing.nutrifit_club_joined_at || new Date().toISOString(),
+          marketing_consent: profileMarketing || existing.marketing_consent === true,
+          marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
+        };
+
+        const patchResponse = await fetch(
+          SUPABASE_URL + "/rest/v1/customer_profiles?id=eq." + encodeURIComponent(existing.id),
+          {
+            method: "PATCH",
+            headers: {
+              apikey: SUPABASE_PUBLISHABLE_KEY,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify(existingPatch),
+          },
+        );
+        if (!patchResponse.ok) throw new Error("existing-profile-update");
+
+        const effectiveEmail = String(existingPatch.email || "").trim().toLowerCase();
+        const effectiveMarketing = existingPatch.marketing_consent === true;
+
+        window.localStorage.setItem("nutrifit_profile", JSON.stringify({
+          name,
+          phone,
+          email: effectiveEmail,
+          birthDate,
+          marketing: effectiveMarketing,
+          nutrifitClub: true,
+          couponUsed: false,
+        }));
+        setClubDiscount(wasClubMember ? 0 : 5);
+        setCustomerName(name);
+        setCustomerPhone(phone);
+
+        // Só dispara a jornada para quem está entrando no Club agora.
+        if (!wasClubMember && effectiveEmail && effectiveMarketing) {
+          void fetch("/api/club-automation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            keepalive: true,
+            body: JSON.stringify({
+              email: effectiveEmail,
+              firstName: name.split(/\s+/)[0] || name,
+              whatsapp: phone,
+              clubMember: true,
+              marketingConsent: true,
+            }),
+          }).catch((error) => console.error("club automation trigger", error));
+        }
+
+        setProfileStatus("success");
+        const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+        trackClick("profile_save", acquisitionSource);
+        trackClick("lead_captured", acquisitionSource);
+        window.setTimeout(() => setProfileOpen(false), 700);
         return;
       }
       if (!response.ok) throw new Error("signup");
