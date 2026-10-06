@@ -676,6 +676,11 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       "",
       "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
+
+    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
+    setPaymentStatus("idle");
+  };
+
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
