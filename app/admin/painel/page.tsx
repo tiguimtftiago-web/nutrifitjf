@@ -32,6 +32,18 @@ type Alert = {
   status: string;
 };
 
+type Finance = {
+  id: string;
+  created_at: string;
+  type: string;
+  category: string;
+  description: string;
+  amount: number;
+  payment_method: string | null;
+  status: string;
+  paid_at: string | null;
+};
+
 const money = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
 async function request(path: string, token: string) {
@@ -58,20 +70,23 @@ export default function PainelNutrifit() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [finance, setFinance] = useState<Finance[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   async function load(t: string) {
     try {
       setError("");
-      const [o, c, a] = await Promise.all([
+      const [o, c, a, f] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
+        request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
       ]);
       setOrders(o || []);
       setCustomers(c || []);
       setAlerts(a || []);
+      setFinance(f || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível carregar o painel.");
     } finally {
@@ -96,6 +111,11 @@ export default function PainelNutrifit() {
   const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const todayMeals = todayOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
   const ticket = todayOrders.length ? todayRevenue / todayOrders.length : 0;
+  const todayExpenses = finance
+    .filter(f => f.type === "despesa" && dayKey(new Date(f.created_at)) === today)
+    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+  const estimatedProfit = todayRevenue - todayExpenses;
+  const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
 
@@ -157,6 +177,29 @@ export default function PainelNutrifit() {
               <div className="mt-1 text-sm font-bold">{label}</div>
             </div>
           ))}
+        </section>
+
+        <section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
+          <div className="mb-4">
+            <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Resultado do dia</div>
+            <div className="mt-1 text-sm text-white/40">Visão financeira baseada nas vendas dos pedidos e nas despesas lançadas no financeiro.</div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              ["Faturamento", money(todayRevenue)],
+              ["Despesas", money(todayExpenses)],
+              ["Lucro estimado", money(estimatedProfit)],
+              ["Margem", `${estimatedMargin.toFixed(1).replace(".", ",")}%`],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                <div className="text-xl font-black">{value}</div>
+                <div className="mt-1 text-xs font-bold text-white/40">{label}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-white/45">
+            <span className="font-black text-[#efb06e]">Importante:</span> o lucro é uma estimativa operacional. Ele considera somente as despesas registradas no financeiro do sistema; custos ainda não lançados não entram no cálculo.
+          </div>
         </section>
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_.5fr]">
