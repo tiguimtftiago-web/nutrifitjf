@@ -2530,6 +2530,21 @@ export default function Home() {
         </div>
       )}
 
+      <a
+        href="/assistente"
+        onClick={() => trackClick("assistant_open", "floating_button")}
+        aria-label="Abrir Assistente Nutrifit"
+        className="fixed bottom-5 right-4 z-[90] flex min-h-14 items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black shadow-2xl shadow-black/40 ring-1 ring-white/10 transition-transform hover:scale-[1.03] active:scale-[.98] sm:bottom-6 sm:right-6 sm:px-5"
+      >
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-black/15">
+          <MessageCircle size={19} strokeWidth={2.5} />
+        </span>
+        <span className="leading-tight">
+          <span className="block">Assistente Nutrifit</span>
+          <span className="block text-[10px] font-bold opacity-65">Posso ajudar você</span>
+        </span>
+      </a>
+
 
       <footer className="border-t border-white/10 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-9">
