@@ -1917,99 +1917,82 @@ export default function Home() {
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
 
-      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
+      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
         <div className="mb-4">
           <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
           <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Opções rápidas</h2>
-          <p className="mt-1.5 text-sm text-white/50">Escolha um sanduíche ou uma fruta fresca para acompanhar sua rotina.</p>
+          <p className="mt-1.5 text-sm text-white/50">Toque em uma categoria para ver as opções. A página fica mais compacta sem esconder o que você pode comprar.</p>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-          <article className="overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)]">
-            <div className="flex items-center gap-3 border-b border-white/10 bg-[#a7b86a]/[.07] p-4">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#a7b86a]/15 text-2xl">🥪</div>
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Prático e proteico</div>
-                <h3 className="mt-0.5 text-xl font-black">Sanduíches Fit</h3>
-              </div>
-            </div>
-            <div className="divide-y divide-white/5">
-              {comboComplements.filter((item) => item.category === "SANDUÍCHES").map((item) => (
-                <div key={item.name} className="flex items-center justify-between gap-3 p-3.5">
+        <div className="grid gap-2.5 md:grid-cols-3">
+          {([
+            ["SUCOS","🥤","Sucos Naturais","Refrescantes e funcionais.","#a7b86a"],
+            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
+            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
+          ] as const).map(([category, icon, title, subtitle, accent]) => {
+            const items = comboComplements.filter((item) => item.category === category);
+            return (
+              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
                   <div className="flex min-w-0 items-center gap-3">
-                    {item.image ? <img src={item.image} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" loading="lazy" /> : null}
-                  <div className="min-w-0">
-                    <div className="break-words text-sm font-black">{item.name}</div>
-                    <div className="mt-0.5 text-[11px] text-white/40">{item.description}</div>
-                  </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => addToOrder({
-                      name: item.name,
-                      line: "SANDUÍCHES",
-                      weight: "100–120 g",
-                      price: money(item.price ?? 0),
-                      description: item.description,
-                      image: item.image || ""
-                    })}
-                    className="shrink-0 rounded-full bg-[#a7b86a] px-3.5 py-2 text-[11px] font-black text-black"
-                  >
-                    {money(item.price ?? 0)}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:border-[#ef7d18]/35">
-            <div className="relative overflow-hidden border-b border-white/10 bg-[radial-gradient(circle_at_82%_15%,rgba(239,125,24,.18),transparent_34%),linear-gradient(135deg,#17150e,#0d100c)] p-4 sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 text-2xl shadow-inner">🍓</div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Frescas e prontas</div>
-                  <h3 className="mt-0.5 text-xl font-black sm:text-2xl">Frutas Picadas</h3>
-                  <p className="mt-1 text-[11px] leading-4 text-white/45 sm:text-xs">Frescas, práticas e na medida certa.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-px bg-white/5">
-              {comboComplements.filter((item) => item.category === "FRUTAS").map((item) => (
-                <div key={item.name} className="group/item flex min-h-[76px] items-center justify-between gap-2 bg-[#0d100c] p-3 transition hover:bg-[#151811] sm:min-h-[84px] sm:p-3.5">
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#ef7d18]/10 text-xl">
-                      {item.emoji}
+                    <div
+                      className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
+                      style={{ backgroundColor: accent + "18", border: `1px solid ${accent}35` }}
+                    >
+                      {icon}
                     </div>
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-black sm:text-[15px]">{item.name}</div>
-                      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">200 g</div>
+                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>{category === "SUCOS" ? "Refrescantes" : category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}</div>
+                      <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
+                      <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    aria-label={`Adicionar ${item.name} por ${money(item.price ?? 0)}`}
-                    onClick={() => addToOrder({
-                      name: item.name,
-                      line: "FRUTAS",
-                      weight: "200 g",
-                      price: money(item.price ?? 0),
-                      description: item.description,
-                      image: item.image || ""
-                    })}
-                    className="shrink-0 rounded-full border border-[#ef7d18]/45 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
-                  >
-                    {money(item.price ?? 0)}
-                  </button>
-                </div>
-              ))}
-            </div>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
+                </summary>
 
-            <div className="flex items-center gap-2 border-t border-white/10 bg-[#0a0d09] px-4 py-3.5 text-xs font-bold text-white/45">
-              <span className="text-lg">🌿</span>
-              <span>Escolha sua fruta favorita e deixe sua rotina mais prática.</span>
-            </div>
-          </article>
+                <div className="border-t border-white/10">
+                  {category === "FRUTAS" && (
+                    <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
+                  )}
+                  {items.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {item.image ? (
+                          <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
+                        ) : (
+                          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{item.emoji}</div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="break-words text-sm font-black">{item.name}</div>
+                          <div className="mt-0.5 truncate text-[11px] text-white/40">{item.description}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`Adicionar ${item.name}`}
+                        onClick={() => addToOrder({
+                          name: item.name,
+                          line: category,
+                          weight: category === "FRUTAS" ? "200 g" : category === "SUCOS" ? "500 ml" : "100–120 g",
+                          price: money(item.price ?? 0),
+                          description: item.description,
+                          image: item.image || ""
+                        })}
+                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
+                      >
+                        {money(item.price ?? 0)}
+                      </button>
+                    </div>
+                  ))}
+                  {category === "SUCOS" && (
+                    <a href="#sucos" className="block border-t border-white/10 bg-white/[.025] px-4 py-3 text-center text-[11px] font-black text-[#a7b86a]">
+                      Ver apresentação completa dos sucos ↓
+                    </a>
+                  )}
+                </div>
+              </details>
+            );
+          })}
         </div>
       </section>
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
