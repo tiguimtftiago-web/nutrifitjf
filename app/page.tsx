@@ -491,7 +491,6 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
       )}
     </div>
   );
-  );
 }
 
 function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: number; autoScroll?: boolean }) {
