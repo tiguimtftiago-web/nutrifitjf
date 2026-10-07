@@ -339,6 +339,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<30 | 60>(30);
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
   const option = monthlyPlanOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
@@ -387,99 +388,109 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   };
 
   return (
-    <div className="mt-7 overflow-hidden rounded-[2rem] border border-[#a7b86a]/25 bg-[#0d110c]">
-      <div className="relative overflow-hidden border-b border-white/10">
-        <img src="/images/nutrifit-fit-350-sprite.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070907] via-[#080a08]/95 to-[#080a08]/55" />
-        <div className="relative px-5 py-7 sm:px-7 sm:py-9 md:px-9">
-          <div className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Plano mensal</div>
-          <h3 className="mt-1 text-4xl font-black tracking-tight sm:text-5xl">NUTRI<span className="text-[#ef7d18]">FIT</span></h3>
-          <div className="mt-3 text-xl font-black sm:text-2xl">Seu mês de refeições pronto.</div>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-white/55">Escolha a quantidade, a linha e monte seus sabores.</p>
-        </div>
-      </div>
+    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#a7b86a]/25 bg-[#0d110c]">
+      <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[.025] sm:p-5">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#ef7d18]/12 text-lg">📦</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal</span>
+          <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
+          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • toque para {planOpen ? "fechar" : "montar seu plano"}</span>
+        </span>
+        <span className="shrink-0 text-right">
+          <span className="block text-lg font-black text-[#ef7d18]">{money(totalPrice)}</span>
+          <span className="mt-1 block text-xl leading-none text-[#a7b86a]">{planOpen ? "⌃" : "⌄"}</span>
+        </span>
+      </button>
 
-      <div className="p-4 sm:p-7 md:p-9">
-        <div className="sticky top-[72px] z-20 -mx-1 mb-5 rounded-2xl border border-white/10 bg-[#0d110c]/95 p-3 shadow-xl backdrop-blur-xl sm:static sm:mx-0 sm:mb-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
-          <div className="flex items-center justify-between gap-3">
-            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu plano</div><div className="mt-0.5 text-sm font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div></div>
-            <div className="text-right"><div className="text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div><div className="text-[10px] text-white/40">{total}/{quantity} escolhidas</div></div>
-          </div>
-        </div>
-        <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Quantidade</div>
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
-          {[30, 60].map((value) => (
-            <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-2xl border px-4 py-4 text-left transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15" : "border-white/10 bg-white/[.025]"}`}>
-              <span className={`block text-base font-black sm:text-lg ${quantity === value ? "text-[#cbd99a]" : "text-white/75"}`}>{value} marmitas</span>
-              <span className="mt-1 block text-xs text-white/45">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-6 text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Linha</div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {monthlyPlanOptions.map((item, index) => (
-            <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-2xl border px-2 py-3.5 text-center transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#cbd99a]" : "border-white/10 bg-white/[.025] text-white/65"}`}>
-              <span className="block whitespace-nowrap text-[10px] font-black sm:text-xs">{item.line}</span>
-              <span className="mt-1 block text-[10px] text-white/40">{item.weight}</span>
-            </button>
-          ))}
-        </div>
-
-        <button type="button" onClick={() => setFlavorsOpen((open) => !open)} aria-expanded={flavorsOpen} className="mt-6 flex w-full items-center gap-4 rounded-2xl border border-[#a7b86a]/35 bg-[#11160e] p-4 text-left transition hover:border-[#a7b86a]/60">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xl">🍱</span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-black">Escolher meus sabores</span>
-            <span className="mt-1 block text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : `Selecione as ${quantity} marmitas do seu plano.`}</span>
-          </span>
-          <span className="text-2xl text-[#ef7d18]">›</span>
-        </button>
-
-        {flavorsOpen && (
-          <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
-            {option.products.map((product) => (
-              <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
-                <img src={product.image} alt={product.name} className="h-16 w-16 shrink-0 rounded-xl object-cover sm:mb-2 sm:h-24 sm:w-full" loading="eager" decoding="async" fetchPriority="high" />
-                <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
-                <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
-                <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
-                  <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
-                  <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
-                  <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
-                </div>
+      {planOpen && (
+        <div className="border-t border-white/10 p-4 sm:p-6">
+          <div className="mb-5 rounded-2xl border border-white/10 bg-white/[.02] p-4">
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu plano</div>
+            <div className="mt-1 flex items-end justify-between gap-3">
+              <div>
+                <div className="text-base font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div>
+                <div className="mt-1 text-xs text-white/45">{money(unitPrice)} por marmita</div>
               </div>
+              <div className="text-right text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
+            </div>
+          </div>
+
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Quantidade</div>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            {[30, 60].map((value) => (
+              <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-2xl border px-4 py-3 text-left transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15" : "border-white/10 bg-white/[.025]"}`}>
+                <span className={`block text-base font-black ${quantity === value ? "text-[#cbd99a]" : "text-white/75"}`}>{value} marmitas</span>
+                <span className="mt-1 block text-xs text-white/45">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
+              </button>
             ))}
           </div>
-        )}
 
-        <div className="mt-7 grid gap-6 border-t border-white/10 pt-6 sm:grid-cols-[1fr_auto] sm:items-center">
-          <div>
-            <div className="text-xl font-black">{quantity} marmitas</div>
-            <div className="mt-1 text-4xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
-            <div className="mt-1 text-sm text-white/50">{money(unitPrice)} por marmita</div>
-            <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+          <div className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Linha</div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {monthlyPlanOptions.map((item, index) => (
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-2xl border px-2 py-3 text-center transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#cbd99a]" : "border-white/10 bg-white/[.025] text-white/65"}`}>
+                <span className="block whitespace-nowrap text-[10px] font-black sm:text-xs">{item.line}</span>
+                <span className="mt-1 block text-[10px] text-white/40">{item.weight}</span>
+              </button>
+            ))}
           </div>
-          <div className="space-y-2 text-sm text-white/60 sm:min-w-[180px]">
-            <div>✓ Mais praticidade</div>
-            <div>✓ Alimentação equilibrada</div>
-            <div>✓ Economia no mês</div>
-            <div>✓ Sabores variados</div>
-          </div>
-        </div>
 
-        <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between text-xs text-white/45">
-            <span>{total}/{quantity} selecionadas</span>
-            {remaining > 0 && <span>Faltam {remaining}</span>}
-            {remaining === 0 && <span className="text-[#a7b86a]">Plano completo ✓</span>}
-          </div>
-          <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
-            Adicionar plano ao pedido <ShoppingBag size={18} />
+          <button type="button" onClick={() => setFlavorsOpen((open) => !open)} aria-expanded={flavorsOpen} className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#a7b86a]/35 bg-[#11160e] p-4 text-left transition hover:border-[#a7b86a]/60">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-lg">🍱</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-base font-black">Escolher meus sabores</span>
+              <span className="mt-1 block text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : `Selecione as ${quantity} marmitas do seu plano.`}</span>
+            </span>
+            <span className="text-2xl text-[#ef7d18]">{flavorsOpen ? "⌃" : "›"}</span>
           </button>
-          <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
+
+          {flavorsOpen && (
+            <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+              {option.products.map((product) => (
+                <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
+                  <img src={product.image} alt={product.name} className="h-16 w-16 shrink-0 rounded-xl object-cover sm:mb-2 sm:h-24 sm:w-full" loading="eager" decoding="async" fetchPriority="high" />
+                  <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
+                  <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
+                  <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
+                    <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
+                    <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
+                    <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-6 grid gap-5 border-t border-white/10 pt-5 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <div className="text-lg font-black">{quantity} marmitas</div>
+              <div className="mt-1 text-3xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
+              <div className="mt-1 text-xs text-white/50">{money(unitPrice)} por marmita</div>
+              <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+            </div>
+            <div className="space-y-1 text-xs text-white/60">
+              <div>✓ Mais praticidade</div>
+              <div>✓ Alimentação equilibrada</div>
+              <div>✓ Economia no mês</div>
+              <div>✓ Sabores variados</div>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="mb-2 flex items-center justify-between text-xs text-white/45">
+              <span>{total}/{quantity} selecionadas</span>
+              {remaining > 0 && <span>Faltam {remaining}</span>}
+              {remaining === 0 && <span className="text-[#a7b86a]">Plano completo ✓</span>}
+            </div>
+            <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
+              Adicionar plano ao pedido <ShoppingBag size={18} />
+            </button>
+            <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
+  );
   );
 }
 
