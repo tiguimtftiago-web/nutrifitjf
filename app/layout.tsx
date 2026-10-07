@@ -99,7 +99,10 @@ const structuredData = {
   hasMenu: siteUrl + "/marmitas-fit-juiz-de-fora",
   hasMap:
     "https://www.google.com/maps/search/?api=1&query=NutriFit%2C%20Juiz%20de%20Fora&query_place_id=ChIJuyiAyo2dmAARYrAmd8603w4",
-  sameAs: ["https://www.instagram.com/nutrifit_jf/"],
+  sameAs: [
+    "https://www.instagram.com/nutrifit_jf/",
+    "https://www.google.com/maps/search/?api=1&query=NutriFit%2C%20Juiz%20de%20Fora&query_place_id=ChIJuyiAyo2dmAARYrAmd8603w4",
+  ],
   contactPoint: {
     "@type": "ContactPoint",
     telephone: "+55 32 99803-0038",
