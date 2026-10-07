@@ -1,0 +1,22 @@
+"use client";
+import { useMemo, useState } from "react";
+import { Bot, CheckCircle2, MessageCircle, Target, TriangleAlert } from "lucide-react";
+
+const fit = ["Patinho com Abóbora","Patinho com Batata-Doce","Patinho com Legumes na Manteiga","Frango Grelhado com Mix de Legumes","Carne Acebolada com Legumes","Frango ao Molho de Ervas com Legumes","Lombo Suíno com Legumes Assados","Pernil Acebolado com Batata Inglesa","Frango com Purê de Batata Inglesa","Frango ao Molho de Mostarda com Batata","Escondidinho de Patinho Fit","Frango Empanado Assado com Arroz Integral","Pernil Desfiado ao Molho com Arroz Integral"];
+
+export default function AgenteNutrifitPage() {
+  const [runs,setRuns]=useState(0);
+  const decisions=useMemo(()=>[
+    {level:"alta",title:"Priorizar a linha Fit 350 g",detail:"O catálogo já tem 13 opções Fit. O agente concentra a campanha nessa linha sem alterar preços."},
+    {level:"média",title:"Levar o cliente para uma ação de compra",detail:"Marketing deve terminar cada peça com CTA para o pedido, combo ou WhatsApp."},
+    {level:"ok",title:"Manter aprovação humana",detail:"Nenhuma publicação, mudança de preço ou mensagem é enviada automaticamente nesta versão."}
+  ],[]);
+  return <main className="min-h-screen bg-[#080a07] text-white"><div className="mx-auto max-w-6xl px-4 py-8">
+    <header className="flex items-center gap-3 border-b border-white/10 pb-6"><div className="grid h-12 w-12 place-items-center rounded-full border border-[#ef7d18]/60 bg-black font-black text-[#a7b86a]">NF</div><div><div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Nutrifit</div><h1 className="text-3xl font-black">Agente Central</h1></div></header>
+    <section className="mt-6 rounded-3xl border border-[#ef7d18]/20 bg-[#15120d] p-6"><div className="flex gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#ef7d18] text-black"><Bot/></div><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Missão</div><h2 className="mt-1 text-xl font-black">Descobrir o que a Nutrifit deve fazer hoje para vender mais.</h2><p className="mt-2 text-sm leading-6 text-white/50">O agente coordena Marketing, Vendas, Site e Operação. Nesta versão, ele recomenda; não publica nem altera o site automaticamente.</p></div></div><button onClick={()=>setRuns(runs+1)} className="mt-5 rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black">Rodar diagnóstico</button><div className="mt-2 text-xs text-white/30">Ciclos executados: {runs}</div></section>
+    <section className="mt-5 grid gap-3 md:grid-cols-4">{[["Marketing","conteúdo e campanha"],["Vendas","oferta e conversão"],["Site","experiência de compra"],["Operação","estoque e capacidade"]].map(([a,b])=><div key={a} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="font-black">{a}</div><div className="mt-1 text-xs text-white/35">{b}</div></div>)}</section>
+    <section className="mt-5 rounded-3xl border border-white/10 bg-white/[.025] p-6"><div className="flex items-center gap-2"><Target className="text-[#a7b86a]"/><h2 className="text-xl font-black">Decisões do agente</h2></div><div className="mt-4 space-y-3">{decisions.map((d,i)=><div key={i} className="rounded-2xl border border-white/10 bg-black/20 p-4"><div className="flex gap-3">{d.level==="alta"?<TriangleAlert className="text-[#ef7d18]"/>:<CheckCircle2 className="text-[#a7b86a]"/>}<div><b>{d.title}</b><p className="mt-1 text-sm leading-6 text-white/45">{d.detail}</p></div></div></div>)}</div></section>
+    <section className="mt-5 rounded-3xl border border-white/10 bg-white/[.025] p-6"><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Catálogo prioritário</div><div className="mt-3 grid gap-2 sm:grid-cols-2">{fit.map((x)=><div key={x} className="rounded-xl border border-white/10 px-3 py-2 text-sm text-white/70">{x}<span className="float-right text-[#ef7d18]">350 g</span></div>)}</div></section>
+    <section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#a7b86a]/[.04] p-6"><div className="flex items-center gap-2"><MessageCircle className="text-[#a7b86a]"/><b>Ação recomendada</b></div><p className="mt-2 text-sm leading-6 text-white/50">Campanha de 7 dias para Fit 350 g, CTA direto para pedido e acompanhamento diário de conversão. Se o alcance subir sem pedidos, testar oferta/CTA antes de aumentar o volume de conteúdo.</p></section>
+  </div></main>;
+}
