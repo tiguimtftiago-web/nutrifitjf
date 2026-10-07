@@ -506,6 +506,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
+  const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS">("SUCOS");
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
@@ -837,56 +838,81 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             <div className="mt-1 text-sm text-white/45">Seu combo já está pronto. Se quiser, adicione suco, sanduíche natural ou frutas picadas.</div>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid grid-cols-3 gap-2.5">
             {(["SUCOS","SANDUÍCHES","FRUTAS"] as const).map((category) => {
               const items = comboComplements.filter((item) => item.category === category);
-              const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
+              const labels = {
+                SUCOS: { title: "Sucos", icon: "🥤", text: "Naturais e funcionais" },
+                SANDUÍCHES: { title: "Sanduíches", icon: "🥪", text: "Leves e práticos" },
+                FRUTAS: { title: "Frutas", icon: "🍓", text: "Frescas e picadas" },
+              };
+              const active = complementCategory === category;
               return (
-                <div key={category} className="rounded-3xl border border-white/10 bg-white/[.025] p-4">
-                  {category === "FRUTAS" && (
-                    <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
-                      <img
-                        src="/images/frutas-picadas-header.jpg"
-                        alt="Frutas picadas Nutrifit"
-                        className="h-auto max-h-64 w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-lg font-black">{labels[category]}</div>
-                      <div className="mt-1 text-xs text-white/40">{category === "FRUTAS" ? "Frescas, práticas e ideais para o seu dia." : category === "SANDUÍCHES" ? "Leves, simples e nutritivos." : "Naturais, funcionais e refrescantes."}</div>
-                    </div>
-                    <span className="rounded-full bg-[#a7b86a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#cbd99a]">Opcional</span>
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setComplementCategory(category)}
+                  className={`touch-manipulation rounded-2xl border p-3 text-left transition ${active ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}
+                  aria-expanded={active}
+                >
+                  <div className="text-xl">{labels[category].icon}</div>
+                  <div className="mt-1 text-sm font-black">{labels[category].title}</div>
+                  <div className="mt-0.5 text-[9px] font-bold leading-4 text-white/40 sm:text-[10px]">{labels[category].text}</div>
+                  <div className={`mt-2 text-[9px] font-black uppercase tracking-wider ${active ? "text-[#ef7d18]" : "text-white/30"}`}>
+                    {active ? "Aberto" : "Ver opções"}
                   </div>
-                  <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-                    {items.map((item) => {
-                      const qty = selectedComplements[item.name] || 0;
-                      return (
-                        <div key={item.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0d100c] p-3">
-                          {item.image ? (
-                            <img src={item.image} alt={item.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
-                          ) : (
-                            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#171d10] text-2xl">{item.emoji}</div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <div className="break-words text-sm font-black leading-tight">{item.name}</div>
-                            <div className="mt-1 text-[11px] leading-4 text-white/40">{item.description}</div>
-                            <div className="mt-1 text-xs font-black text-[#ef7d18]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-1.5">
-                            {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
-                            {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
-                            <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                </button>
               );
             })}
           </div>
+
+          {(() => {
+            const category = complementCategory;
+            const items = comboComplements.filter((item) => item.category === category);
+            const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
+            return (
+              <div className="mt-3 rounded-3xl border border-white/10 bg-white/[.025] p-4">
+                {category === "FRUTAS" && (
+                  <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
+                    <img src="/images/frutas-picadas-header.jpg" alt="Frutas picadas Nutrifit" className="h-auto max-h-56 w-full object-cover" />
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-lg font-black">{labels[category]}</div>
+                    <div className="mt-1 text-xs text-white/40">
+                      {category === "FRUTAS" ? "Frescas, práticas e ideais para o seu dia." : category === "SANDUÍCHES" ? "Leves, simples e nutritivos." : "Naturais, funcionais e refrescantes."}
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-[#a7b86a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#cbd99a]">Opcional</span>
+                </div>
+                <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                  {items.map((item) => {
+                    const qty = selectedComplements[item.name] || 0;
+                    return (
+                      <div key={item.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0d100c] p-3">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                        ) : (
+                          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#171d10] text-2xl">{item.emoji}</div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <div className="break-words text-sm font-black leading-tight">{item.name}</div>
+                          <div className="mt-1 text-[11px] leading-4 text-white/40">{item.description}</div>
+                          <div className="mt-1 text-xs font-black text-[#ef7d18]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
+                          {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
+                          <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {complementItems.length > 0 && (
             <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4">
