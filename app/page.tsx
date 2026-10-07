@@ -1920,13 +1920,12 @@ export default function Home() {
       <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
         <div className="mb-4">
           <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
-          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Opções rápidas</h2>
-          <p className="mt-1.5 text-sm text-white/50">Toque em uma categoria para ver as opções. A página fica mais compacta sem esconder o que você pode comprar.</p>
+          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
+          <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
         </div>
 
-        <div className="grid gap-2.5 md:grid-cols-3">
+        <div className="grid gap-2.5 md:grid-cols-2">
           {([
-            ["SUCOS","🥤","Sucos Naturais","Refrescantes e funcionais.","#a7b86a"],
             ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
             ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
           ] as const).map(([category, icon, title, subtitle, accent]) => {
@@ -1942,7 +1941,9 @@ export default function Home() {
                       {icon}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>{category === "SUCOS" ? "Refrescantes" : category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}</div>
+                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>
+                        {category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}
+                      </div>
                       <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
                       <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
                     </div>
@@ -1973,7 +1974,7 @@ export default function Home() {
                         onClick={() => addToOrder({
                           name: item.name,
                           line: category,
-                          weight: category === "FRUTAS" ? "200 g" : category === "SUCOS" ? "500 ml" : "100–120 g",
+                          weight: category === "FRUTAS" ? "200 g" : "100–120 g",
                           price: money(item.price ?? 0),
                           description: item.description,
                           image: item.image || ""
@@ -1984,11 +1985,6 @@ export default function Home() {
                       </button>
                     </div>
                   ))}
-                  {category === "SUCOS" && (
-                    <a href="#sucos" className="block border-t border-white/10 bg-white/[.025] px-4 py-3 text-center text-[11px] font-black text-[#a7b86a]">
-                      Ver apresentação completa dos sucos ↓
-                    </a>
-                  )}
                 </div>
               </details>
             );
