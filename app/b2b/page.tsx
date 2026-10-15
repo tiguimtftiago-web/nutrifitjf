@@ -200,7 +200,7 @@ export default function B2BPage() {
 
         <section className="mt-4 overflow-hidden rounded-[2rem] border border-white/10 bg-[#10130d] shadow-[0_30px_100px_rgba(0,0,0,.35)]">
           <div className="relative min-h-[560px] overflow-hidden">
-            <img src="/images/nutrifit-b2b-hero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center opacity-65" />
+            <img src="/images/banner-site-1.jpg" alt="" className="absolute inset-0 h-full w-full object-cover object-center opacity-65" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,11,7,.98)_0%,rgba(8,11,7,.88)_38%,rgba(8,11,7,.48)_72%,rgba(8,11,7,.28)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_52%,rgba(239,125,24,.12),transparent_32%)]" />
             <div className="relative flex min-h-[560px] flex-col justify-between p-7 sm:p-10 lg:p-14">
