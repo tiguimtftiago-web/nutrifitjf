@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "/images/banner-site-1.jpg",
+        url: "/images/nutrifit-b2b-hero.jpg",
         alt: "Nutrifit Empresas — refeições para equipes em Juiz de Fora",
       },
     ],
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Marmitas para Empresas em Juiz de Fora | Nutrifit Empresas",
     description,
-    images: ["/images/banner-site-1.jpg"],
+    images: ["/images/nutrifit-b2b-hero.jpg"],
   },
 };
 
