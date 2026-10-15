@@ -23,8 +23,8 @@ import {
 const whatsapp = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 const reasons = [
   { icon: UtensilsCrossed, title: "Refeições prontas", text: "Uma solução prática para a rotina da equipe, sem depender de cozinha própria." },
