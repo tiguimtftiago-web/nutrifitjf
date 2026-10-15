@@ -1,6 +1,8 @@
 name: Isolated order draft checks
 
 on:
+  push:
+    branches: [automation/order-recording-draft]
   pull_request:
     branches: [main]
   workflow_dispatch:
