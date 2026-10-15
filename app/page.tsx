@@ -1342,119 +1342,93 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
-  const sendFullOrder = () => {
-    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+  const [orderSubmitStatus, setOrderSubmitStatus] = useState<"idle" | "saving" | "error">("idle");
+  const sendFullOrder = async () => {
+    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady || orderSubmitStatus === "saving") return;
+    setOrderSubmitStatus("saving");
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
       return `*${i + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   💵 ${money(itemSubtotal)}`;
     }).join("\n\n");
-
     const notesText = orderNotes.trim();
     const deliverySummary = orderFreeDelivery
       ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
         ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
-
     const message = [
-      "🥗 *NUTRIFIT • NOVO PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "",
-      "👤 *CLIENTE*",
-      `Nome: ${customerName.trim() || "A informar"}`,
-      `WhatsApp: ${customerPhone.trim() || "A informar"}`,
-      "",
-      "🛒 *ITENS DO PEDIDO*",
-      "",
-      lines,
-      "",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "💰 *RESUMO DO PEDIDO*",
-      `📦 Quantidade: *${orderCount} item(ns)*`,
-      `Subtotal: *${money(orderSubtotal)}*`,
-      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,
-      `🚚 Frete: *${money(orderDeliveryFee)}*`,
-      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
-      "",
-      "📍 *ENTREGA*",
-      deliverySummary,
-      ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
-      "",
-      "💳 *PAGAMENTO VIA PIX*",
-      `Chave Pix: ${PIX_KEY}`,
-      "📲 Envie o comprovante por este WhatsApp após o pagamento.",
-      "",
-      "✅ *Pedido conferido pelo cliente.*",
+      "🥗 *NUTRIFIT • NOVO PEDIDO*","━━━━━━━━━━━━━━━━━━━━","",
+      "👤 *CLIENTE*",`Nome: ${customerName.trim()}`,`WhatsApp: ${customerPhone.trim()}`,"",
+      "🛒 *ITENS DO PEDIDO*","",lines,"","━━━━━━━━━━━━━━━━━━━━","💰 *RESUMO DO PEDIDO*",
+      `📦 Quantidade: *${orderCount} item(ns)*`,`Subtotal: *${money(orderSubtotal)}*`,
+      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,`🚚 Frete: *${money(orderDeliveryFee)}*`,
+      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,"","📍 *ENTREGA*",deliverySummary,
+      ...(notesText ? ["","📝 *OBSERVAÇÕES*",notesText] : []),"","💳 *PAGAMENTO VIA PIX*",
+      `Chave Pix: ${PIX_KEY}`,"📲 Envie o comprovante por este WhatsApp após o pagamento.","",
+      "🕒 *Pedido registrado como aguardando confirmação.*",
     ].join("\n");
-    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
-    trackClick("order_started", acquisitionSource);
+    const acquisition = getAcquisitionData();
+    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || acquisition.source;
 
-    const whatsappUrl = whatsappOrder(message);
-    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    if (!whatsappWindow) window.location.href = whatsappUrl;
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: customerName.trim(),
+          whatsapp: orderPhoneDigits,
+          items: orderItems.map((item) => ({ name: item.name, line: item.line, weight: item.weight, quantity: item.quantity, unit_price: item.price, total: item.price * item.quantity })),
+          item_count: orderCount,
+          subtotal: orderSubtotal,
+          discount: orderDiscount,
+          delivery_fee: orderDeliveryFee,
+          total: orderGrandTotal,
+          cep: orderCep.replace(/\D/g, "") || null,
+          neighborhood: orderDelivery?.neighborhood || null,
+          notes: notesText || null,
+          acquisition_source: acquisitionSource,
+          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || acquisition.campaign || null,
+          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || acquisition.medium || null,
+          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || acquisition.content || null,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.order_id) throw new Error(result.error || "Registro do pedido não confirmado.");
 
-    setOrderItems([]);
+      trackClick("order_started", acquisitionSource);
+      const whatsappUrl = whatsappOrder(message + `\n\nCódigo do pedido: ${result.order_id}`);
+      const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+      if (!whatsappWindow) window.location.href = whatsappUrl;
 
-    void (async () => {
-      try {
-        const orderResponse = await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
+      if (couponDiscount > 0 && appliedCoupon) {
+        await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
           method: "POST",
-          headers: {
-            apikey: SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal",
-          },
-          keepalive: true,
-          body: JSON.stringify({
-            customer_name: customerName.trim(),
-            whatsapp: orderPhoneDigits,
-            items: orderItems,
-            item_count: orderCount,
-            subtotal: orderSubtotal,
-            discount: orderDiscount,
-            delivery_fee: orderDeliveryFee,
-            total: orderGrandTotal,
-            cep: orderCep.replace(/\D/g, "") || null,
-            neighborhood: orderDelivery?.neighborhood || null,
-            notes: notesText || null,
-            acquisition_source: acquisitionSource,
-            acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-            acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-            acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
-          }),
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_code: appliedCoupon.code }),
         });
-
-        if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
-          await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_code: appliedCoupon.code }),
-          });
-          setAppliedCoupon(null);
-          setCouponCode("");
-          setCouponStatus("idle");
-          setCouponMessage("");
-        } else if (orderResponse.ok && clubDiscount > 0) {
-          const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
-          });
-          if (redeemResponse.ok) {
-            setClubDiscount(0);
-            try {
-              const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
-              window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
-            } catch {}
-          }
+        setAppliedCoupon(null); setCouponCode(""); setCouponStatus("idle"); setCouponMessage("");
+      } else if (clubDiscount > 0) {
+        const redeemed = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
+        });
+        if (redeemed.ok) {
+          setClubDiscount(0);
+          try {
+            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+          } catch {}
         }
-      } catch (error) {
-        console.error("order capture", error);
       }
-    })();
-
-    setOrderOpen(false);
+      setOrderItems([]);
+      setOrderOpen(false);
+      setOrderSubmitStatus("idle");
+    } catch (error) {
+      console.error("order capture", error);
+      setOrderSubmitStatus("error");
+    }
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
   const searchResults = searchTerm.trim()
