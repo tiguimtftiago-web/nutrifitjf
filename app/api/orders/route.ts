@@ -70,6 +70,9 @@ export async function POST(request: Request) {
   } catch {
     return reject(400, "JSON inválido.");
   }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return reject(400, "Formato do pedido inválido.");
+  }
 
   // Honeypot: real customers should never fill this hidden field.
   if (typeof body.website === "string" && body.website.trim()) {
