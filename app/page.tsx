@@ -647,14 +647,14 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       .filter((product) => selected[product.name])
       .map((product) => {
         const qty = selected[product.name];
-        const unitPrice = Number((subtotal / quantity).toFixed(2));
+        const unitPrice = subtotal / quantity;
         return {
           name: product.name,
           line: product.line,
           weight: product.weight,
           quantity: qty,
           unit_price: unitPrice,
-          total: Number((unitPrice * qty).toFixed(2)),
+          total: unitPrice * qty,
         };
       });
     const selectedAddons = complementItems.map((item) => {
