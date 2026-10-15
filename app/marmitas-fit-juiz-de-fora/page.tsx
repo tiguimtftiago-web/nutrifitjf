@@ -6,7 +6,7 @@ const siteUrl = "https://www.nutrifitjf.com.br";
 export const metadata: Metadata = {
   title: "Marmitas Fit em Juiz de Fora | Nutrifit",
   description:
-    "Marmitas fit, fitness e saudáveis em Juiz de Fora, MG. Na Nutrifit você encontra Fit 350 g, Performance 450 g, Tradicional 500 g, saladas, sucos e combos para a semana.",
+    "Confira o cardápio online da Nutrifit em Juiz de Fora: marmitas Fit 350 g, Performance 450 g, Tradicional 500 g, saladas, sucos e combos semanais.",
   alternates: { canonical: "/marmitas-fit-juiz-de-fora" },
   openGraph: {
     title: "Marmitas Fit em Juiz de Fora | Nutrifit",
@@ -54,15 +54,23 @@ const lines = [
 const faqs = [
   {
     q: "A Nutrifit entrega em Juiz de Fora?",
-    a: "Sim. A Nutrifit atende Juiz de Fora/MG com entrega conforme a área e as condições informadas no pedido.",
+    a: "Sim. A Nutrifit atende Juiz de Fora/MG com entrega conforme a área e as condições informadas no pedido. Confirme a disponibilidade para seu endereço antes de finalizar.",
   },
   {
     q: "Quais tamanhos de marmita a Nutrifit oferece?",
-    a: "A Nutrifit trabalha com as linhas Fit de 350 g, Performance de 450 g e Tradicional de 500 g.",
+    a: "A Nutrifit trabalha com as linhas Fit de 350 g, Performance de 450 g e Tradicional de 500 g. Confira no cardápio as opções disponíveis em cada linha.",
   },
   {
-    q: "Como faço meu pedido?",
-    a: "Você pode consultar o cardápio no site, montar seu pedido e finalizar pelo fluxo de compra da Nutrifit ou pelo WhatsApp.",
+    q: "Qual é a diferença entre as linhas Fit, Performance e Tradicional?",
+    a: "A linha Fit tem porções de 350 g, a Performance tem 450 g e a Tradicional tem 500 g. Consulte os pratos e ingredientes do cardápio para escolher a opção que combina com sua rotina.",
+  },
+  {
+    q: "Como faço meu pedido de marmitas?",
+    a: "Acesse o cardápio online da Nutrifit, confira os pratos e combos disponíveis e siga as instruções de compra. Se preferir, entre em contato pelo WhatsApp para tirar dúvidas.",
+  },
+  {
+    q: "Posso montar um combo de marmitas para a semana?",
+    a: "O site permite consultar os combos disponíveis e iniciar a montagem do pedido. Confira as opções e os valores exibidos no cardápio antes de finalizar.",
   },
 ];
 
@@ -184,6 +192,45 @@ export default function LocalSeoPage() {
             </article>
           ))}
         </div>
+
+        <section className="mt-12 rounded-3xl border border-white/10 bg-white/[.025] p-6 sm:p-8">
+          <h2 className="text-2xl font-black">
+            Como escolher suas marmitas em Juiz de Fora
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-white/60">
+            Para organizar suas refeições, comece conferindo os pratos disponíveis
+            no cardápio da Nutrifit. Compare os ingredientes, o tamanho da porção e
+            as opções de acompanhamento antes de escolher suas marmitas.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            <article className="rounded-2xl border border-white/10 p-4">
+              <h3 className="font-black text-[#a7b86a]">Fit · 350 g</h3>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                Consulte as opções individuais e escolha os pratos disponíveis
+                para sua rotina.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-white/10 p-4">
+              <h3 className="font-black text-[#ef7d18]">Performance · 450 g</h3>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                Compare as opções da linha Performance e confira os ingredientes
+                e valores informados no cardápio.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-white/10 p-4">
+              <h3 className="font-black text-white">Tradicional · 500 g</h3>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                Veja os pratos tradicionais disponíveis e monte seu pedido de
+                acordo com as opções anunciadas.
+              </p>
+            </article>
+          </div>
+          <p className="mt-5 text-sm leading-6 text-white/55">
+            A Nutrifit atende Juiz de Fora, Minas Gerais. Como a disponibilidade
+            de pratos e a entrega podem variar, confirme os detalhes no cardápio
+            ou pelo WhatsApp antes de concluir o pedido.
+          </p>
+        </section>
 
         <section className="mt-12 rounded-3xl border border-[#a7b86a]/20 bg-[#a7b86a]/5 p-6 sm:p-8">
           <h2 className="text-2xl font-black">
