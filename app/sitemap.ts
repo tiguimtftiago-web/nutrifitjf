@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const baseUrl = "https://www.nutrifitjf.com.br";
-const lastModified = new Date("2026-10-07T00:00:00-03:00");
+const lastModified = new Date("2026-10-15T00:00:00-03:00");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
