@@ -1,3 +1,9 @@
+-- Add fields used by checkout draft capture. Existing orders remain valid.
+alter table public.customer_orders
+  add column if not exists discount numeric not null default 0,
+  add column if not exists notes text;
+
+-- Permit the new pre-confirmation state without changing any existing status values.
 alter table public.customer_orders
   drop constraint if exists customer_orders_status_check;
 
