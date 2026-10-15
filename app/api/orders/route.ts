@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 export const runtime = "nodejs";
 
 type OrderItem = {
@@ -37,8 +35,12 @@ const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_LIMIT = 8;
 
+function jsonResponse(body: unknown, init?: ResponseInit) {
+  return new Response(JSON.stringify(body), { ...init, headers: { "content-type": "application/json; charset=utf-8", ...init?.headers } });
+}
+
 function reject(status: number, error: string) {
-  return NextResponse.json({ error }, { status });
+  return jsonResponse({ error }, { status });
 }
 
 export async function POST(request: Request) {
@@ -164,5 +166,5 @@ export async function POST(request: Request) {
   if (!order?.id || order.status !== "aguardando_confirmacao") {
     return reject(502, "O banco não confirmou o registro.");
   }
-  return NextResponse.json({ order_id: order.id, status: order.status, created_at: order.created_at }, { status: 201 });
+  return jsonResponse({ order_id: order.id, status: order.status, created_at: order.created_at }, { status: 201 });
 }
