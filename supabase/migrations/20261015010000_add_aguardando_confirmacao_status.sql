@@ -32,8 +32,7 @@ create policy orders_insert_public
     and customer_name is not null
     and length(btrim(customer_name)) between 2 and 120
     and whatsapp ~ '^[0-9]{10,15}$'
-    and jsonb_typeof(items) = 'array'
-    and jsonb_array_length(items) between 1 and 100
+    and case when jsonb_typeof(items) = 'array' then jsonb_array_length(items) between 1 and 100 else false end
     and item_count between 1 and 100
     and subtotal >= 0
     and discount >= 0
