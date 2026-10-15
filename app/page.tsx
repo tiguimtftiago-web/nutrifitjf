@@ -1426,15 +1426,20 @@ export default function Home() {
         });
 
         if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
-          await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
+          const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
             method: "POST",
             headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
             body: JSON.stringify({ p_code: appliedCoupon.code }),
           });
-          setAppliedCoupon(null);
-          setCouponCode("");
-          setCouponStatus("idle");
-          setCouponMessage("");
+          const redeemed = redeemResponse.ok ? await redeemResponse.json().catch(() => false) : false;
+          if (redeemResponse.ok && redeemed === true) {
+            setAppliedCoupon(null);
+            setCouponCode("");
+            setCouponStatus("idle");
+            setCouponMessage("");
+          } else {
+            console.warn("Coupon redemption was not confirmed by Supabase; keeping the coupon state for review.");
+          }
         } else if (orderResponse.ok && clubDiscount > 0) {
           const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
             method: "POST",
