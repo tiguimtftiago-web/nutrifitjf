@@ -17,10 +17,12 @@ type OrderDraft = {
   items: OrderItem[];
   item_count: number;
   subtotal: number;
+  discount?: number;
   delivery_fee: number;
   total: number;
   cep?: string | null;
   neighborhood?: string | null;
+  notes?: string | null;
   acquisition_source?: string | null;
   acquisition_campaign?: string | null;
   acquisition_medium?: string | null;
@@ -53,10 +55,10 @@ export async function POST(request: Request) {
     (item.total === undefined || asMoney(item.total))
   );
   if (!validItems || !Number.isInteger(body.item_count) || body.item_count < 1 ||
-      !asMoney(body.subtotal) || !asMoney(body.delivery_fee) || !asMoney(body.total)) {
+      !asMoney(body.subtotal) || !asMoney(body.discount ?? 0) || !asMoney(body.delivery_fee) || !asMoney(body.total)) {
     return NextResponse.json({ error: "Valores ou quantidades inválidos." }, { status: 400 });
   }
-  if (Math.abs(body.subtotal + body.delivery_fee - body.total) > 0.02) {
+  if ((body.discount ?? 0) > body.subtotal || Math.abs(body.subtotal - (body.discount ?? 0) + body.delivery_fee - body.total) > 0.02) {
     return NextResponse.json({ error: "O total não confere com subtotal e entrega." }, { status: 400 });
   }
 
@@ -83,10 +85,12 @@ export async function POST(request: Request) {
       items: body.items,
       item_count: body.item_count,
       subtotal: body.subtotal,
+      discount: body.discount ?? 0,
       delivery_fee: body.delivery_fee,
       total: body.total,
       cep: acquisition(body.cep),
       neighborhood: acquisition(body.neighborhood),
+      notes: acquisition(body.notes),
       status: "aguardando_confirmacao",
       acquisition_source: acquisition(body.acquisition_source) || "direct",
       acquisition_campaign: acquisition(body.acquisition_campaign),
