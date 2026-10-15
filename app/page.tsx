@@ -1346,6 +1346,8 @@ export default function Home() {
   const sendFullOrder = async () => {
     if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady || orderSubmitStatus === "saving") return;
     setOrderSubmitStatus("saving");
+    // Open the tab synchronously during the click gesture so mobile browsers do not block WhatsApp after the async save.
+    const whatsappWindow = window.open("about:blank", "_blank");
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
@@ -1398,8 +1400,11 @@ export default function Home() {
 
       trackClick("order_started", acquisitionSource);
       const whatsappUrl = whatsappOrder(message + `\n\nCódigo do pedido: ${result.order_id}`);
-      const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-      if (!whatsappWindow) window.location.href = whatsappUrl;
+      if (whatsappWindow) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.href = whatsappUrl;
+      }
 
       if (couponDiscount > 0 && appliedCoupon) {
         await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
@@ -1427,6 +1432,7 @@ export default function Home() {
       setOrderSubmitStatus("idle");
     } catch (error) {
       console.error("order capture", error);
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
       setOrderSubmitStatus("error");
     }
   };
