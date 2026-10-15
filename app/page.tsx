@@ -706,7 +706,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       "",
       "🕒 *Pedido registrado como aguardando confirmação.*",
       "💳 O pagamento será combinado após a confirmação do pedido.",
-    ].join("\\n");
+    ].join("\n");
     const acquisition = getAcquisitionData();
     try {
       const response = await fetch("/api/orders", {
@@ -732,7 +732,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.order_id) throw new Error(result.error || "Registro do pedido não confirmado.");
-      const url = whatsappOrder(message + `\\n\\nCódigo do pedido: ${result.order_id}`);
+      const url = whatsappOrder(message + `\n\nCódigo do pedido: ${result.order_id}`);
       if (whatsappWindow) whatsappWindow.location.href = url;
       else window.location.href = url;
       setPaymentStatus("idle");
