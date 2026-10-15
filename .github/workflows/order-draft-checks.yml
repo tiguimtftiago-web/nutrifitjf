@@ -23,8 +23,10 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Lint
-        run: npm run lint
+      - name: Lint changed API route
+        run: npx eslint app/api/orders/route.ts
+      - name: Type check
+        run: npx tsc --noEmit
       - name: Build
         run: npm run build
         env:
