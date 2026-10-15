@@ -657,7 +657,9 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           total: unitPrice * qty,
         };
       });
-    const selectedAddons = complementItems.map((item) => {
+    const selectedAddons = complementItems
+      .filter((item) => (selectedComplements[item.name] || 0) > 0)
+      .map((item) => {
       const qty = selectedComplements[item.name] || 0;
       const unitPrice = item.price ?? 0;
       return {
@@ -721,7 +723,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           discount: 0,
           delivery_fee: deliveryFee,
           total: recordedTotal,
-          cep: cep.replace(/\\D/g, "") || null,
+          cep: cep.replace(/\D/g, "") || null,
           neighborhood: delivery?.neighborhood || null,
           notes: pendingPriceNames.length ? `Preços a confirmar: ${pendingPriceNames.join(", ")}` : null,
           acquisition_source: getAcquisitionSource() || acquisition.source,
