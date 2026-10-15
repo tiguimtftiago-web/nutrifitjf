@@ -1,0 +1,33 @@
+name: Isolated order draft checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://nutrifitjf.com.br
+          NEXT_PUBLIC_SUPABASE_URL: https://xdllpyqrbofszvallzxf.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_test_placeholder
+          SUPABASE_SERVICE_ROLE_KEY: isolated-build-placeholder
+          ORDER_ALLOWED_ORIGINS: https://www.nutrifitjf.com.br,https://nutrifitjf.com.br,http://localhost:3000
