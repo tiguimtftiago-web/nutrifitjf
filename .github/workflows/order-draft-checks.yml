@@ -23,6 +23,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Isolated route tests
+        run: node --experimental-strip-types --test tests/orders-route.test.mjs
       - name: Lint changed API route
         run: npx eslint app/api/orders/route.ts
       - name: Type check
