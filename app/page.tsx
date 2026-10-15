@@ -2432,9 +2432,10 @@ export default function Home() {
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
-                  Finalizar no WhatsApp <ArrowRight size={18} />
+                <button type="button" onClick={() => void sendFullOrder()} disabled={!canFinalizeOrder || orderSubmitStatus === "saving"} aria-label="Finalizar pedido no WhatsApp" aria-busy={orderSubmitStatus === "saving"} className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
+                  {orderSubmitStatus === "saving" ? <><Loader2 size={18} className="animate-spin" /> Registrando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
+                {orderSubmitStatus === "error" && <p role="alert" className="mt-2 text-center text-sm text-[#ef9b55]">Não conseguimos registrar seu pedido. Ele não foi enviado ao WhatsApp. Tente novamente em instantes.</p>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
               </div>
