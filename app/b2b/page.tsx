@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
   ArrowLeft,
@@ -52,11 +52,14 @@ export default function B2BPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState("");
+  const submitLock = useRef(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting) return;
+    if (submitLock.current || sent) return;
+    submitLock.current = true;
     setSubmitting(true);
+    let saveSucceeded = false;
     const form = new FormData(event.currentTarget);
 
     const value = (name: string, fallback = "Não informado") => {
@@ -69,6 +72,7 @@ export default function B2BPage() {
     const selectedDays = form.getAll("dias").map(String);
     if (!selectedDays.length) {
       alert("Selecione pelo menos um dia de fornecimento.");
+      submitLock.current = false;
       setSubmitting(false);
       return;
     }
@@ -188,11 +192,13 @@ export default function B2BPage() {
       });
       if (!response.ok) throw new Error("Falha ao registrar lead.");
       setSent(true);
+      saveSucceeded = true;
     } catch (error) {
       console.error(error);
       setSubmitError(true);
     } finally {
       setSubmitting(false);
+      if (!saveSucceeded) submitLock.current = false;
     }
   }
   return (
