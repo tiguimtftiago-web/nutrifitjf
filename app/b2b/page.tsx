@@ -53,6 +53,7 @@ export default function B2BPage() {
   const [submitError, setSubmitError] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState("");
   const submitLock = useRef(false);
+  const submissionIdRef = useRef<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -164,7 +165,10 @@ export default function B2BPage() {
       "📋 Cadastro completo para proposta",
     ].join("\n");
 
+    const submissionId = submissionIdRef.current ?? crypto.randomUUID();
+    submissionIdRef.current = submissionId;
     const payload = {
+      submission_id: submissionId,
       company: value("empresa", ""), trade_name: value("empresa", ""), legal_name: value("razao_social", ""), cnpj: value("cnpj", ""),
       state_registration: value("inscricao_estadual", ""), municipal_registration: value("inscricao_municipal", ""), website: value("site", ""),
       contact_name: value("responsavel", ""), contact_role: value("cargo", ""), whatsapp: value("telefone", ""), alternate_phone: value("telefone_alternativo", ""), email: value("email", ""),
@@ -190,7 +194,9 @@ export default function B2BPage() {
         headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Falha ao registrar lead.");
+      // A mesma tentativa pode ter sido gravada antes de uma falha de rede.
+      // O índice único no banco torna a repetição idempotente.
+      if (!response.ok && response.status !== 409) throw new Error("Falha ao registrar lead.");
       setSent(true);
       saveSucceeded = true;
     } catch (error) {
