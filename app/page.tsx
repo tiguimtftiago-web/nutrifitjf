@@ -524,10 +524,13 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.prices[quantity];
   const subtotal = Number(price.replace("R$ ", "").replace(".", "").replace(",", "."));
+  const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
+  const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
+  const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
   const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
-  const grandTotal = subtotal + deliveryFee + complementTotal;
+  const grandTotal = comboTotal + deliveryFee + complementTotal;
 
   const addComplement = (name: string) => {
     setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
@@ -649,8 +652,8 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       .filter((product) => selected[product.name])
       .map((product, i) => {
         const qty = selected[product.name];
-        const itemTotal = (subtotal / quantity) * qty;
-        return `*${i + 1}. ${qty}x ${product.name}*\n   ${product.line} • ${product.weight} • ${money(itemTotal)}`;
+        const itemTotal = ((subtotal / quantity) + tilapiaSurchargePerUnit(product.name)) * qty;
+        return `*${i + 1}. ${qty}x ${product.name}*\n   ${product.line} • ${product.weight} • ${money(itemTotal)}${tilapiaSurchargePerUnit(product.name) ? ` (adicional de ${money(tilapiaSurchargePerUnit(product.name))}/un.)` : ""}`;
       })
       .join("\n\n");
 
@@ -687,7 +690,9 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       "━━━━━━━━━━━━━━━━━━━━",
       "💰 *RESUMO DO PEDIDO*",
       `🍱 Quantidade: *${quantity} marmitas*`,
-      `Subtotal: *${money(subtotal)}*`,
+      `Preço-base do combo: *${money(subtotal)}*`,
+      ...(premiumExtra > 0 ? [`Adicional de tilápia premium: *${money(premiumExtra)}*`] : []),
+      `Subtotal do combo: *${money(comboTotal)}*`,
       `🚚 Frete: *${money(deliveryFee)}*`,
       `${hasPendingComplementPrice ? "🟠 TOTAL PARCIAL" : "🟢 TOTAL A PAGAR"}: *${money(grandTotal)}*`,
       "",
@@ -815,7 +820,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
                   <img src={product.image} alt={product.name} className="h-14 w-14 shrink-0 rounded-xl object-cover sm:h-16 sm:w-16" loading="lazy" />
                   <div className="min-w-0">
                     <div className="break-words font-black text-sm leading-tight">{product.name}</div>
-                    <div className="mt-1 text-xs text-white/40">{product.weight} • {product.price}</div>
+                    <div className="mt-1 text-xs text-white/40">{product.weight} • {product.price}{tilapiaSurchargePerUnit(product.name) > 0 ? <span className="ml-1 font-black text-[#ef7d18]">+ R$ 6,00 no combo</span> : null}</div>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
