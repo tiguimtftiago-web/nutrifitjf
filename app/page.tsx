@@ -638,30 +638,51 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     }
   };
 
-  const sendOrder = () => {
-    if (total !== quantity || !deliveryReady || !customerReady) return;
+  const sendOrder = async () => {
+    if (total !== quantity || !deliveryReady || !customerReady || paymentStatus === "loading") return;
     trackClick("combo_order_click", `${option.line}-${quantity}`);
-
     setPaymentStatus("loading");
-
-    const items = option.products
+    const whatsappWindow = window.open("about:blank", "_blank");
+    const selectedProducts = option.products
       .filter((product) => selected[product.name])
-      .map((product, i) => {
+      .map((product) => {
         const qty = selected[product.name];
-        const itemTotal = (subtotal / quantity) * qty;
-        return `*${i + 1}. ${qty}x ${product.name}*\n   ${product.line} • ${product.weight} • ${money(itemTotal)}`;
-      })
-      .join("\n\n");
-
+        const unitPrice = subtotal / quantity;
+        return {
+          name: product.name,
+          line: product.line,
+          weight: product.weight,
+          quantity: qty,
+          unit_price: unitPrice,
+          total: unitPrice * qty,
+        };
+      });
+    const selectedAddons = complementItems
+      .filter((item) => (selectedComplements[item.name] || 0) > 0)
+      .map((item) => {
+      const qty = selectedComplements[item.name] || 0;
+      const unitPrice = item.price ?? 0;
+      return {
+        name: item.name,
+        line: item.category,
+        weight: item.category === "SUCOS" ? (item.name.includes("300 ml") ? "300 ml" : "500 ml") : undefined,
+        quantity: qty,
+        unit_price: unitPrice,
+        total: Number((unitPrice * qty).toFixed(2)),
+      };
+    });
+    const allItems = [...selectedProducts, ...selectedAddons];
+    const recordedSubtotal = Number((subtotal + complementTotal).toFixed(2));
+    const recordedTotal = Number((recordedSubtotal + deliveryFee).toFixed(2));
+    const pendingPriceNames = complementItems.filter((item) => item.price === null).map((item) => item.name);
     const deliveryText =
       deliveryMode === "pickup"
-        ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
+        ? "Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : quantity >= DELIVERY_FREE_FROM
-          ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais"
+          ? `Entrega grátis — combo com ${quantity} marmitas`
           : delivery?.fee === 0
-            ? `🚚 *Entrega grátis* — CEP ${cep}`
-            : `🚚 *Entrega ${money(delivery?.fee ?? 0)}* — CEP ${cep}`;
-
+            ? `Entrega grátis — CEP ${cep}`
+            : `Entrega ${money(delivery?.fee ?? 0)} — CEP ${cep}`;
     const message = [
       "🥗 *NUTRIFIT • NOVO PEDIDO*",
       "━━━━━━━━━━━━━━━━━━━━",
@@ -670,38 +691,59 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       `Nome: ${customerName.trim()}`,
       `WhatsApp: ${customerPhone.trim()}`,
       "",
-      "🛒 *ITENS DO PEDIDO*",
-      "",
-      items,
-      ...(complementItems.length ? [
-        "",
-        "➕ *COMPLEMENTOS*",
-        ...complementItems.map((item) => {
-          const qty = selectedComplements[item.name] || 0;
-          const total = item.price === null ? "preço a confirmar" : money((item.price ?? 0) * qty);
-          return `• *${qty}x ${item.name}* — ${total}`;
-        }),
-      ] : []),
+      "🛒 *MARMITAS*",
+      ...selectedProducts.map((item) => `• ${item.quantity}x ${item.name} — ${money(item.total)}`),
+      ...(selectedAddons.length ? ["", "➕ *COMPLEMENTOS*", ...selectedAddons.map((item) => `• ${item.quantity}x ${item.name} — ${item.unit_price === 0 ? "preço a confirmar" : money(item.total)}`)] : []),
       "",
       "━━━━━━━━━━━━━━━━━━━━",
       "💰 *RESUMO DO PEDIDO*",
-      `🍱 Quantidade: *${quantity} marmitas*`,
-      `Subtotal: *${money(subtotal)}*`,
-      `🚚 Frete: *${money(deliveryFee)}*`,
-      `${hasPendingComplementPrice ? "🟠 TOTAL PARCIAL" : "🟢 TOTAL A PAGAR"}: *${money(grandTotal)}*`,
+      `Quantidade: ${quantity} marmitas`,
+      `Subtotal: ${money(recordedSubtotal)}`,
+      `Frete: ${money(deliveryFee)}`,
+      `${pendingPriceNames.length ? "TOTAL PARCIAL (complementos a confirmar)" : "TOTAL"}: ${money(recordedTotal)}`,
       "",
       "📍 *RECEBIMENTO*",
       deliveryText,
+      ...(pendingPriceNames.length ? ["", `🟠 Preço a confirmar: ${pendingPriceNames.join(", ")}`] : []),
       "",
-      "💳 *PAGAMENTO VIA PIX*",
-      `Chave Pix: ${PIX_KEY}`,
-      "📲 Depois do pagamento, envie o comprovante por este WhatsApp.",
-      "",
-      "✅ *Pedido conferido pelo cliente.*",
+      "🕒 *Pedido registrado como aguardando confirmação.*",
+      "💳 O pagamento será combinado após a confirmação do pedido.",
     ].join("\n");
-
-    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
-    setPaymentStatus("idle");
+    const acquisition = getAcquisitionData();
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: customerName.trim(),
+          whatsapp: normalizedPhone,
+          items: allItems,
+          item_count: allItems.reduce((sum, item) => sum + item.quantity, 0),
+          subtotal: recordedSubtotal,
+          discount: 0,
+          delivery_fee: deliveryFee,
+          total: recordedTotal,
+          cep: cep.replace(/\D/g, "") || null,
+          neighborhood: delivery?.neighborhood || null,
+          notes: pendingPriceNames.length ? `Preços a confirmar: ${pendingPriceNames.join(", ")}` : null,
+          acquisition_source: getAcquisitionSource() || acquisition.source,
+          acquisition_campaign: acquisition.campaign || null,
+          acquisition_medium: acquisition.medium || null,
+          acquisition_content: acquisition.content || null,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.order_id) throw new Error(result.error || "Registro do pedido não confirmado.");
+      const url = whatsappOrder(message + `\n\nCódigo do pedido: ${result.order_id}`);
+      if (whatsappWindow) whatsappWindow.location.href = url;
+      else window.location.href = url;
+      setPaymentStatus("idle");
+    } catch (error) {
+      console.error("combo order capture", error);
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
+      setPaymentStatus("idle");
+      window.alert("Não conseguimos registrar seu pedido. Ele não foi enviado ao WhatsApp. Tente novamente em instantes.");
+    }
   };
 
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
@@ -1342,119 +1384,99 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
-  const sendFullOrder = () => {
-    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+  const [orderSubmitStatus, setOrderSubmitStatus] = useState<"idle" | "saving" | "error">("idle");
+  const sendFullOrder = async () => {
+    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady || orderSubmitStatus === "saving") return;
+    setOrderSubmitStatus("saving");
+    // Open the tab synchronously during the click gesture so mobile browsers do not block WhatsApp after the async save.
+    const whatsappWindow = window.open("about:blank", "_blank");
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
       return `*${i + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   💵 ${money(itemSubtotal)}`;
     }).join("\n\n");
-
     const notesText = orderNotes.trim();
     const deliverySummary = orderFreeDelivery
       ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
         ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
-
     const message = [
-      "🥗 *NUTRIFIT • NOVO PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "",
-      "👤 *CLIENTE*",
-      `Nome: ${customerName.trim() || "A informar"}`,
-      `WhatsApp: ${customerPhone.trim() || "A informar"}`,
-      "",
-      "🛒 *ITENS DO PEDIDO*",
-      "",
-      lines,
-      "",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "💰 *RESUMO DO PEDIDO*",
-      `📦 Quantidade: *${orderCount} item(ns)*`,
-      `Subtotal: *${money(orderSubtotal)}*`,
-      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,
-      `🚚 Frete: *${money(orderDeliveryFee)}*`,
-      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
-      "",
-      "📍 *ENTREGA*",
-      deliverySummary,
-      ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
-      "",
-      "💳 *PAGAMENTO VIA PIX*",
-      `Chave Pix: ${PIX_KEY}`,
-      "📲 Envie o comprovante por este WhatsApp após o pagamento.",
-      "",
-      "✅ *Pedido conferido pelo cliente.*",
+      "🥗 *NUTRIFIT • NOVO PEDIDO*","━━━━━━━━━━━━━━━━━━━━","",
+      "👤 *CLIENTE*",`Nome: ${customerName.trim()}`,`WhatsApp: ${customerPhone.trim()}`,"",
+      "🛒 *ITENS DO PEDIDO*","",lines,"","━━━━━━━━━━━━━━━━━━━━","💰 *RESUMO DO PEDIDO*",
+      `📦 Quantidade: *${orderCount} item(ns)*`,`Subtotal: *${money(orderSubtotal)}*`,
+      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,`🚚 Frete: *${money(orderDeliveryFee)}*`,
+      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,"","📍 *ENTREGA*",deliverySummary,
+      ...(notesText ? ["","📝 *OBSERVAÇÕES*",notesText] : []),"","💳 *PAGAMENTO VIA PIX*",
+      `Chave Pix: ${PIX_KEY}`,"📲 Envie o comprovante por este WhatsApp após o pagamento.","",
+      "🕒 *Pedido registrado como aguardando confirmação.*",
     ].join("\n");
-    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
-    trackClick("order_started", acquisitionSource);
+    const acquisition = getAcquisitionData();
+    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || acquisition.source;
 
-    const whatsappUrl = whatsappOrder(message);
-    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    if (!whatsappWindow) window.location.href = whatsappUrl;
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: customerName.trim(),
+          whatsapp: orderPhoneDigits,
+          items: orderItems.map((item) => ({ name: item.name, line: item.line, weight: item.weight, quantity: item.quantity, unit_price: item.price, total: item.price * item.quantity })),
+          item_count: orderCount,
+          subtotal: orderSubtotal,
+          discount: orderDiscount,
+          delivery_fee: orderDeliveryFee,
+          total: orderGrandTotal,
+          cep: orderCep.replace(/\D/g, "") || null,
+          neighborhood: orderDelivery?.neighborhood || null,
+          notes: notesText || null,
+          acquisition_source: acquisitionSource,
+          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || acquisition.campaign || null,
+          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || acquisition.medium || null,
+          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || acquisition.content || null,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.order_id) throw new Error(result.error || "Registro do pedido não confirmado.");
 
-    setOrderItems([]);
-
-    void (async () => {
-      try {
-        const orderResponse = await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
-          method: "POST",
-          headers: {
-            apikey: SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json",
-            Prefer: "return=minimal",
-          },
-          keepalive: true,
-          body: JSON.stringify({
-            customer_name: customerName.trim(),
-            whatsapp: orderPhoneDigits,
-            items: orderItems,
-            item_count: orderCount,
-            subtotal: orderSubtotal,
-            discount: orderDiscount,
-            delivery_fee: orderDeliveryFee,
-            total: orderGrandTotal,
-            cep: orderCep.replace(/\D/g, "") || null,
-            neighborhood: orderDelivery?.neighborhood || null,
-            notes: notesText || null,
-            acquisition_source: acquisitionSource,
-            acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-            acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-            acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
-          }),
-        });
-
-        if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
-          await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_code: appliedCoupon.code }),
-          });
-          setAppliedCoupon(null);
-          setCouponCode("");
-          setCouponStatus("idle");
-          setCouponMessage("");
-        } else if (orderResponse.ok && clubDiscount > 0) {
-          const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
-          });
-          if (redeemResponse.ok) {
-            setClubDiscount(0);
-            try {
-              const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
-              window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
-            } catch {}
-          }
-        }
-      } catch (error) {
-        console.error("order capture", error);
+      trackClick("order_started", acquisitionSource);
+      const whatsappUrl = whatsappOrder(message + `\n\nCódigo do pedido: ${result.order_id}`);
+      if (whatsappWindow) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.href = whatsappUrl;
       }
-    })();
 
-    setOrderOpen(false);
+      if (couponDiscount > 0 && appliedCoupon) {
+        await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_code: appliedCoupon.code }),
+        });
+        setAppliedCoupon(null); setCouponCode(""); setCouponStatus("idle"); setCouponMessage("");
+      } else if (clubDiscount > 0) {
+        const redeemed = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
+        });
+        if (redeemed.ok) {
+          setClubDiscount(0);
+          try {
+            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+          } catch {}
+        }
+      }
+      setOrderItems([]);
+      setOrderOpen(false);
+      setOrderSubmitStatus("idle");
+    } catch (error) {
+      console.error("order capture", error);
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
+      setOrderSubmitStatus("error");
+    }
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
   const searchResults = searchTerm.trim()
@@ -2458,9 +2480,10 @@ export default function Home() {
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
-                  Finalizar no WhatsApp <ArrowRight size={18} />
+                <button type="button" onClick={() => void sendFullOrder()} disabled={!canFinalizeOrder || orderSubmitStatus === "saving"} aria-label="Finalizar pedido no WhatsApp" aria-busy={orderSubmitStatus === "saving"} className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
+                  {orderSubmitStatus === "saving" ? <><Loader2 size={18} className="animate-spin" /> Registrando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
+                {orderSubmitStatus === "error" && <p role="alert" className="mt-2 text-center text-sm text-[#ef9b55]">Não conseguimos registrar seu pedido. Ele não foi enviado ao WhatsApp. Tente novamente em instantes.</p>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
               </div>
