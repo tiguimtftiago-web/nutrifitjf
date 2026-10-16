@@ -188,11 +188,9 @@ export default function B2BPage() {
       });
       if (!response.ok) throw new Error("Falha ao registrar lead.");
       setSent(true);
-      window.open(waLink, "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error(error);
       setSubmitError(true);
-      window.open(waLink, "_blank", "noopener,noreferrer");
     } finally {
       setSubmitting(false);
     }
@@ -386,7 +384,7 @@ export default function B2BPage() {
                     <label className="flex cursor-pointer gap-3"><input aria-label="Autorizo o uso dos dados para atendimento, proposta, faturamento e entrega" required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]" />Autorizo a Nutrifit a utilizar os dados fornecidos para atendimento, proposta, faturamento e entrega do pedido.</label>
                   </div>
                   <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"><MessageCircle size={18} /> {submitting ? "Enviando cadastro..." : "Enviar cadastro e abrir WhatsApp"}</button>
-                  {sent && <div role="status" aria-live="polite" className="mt-4 flex items-center gap-2 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado no sistema. Abra o WhatsApp para enviar também a ficha completa.</div>}
+                  {sent && <div role="status" aria-live="polite" className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><div className="flex items-center gap-2"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado no sistema.</div><a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a></div>}
                   {submitError && <div role="alert" aria-live="assertive" className="mt-4 rounded-2xl border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-4 text-sm text-white/80"><p className="font-bold text-[#ffb56f]">Não foi possível confirmar o salvamento do cadastro.</p><p className="mt-1">Para não perder sua solicitação, envie a ficha pelo WhatsApp. O cadastro pode não ter sido salvo no sistema.</p>{whatsappLink && <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a>}</div>}
                 </div>
               </form>
