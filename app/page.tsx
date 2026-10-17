@@ -82,7 +82,8 @@ const fit: Product[] = [
   ["Tilápia Fit com Arroz Branco e Legumes","FIT","350 g","R$ 27,90","Tilápia grelhada acompanhada de arroz branco, brócolis, couve-flor e cenoura."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
-  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-13.jpg"][i]
+  image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/page-13.jpg"][i],
+  crop: i === 7 ? "100% center" : undefined
 }));
 
 const fitComingSoon: Product[] = [
@@ -1082,7 +1083,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             aria-label={product.name}
             role="img"
             className="h-full w-full bg-cover bg-no-repeat brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105"
-            style={{ backgroundImage: `url(${product.image})`, backgroundSize: "400% 200%", backgroundPosition: product.crop }}
+            style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "200% 100%" : "400% 200%", backgroundPosition: product.crop }}
           />
         ) : (
           <img src={product.image} alt={product.name} className="h-full w-full object-cover brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105" loading="lazy" />
