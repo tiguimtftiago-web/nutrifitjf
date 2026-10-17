@@ -48,6 +48,7 @@ const steps = [
 ];
 
 export default function B2BPage() {
+  const [menuExpanded, setMenuExpanded] = useState(false);
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
@@ -251,16 +252,21 @@ export default function B2BPage() {
             <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{audiences.map(({ icon: Icon, title, text, image }) => <article key={title} className="group overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]"><div className="relative h-44 overflow-hidden"><img src={image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#11140e] via-transparent to-transparent" /><div className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-xl bg-black/55 text-[#ef7d18] backdrop-blur"><Icon size={18} /></div></div><div className="p-5"><h3 className="font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-white/45">{text}</p></div></article>)}</div>
           </section>
 
-          <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-3xl">
+          <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-5 sm:p-7">
+            <div className="grid gap-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
+              <div>
                 <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Cardápio empresarial</span>
-                <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Seis opções de comida caseira para a rotina da sua equipe.</h2>
-                <p className="mt-4 text-sm leading-6 text-white/55 sm:text-base">Um cardápio inicial com pratos conhecidos e acompanhamentos tradicionais, pensado para facilitar o almoço dos colaboradores e construir uma parceria recorrente com sua empresa.</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Refeições caseiras para sua equipe.</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Conheça as seis opções ou solicite uma proposta personalizada. Valores e condições são definidos conforme a necessidade da empresa.</p>
               </div>
-              <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Solicitar proposta <ArrowRight size={16} /></a>
+              <div className="flex flex-col gap-2 sm:min-w-52">
+                <button type="button" aria-expanded={menuExpanded} aria-controls="lista-pratos-empresariais" onClick={() => setMenuExpanded(value => !value)} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-[#10130d] transition hover:brightness-105">
+                  {menuExpanded ? "Ocultar cardápio" : "Conhecer os 6 pratos"} <ArrowRight size={16} className={menuExpanded ? "rotate-90 transition-transform" : "transition-transform"} />
+                </button>
+                <a href="#solicitar-proposta" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Pedir orçamento <ArrowRight size={15} /></a>
+              </div>
             </div>
-            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {menuExpanded && <div id="lista-pratos-empresariais" className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 ["Bife acebolado", "Arroz, feijão e batata frita", "01"],
                 ["Costelinha suína assada", "Arroz e feijão tropeiro", "02"],
@@ -269,16 +275,14 @@ export default function B2BPage() {
                 ["Pernil assado", "Arroz branco e maionese", "05"],
                 ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada", "06"],
               ].map(([title, sides, number], index) => (
-                <article key={title} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
-                  <div className={`relative flex h-28 items-center justify-center overflow-hidden ${index % 2 === 0 ? "bg-[radial-gradient(circle_at_72%_28%,rgba(239,125,24,.22),transparent_32%),linear-gradient(135deg,#252018,#10130d)]" : "bg-[radial-gradient(circle_at_72%_28%,rgba(167,184,106,.22),transparent_32%),linear-gradient(135deg,#252b1b,#10130d)]"}`}>
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-[#a7b86a]"><UtensilsCrossed size={27} /></div>
-                    <span className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[.15em] text-white/65">Opção {number}</span>
-                  </div>
-                  <div className="p-5"><h3 className="text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-white/50">{sides}</p></div>
+                <article key={title} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#11140e] p-3">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${index % 2 === 0 ? "bg-[#ef7d18]/10 text-[#ef7d18]" : "bg-[#a7b86a]/10 text-[#a7b86a]"}`}><UtensilsCrossed size={21} /></div>
+                  <div><h3 className="text-sm font-black">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{sides}</p></div>
+                  <span className="ml-auto self-start text-[10px] font-black text-white/30">{number}</span>
                 </article>
               ))}
-            </div>
-            <p className="mt-5 text-xs leading-5 text-white/35">Cardápio de referência. Disponibilidade, gramatura, acompanhamentos, valores e condições de entrega são confirmados na proposta empresarial. Outras opções poderão ser apresentadas conforme a necessidade da empresa.</p>
+            </div>}
+            <p className="mt-3 text-xs leading-5 text-white/35">Cardápio de referência. Disponibilidade, gramatura, acompanhamentos, valores e entrega são confirmados na proposta.</p>
           </section>
 
           <section className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
