@@ -49,6 +49,9 @@ const steps = [
 
 export default function B2BPage() {
   const [menuExpanded, setMenuExpanded] = useState(false);
+  const [wizardStep, setWizardStep] = useState(1);
+  const [reviewText, setReviewText] = useState<string[]>([]);
+  const formRef = useRef<HTMLFormElement>(null);
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
@@ -58,6 +61,25 @@ export default function B2BPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (wizardStep < 8) {
+      const form = formRef.current;
+      if (!form) return;
+      const card = form.querySelector<HTMLElement>(`[data-wizard-step="${wizardStep}"]`);
+      if (card) {
+        const required = Array.from(card.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("[required]"));
+        for (const field of required) {
+          if (field.type === "checkbox" || field.type === "radio") continue;
+          if (!field.checkValidity()) { field.reportValidity(); return; }
+        }
+      }
+      if (wizardStep === 4 && !form.querySelector('input[name="dias"]:checked')) { alert("Selecione pelo menos um dia de fornecimento."); return; }
+      if (wizardStep === 7) {
+        const data = new FormData(form);
+        setReviewText(Array.from(data.entries()).filter(([key,value]) => String(value).trim() && key !== "confirmacao_dados" && key !== "consentimento").map(([key,value]) => `${key.replace(/_/g," ")}: ${String(value)}`));
+      }
+      setWizardStep(step => Math.min(8,step+1));
+      return;
+    }
     if (submitLock.current || sent) return;
     submitLock.current = true;
     setSubmitting(true);
@@ -312,10 +334,14 @@ export default function B2BPage() {
 
           <section id="solicitar-proposta" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
             <div className="grid gap-8 lg:grid-cols-[1.2fr_.55fr]">
-              <form onSubmit={submit} className="grid min-w-0 gap-5">
+              <form ref={formRef} noValidate onSubmit={submit} className="grid min-w-0 gap-5">
                 <div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Cadastro B2B completo</span><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Cadastre sua empresa para receber uma proposta.</h2><p className="mt-2 text-sm leading-6 text-white/45">Preencha os dados com atenção. As informações de entrega, operação e faturamento serão usadas para preparar o atendimento.</p></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                  <div className="flex justify-between gap-3 text-sm"><strong>Etapa {wizardStep} de 8</strong><span className="text-white/45">{Math.round(wizardStep/8*100)}% concluído</span></div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#ef7d18] transition-all" style={{width: `${wizardStep/8*100}%`}} /></div>
+                </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="1" hidden={wizardStep !== 1} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">1</div><div><h3 className="font-black">Dados da empresa</h3><p className="text-xs text-white/40">Identificação fiscal e comercial.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="grid gap-2 text-sm font-bold">Nome fantasia *<input aria-label="Nome fantasia" required name="empresa" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome usado pela empresa" /></label>
@@ -329,7 +355,7 @@ export default function B2BPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="2" hidden={wizardStep !== 2} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">2</div><div><h3 className="font-black">Responsáveis</h3><p className="text-xs text-white/40">Contato operacional e pessoa que aprova a contratação.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="grid gap-2 text-sm font-bold">Responsável pelo atendimento *<input aria-label="Responsável pelo atendimento" required name="responsavel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome completo" /></label>
@@ -343,7 +369,7 @@ export default function B2BPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-[#ef7d18]/20 bg-[#17120d] p-5 sm:p-6">
+                <div data-wizard-step="3" hidden={wizardStep !== 3} className="rounded-[1.5rem] border border-[#ef7d18]/20 bg-[#17120d] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef7d18]/10 text-[#ef7d18] font-black">3</div><div><h3 className="font-black">Endereço de entrega</h3><p className="text-xs text-white/40">A parte mais importante para a logística.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-6">
                     <label className="grid gap-2 text-sm font-bold md:col-span-2">CEP *<input aria-label="CEP" required name="cep" inputMode="numeric" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="00000-000" /></label>
@@ -370,7 +396,7 @@ export default function B2BPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="4" hidden={wizardStep !== 4} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">4</div><div><h3 className="font-black">Pedido e operação</h3><p className="text-xs text-white/40">Dados que a produção e a entrega precisam saber.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="grid gap-2 text-sm font-bold">Tipo de refeição *<select required name="tipo_refeicao" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Almoço</option><option>Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Outro</option></select></label>
@@ -391,7 +417,7 @@ export default function B2BPage() {
                   <label className="mt-4 grid gap-2 text-sm font-bold">Outros endereços / distribuição por unidade<textarea name="outros_enderecos" rows={3} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Informe unidades, endereços e quantidade por local, se houver." /></label>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="5" hidden={wizardStep !== 5} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">5</div><div><h3 className="font-black">Cardápio e restrições</h3><p className="text-xs text-white/40">Informações para montar a proposta e evitar incompatibilidades.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4">
                     <label className="grid gap-2 text-sm font-bold">Preferências de cardápio<textarea name="preferencias_cardapio" rows={3} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Ex.: frango 50%, carne 30%, vegetariana 20%; pratos preferidos..." /></label>
@@ -401,7 +427,7 @@ export default function B2BPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="6" hidden={wizardStep !== 6} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef7d18]/10 text-[#ef7d18] font-black">6</div><div><h3 className="font-black">Faturamento e pagamento</h3><p className="text-xs text-white/40">Evita retrabalho no financeiro.</p></div></div>
                   <fieldset className="grid gap-2 text-sm font-bold"><legend>A empresa precisa de nota fiscal?</legend><div className="flex gap-2">{["sim","nao"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Nota fiscal: ${v === "sim" ? "Sim" : "Não"}`} name="nota_fiscal" value={v} defaultChecked={v==="sim"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -425,19 +451,19 @@ export default function B2BPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+                <div data-wizard-step="7" hidden={wizardStep !== 7} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">7</div><div><h3 className="font-black">Início do fornecimento</h3><p className="text-xs text-white/40">Para organizar produção e primeiro atendimento.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Data desejada para início *<input aria-label="Data desejada para início" required type="date" name="data_inicio" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label><label className="grid gap-2 text-sm font-bold">Data do primeiro pedido<input aria-label="Data do primeiro pedido" type="date" name="primeiro_pedido" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label></div>
                   <label className="mt-4 grid gap-2 text-sm font-bold">Observações gerais<textarea aria-label="Observações gerais" name="observacoes" rows={4} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Tudo que a Nutrifit precisa saber para atender sem erro." /></label>
                 </div>
 
-                <div className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-[#171d10] p-5 sm:p-6">
-                  <h3 className="font-black">Confirmação do cadastro</h3>
+                <div data-wizard-step="8" hidden={wizardStep !== 8} className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-[#171d10] p-5 sm:p-6">
+                  <h3 className="font-black">Revisão do cadastro</h3><p className="mt-2 text-sm text-white/50">Confira os dados antes de confirmar o envio.</p><div className="mt-4 grid gap-2 rounded-xl border border-white/10 bg-black/20 p-4">{reviewText.map((line,index) => <p key={index} className="break-words text-sm text-white/75">{line}</p>)}</div><p className="mt-5 text-sm font-bold text-[#a7b86a]">Confirmação do cadastro</p>
                   <div className="mt-4 grid gap-3 text-sm text-white/65">
                     <label className="flex cursor-pointer gap-3"><input aria-label="Confirmo que os dados informados estão corretos" required type="checkbox" name="confirmacao_dados" value="sim" className="mt-1 accent-[#ef7d18]" />Confirmo que os dados da empresa, endereço, quantidade, horários e faturamento informados estão corretos.</label>
                     <label className="flex cursor-pointer gap-3"><input aria-label="Autorizo o uso dos dados para atendimento, proposta, faturamento e entrega" required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]" />Autorizo a Nutrifit a utilizar os dados fornecidos para atendimento, proposta, faturamento e entrega do pedido.</label>
                   </div>
-                  <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"><MessageCircle size={18} /> {submitting ? "Enviando cadastro..." : "Enviar cadastro e abrir WhatsApp"}</button>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-2">{wizardStep > 1 && <button type="button" onClick={() => setWizardStep(step => Math.max(1,step-1))} className="rounded-full border border-white/15 px-5 py-4 font-bold text-white/75"><ArrowLeft size={17} className="mr-2 inline"/>Voltar</button>}{wizardStep < 8 && <button type="submit" className="rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black">{wizardStep === 7 ? "Revisar cadastro" : "Próximo"} <ArrowRight size={17} className="ml-2 inline"/></button>}{wizardStep === 8 && <button type="submit" disabled={submitting} aria-busy={submitting} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0"><MessageCircle size={18} /> {submitting ? "Enviando cadastro..." : "Enviar cadastro e abrir WhatsApp"}</button>}</div>
                   {sent && <div role="status" aria-live="polite" className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><div className="flex items-center gap-2"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado no sistema.</div><a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a></div>}
                   {submitError && <div role="alert" aria-live="assertive" className="mt-4 rounded-2xl border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-4 text-sm text-white/80"><p className="font-bold text-[#ffb56f]">Não foi possível confirmar o salvamento do cadastro.</p><p className="mt-1">Para não perder sua solicitação, envie a ficha pelo WhatsApp. O cadastro pode não ter sido salvo no sistema.</p>{whatsappLink && <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a>}</div>}
                 </div>
