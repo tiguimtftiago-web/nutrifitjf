@@ -205,9 +205,9 @@ export default function B2BPage() {
         headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
         body: JSON.stringify(payload),
       });
-      // A mesma tentativa pode ter sido gravada antes de uma falha de rede.
-      // O índice único no banco torna a repetição idempotente.
-      if (!response.ok && response.status !== 409) throw new Error("Falha ao registrar lead.");
+      // Só confirmar o cadastro quando a API confirmar uma resposta 2xx.
+      // Um HTTP 409, sozinho, não prova que este envio foi gravado corretamente.
+      if (!response.ok) throw new Error(`Falha ao registrar lead (HTTP ${response.status}).`);
       setSent(true);
       saveSucceeded = true;
     } catch (error) {
@@ -282,7 +282,7 @@ export default function B2BPage() {
               <form ref={formRef} noValidate onSubmit={submit} className="grid min-w-0 gap-5">
                 <div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit Empresas</span><h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Solicite uma proposta</h2><p className="mt-1 text-sm leading-5 text-white/45">Preencha os dados necessários. No final, revise e envie.</p></div>
                 <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                  <div className="flex justify-between gap-3 text-sm"><strong>{wizardStep === 8 ? "Revisão final" : `Etapa ${wizardStep} de 7`}</strong><span className="text-white/45">{wizardStep === 8 ? "Pronto para conferir" : `${Math.round(wizardStep/7*100)}% do cadastro`}</span></div>
+                  <div className="flex justify-between gap-3 text-sm"><strong>{wizardStep === 8 ? "Revisão final" : `Etapa ${wizardStep} de 8`}</strong><span className="text-white/45">{wizardStep === 8 ? "Pronto para conferir" : `${Math.round(wizardStep/7*100)}% do cadastro`}</span></div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#ef7d18] transition-all" style={{width: `${wizardStep === 8 ? 100 : wizardStep/7*100}%`}} /></div>
                   <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold text-white/35"><span>Empresa</span><span>›</span><span>Contato</span><span>›</span><span>Entrega</span><span>›</span><span>Operação</span><span>›</span><span>Cardápio</span><span>›</span><span>Financeiro</span><span>›</span><span>Início</span><span>›</span><span className={wizardStep === 8 ? "text-[#a7b86a]" : ""}>Revisão</span></div>
                 </div>
