@@ -255,30 +255,30 @@ export default function B2BPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-3xl">
                 <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Cardápio empresarial</span>
-                <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Comida do dia a dia, feita para a rotina da equipe.</h2>
-                <p className="mt-4 text-sm leading-6 text-white/55 sm:text-base">Começamos com seis opções familiares e práticas para o almoço dos colaboradores. Consulte disponibilidade, composição, quantidade e condições de fornecimento para sua empresa.</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Seis opções de comida caseira para a rotina da sua equipe.</h2>
+                <p className="mt-4 text-sm leading-6 text-white/55 sm:text-base">Um cardápio inicial com pratos conhecidos e acompanhamentos tradicionais, pensado para facilitar o almoço dos colaboradores e construir uma parceria recorrente com sua empresa.</p>
               </div>
               <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Solicitar proposta <ArrowRight size={16} /></a>
             </div>
             <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                ["Frango com purê de batata inglesa", "Uma combinação clássica e reconfortante."],
-                ["Frango ao molho de ervas com legumes", "Frango temperado com ervas e acompanhamento de legumes."],
-                ["Frango ao molho de mostarda com batata", "Uma opção saborosa com molho de mostarda e batata."],
-                ["Carne acebolada com legumes", "Carne acebolada acompanhada de legumes."],
-                ["Patinho com abóbora ou batata-doce", "Proteína bovina com opção de acompanhamento."],
-                ["Pernil acebolado com batata inglesa", "Pernil acebolado com batata inglesa."],
-              ].map(([title, description], index) => (
+                ["Bife acebolado", "Arroz, feijão e batata frita", "01"],
+                ["Costelinha suína assada", "Arroz e feijão tropeiro", "02"],
+                ["Feijoada completa", "Arroz e couve refogada", "03"],
+                ["Carne de panela com batatas", "Arroz e farofa", "04"],
+                ["Pernil assado", "Arroz branco e maionese", "05"],
+                ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada", "06"],
+              ].map(([title, sides, number], index) => (
                 <article key={title} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
                   <div className={`relative flex h-28 items-center justify-center overflow-hidden ${index % 2 === 0 ? "bg-[radial-gradient(circle_at_72%_28%,rgba(239,125,24,.22),transparent_32%),linear-gradient(135deg,#252018,#10130d)]" : "bg-[radial-gradient(circle_at_72%_28%,rgba(167,184,106,.22),transparent_32%),linear-gradient(135deg,#252b1b,#10130d)]"}`}>
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-[#a7b86a]"><UtensilsCrossed size={27} /></div>
-                    <span className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[.15em] text-white/65">Opção {String(index + 1).padStart(2, "0")}</span>
+                    <span className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[.15em] text-white/65">Opção {number}</span>
                   </div>
-                  <div className="p-5"><h3 className="text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-white/50">{description}</p></div>
+                  <div className="p-5"><h3 className="text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-white/50">{sides}</p></div>
                 </article>
               ))}
             </div>
-            <p className="mt-5 text-xs leading-5 text-white/35">Cardápio inicial de referência. A disponibilidade diária, a gramatura, os acompanhamentos e os valores são confirmados na proposta empresarial. Outras opções poderão ser apresentadas conforme a necessidade da empresa.</p>
+            <p className="mt-5 text-xs leading-5 text-white/35">Cardápio de referência. Disponibilidade, gramatura, acompanhamentos, valores e condições de entrega são confirmados na proposta empresarial. Outras opções poderão ser apresentadas conforme a necessidade da empresa.</p>
           </section>
 
           <section className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
@@ -370,7 +370,7 @@ export default function B2BPage() {
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">4</div><div><h3 className="font-black">Pedido e operação</h3><p className="text-xs text-white/40">Dados que a produção e a entrega precisam saber.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="grid gap-2 text-sm font-bold">Tipo de refeição *<select required name="tipo_refeicao" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Almoço</option><option>Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Outro</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Cardápio desejado *<select required name="linha" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Cardápio inicial — 6 opções do dia a dia</option><option>Personalizado / conversar com a Nutrifit</option></select></label>
+                    <label className="grid gap-2 text-sm font-bold">Cardápio desejado *<select required name="linha" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Cardápio empresarial — 6 pratos caseiros</option><option>Personalizado / conversar com a Nutrifit</option></select></label>
                     <label className="grid gap-2 text-sm font-bold">Refeições estimadas por dia *<input aria-label="Refeições estimadas por dia" required name="refeicoes" type="number" min="1" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: 30" /></label>
                     <label className="grid gap-2 text-sm font-bold">Frequência *<select required name="frequencia" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option><option>Conforme demanda</option></select></label>
                   </div>
