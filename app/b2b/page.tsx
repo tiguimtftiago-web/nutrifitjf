@@ -254,27 +254,31 @@ export default function B2BPage() {
           <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-3xl">
-                <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Conheça nosso cardápio</span>
-                <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Opções para diferentes rotinas e equipes.</h2>
-                <p className="mt-4 text-sm leading-6 text-white/55 sm:text-base">Estas são referências do catálogo Nutrifit. A composição, a disponibilidade, a gramatura e as condições para fornecimento empresarial são confirmadas na proposta conforme a necessidade da sua empresa.</p>
+                <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Cardápio empresarial</span>
+                <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Comida do dia a dia, feita para a rotina da equipe.</h2>
+                <p className="mt-4 text-sm leading-6 text-white/55 sm:text-base">Começamos com seis opções familiares e práticas para o almoço dos colaboradores. Consulte disponibilidade, composição, quantidade e condições de fornecimento para sua empresa.</p>
               </div>
-              <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Consultar disponibilidade <ArrowRight size={16} /></a>
+              <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Solicitar proposta <ArrowRight size={16} /></a>
             </div>
-            <div className="mt-7 grid gap-4 lg:grid-cols-3">
-              <article className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
-                <div className="relative h-44 overflow-hidden"><img src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png" alt="Exemplo de refeição da linha Fit Nutrifit" className="h-full w-full object-cover object-center" /><div className="absolute inset-0 bg-gradient-to-t from-[#11140e] via-transparent to-transparent" /><span className="absolute bottom-4 left-4 rounded-full border border-[#a7b86a]/35 bg-black/55 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-[#c3d58b]">Linha Fit · referência 350 g</span></div>
-                <div className="p-5"><h3 className="text-xl font-black">Fit</h3><p className="mt-2 text-sm leading-6 text-white/50">Refeições práticas com combinações de proteínas e acompanhamentos.</p><ul className="mt-4 space-y-2 text-sm text-white/75"><li>• Frango com purê de batata inglesa</li><li>• Frango ao molho de ervas com legumes</li><li>• Frango ao molho de mostarda com batata</li><li>• Carne acebolada com legumes</li><li>• Patinho com abóbora ou batata-doce</li><li>• Pernil acebolado com batata inglesa</li></ul></div>
-              </article>
-              <article className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
-                <div className="relative flex h-44 items-end overflow-hidden bg-[radial-gradient(circle_at_72%_28%,rgba(239,125,24,.24),transparent_30%),linear-gradient(135deg,#252018,#10130d)] p-5"><div className="absolute right-6 top-5 flex h-20 w-20 items-center justify-center rounded-full border border-[#ef7d18]/25 bg-black/10 text-[#ef7d18]/80"><UtensilsCrossed size={34} /></div><span className="relative rounded-full border border-[#ef7d18]/35 bg-black/55 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-[#ffb16f]">Linha Performance · referência 450 g</span></div>
-                <div className="p-5"><h3 className="text-xl font-black">Performance</h3><p className="mt-2 text-sm leading-6 text-white/50">Opções com porções maiores, voltadas a rotinas de treino e maior demanda alimentar.</p><ul className="mt-4 space-y-2 text-sm text-white/75"><li>• Tilápia Power</li><li>• Chicken Rice</li><li>• Chicken Potato</li><li>• Chicken Sweet Potato</li><li>• Chicken Parmesão</li><li>• Beef &amp; Sweet Potato</li><li>• Patinho Strong</li></ul></div>
-              </article>
-              <article className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
-                <div className="flex h-44 items-end bg-[radial-gradient(circle_at_75%_20%,rgba(167,184,106,.2),transparent_35%),linear-gradient(135deg,#252b1b,#10130d)] p-5"><div><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#a7b86a]/15 text-[#c3d58b]"><UtensilsCrossed size={22} /></div><span className="mt-4 block text-[10px] font-black uppercase tracking-[.16em] text-[#c3d58b]">Monte a composição</span></div></div>
-                <div className="p-5"><h3 className="text-xl font-black">Complementos</h3><p className="mt-2 text-sm leading-6 text-white/50">Possibilidade de compor o fornecimento conforme o formato aprovado na proposta.</p><ul className="mt-4 space-y-2 text-sm text-white/75"><li>• Arroz branco</li><li>• Feijão</li><li>• Macarrão</li><li>• Purê de batata</li><li>• Couve refogada</li><li>• Farofa</li><li>• Porção de carne</li></ul></div>
-              </article>
+            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                ["Frango com purê de batata inglesa", "Uma combinação clássica e reconfortante."],
+                ["Frango ao molho de ervas com legumes", "Frango temperado com ervas e acompanhamento de legumes."],
+                ["Frango ao molho de mostarda com batata", "Uma opção saborosa com molho de mostarda e batata."],
+                ["Carne acebolada com legumes", "Carne acebolada acompanhada de legumes."],
+                ["Patinho com abóbora ou batata-doce", "Proteína bovina com opção de acompanhamento."],
+                ["Pernil acebolado com batata inglesa", "Pernil acebolado com batata inglesa."],
+              ].map(([title, description], index) => (
+                <article key={title} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#11140e]">
+                  <div className={`relative flex h-28 items-center justify-center overflow-hidden ${index % 2 === 0 ? "bg-[radial-gradient(circle_at_72%_28%,rgba(239,125,24,.22),transparent_32%),linear-gradient(135deg,#252018,#10130d)]" : "bg-[radial-gradient(circle_at_72%_28%,rgba(167,184,106,.22),transparent_32%),linear-gradient(135deg,#252b1b,#10130d)]"}`}>
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-[#a7b86a]"><UtensilsCrossed size={27} /></div>
+                    <span className="absolute left-4 top-4 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] font-black uppercase tracking-[.15em] text-white/65">Opção {String(index + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="p-5"><h3 className="text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-white/50">{description}</p></div>
+                </article>
+              ))}
             </div>
-            <p className="mt-5 text-xs leading-5 text-white/35">Cardápio de referência, não uma confirmação de estoque ou disponibilidade diária. Preços de varejo não são apresentados nesta seção: a condição empresarial depende do volume, da frequência, da logística e da composição do pedido.</p>
+            <p className="mt-5 text-xs leading-5 text-white/35">Cardápio inicial de referência. A disponibilidade diária, a gramatura, os acompanhamentos e os valores são confirmados na proposta empresarial. Outras opções poderão ser apresentadas conforme a necessidade da empresa.</p>
           </section>
 
           <section className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
@@ -436,7 +440,7 @@ export default function B2BPage() {
               </form>
 
               <aside className="h-fit overflow-hidden rounded-[2rem] border border-[#ef7d18]/20 bg-[#171d10] lg:sticky lg:top-6">
-                <div className="relative h-48"><img src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png" alt="" className="h-full w-full object-cover object-center" /><div className="absolute inset-0 bg-gradient-to-t from-[#171d10] via-[#171d10]/15 to-transparent" /></div>
+                <div className="relative flex h-32 items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_70%_25%,rgba(239,125,24,.2),transparent_32%),linear-gradient(135deg,#252b1b,#10130d)]"><div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-[#a7b86a]"><UtensilsCrossed size={28} /></div></div>
                 <div className="p-6 md:p-7"><div className="flex items-center gap-3"><Handshake className="text-[#ef7d18]" size={22} /><h2 className="text-xl font-black">Cadastro Nutrifit Empresas</h2></div><p className="mt-4 text-sm leading-6 text-white/50">Quanto mais completo o cadastro, menos dúvidas ficam para orçamento, produção, entrega e faturamento.</p><div className="mt-6 grid gap-3">{["Empresa e responsáveis","Endereço completo de entrega","Quantidade e horários","Cardápio e restrições","Faturamento e pagamento","Início do fornecimento"].map(item => <div key={item} className="flex items-start gap-2 text-sm text-white/65"><Check size={16} className="mt-0.5 shrink-0 text-[#a7b86a]" />{item}</div>)}</div><a aria-label="Falar com a Nutrifit pelo WhatsApp" href="https://wa.me/5532998030038" target="_blank" rel="noreferrer" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-5 py-3.5 text-sm font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/15"><MessageCircle size={17} /> Falar com a Nutrifit</a></div>
               </aside>
             </div>
