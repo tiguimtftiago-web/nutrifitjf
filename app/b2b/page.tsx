@@ -80,6 +80,8 @@ export default function B2BPage() {
       setWizardStep(step => Math.min(8,step+1));
       return;
     }
+    if (!formRef.current?.querySelector<HTMLInputElement>('input[name="confirmacao_dados"]:checked')) { alert("Confirme que os dados informados estão corretos."); return; }
+    if (!formRef.current?.querySelector<HTMLInputElement>('input[name="consentimento"]:checked')) { alert("É necessário autorizar o uso dos dados para atendimento da solicitação."); return; }
     if (submitLock.current || sent) return;
     submitLock.current = true;
     setSubmitting(true);
