@@ -1285,7 +1285,7 @@ export default function Home() {
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
-  const orderDeliveryReady = orderFreeDelivery || Boolean(orderDelivery);
+  const orderDeliveryReady = Boolean(orderDelivery);
   const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
@@ -1297,8 +1297,8 @@ export default function Home() {
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
       const result = findDelivery(data.bairro);
-      if (!result) throw new Error("bairro");
-      setOrderDelivery(result);
+      if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
+      setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
       setOrderDeliveryStatus("idle");
     } catch {
       setOrderDelivery(null);
