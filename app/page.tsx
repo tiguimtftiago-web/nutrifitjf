@@ -1405,24 +1405,21 @@ export default function Home() {
 
     void (async () => {
       try {
-        const orderResponse = await fetch(SUPABASE_URL + "/rest/v1/customer_orders", {
+        const orderResponse = await fetch(SUPABASE_URL + "/functions/v1/create-customer-order", {
           method: "POST",
           headers: {
             apikey: SUPABASE_PUBLISHABLE_KEY,
             "Content-Type": "application/json",
-            Prefer: "return=minimal",
           },
           keepalive: true,
           body: JSON.stringify({
             customer_name: customerName.trim(),
             whatsapp: orderPhoneDigits,
-            items: orderItems,
-            item_count: orderCount,
-            subtotal: orderSubtotal,
-            discount: orderDiscount,
+            items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
+            coupon_code: appliedCoupon?.code || null,
+            club_welcome_discount: !appliedCoupon && clubDiscount > 0,
             delivery_fee: orderDeliveryFee,
-            total: orderGrandTotal,
-            cep: orderCep.replace(/\D/g, "") || null,
+            cep: orderCep.replace(/\\D/g, "") || null,
             neighborhood: orderDelivery?.neighborhood || null,
             notes: notesText || null,
             acquisition_source: acquisitionSource,
@@ -1433,11 +1430,6 @@ export default function Home() {
         });
 
         if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
-          await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_nutrifit_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_code: appliedCoupon.code }),
-          });
           setAppliedCoupon(null);
           setCouponCode("");
           setCouponStatus("idle");
