@@ -1435,18 +1435,11 @@ export default function Home() {
           setCouponStatus("idle");
           setCouponMessage("");
         } else if (orderResponse.ok && clubDiscount > 0) {
-          const redeemResponse = await fetch(SUPABASE_URL + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
-            method: "POST",
-            headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ p_whatsapp: orderPhoneDigits }),
-          });
-          if (redeemResponse.ok) {
-            setClubDiscount(0);
-            try {
-              const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
-              window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
-            } catch {}
-          }
+          setClubDiscount(0);
+          try {
+            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+          } catch {}
         }
       } catch (error) {
         console.error("order capture", error);
