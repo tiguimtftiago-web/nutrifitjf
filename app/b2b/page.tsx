@@ -23,6 +23,17 @@ const SUPABASE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 export default function B2BPage() {
   const [menuExpanded, setMenuExpanded] = useState(false);
+  const [menuQuantities, setMenuQuantities] = useState<Record<string, number>>({});
+  const menuDishes: [string, string][] = [
+    ["Bife acebolado", "Arroz, feijão e batata frita"],
+    ["Costelinha suína assada", "Arroz e feijão tropeiro"],
+    ["Feijoada completa", "Arroz e couve refogada"],
+    ["Carne de panela com batatas", "Arroz e farofa"],
+    ["Pernil assado", "Arroz branco e maionese"],
+    ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada"],
+  ];
+  const selectedMenuSummary = menuDishes.filter(([name]) => (menuQuantities[name] || 0) > 0).map(([name]) => `${name}: ${menuQuantities[name]} por dia`).join("; ");
+  const selectedMenuTotal = Object.values(menuQuantities).reduce((sum, qty) => sum + qty, 0);
   const [wizardStep, setWizardStep] = useState(1);
   const [reviewText, setReviewText] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
@@ -258,23 +269,32 @@ export default function B2BPage() {
                 <a href="#solicitar-proposta" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Pedir orçamento <ArrowRight size={15} /></a>
               </div>
             </div>
-            {menuExpanded && <div id="lista-pratos-empresariais" className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                ["Bife acebolado", "Arroz, feijão e batata frita", "01"],
-                ["Costelinha suína assada", "Arroz e feijão tropeiro", "02"],
-                ["Feijoada completa", "Arroz e couve refogada", "03"],
-                ["Carne de panela com batatas", "Arroz e farofa", "04"],
-                ["Pernil assado", "Arroz branco e maionese", "05"],
-                ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada", "06"],
-              ].map(([title, sides, number], index) => (
-                <article key={title} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#11140e] p-3">
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${index % 2 === 0 ? "bg-[#ef7d18]/10 text-[#ef7d18]" : "bg-[#a7b86a]/10 text-[#a7b86a]"}`}><UtensilsCrossed size={21} /></div>
-                  <div><h3 className="text-sm font-black">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{sides}</p></div>
-                  <span className="ml-auto self-start text-[10px] font-black text-white/30">{number}</span>
-                </article>
-              ))}
+            {menuExpanded && <div id="lista-pratos-empresariais" className="mt-4">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {menuDishes.map(([title, sides], index) => (
+                  <article key={title} className={`rounded-xl border p-4 transition ${(menuQuantities[title] || 0) > 0 ? "border-[#a7b86a]/70 bg-[#a7b86a]/10" : "border-white/10 bg-[#11140e]"}`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${index % 2 === 0 ? "bg-[#ef7d18]/10 text-[#ef7d18]" : "bg-[#a7b86a]/10 text-[#a7b86a]"}`}><UtensilsCrossed size={20} /></div>
+                      <div className="min-w-0 flex-1"><h3 className="text-sm font-black">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{sides}</p></div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <span className="text-xs text-white/60">Unidades por dia</span>
+                      <div className="flex items-center gap-3">
+                        <button type="button" aria-label={`Diminuir ${title}`} onClick={() => setMenuQuantities(current => ({...current, [title]: Math.max(0, (current[title] || 0) - 1)}))} className="h-9 w-9 rounded-full border border-white/15 text-lg font-bold hover:bg-white/10">−</button>
+                        <span className="min-w-5 text-center text-sm font-black tabular-nums">{menuQuantities[title] || 0}</span>
+                        <button type="button" aria-label={`Aumentar ${title}`} onClick={() => setMenuQuantities(current => ({...current, [title]: (current[title] || 0) + 1}))} className="h-9 w-9 rounded-full bg-[#a7b86a] text-lg font-black text-[#10130d] hover:brightness-110">+</button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/5 p-4">
+                <div><p className="text-sm font-black">Seleção diária: {selectedMenuTotal} refeições</p><p className="mt-1 text-xs text-white/50">Distribua as quantidades entre os pratos. O mínimo comercial é de 20 refeições por dia.</p></div>
+                <button type="button" onClick={() => { if (!selectedMenuTotal) { alert("Selecione a quantidade de pelo menos um prato."); return; } const field = formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="preferencias_cardapio"]'); if (field) { field.value = [selectedMenuSummary, field.value].filter(Boolean).join("\nObservações: "); field.dispatchEvent(new Event("input", { bubbles: true })); } document.getElementById("solicitar-proposta")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Usar seleção na proposta</button>
+              </div>
             </div>}
             <p className="mt-3 text-xs leading-5 text-white/35">Cardápio de referência. Disponibilidade, gramatura, acompanhamentos, valores e entrega são confirmados na proposta.</p>
+            <p className="mt-2 text-xs leading-5 text-white/35">Escolha a quantidade diária de cada prato. A seleção será incluída na proposta; disponibilidade e condições serão confirmadas pela Nutrifit.</p>
           </section>
 
           <section id="solicitar-proposta" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
