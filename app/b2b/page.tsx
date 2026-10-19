@@ -24,13 +24,13 @@ const SUPABASE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 export default function B2BPage() {
   const [menuExpanded, setMenuExpanded] = useState(false);
   const [menuQuantities, setMenuQuantities] = useState<Record<string, number>>({});
-  const menuDishes: [string, string][] = [
-    ["Bife acebolado", "Arroz, feijão e batata frita"],
-    ["Costelinha suína assada", "Arroz e feijão tropeiro"],
-    ["Feijoada completa", "Arroz e couve refogada"],
-    ["Carne de panela com batatas", "Arroz e farofa"],
-    ["Pernil assado", "Arroz branco e maionese"],
-    ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada"],
+  const menuDishes: [string, string, string][] = [
+    ["Bife acebolado", "Arroz, feijão e batata frita", "/images/bife-acebolado.jpg"],
+    ["Costelinha suína assada", "Arroz e feijão tropeiro", "/images/costelinha-suina-assada.jpg"],
+    ["Feijoada completa", "Arroz e couve refogada", "/images/feijoada-completa.jpg"],
+    ["Carne de panela com batatas", "Arroz e farofa", "/images/carne-de-panela-com-batatas.jpg"],
+    ["Pernil assado", "Arroz branco e maionese", "/images/pernil-assado.jpg"],
+    ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada", "/images/frango-ensopado.jpg"],
   ];
   const selectedMenuSummary = menuDishes.filter(([name]) => (menuQuantities[name] || 0) > 0).map(([name]) => `${name}: ${menuQuantities[name]} por dia`).join("; ");
   const selectedMenuTotal = Object.values(menuQuantities).reduce((sum, qty) => sum + qty, 0);
@@ -271,12 +271,14 @@ export default function B2BPage() {
             </div>
             {menuExpanded && <div id="lista-pratos-empresariais" className="mt-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {menuDishes.map(([title, sides], index) => (
-                  <article key={title} className={`rounded-xl border p-4 transition ${(menuQuantities[title] || 0) > 0 ? "border-[#a7b86a]/70 bg-[#a7b86a]/10" : "border-white/10 bg-[#11140e]"}`}>
-                    <div className="flex items-start gap-3">
-                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${index % 2 === 0 ? "bg-[#ef7d18]/10 text-[#ef7d18]" : "bg-[#a7b86a]/10 text-[#a7b86a]"}`}><UtensilsCrossed size={20} /></div>
-                      <div className="min-w-0 flex-1"><h3 className="text-sm font-black">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{sides}</p></div>
-                    </div>
+                {menuDishes.map(([title, sides, image], index) => (
+                  <article key={title} className={`overflow-hidden rounded-xl border transition ${(menuQuantities[title] || 0) > 0 ? "border-[#a7b86a]/70 bg-[#a7b86a]/10" : "border-white/10 bg-[#11140e]"}`}>
+                    <img src={image} alt={title} loading="lazy" className="h-44 w-full object-cover" />
+                    <div className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${index % 2 === 0 ? "bg-[#ef7d18]/10 text-[#ef7d18]" : "bg-[#a7b86a]/10 text-[#a7b86a]"}`}><UtensilsCrossed size={20} /></div>
+                        <div className="min-w-0 flex-1"><h3 className="text-sm font-black">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50">{sides}</p></div>
+                      </div>
                     <div className="mt-4 flex items-center justify-between gap-3">
                       <span className="text-xs text-white/60">Unidades por dia</span>
                       <div className="flex items-center gap-3">
@@ -284,6 +286,7 @@ export default function B2BPage() {
                         <span className="min-w-5 text-center text-sm font-black tabular-nums">{menuQuantities[title] || 0}</span>
                         <button type="button" aria-label={`Aumentar ${title}`} onClick={() => setMenuQuantities(current => ({...current, [title]: (current[title] || 0) + 1}))} className="h-9 w-9 rounded-full bg-[#a7b86a] text-lg font-black text-[#10130d] hover:brightness-110">+</button>
                       </div>
+                    </div>
                     </div>
                   </article>
                 ))}
