@@ -1333,7 +1333,7 @@ export default function Home() {
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
   const couponDiscount = appliedCoupon && orderSubtotal >= Number(appliedCoupon.minimum_order_value || 0)
-    ? appliedCoupon.discount_type === "percent"
+    ? (appliedCoupon.discount_type === "percent" || appliedCoupon.discount_type === "percentage")
       ? Math.min(orderSubtotal, orderSubtotal * Number(appliedCoupon.discount_value || 0) / 100)
       : Math.min(orderSubtotal, Number(appliedCoupon.discount_value || 0))
     : 0;
