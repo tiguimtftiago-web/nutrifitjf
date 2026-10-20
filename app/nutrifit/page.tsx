@@ -10,7 +10,7 @@ const products:Product[]=[
 {id:"3",name:"Frango Grelhado com Mix de Legumes",line:"FIT",weight:"350 g",price:23.97,image:"/images/page-6.jpg",description:"Frango grelhado e mix de legumes."},
 {id:"4",name:"Carne Acebolada com Legumes",line:"FIT",weight:"350 g",price:23.97,image:"/images/page-5.jpg",description:"Carne bovina acebolada com legumes."},
 {id:"5",name:"Chicken Parmesão",line:"PERFORMANCE",weight:"450 g",price:27.90,image:"/images/page-12.jpg",description:"Frango, parmesão, arroz integral e legumes."},
-{id:"6",name:"Tilápia Power",line:"PERFORMANCE",weight:"450 g",price:27.90,image:"/images/page-13.jpg",description:"Tilápia, arroz integral, batata-doce e legumes."},
+{id:"6",name:"Tilápia Power",line:"PERFORMANCE",weight:"450 g",price:32.90,image:"/images/page-13.jpg",description:"Tilápia, arroz integral, batata-doce e legumes."},
 {id:"7",name:"Parmegiana Cremosa",line:"TRADICIONAL",weight:"500 g",price:26.90,image:"/images/page-29.jpg",description:"Frango, molho artesanal, queijo, arroz e purê."},
 {id:"8",name:"Churrasco Fit Mineiro",line:"TRADICIONAL",weight:"500 g",price:29.90,image:"/images/page-32.jpg",description:"Carne grelhada, vinagrete, arroz e farofa."},
 {id:"9",name:"Suco de Laranja",line:"SUCOS",weight:"500 ml",price:12.90,image:"/images/page-42.jpg",description:"Suco natural e refrescante."},
