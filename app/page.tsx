@@ -2142,7 +2142,7 @@ export default function Home() {
       </section>
 
       <section id="sucos" className="scroll-mt-[120px] overflow-hidden border-y border-white/10 bg-[#050605]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-9 md:px-8 md:py-12">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Linha de sucos Nutrifit</p>
@@ -2151,43 +2151,65 @@ export default function Home() {
             </div>
             <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml • R$ 9,90 &nbsp; | &nbsp; 500 ml • R$ 12,90</span>
           </div>
-          <div className="grid overflow-hidden rounded-[26px] border border-white/10 bg-[#080a07] lg:grid-cols-[1.45fr_.75fr]">
-            <div className="relative min-h-[320px] overflow-hidden bg-black sm:min-h-[440px]">
-              <img src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit sabor ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"} com frutas frescas`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/10" />
-              <div className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/70 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6 sm:text-xs">NUTRIFIT • SUCOS</div>
-              <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7">
-                <p className="text-[10px] font-black uppercase tracking-[.25em] text-[#d8e7a0]">Sabor selecionado</p>
-                <h3 className="mt-1 text-3xl font-black sm:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
-                <p className="mt-2 text-sm text-white/75">Frutas selecionadas • Sabor e praticidade no seu dia</p>
+
+          <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#080a07] shadow-[0_20px_70px_rgba(0,0,0,.3)]">
+            <div className="grid grid-cols-1 lg:grid-cols-[170px_minmax(0,1fr)_290px]">
+              <aside className="hidden flex-col justify-center gap-6 border-r border-white/10 bg-black/70 p-5 lg:flex">
+                {[
+                  { icon: "◉", title: "100% natural", detail: "Sabor de verdade" },
+                  { icon: "✳", title: "Sem conservantes", detail: "Seleção Nutrifit" },
+                  { icon: "◇", title: "Ingredientes", detail: "Cuidadosamente selecionados" },
+                  { icon: "✓", title: "Mais praticidade", detail: "Para sua rotina" },
+                ].map((feature) => (
+                  <div key={feature.title} className="flex items-center gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#a7b86a]/70 text-sm text-[#a7b86a]">{feature.icon}</span>
+                    <span><span className="block text-[10px] font-black uppercase leading-4 text-white/85">{feature.title}</span><span className="mt-0.5 block text-[10px] leading-4 text-white/45">{feature.detail}</span></span>
+                  </div>
+                ))}
+              </aside>
+
+              <div className="relative min-h-[390px] overflow-hidden bg-black sm:min-h-[470px] lg:min-h-[540px]">
+                <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit sabor ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"} com frutas`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/10" />
+                <div className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/70 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6 sm:text-xs">NUTRIFIT • SUCOS</div>
+                <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7">
+                  <p className="text-[10px] font-black uppercase tracking-[.25em] text-[#d8e7a0]">Sabor selecionado</p>
+                  <h3 className="mt-1 text-4xl font-black leading-none sm:text-5xl lg:text-6xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
+                  <p className="mt-3 max-w-md text-sm text-white/85 sm:text-base">Frutas selecionadas • Sabor e praticidade no seu dia</p>
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col justify-between gap-5 p-4 sm:p-6 lg:p-7">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[.22em] text-[#a7b86a]">Escolha o tamanho</p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
+
+              <aside className="flex flex-col justify-center border-t border-white/10 bg-[#080a07] p-4 sm:p-6 lg:border-l lg:border-t-0 lg:p-6">
+                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Suco Nutrifit</p>
+                <h3 className="mt-2 text-2xl font-black uppercase leading-tight text-[#ef7d18] sm:text-3xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
+                <p className="mt-2 text-sm leading-5 text-white/60">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."} Escolha o tamanho para adicionar ao pedido.</p>
+                <p className="mt-5 text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Escolha o tamanho</p>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-3">
                   {([{size:"300 ml",price:"R$ 9,90"},{size:"500 ml",price:"R$ 12,90"}]).map((option) => {
                     const selectedFlavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
                     const product = juiceProducts.find((item) => item.name === `${selectedFlavor.name} — ${option.size}`);
-                    return <button key={option.size} type="button" onClick={() => { if (product) addToOrder(product); }} className="rounded-xl border border-[#ef7d18]/60 bg-[#ef7d18]/10 px-3 py-4 text-left transition hover:bg-[#ef7d18]/20 active:scale-[.98]">
-                      <span className="block text-xs font-bold text-white/70">{option.size}</span>
-                      <span className="mt-1 block text-lg font-black text-[#ef7d18] sm:text-xl">{option.price}</span>
-                      <span className="mt-2 block text-[10px] font-bold uppercase tracking-wider text-white/55">Adicionar ao pedido</span>
+                    return <button key={option.size} type="button" onClick={() => { if (product) addToOrder(product); }} className="min-h-[112px] rounded-xl border border-[#ef7d18]/60 bg-[#ef7d18]/10 px-3 py-4 text-left transition hover:border-[#ef7d18] hover:bg-[#ef7d18]/20 active:scale-[.98]">
+                      <span className="block text-sm font-black text-white/85">{option.size}</span>
+                      <span className="mt-1 block text-xl font-black text-[#ef7d18]">{option.price}</span>
+                      <span className="mt-3 block text-[9px] font-bold uppercase leading-4 tracking-wide text-white/50">Adicionar ao pedido</span>
                     </button>;
                   })}
                 </div>
+                <p className="mt-3 text-[10px] leading-4 text-white/35">O tamanho escolhido entra no carrinho com o preço correspondente.</p>
+              </aside>
+            </div>
+
+            <div className="border-t border-white/10 bg-[#080a07] p-3 sm:p-5">
+              <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+                <h4 className="text-base font-black sm:text-lg">Escolha seu sabor</h4>
+                <span className="text-xs font-bold text-white/40">{juiceShowcaseIndex + 1} / {juiceFlavors.length}</span>
               </div>
-              <div>
-                <div className="mb-3 flex items-center justify-between">
-                  <h4 className="font-black">Escolha seu sabor</h4>
-                  <span className="text-xs text-white/40">{juiceShowcaseIndex + 1} / {juiceFlavors.length}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {juiceFlavors.map((flavor,index) => <button key={flavor.name} type="button" onClick={() => setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`overflow-hidden rounded-xl border text-left transition ${juiceShowcaseIndex===index ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-black hover:border-white/30"}`}>
-                    <img src={flavor.image} alt="" loading="lazy" className="aspect-square w-full object-cover" />
-                    <span className="block truncate px-2 py-2 text-[10px] font-black sm:text-xs">{flavor.name}</span>
-                  </button>)}
-                </div>
+              <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:gap-3">
+                {juiceFlavors.map((flavor,index) => <button key={flavor.name} type="button" onClick={() => setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`group w-[31%] shrink-0 snap-start overflow-hidden rounded-xl border text-left transition sm:w-[23.5%] md:w-[18.5%] lg:w-[13.8%] ${juiceShowcaseIndex===index ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_18px_rgba(239,125,24,.18)]" : "border-white/10 bg-black hover:border-white/30"}`}>
+                  <img src={flavor.image} alt={flavor.name} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
+                  <span className="block truncate px-1.5 py-2 text-center text-[10px] font-black sm:text-xs">{flavor.name === "Suco de Laranja" ? "Laranja" : flavor.name === "Abacaxi com Hortelã" ? "Abacaxi" : flavor.name}</span>
+                </button>)}
               </div>
             </div>
           </div>
