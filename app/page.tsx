@@ -1238,6 +1238,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 
 export default function Home() {
   const [bannerIndex, setBannerIndex] = useState(0);
+  const [juiceShowcaseIndex, setJuiceShowcaseIndex] = useState(0);
   const [comboOpen, setComboOpen] = useState(false);
   const [comboLineIndex, setComboLineIndex] = useState(0);
   const [topComboOpen, setTopComboOpen] = useState(false);
@@ -2070,147 +2071,63 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-              </details>
-            );
-          })}
+              </det      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Sucos naturais Nutrifit</p><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor, confira os dois tamanhos e adicione ao carrinho.</p></div>
+            <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml e 500 ml</span>
+          </div>
+          {(() => {
+            const showcase = [
+              {name:"Energy",image:"/images/page-36.jpg",badge:"FUNCIONAL",ingredients:"Beterraba • Laranja • Maçã • Limão"},
+              {name:"Green",image:"/images/page-37.jpg",badge:"DETOX",ingredients:"Maçã • Pepino • Gengibre • Hortelã • Limão"},
+              {name:"Pink",image:"/images/page-38.jpg",badge:"FUNCIONAL",ingredients:"Morango • Beterraba • Laranja • Limão"},
+              {name:"Sun",image:"/images/page-39.jpg",badge:"REFRESCANTE",ingredients:"Abacaxi • Maracujá • Laranja • Gengibre"},
+              {name:"Purple",image:"/images/page-40.jpg",badge:"ANTIOXIDANTE",ingredients:"Uva • Frutas vermelhas • Limão"},
+              {name:"Glow",image:"/images/page-41.jpg",badge:"FUNCIONAL",ingredients:"Laranja • Limão • Gengibre • Cúrcuma"},
+              {name:"Suco de Laranja",image:"/images/page-42.jpg",badge:"NATURAL",ingredients:"Laranja"},
+              {name:"Laranja com Acerola",image:"/images/page-43.jpg",badge:"NATURAL",ingredients:"Laranja • Acerola"},
+              {name:"Abacaxi com Hortelã",image:"/images/page-44.jpg",badge:"NATURAL",ingredients:"Abacaxi • Hortelã"}
+            ];
+            const item = showcase[juiceShowcaseIndex] || showcase[0];
+            return <div className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+              <div className="relative isolate min-w-0 overflow-hidden rounded-[1.7rem] border border-white/15 bg-black shadow-[0_20px_70px_rgba(0,0,0,.35)]">
+                <img key={item.image} src={item.image} alt={item.name + " Nutrifit com frutas frescas"} className="absolute inset-0 h-full min-h-[370px] w-full object-cover transition-opacity duration-500 sm:min-h-[500px]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/10" />
+                <div className="relative flex min-h-[370px] flex-col justify-between p-5 sm:min-h-[500px] sm:p-8">
+                  <div className="flex justify-between gap-3"><span className="rounded-full border border-[#a7b86a]/50 bg-black/70 px-4 py-2 text-xs font-black tracking-wider text-[#d8e7a0]">{item.badge}</span><span className="rounded-full border border-white/20 bg-black/70 px-4 py-2 text-xs font-bold text-white">Nutrifit • linha de sucos</span></div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[.2em] text-[#d8e7a0]">{item.ingredients}</p>
+                    <h3 className="mt-2 text-4xl font-black sm:text-6xl">{item.name}</h3>
+                    <p className="mt-2 text-sm text-white/70">Frutas em destaque • identidade Nutrifit</p>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button type="button" onClick={() => { const product = juiceProducts.find((p) => p.name === item.name + " — 300 ml"); if (product) addToOrder(product); }} className="rounded-full border border-white/25 bg-black/75 px-5 py-3 text-left transition hover:border-[#a7b86a]"><span className="block text-xs text-white/60">300 ml</span><span className="font-black text-[#ef7d18]">R$ 9,90</span></button>
+                      <button type="button" onClick={() => { const product = juiceProducts.find((p) => p.name === item.name + " — 500 ml"); if (product) addToOrder(product); }} className="rounded-full bg-[#ef7d18] px-5 py-3 text-left font-black text-black transition hover:bg-orange-400"><span className="block text-xs text-black/65">500 ml</span>R$ 12,90</button>
+                    </div>
+                  </div>
+                  <div className="absolute left-1/2 top-1/2 flex w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 justify-between pointer-events-none">
+                    <button type="button" aria-label="Suco anterior" onClick={() => setJuiceShowcaseIndex((i) => (i + showcase.length - 1) % showcase.length)} className="pointer-events-auto grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-black/80 text-2xl transition hover:border-[#ef7d18]">‹</button>
+                    <button type="button" aria-label="Próximo suco" onClick={() => setJuiceShowcaseIndex((i) => (i + 1) % showcase.length)} className="pointer-events-auto grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-black/80 text-2xl transition hover:border-[#ef7d18]">›</button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex min-w-0 flex-col rounded-[1.7rem] border border-white/10 bg-[#0d100b] p-4 sm:p-5">
+                <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-black">Explore os sabores</h3><span className="text-xs text-white/40">{juiceShowcaseIndex+1} / {showcase.length}</span></div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
+                  {showcase.map((flavor,index)=><button key={flavor.name} type="button" onClick={()=>setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={"group overflow-hidden rounded-xl border text-left transition "+(juiceShowcaseIndex===index?"border-[#ef7d18] bg-[#ef7d18]/10":"border-white/10 bg-black/40 hover:border-white/30")}>
+                    <div className="aspect-[4/3] overflow-hidden"><img src={flavor.image} alt={flavor.name} loading="lazy" className="h-full w-full object-cover transition duration-300 group-hover:scale-105"/></div>
+                    <div className="p-3"><span className="block text-sm font-black">{flavor.name}</span><span className="mt-1 block text-[11px] text-white/45">300 ml • 500 ml</span></div>
+                  </button>)}
+                </div>
+                <p className="mt-4 text-center text-xs leading-5 text-white/35">Selecione um sabor e adicione o tamanho desejado ao carrinho.</p>
+              </div>
+            </div>;
+          })()}
         </div>
       </section>
-      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
-        <div className="mx-auto max-w-7xl px-4 py-0 sm:px-5 sm:py-3 md:px-8 md:py-8">
-          <div className="overflow-hidden rounded-[1.8rem] border border-white/20 bg-black shadow-[0_18px_60px_rgba(0,0,0,.3)] sm:rounded-[2rem]">
-            <div className="relative min-h-[390px] overflow-hidden sm:min-h-[500px] md:min-h-[550px]">
-              <img
-                src="/images/page-36.jpg"
-                alt="Suco Nutrifit Energy"
-                className="absolute inset-0 h-full w-full object-cover object-[68%_center] sm:object-center"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,.97)_0%,rgba(0,0,0,.92)_34%,rgba(0,0,0,.55)_55%,rgba(0,0,0,.08)_82%,rgba(0,0,0,0)_100%)]" />
-              <div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,.18)_0%,transparent_45%)]" />
 
-              <div className="relative z-10 flex min-h-[390px] max-w-[620px] flex-col justify-center px-5 py-8 sm:min-h-[500px] sm:px-9 sm:py-12 md:min-h-[550px] md:px-12">
-                <div className="text-[10px] font-black uppercase tracking-[.25em] text-[#a7b86a] sm:text-xs">Refresque sua rotina</div>
-                <h2 className="mt-3 text-[3rem] font-black leading-[.86] tracking-[-.055em] sm:text-6xl md:text-7xl">
-                  <span className="block text-white">Linha de</span>
-                  <span className="block text-[#ef7d18]">Sucos</span>
-                </h2>
-                <p className="mt-4 max-w-[390px] text-sm leading-6 text-white/70 sm:mt-5 sm:text-lg sm:leading-8">
-                  Sabor, frescor e praticidade<br className="hidden sm:block" /> para o seu dia a dia.
-                </p>
 
-                <div className="mt-5 flex max-w-[520px] flex-wrap gap-2.5 sm:mt-7 sm:gap-3">
-                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
-                    <Leaf size={25} strokeWidth={2} />
-                    <span>100%<br />NATURAL</span>
-                  </span>
-                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
-                    <HeartPulse size={25} strokeWidth={2} />
-                    <span>FUNCIONAIS</span>
-                  </span>
-                  <span className="inline-flex min-h-[58px] items-center gap-3 rounded-full border border-[#a7b86a]/55 bg-black/35 px-5 text-sm font-black text-[#d8e7a0] backdrop-blur-sm sm:text-base">
-                    <FlaskConical size={25} strokeWidth={2} />
-                    <span>SEM CONSERVANTES</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div id="sucos-produtos" className="scroll-mt-[170px] border-t border-white/10 p-4 sm:p-7 md:p-8">
-              <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
-                <div>
-                  <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a] sm:text-xs">Funcionais</div>
-                  <h3 className="mt-1 text-[2rem] font-black leading-none tracking-tight sm:text-4xl">Escolha seu sabor</h3>
-                </div>
-                <div className="shrink-0 text-right text-sm leading-6 text-white/55 sm:text-base">
-                  300 ml • R$ 9,90<br />500 ml • R$ 12,90
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
-                {[
-                  ["Energy","/images/page-36.jpg","FUNCIONAL","Beterraba • Laranja • Maçã • Limão"],
-                  ["Green","/images/page-37.jpg","DETOX","Maçã • Pepino • Gengibre • Hortelã • Limão"],
-                  ["Pink","/images/page-38.jpg","FUNCIONAL","Morango • Beterraba • Laranja • Limão"],
-                  ["Sun","/images/page-39.jpg","REFRESCANTE","Abacaxi • Maracujá • Laranja • Gengibre"],
-                  ["Purple","/images/page-40.jpg","ANTIOXIDANTE","Uva • Frutas vermelhas • Limão"],
-                  ["Glow","/images/page-41.jpg","FUNCIONAL","Morango • Laranja • Cenoura • Beterraba • Limão"],
-                ].map(([name,image,badge,ingredients]) => (
-                  <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#a7b86a]/55">
-                    <div className="relative aspect-[16/8] overflow-hidden sm:aspect-[3/2]">
-                      <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                      <span className="absolute left-3 top-3 rounded-full border border-[#a7b86a]/45 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#cbd99a] backdrop-blur">{badge}</span>
-                    </div>
-                    <div className="p-4 sm:p-5 md:p-7">
-                      <div className="text-2xl font-black sm:text-2xl md:text-3xl">{name}</div>
-                      <div className="mt-1 min-h-8 text-xs leading-5 text-white/55 sm:text-xs md:text-sm">{ingredients}</div>
-                      <div className="mt-4 grid min-w-0 grid-cols-2 gap-2.5">
-                        {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
-                          <button key={size} type="button" onClick={() => {
-                            const product = juiceProducts.find((item) => item.name === name + " — " + size);
-                            if (product) addToOrder(product);
-                          }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-2 py-2.5 text-center transition hover:border-[#a7b86a]/55 hover:bg-[#a7b86a]/10 sm:px-2 sm:py-3">
-                            <span className="block whitespace-nowrap text-[10px] font-bold text-white/55 sm:text-xs">{size}</span>
-                            <span className="mt-0.5 block whitespace-nowrap text-lg font-black text-[#ef7d18] sm:text-xl">{price}</span>
-                          </button>
-                        ))}
-                      </div>
-                      <button type="button" onClick={() => {
-                        const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
-                        if (product) addToOrder(product);
-                      }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#b7dc62] px-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
-                        <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-10 border-t border-white/10 pt-7">
-                <div className="mb-5 flex items-end justify-between gap-4">
-                  <div>
-                    <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#ef7d18] sm:text-xs">Naturais</div>
-                    <h3 className="mt-1 text-2xl font-black sm:text-3xl">Clássicos da Nutrifit</h3>
-                  </div>
-                  <div className="shrink-0 text-right text-sm leading-6 text-white/55">
-                    300 ml • R$ 9,90<br />500 ml • R$ 12,90
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
-                  {[
-                    ["Suco de Laranja","/images/page-42.jpg"],
-                    ["Laranja com Acerola","/images/page-43.jpg"],
-                    ["Abacaxi com Hortelã","/images/page-44.jpg"],
-                  ].map(([name,image]) => (
-                    <div key={name} className="group overflow-hidden rounded-[1.45rem] border border-white/15 bg-[#0b0e09] transition hover:-translate-y-0.5 hover:border-[#ef7d18]/45">
-                      <div className="relative aspect-[16/8] overflow-hidden sm:aspect-[3/2]">
-                        <img src={image} alt={name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-                        <span className="absolute left-3 top-3 rounded-full border border-[#ef7d18]/40 bg-[#10140d]/90 px-3 py-2 text-[9px] font-black uppercase tracking-wider text-[#ef7d18] backdrop-blur">NATURAL</span>
-                      </div>
-                      <div className="p-4 sm:p-5 md:p-7">
-                        <div className="text-2xl font-black sm:text-2xl md:text-3xl">{name}</div>
-                        <div className="mt-4 grid min-w-0 grid-cols-2 gap-3">
-                          {[["300 ml","R$ 9,90"],["500 ml","R$ 12,90"]].map(([size,price]) => (
-                            <button key={size} type="button" onClick={() => {
-                              const product = juiceProducts.find((item) => item.name === name + " — " + size);
-                              if (product) addToOrder(product);
-                            }} className="min-w-0 overflow-hidden rounded-xl border border-white/15 bg-[#10130d] px-2 py-3 text-center transition hover:border-[#ef7d18]/45 hover:bg-[#ef7d18]/5 sm:px-2">
-                              <span className="block whitespace-nowrap text-[10px] text-white/55 sm:text-xs">{size}</span>
-                              <span className="mt-0.5 block whitespace-nowrap text-lg font-black text-[#ef7d18] sm:text-xl">{price}</span>
-                            </button>
-                          ))}
-                        </div>
-                        <button type="button" onClick={() => {
-                          const product = juiceProducts.find((item) => item.name === name + " — 500 ml");
-                          if (product) addToOrder(product);
-                        }} className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[#b7dc62] px-4 text-sm font-black text-black shadow-lg transition hover:scale-[1.01] md:min-h-[58px] md:text-base">
-                          <ShoppingCart size={20} strokeWidth={2} /> Adicionar ao carrinho
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+         </div>
           </div>
         </div>
       </section>
