@@ -2071,7 +2071,12 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </details>
+            );
+          })}
+        </div>
+      </section>
+
       <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
