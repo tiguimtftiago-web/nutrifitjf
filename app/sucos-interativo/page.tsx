@@ -39,8 +39,8 @@ export default function SucosInterativosPage() {
 
       <section className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-5">
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#050605]">
-          <div className="grid md:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-[minmax(0,1fr)_250px]">
-            <div className="relative min-h-[390px] overflow-hidden bg-black sm:min-h-[480px] md:min-h-[430px]">
+          <div className="grid grid-cols-[minmax(0,1fr)_142px] sm:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-[minmax(0,1fr)_250px]">
+            <div className="relative min-h-[410px] overflow-hidden bg-black sm:min-h-[480px]">
               <img key={juice.name} src={juice.image} alt={`Nutrifit ${juice.name}: garrafa e frutas do sabor`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300"/>
               <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/65"/>
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/5"/>
@@ -53,22 +53,22 @@ export default function SucosInterativosPage() {
                 <p className="mt-2 text-sm text-white/85 sm:text-base">{juice.ingredients}</p>
               </div>
             </div>
-            <aside className="flex flex-col justify-center border-t border-white/10 bg-[#080a07] p-4 sm:p-5 md:border-l md:border-t-0">
+            <aside className="flex flex-col justify-center border-l border-white/10 bg-[#080a07] p-2 sm:p-5">
               <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Suco natural</p>
-              <h2 className="mt-2 text-3xl font-black uppercase leading-none text-[#ef7d18]">{juice.name}</h2>
-              <p className="mt-3 text-sm leading-5 text-white/65">{juice.ingredients}. Escolha o volume e faça seu pedido.</p>
-              <div className="mt-5 space-y-3 text-xs text-white/75">
+              <h2 className="mt-2 text-lg font-black uppercase leading-tight text-[#ef7d18] sm:text-3xl">{juice.name}</h2>
+              <p className="mt-2 text-[10px] leading-4 text-white/65 sm:mt-3 sm:text-sm sm:leading-5">{juice.ingredients}. Escolha o volume e faça seu pedido.</p>
+              <div className="mt-3 space-y-2 text-[9px] text-white/75 sm:mt-5 sm:space-y-3 sm:text-xs">
                 <div className="flex items-center gap-2"><Leaf size={16} className="text-[#a7b86a]"/> Ingredientes selecionados</div>
                 <div className="flex items-center gap-2"><Leaf size={16} className="text-[#a7b86a]"/> Prático para o seu dia</div>
               </div>
-              <p className="mt-6 text-[10px] font-black uppercase tracking-[.16em] text-white/60">Escolha o tamanho</p>
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <p className="mt-3 text-[9px] font-black uppercase tracking-[.08em] text-white/60 sm:mt-6 sm:text-[10px] sm:tracking-[.16em]">Escolha o tamanho</p>
+              <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {([{size:"500 ml",price:"R$ 12,90"},{size:"300 ml",price:"R$ 9,90"}] as const).map(option => <button key={option.size} type="button" onClick={() => setSize(option.size)} aria-pressed={size===option.size} className={`rounded-xl border px-2 py-3 text-center transition ${size===option.size ? "border-[#ef7d18] bg-[#ef7d18]/15" : "border-white/15 bg-black"}`}>
                   <span className="block text-[10px] font-bold text-white/65">{option.size}</span><span className="mt-1 block text-sm font-black text-white">{option.price}</span>
                 </button>)}
               </div>
-              <p className="mt-4 text-xs text-white/55">Selecionado: {size}</p>
-              <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => {}} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-3 py-3 text-center text-xs font-black text-black transition hover:bg-orange-400"><MessageCircle size={15}/> Pedir agora pelo WhatsApp</a>
+              <p className="mt-3 text-[9px] text-white/55 sm:mt-4 sm:text-xs">Selecionado: {size}</p>
+              <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => {}} className="mt-3 flex items-center justify-center gap-1 rounded-full bg-[#ef7d18] px-2 py-2 text-center text-[9px] font-black text-black sm:gap-2 sm:px-3 sm:py-3 sm:text-xs transition hover:bg-orange-400"><MessageCircle size={15}/> Pedir agora pelo WhatsApp</a>
             </aside>
           </div>
           <div className="border-t border-white/10 bg-[#080a07] p-3 sm:px-4 sm:py-3">
