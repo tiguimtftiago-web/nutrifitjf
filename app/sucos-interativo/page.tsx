@@ -17,6 +17,7 @@ const juices = [
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
   const [resetKey, setResetKey] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
