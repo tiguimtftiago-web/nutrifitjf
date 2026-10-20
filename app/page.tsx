@@ -1305,6 +1305,7 @@ export default function Home() {
     setOrderOpen(true);
   };
   const [orderOpen, setOrderOpen] = useState(false);
+  const [orderCaptureError, setOrderCaptureError] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
@@ -1405,7 +1406,7 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
-  const sendFullOrder = () => {
+  const sendFullOrder = async () => {
     if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
 
     const lines = orderItems.map((item, i) => {
@@ -1453,56 +1454,70 @@ export default function Home() {
     const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
     trackClick("order_started", acquisitionSource);
 
+    // Abre uma aba imediatamente; a gravação é aguardada antes de limpar o carrinho.
+    const whatsappWindow = window.open("about:blank", "_blank");
+    if (whatsappWindow) {
+      try { whatsappWindow.opener = null; } catch {}
+    }
     const whatsappUrl = whatsappOrder(message);
-    const whatsappWindow = window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-    if (!whatsappWindow) window.location.href = whatsappUrl;
+    setOrderCaptureError(false);
 
-    setOrderItems([]);
-
-    void (async () => {
-      try {
-        const orderResponse = await fetch(SUPABASE_URL + "/functions/v1/create-customer-order", {
-          method: "POST",
-          headers: {
-            apikey: SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json",
-          },
-          keepalive: true,
-          body: JSON.stringify({
-            customer_name: customerName.trim(),
-            whatsapp: orderPhoneDigits,
-            items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
-            coupon_code: appliedCoupon?.code || null,
-            club_welcome_discount: !appliedCoupon && clubDiscount > 0,
-            delivery_fee: orderDeliveryFee,
-            cep: orderCep.replace(/\\D/g, "") || null,
-            neighborhood: orderDelivery?.neighborhood || null,
-            notes: notesText || null,
-            acquisition_source: acquisitionSource,
-            acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-            acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-            acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
-          }),
-        });
-
-        if (orderResponse.ok && couponDiscount > 0 && appliedCoupon) {
-          setAppliedCoupon(null);
-          setCouponCode("");
-          setCouponStatus("idle");
-          setCouponMessage("");
-        } else if (orderResponse.ok && clubDiscount > 0) {
-          setClubDiscount(0);
-          try {
-            const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
-            window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
-          } catch {}
-        }
-      } catch (error) {
-        console.error("order capture", error);
+    try {
+      const orderResponse = await fetch(SUPABASE_URL + "/functions/v1/create-customer-order", {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        keepalive: true,
+        body: JSON.stringify({
+          customer_name: customerName.trim(),
+          whatsapp: orderPhoneDigits,
+          items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
+          coupon_code: appliedCoupon?.code || null,
+          club_welcome_discount: !appliedCoupon && clubDiscount > 0,
+          delivery_fee: orderDeliveryFee,
+          cep: orderCep.replace(/\\D/g, "") || null,
+          neighborhood: orderDelivery?.neighborhood || null,
+          notes: notesText || null,
+          acquisition_source: acquisitionSource,
+          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
+          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
+          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+        }),
+      });
+      const result = await orderResponse.json().catch(() => ({}));
+      if (!orderResponse.ok || result.ok !== true) {
+        throw new Error(typeof result.error === "string" ? result.error : "Falha ao registrar o pedido.");
       }
-    })();
 
-    setOrderOpen(false);
+      if (couponDiscount > 0 && appliedCoupon) {
+        setAppliedCoupon(null);
+        setCouponCode("");
+        setCouponStatus("idle");
+        setCouponMessage("");
+      } else if (clubDiscount > 0) {
+        setClubDiscount(0);
+        try {
+          const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
+          window.localStorage.setItem("nutrifit_profile", JSON.stringify({ ...saved, couponUsed: true }));
+        } catch {}
+      }
+
+      setOrderItems([]);
+      setOrderOpen(false);
+      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const finalUrl = whatsappOrder(message + reference);
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
+      else window.location.href = finalUrl;
+    } catch (error) {
+      console.error("order capture", error);
+      setOrderCaptureError(true);
+      const warning = "\\n\\n⚠️ *Atenção:* o sistema não confirmou o registro automático. Confira os itens com a Nutrifit antes de pagar.";
+      const fallbackUrl = whatsappOrder(message + warning);
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = fallbackUrl;
+      else window.location.href = fallbackUrl;
+    }
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
   const searchResults = searchTerm.trim()
@@ -2518,6 +2533,7 @@ export default function Home() {
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
                   Finalizar no WhatsApp <ArrowRight size={18} />
                 </button>
+                {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
               </div>
