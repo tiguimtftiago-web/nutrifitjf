@@ -2141,16 +2141,55 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
+      <section id="sucos" className="scroll-mt-[120px] overflow-hidden border-y border-white/10 bg-[#050605]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div><p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Sucos naturais Nutrifit</p><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor, confira os dois tamanhos e adicione ao carrinho.</p></div>
-            <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml e 500 ml</span>
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Linha de sucos Nutrifit</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor e o tamanho ideal para sua rotina.</p>
+            </div>
+            <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml • R$ 9,90 &nbsp; | &nbsp; 500 ml • R$ 12,90</span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {juiceFlavors.map((flavor) => (
-              <JuiceFlavorCard key={flavor.name} flavor={flavor} onAdd={addToOrder} />
-            ))}
+          <div className="grid overflow-hidden rounded-[26px] border border-white/10 bg-[#080a07] lg:grid-cols-[1.45fr_.75fr]">
+            <div className="relative min-h-[320px] overflow-hidden bg-black sm:min-h-[440px]">
+              <img src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit sabor ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"} com frutas frescas`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/10" />
+              <div className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/70 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6 sm:text-xs">NUTRIFIT • SUCOS</div>
+              <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7">
+                <p className="text-[10px] font-black uppercase tracking-[.25em] text-[#d8e7a0]">Sabor selecionado</p>
+                <h3 className="mt-1 text-3xl font-black sm:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
+                <p className="mt-2 text-sm text-white/75">Frutas selecionadas • Sabor e praticidade no seu dia</p>
+              </div>
+            </div>
+            <div className="flex flex-col justify-between gap-5 p-4 sm:p-6 lg:p-7">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[.22em] text-[#a7b86a]">Escolha o tamanho</p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {([{size:"300 ml",price:"R$ 9,90"},{size:"500 ml",price:"R$ 12,90"}]).map((option) => {
+                    const selectedFlavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
+                    const product = juiceProducts.find((item) => item.name === `${selectedFlavor.name} — ${option.size}`);
+                    return <button key={option.size} type="button" onClick={() => { if (product) addToOrder(product); }} className="rounded-xl border border-[#ef7d18]/60 bg-[#ef7d18]/10 px-3 py-4 text-left transition hover:bg-[#ef7d18]/20 active:scale-[.98]">
+                      <span className="block text-xs font-bold text-white/70">{option.size}</span>
+                      <span className="mt-1 block text-lg font-black text-[#ef7d18] sm:text-xl">{option.price}</span>
+                      <span className="mt-2 block text-[10px] font-bold uppercase tracking-wider text-white/55">Adicionar ao pedido</span>
+                    </button>;
+                  })}
+                </div>
+              </div>
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <h4 className="font-black">Escolha seu sabor</h4>
+                  <span className="text-xs text-white/40">{juiceShowcaseIndex + 1} / {juiceFlavors.length}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {juiceFlavors.map((flavor,index) => <button key={flavor.name} type="button" onClick={() => setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`overflow-hidden rounded-xl border text-left transition ${juiceShowcaseIndex===index ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-black hover:border-white/30"}`}>
+                    <img src={flavor.image} alt="" loading="lazy" className="aspect-square w-full object-cover" />
+                    <span className="block truncate px-2 py-2 text-[10px] font-black sm:text-xs">{flavor.name}</span>
+                  </button>)}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
