@@ -39,10 +39,10 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     scene.add(new THREE.HemisphereLight(0xf5f2e9, 0x151b12, 2.0));
     const key = new THREE.DirectionalLight(0xffe0b8, 3.2); key.position.set(3, 4, 5); scene.add(key);
     const rim = new THREE.DirectionalLight(0x9cab63, 3.8); rim.position.set(-4, 1, -3); scene.add(rim);
-    const front = new THREE.PointLight(0xfff1d8, 18, 12); front.position.set(0, 1, 4); scene.add(front);
+    const front = new THREE.PointLight(0xfff1d8, 9, 12); front.position.set(0, 1, 4); scene.add(front);
 
-    const glass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.08, metalness: 0, transmission: 0.28, thickness: 0.42, transparent: true, opacity: 0.42, clearcoat: 1, clearcoatRoughness: 0.045, ior: 1.38 });
-    const juice = new THREE.MeshPhysicalMaterial({ color: colorRef.current, roughness: 0.22, metalness: 0, clearcoat: 0.85, clearcoatRoughness: 0.08, transmission: 0.03, thickness: 0.25 });
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.12, metalness: 0, transmission: 0, transparent: true, opacity: 0.16, clearcoat: 1, clearcoatRoughness: 0.035, side: THREE.DoubleSide, depthWrite: false });
+    const juice = new THREE.MeshStandardMaterial({ color: colorRef.current, roughness: 0.28, metalness: 0, transparent: false });
     const dark = new THREE.MeshStandardMaterial({ color: 0x161914, roughness: 0.26, metalness: 0.35 });
     const orange = new THREE.MeshStandardMaterial({ color: 0xef7d18, roughness: 0.3, metalness: 0.1 });
     const green = new THREE.MeshStandardMaterial({ color: 0xa7b86a, roughness: 0.35 });
@@ -66,7 +66,7 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     const canvas = document.createElement("canvas"); canvas.width = 768; canvas.height = 768;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.fillStyle = "#080a07"; ctx.fillRect(0,0,768,768);
+      ctx.fillStyle = "#050605"; ctx.fillRect(0,0,768,768);
       ctx.fillStyle = "#a7b86a"; ctx.fillRect(0,0,768,22);
       ctx.fillStyle = "#ef7d18"; ctx.fillRect(0,730,768,38);
       ctx.textAlign = "center";
@@ -78,11 +78,11 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
       ctx.fillStyle = "#a7b86a"; ctx.font = "bold 30px Arial"; ctx.fillText("NATURAL",384,562); ctx.fillStyle = "#ffffff"; ctx.font = "bold 27px Arial"; ctx.fillText("500 ml",384,600);
     }
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-    const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.452,0.452,0.78,96,1,true), new THREE.MeshStandardMaterial({ map:texture, roughness:0.3, metalness:0.02, side:THREE.DoubleSide, toneMapped:false }));
+    const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.456,0.456,0.74,96,1,true), new THREE.MeshBasicMaterial({ map:texture, side:THREE.DoubleSide, toneMapped:false }));
     labelMesh.position.y = -0.16; group.add(labelMesh);
 
     // Bottle shoulder/collar accents and bottom glass ring.
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.405,0.025,12,64), green); ring.rotation.x=Math.PI/2; ring.position.y=-1.64; group.add(ring);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.405,0.018,12,64), green); ring.rotation.x=Math.PI/2; ring.position.y=-1.64; group.add(ring);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(2.1,64), new THREE.MeshBasicMaterial({ color:0x0b0e09, transparent:true, opacity:0.7 }));
     floor.rotation.x=-Math.PI/2; floor.position.y=-1.95; scene.add(floor);
 
