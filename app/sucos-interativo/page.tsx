@@ -51,29 +51,29 @@ export default function SucosInterativosPage() {
             <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 font-black shadow-[0_10px_40px_rgba(239,125,24,.2)] transition hover:scale-[1.02]"><MessageCircle size={20}/> Pedir {juice.name} <ArrowRight size={19}/></a>
             <button onClick={() => setResetKey((value) => value + 1)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/15 px-5 font-bold text-white/75 hover:border-white/40"><RotateCcw size={17}/> Recentrar</button>
           </div>
-          <p className="mt-4 text-xs text-white/35">A garrafa é um objeto 3D real: arraste para girar e explore o rótulo em diferentes ângulos.</p>
+          <p className="mt-4 text-xs text-white/35">Visual de produto com frutas e splash; selecione o sabor e o tamanho para fazer seu pedido.</p>
         </div>
 
         <div className="order-1 flex min-w-0 flex-col items-center md:order-2">
-          <div className="relative w-full max-w-[700px] overflow-hidden">
-            <div className="absolute inset-0 rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .16 }} />
-            <div className="relative flex min-h-[300px] items-center justify-center sm:min-h-[440px]">
-              <button type="button" aria-label={`Selecionar ${juices[(active + juices.length - 1) % juices.length].name}`} onClick={() => choose(active - 1)} className="absolute left-0 z-10 w-[31%] opacity-55 transition duration-500 hover:opacity-90 [mask-image:linear-gradient(to_right,transparent,black_25%,black_85%,transparent)]">
-                <div className="scale-[.78] sm:scale-[.82]"><JuiceBottle3D key={`prev-${juices[(active + juices.length - 1) % juices.length].name}`} flavor={juices[(active + juices.length - 1) % juices.length].name} color={juices[(active + juices.length - 1) % juices.length].color} label={juices[(active + juices.length - 1) % juices.length].badge} /></div>
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/65">{juices[(active + juices.length - 1) % juices.length].name}</span>
-              </button>
-              <div className="relative z-20 w-[58%] transition-transform duration-500">
-                <JuiceBottle3D key={`${juice.name}-${resetKey}`} flavor={juice.name} color={juice.color} label={juice.badge} />
+          <div className="relative w-full max-w-[760px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-black">
+            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, ${juice.color}55, #050505 72%)` }} />
+            <div className="relative flex min-h-[340px] items-center justify-center sm:min-h-[480px]">
+              <img key={juice.name} src={juice.image} alt={`Suco Nutrifit sabor ${juice.name} com frutas frescas`} className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/40" />
+              <div className="absolute left-3 top-4 z-10 flex flex-col gap-3 sm:left-5 sm:top-6">
+                <span className="rounded-full border border-[#a7b86a]/70 bg-black/75 px-3 py-2 text-xs font-black text-white backdrop-blur">100% NATURAL</span>
+                <span className="rounded-full border border-white/25 bg-black/75 px-3 py-2 text-xs font-black text-white backdrop-blur">SEM CONSERVANTES</span>
               </div>
-              <button type="button" aria-label={`Selecionar ${juices[(active + 1) % juices.length].name}`} onClick={() => choose(active + 1)} className="absolute right-0 z-10 w-[31%] opacity-55 transition duration-500 hover:opacity-90 [mask-image:linear-gradient(to_left,transparent,black_25%,black_85%,transparent)]">
-                <div className="scale-[.78] sm:scale-[.82]"><JuiceBottle3D key={`next-${juices[(active + 1) % juices.length].name}`} flavor={juices[(active + 1) % juices.length].name} color={juices[(active + 1) % juices.length].color} label={juices[(active + 1) % juices.length].badge} /></div>
-                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/65">{juices[(active + 1) % juices.length].name}</span>
-              </button>
-              <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-1 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/80 backdrop-blur transition hover:border-[#ef7d18] sm:left-2 sm:h-12 sm:w-12"><ArrowLeft/></button>
-              <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-1 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/80 backdrop-blur transition hover:border-[#ef7d18] sm:right-2 sm:h-12 sm:w-12"><ArrowRight/></button>
+              <div className="absolute right-3 top-4 z-10 flex flex-col gap-2 sm:right-5 sm:top-6">
+                <span className="rounded-full border-2 px-3 py-2 text-sm font-black text-white backdrop-blur" style={{ borderColor: juice.color, backgroundColor: "#080a07d9" }}>500 ml</span>
+                <span className="rounded-full border border-white/50 bg-black/75 px-3 py-2 text-sm font-black text-white backdrop-blur">300 ml</span>
+              </div>
+              <button type="button" aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#ef7d18] bg-black/85 text-[#ef7d18] backdrop-blur sm:left-4 sm:h-12 sm:w-12"><ArrowLeft/></button>
+              <button type="button" aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#ef7d18] bg-black/85 text-[#ef7d18] backdrop-blur sm:right-4 sm:h-12 sm:w-12"><ArrowRight/></button>
+              <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full border border-white/20 bg-black/80 px-5 py-2 text-sm font-black uppercase tracking-[.18em] text-white backdrop-blur">{juice.name} • Nutrifit</div>
             </div>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-center text-[10px] font-bold uppercase tracking-[.12em] text-white/50 sm:text-[11px] sm:tracking-[.18em]"><MousePointer2 size={14}/> Carrossel 3D • toque nos lados ou arraste as garrafas</div>
+          <div className="mt-1 flex items-center gap-2 text-center text-[10px] font-bold uppercase tracking-[.12em] text-white/50 sm:text-[11px] sm:tracking-[.18em]"><MousePointer2 size={14}/> Carrossel de sabores • use as setas para explorar</div>
           <div className="mt-3 flex justify-center gap-2">
             {juices.map((item, index) => <button key={item.name} aria-label={`Ir para ${item.name}`} onClick={() => choose(index)} className={`h-1.5 rounded-full transition-all ${active === index ? "w-8 bg-[#ef7d18]" : "w-2 bg-white/25 hover:bg-white/50"}`} />)}
           </div>
@@ -97,7 +97,7 @@ export default function SucosInterativosPage() {
           <div><p className="text-xs font-bold uppercase tracking-[.2em] text-white/40">Selecionado</p><p className="mt-1 text-2xl font-black">{juice.name} <span className="text-base font-semibold text-white/45">• {size}</span></p><p className="mt-1 text-sm text-white/55">{juice.ingredients}</p></div>
           <div className="flex w-full items-center justify-between gap-5 sm:w-auto"><span className="text-2xl font-black text-[#ef7d18]">{price}</span><a href={whatsapp} target="_blank" rel="noreferrer" className="rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black hover:bg-orange-500">Pedir agora</a></div>
         </div>
-        <p className="mt-5 text-center text-[11px] leading-5 text-white/30">Modelo 3D demonstrativo gerado por geometria. A garrafa e o rótulo são ilustrativos; para representar a embalagem exata da Nutrifit, substituiremos este modelo pelo arquivo 3D ou medidas reais do produto.</p>
+        <p className="mt-5 text-center text-[11px] leading-5 text-white/30">Imagens ilustrativas da linha de sucos Nutrifit. Confira sabor, volume e preço antes de pedir.</p>
       </section>
     </main>
   );
