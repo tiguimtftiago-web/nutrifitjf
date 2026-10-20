@@ -1952,6 +1952,15 @@ export default function Home() {
                       <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
                     </div>
                   </div>
+                  {category === "FRUTAS" && (
+                    <img
+                      src="/images/frutas-picadas-nutrifit.jpg"
+                      alt="Porção de frutas frescas picadas Nutrifit"
+                      className="h-16 w-20 shrink-0 rounded-xl object-cover ring-1 ring-white/10 sm:h-20 sm:w-28"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
                 </summary>
 
