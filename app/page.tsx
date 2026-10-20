@@ -643,7 +643,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     }
   };
 
-  const sendOrder = () => {
+  const sendOrder = async () => {
     if (total !== quantity || !deliveryReady || !customerReady) return;
     trackClick("combo_order_click", `${option.line}-${quantity}`);
 
@@ -707,8 +707,63 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
 
-    window.open(whatsappOrder(message), "_blank", "noopener,noreferrer");
-    setPaymentStatus("idle");
+    // Abre uma aba imediatamente para evitar bloqueio de pop-up durante a gravação.
+    const whatsappTab = window.open("about:blank", "_blank");
+    if (whatsappTab) {
+      try { whatsappTab.opener = null; } catch {}
+    }
+
+    try {
+      const acquisition = getAcquisitionData();
+      const response = await fetch(SUPABASE_URL + "/functions/v1/create-combo-order", {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_name: customerName.trim(),
+          whatsapp: normalizedPhone,
+          line: option.line,
+          combo_quantity: quantity,
+          items: option.products
+            .filter((product) => selected[product.name])
+            .map((product) => ({
+              name: product.name,
+              line: product.line,
+              weight: product.weight,
+              quantity: selected[product.name],
+            })),
+          complements: complementItems.map((item) => ({
+            name: item.name,
+            quantity: selectedComplements[item.name] || 0,
+          })),
+          delivery_mode: deliveryMode,
+          cep: cep.replace(/\D/g, ""),
+          acquisition_source: acquisition.source || "site_combo_builder",
+          acquisition_campaign: acquisition.campaign || null,
+          acquisition_medium: acquisition.medium || null,
+          acquisition_content: acquisition.content || null,
+        }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.ok !== true) {
+        throw new Error(typeof result.error === "string" ? result.error : "Não foi possível registrar o pedido.");
+      }
+
+      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const finalUrl = whatsappOrder(message + reference);
+      if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
+      else window.location.href = finalUrl;
+      setPaymentStatus("idle");
+    } catch (error) {
+      console.error("combo order capture", error);
+      const warning = "\n\n⚠️ *Atenção:* o sistema não confirmou o registro automático. Confirme os itens e valores com a Nutrifit antes do pagamento.";
+      const fallbackUrl = whatsappOrder(message + warning);
+      if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = fallbackUrl;
+      else window.location.href = fallbackUrl;
+      setPaymentStatus("error");
+    }
   };
 
   const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
@@ -1053,6 +1108,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
           </div>
+          {paymentStatus === "error" && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático do pedido. A mensagem foi aberta no WhatsApp; confira os itens e aguarde a confirmação da Nutrifit antes de pagar.</div>}
           {!customerReady && <div className="mt-3 text-center text-xs text-[#ef9b55]">Informe seu nome e um WhatsApp válido para liberar o botão.</div>}
         </div>
       )}
