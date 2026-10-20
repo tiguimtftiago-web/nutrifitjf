@@ -1,7 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Leaf, MessageCircle, MoveHorizontal, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+const JuiceBottle3D = dynamic(() => import("./JuiceBottle3D"), { ssr: false, loading: () => <div className="h-[390px] w-full animate-pulse rounded-full bg-white/[.03] sm:h-[500px]" /> });
+import { ArrowLeft, ArrowRight, Leaf, MessageCircle, RotateCcw, MousePointer2 } from "lucide-react";
 
 const juices = [
   { name: "Energy", badge: "FUNCIONAL", ingredients: "Beterraba • Laranja • Maçã • Limão", image: "/images/page-36.jpg", color: "#ef7d18" },
@@ -15,10 +17,6 @@ const juices = [
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
-  const [rotation, setRotation] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const startX = useRef(0);
-  const startRotation = useRef(0);
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
   const orderText = encodeURIComponent(`Olá, Nutrifit! Quero pedir o suco ${juice.name}, ${size}, por ${price}.`);
@@ -26,7 +24,6 @@ export default function SucosInterativosPage() {
 
   function choose(index: number) {
     setActive((index + juices.length) % juices.length);
-    setRotation(0);
   }
 
   return (
@@ -53,20 +50,19 @@ export default function SucosInterativosPage() {
             <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 font-black shadow-[0_10px_40px_rgba(239,125,24,.2)] transition hover:scale-[1.02]"><MessageCircle size={20}/> Pedir {juice.name} <ArrowRight size={19}/></a>
             <button onClick={() => setRotation(0)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/15 px-5 font-bold text-white/75 hover:border-white/40"><RotateCcw size={17}/> Recentrar</button>
           </div>
-          <p className="mt-4 text-xs text-white/35">Dica: arraste a imagem do produto para inclinar a apresentação.</p>
+          <p className="mt-4 text-xs text-white/35">A garrafa é um objeto 3D real: arraste para girar e explore o rótulo em diferentes ângulos.</p>
         </div>
 
         <div className="order-1 flex min-w-0 flex-col items-center md:order-2">
-          <div className="relative flex w-full max-w-[620px] items-center justify-center [perspective:1200px]">
-            <div className="absolute h-[72%] w-[72%] rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .15 }} />
-            <button type="button" aria-label="Arraste para movimentar a apresentação do suco" className="relative z-10 w-full touch-pan-y cursor-grab active:cursor-grabbing" style={{ transform: `perspective(1200px) rotateY(${rotation}deg) rotateX(${Math.abs(rotation) * -0.12}deg)`, transition: dragging ? "none" : "transform 500ms cubic-bezier(.2,.8,.2,1)", transformStyle: "preserve-3d" }} onPointerDown={(e) => { startX.current = e.clientX; startRotation.current = rotation; setDragging(true); e.currentTarget.setPointerCapture(e.pointerId); }} onPointerMove={(e) => { if (!dragging) return; setRotation(Math.max(-28, Math.min(28, startRotation.current + (e.clientX - startX.current) * .22))); }} onPointerUp={() => setDragging(false)} onPointerCancel={() => setDragging(false)}>
-              <img key={juice.image} src={juice.image} alt={`Suco Nutrifit ${juice.name}`} draggable={false} className="mx-auto max-h-[390px] w-full select-none object-contain drop-shadow-[0_30px_45px_rgba(0,0,0,.65)] sm:max-h-[480px]" />
-            </button>
-            <div className="pointer-events-none absolute bottom-2 left-1/2 h-8 w-[70%] -translate-x-1/2 rounded-[50%] border border-white/10 bg-black/60 blur-sm" />
+          <div className="relative flex w-full max-w-[620px] items-center justify-center">
+            <div className="absolute h-[72%] w-[72%] rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .18 }} />
+            <div className="relative z-10 w-full">
+              <JuiceBottle3D flavor={juice.name} color={juice.color} label={juice.badge} />
+            </div>
             <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowLeft/></button>
             <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowRight/></button>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-white/35"><MoveHorizontal size={14}/> Explore o produto</div>
+          <div className="mt-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-white/35"><MousePointer2 size={14}/> Arraste a garrafa 3D para girar</div>
         </div>
       </section>
 
@@ -87,7 +83,7 @@ export default function SucosInterativosPage() {
           <div><p className="text-xs font-bold uppercase tracking-[.2em] text-white/40">Selecionado</p><p className="mt-1 text-2xl font-black">{juice.name} <span className="text-base font-semibold text-white/45">• {size}</span></p><p className="mt-1 text-sm text-white/55">{juice.ingredients}</p></div>
           <div className="flex w-full items-center justify-between gap-5 sm:w-auto"><span className="text-2xl font-black text-[#ef7d18]">{price}</span><a href={whatsapp} target="_blank" rel="noreferrer" className="rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black hover:bg-orange-500">Pedir agora</a></div>
         </div>
-        <p className="mt-5 text-center text-[11px] leading-5 text-white/30">Protótipo interativo usando as imagens cadastradas no site. A inclinação responde ao arrasto; rotação 3D completa exige modelo ou imagens do produto em vários ângulos.</p>
+        <p className="mt-5 text-center text-[11px] leading-5 text-white/30">Modelo 3D demonstrativo gerado por geometria. A garrafa e o rótulo são ilustrativos; para representar a embalagem exata da Nutrifit, substituiremos este modelo pelo arquivo 3D ou medidas reais do produto.</p>
       </section>
     </main>
   );
