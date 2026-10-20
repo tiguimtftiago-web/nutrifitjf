@@ -65,8 +65,8 @@ export default function SucosInterativosPage() {
                 <h1 className="mt-1 text-4xl font-black leading-none sm:text-6xl xl:text-7xl">{juice.name}</h1>
                 <p className="mt-3 max-w-md text-sm text-white/85 sm:text-base">{juice.description}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-white/30 bg-black/55 px-3 py-2 text-xs font-black">500 ml</span>
-                  <span className="rounded-full border border-white/30 bg-black/55 px-3 py-2 text-xs font-black">300 ml</span>
+                  <span className="rounded-full border border-[#a7b86a]/60 bg-black/60 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#d8e7a0]">Ingredientes selecionados</span>
+                  <span className="rounded-full border border-white/25 bg-black/60 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white/85">Escolha seu tamanho ao lado</span>
                 </div>
               </div>
             </div>
@@ -88,10 +88,10 @@ export default function SucosInterativosPage() {
 
           <div className="border-t border-white/10 bg-[#080a07] p-3 sm:p-5">
             <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4"><h3 className="text-base font-black sm:text-lg">Escolha seu sabor</h3><span className="text-xs font-bold text-white/45">{active + 1} / {juices.length}</span></div>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9">
-              {juices.map((item, index) => <button key={item.name} type="button" onClick={() => choose(index)} aria-pressed={active === index} className={`group overflow-hidden rounded-xl border text-left transition ${active === index ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_18px_rgba(239,125,24,.18)]" : "border-white/10 bg-black hover:border-white/30"}`}>
+            <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:gap-3">
+              {juices.map((item, index) => <button key={item.name} type="button" onClick={() => choose(index)} aria-pressed={active === index} className={`group w-[31%] shrink-0 snap-start overflow-hidden rounded-xl border text-left transition sm:w-[23.5%] md:w-[18.5%] lg:w-[13.8%] ${active === index ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_18px_rgba(239,125,24,.18)]" : "border-white/10 bg-black hover:border-white/30"}`}>
                 <img src={item.image} alt={item.name} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]"/>
-                <span className="block truncate px-1.5 py-2 text-center text-[10px] font-black sm:text-xs">{item.name}</span>
+                <span className="block truncate px-1.5 py-2 text-center text-[10px] font-black sm:text-xs">{item.name === "Abacaxi com Hortelã" ? "Abacaxi" : item.name}</span>
               </button>)}
             </div>
           </div>
