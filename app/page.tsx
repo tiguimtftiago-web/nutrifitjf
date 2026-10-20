@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-
-const JuiceBottle3D = dynamic(() => import("./sucos-interativo/JuiceBottle3D"), { ssr: false, loading: () => <div className="h-[320px] w-full animate-pulse sm:h-[450px]" /> });
 import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
 
@@ -2080,84 +2077,26 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sucos" className="scroll-mt-[120px] relative isolate overflow-hidden border-y border-white/10 bg-[#050605] text-white">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="juice-orb juice-orb-orange absolute left-[8%] top-[12%] h-64 w-64 rounded-full blur-3xl" />
-          <div className="juice-orb juice-orb-green absolute right-[6%] top-[35%] h-72 w-72 rounded-full blur-3xl" />
-          <div className="absolute inset-0 opacity-[.12]" style={{backgroundImage:"radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)",backgroundSize:"28px 28px"}} />
-        </div>
-        <style jsx>{`
-          @keyframes juice-float { 0%,100% { transform: translate3d(0,0,0) rotate(-4deg) scale(1); } 50% { transform: translate3d(12px,-18px,0) rotate(5deg) scale(1.06); } }
-          @keyframes juice-splash { 0%,100% { transform: scale(.88) rotate(0deg); opacity:.48; } 50% { transform: scale(1.12) rotate(12deg); opacity:.82; } }
-          @keyframes juice-drop { 0%,100% { transform: translateY(0) scale(.92); } 50% { transform: translateY(-14px) scale(1.06); } }
-          .juice-orb-orange { background: radial-gradient(circle, rgba(239,125,24,.32), transparent 70%); animation: juice-float 7s ease-in-out infinite; }
-          .juice-orb-green { background: radial-gradient(circle, rgba(167,184,106,.23), transparent 70%); animation: juice-float 9s ease-in-out infinite reverse; }
-          .juice-splash { animation: juice-splash 6s ease-in-out infinite; }
-          .juice-fruit { animation: juice-drop 5s ease-in-out infinite; }
-          @media (prefers-reduced-motion: reduce) { .juice-orb-orange,.juice-orb-green,.juice-splash,.juice-fruit { animation: none !important; } }
-        `}</style>
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:px-8 md:py-16">
-          {(() => {
-            const showcase = [
-              {name:"Energy",image:"/images/page-36.jpg",badge:"FUNCIONAL",ingredients:"Beterraba • Laranja • Maçã • Limão",color:"#ef7d18",juice:"#e87520"},
-              {name:"Green",image:"/images/page-37.jpg",badge:"DETOX",ingredients:"Maçã • Pepino • Gengibre • Hortelã • Limão",color:"#a7b86a",juice:"#789448"},
-              {name:"Pink",image:"/images/page-38.jpg",badge:"FUNCIONAL",ingredients:"Morango • Beterraba • Laranja • Limão",color:"#ed5d85",juice:"#c94369"},
-              {name:"Sun",image:"/images/page-39.jpg",badge:"REFRESCANTE",ingredients:"Abacaxi • Maracujá • Laranja • Gengibre",color:"#f4b72d",juice:"#f4a91c"},
-              {name:"Purple",image:"/images/page-40.jpg",badge:"ANTIOXIDANTE",ingredients:"Uva • Frutas vermelhas • Limão",color:"#a780d4",juice:"#693c9b"},
-              {name:"Glow",image:"/images/page-41.jpg",badge:"FUNCIONAL",ingredients:"Laranja • Limão • Gengibre • Cúrcuma",color:"#d2e56b",juice:"#b4c83e"},
-              {name:"Suco de Laranja",image:"/images/page-42.jpg",badge:"NATURAL",ingredients:"Laranja",color:"#ef7d18",juice:"#f28c18"},
-              {name:"Laranja com Acerola",image:"/images/page-43.jpg",badge:"NATURAL",ingredients:"Laranja • Acerola",color:"#ef7d18",juice:"#d94b28"},
-              {name:"Abacaxi com Hortelã",image:"/images/page-44.jpg",badge:"NATURAL",ingredients:"Abacaxi • Hortelã",color:"#a7b86a",juice:"#b4c83e"}
-            ];
-            const item = showcase[juiceShowcaseIndex] || showcase[0];
-            return <>
-              <div className="mb-7 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
-                <div className="max-w-3xl">
-                  <p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Experiência 3D • Sucos Nutrifit</p>
-                  <h2 className="mt-3 text-4xl font-black leading-[.98] tracking-tight sm:text-6xl">Mais sabor.<br/><span className="text-[#ef7d18]">Mais movimento.</span></h2>
-                  <p className="mt-4 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">Explore os sabores em uma vitrine 3D interativa. Arraste a garrafa para girar, escolha o volume e adicione seu suco ao pedido.</p>
+      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Sucos naturais Nutrifit</p><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor, confira os dois tamanhos e adicione ao carrinho.</p></div>
+            <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml e 500 ml</span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {juiceProducts.filter((product) => product.category === "suco").map((product) => (
+              <article key={product.name} className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+                <div className="aspect-[4/3] overflow-hidden bg-black">
+                  <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-105" />
                 </div>
-                <span className="rounded-full border border-[#a7b86a]/40 bg-black/50 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml • 500 ml</span>
-              </div>
-              <div className="grid items-center gap-5 lg:grid-cols-[1.15fr_.85fr]">
-                <div className="relative isolate min-h-[430px] overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#080a07] shadow-[0_24px_80px_rgba(0,0,0,.5)] sm:min-h-[560px]">
-                  <div className="absolute inset-0" style={{background:`radial-gradient(ellipse at 50% 44%, ${item.color}35 0%, transparent 46%), radial-gradient(ellipse at 50% 100%, rgba(239,125,24,.14), transparent 55%)`}} />
-                  <div aria-hidden="true" className="juice-splash absolute left-[14%] top-[18%] h-40 w-40 rounded-full border-[18px] border-[#ef7d18]/25 sm:h-56 sm:w-56" style={{borderRightColor:item.color,borderBottomColor:"transparent",filter:"drop-shadow(0 0 24px "+item.color+"55)"}} />
-                  <div aria-hidden="true" className="juice-splash absolute right-[12%] top-[26%] h-28 w-28 rounded-full border-[12px] border-[#a7b86a]/30 sm:h-40 sm:w-40" style={{animationDelay:"-2s",borderLeftColor:item.color,borderTopColor:"transparent"}} />
-                  <div aria-hidden="true" className="juice-fruit absolute left-[12%] top-[31%] z-10 h-12 w-12 rounded-full border-[7px] border-orange-400/90 bg-orange-500/20 shadow-[0_0_30px_rgba(239,125,24,.4)] sm:h-16 sm:w-16" />
-                  <div aria-hidden="true" className="juice-fruit absolute right-[14%] top-[17%] z-10 h-8 w-8 rounded-full border-4 border-[#a7b86a] bg-[#a7b86a]/25 sm:h-12 sm:w-12" style={{animationDelay:"-1.4s"}} />
-                  <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/90 to-transparent" />
-                  <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2 sm:left-6 sm:top-6">
-                    <span className="rounded-full border border-[#a7b86a]/60 bg-black/75 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0]">{item.badge}</span>
-                    <span className="rounded-full border border-white/15 bg-black/70 px-3 py-2 text-[10px] font-bold text-white/75">GIRE COM O DEDO</span>
-                  </div>
-                  <div className="absolute inset-0 z-10 flex items-center justify-center px-2 pt-5">
-                    <div className="w-full max-w-[440px] drop-shadow-[0_25px_35px_rgba(0,0,0,.65)]">
-                      <JuiceBottle3D key={item.name} flavor={item.name} color={item.juice} label="Nutrifit • 500 ml" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-4 left-4 right-4 z-20 flex items-end justify-between gap-3 sm:bottom-6 sm:left-6 sm:right-6">
-                    <div><p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/45">Sabor selecionado</p><h3 className="mt-1 text-2xl font-black sm:text-3xl">{item.name}</h3><p className="mt-1 max-w-sm text-xs text-white/55">{item.ingredients}</p></div>
-                    <div className="shrink-0 rounded-2xl border border-white/10 bg-black/70 px-3 py-2 text-right backdrop-blur"><span className="block text-[10px] text-white/45">A partir de</span><span className="text-lg font-black text-[#ef7d18]">R$ 9,90</span></div>
-                  </div>
+                <div className="p-4">
+                  <h3 className="font-black">{product.name}</h3>
+                  <p className="mt-2 text-lg font-black text-[#ef7d18]">{formatPrice(product.price)}</p>
+                  <button type="button" onClick={() => addToOrder(product)} className="mt-3 w-full rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black transition hover:bg-orange-400">Adicionar ao pedido</button>
                 </div>
-                <div className="min-w-0 rounded-[1.8rem] border border-white/10 bg-white/[.025] p-4 sm:p-5">
-                  <div className="mb-4 flex items-center justify-between gap-3"><h3 className="text-lg font-black">Escolha seu sabor</h3><span className="text-xs text-white/40">{juiceShowcaseIndex+1} / {showcase.length}</span></div>
-                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
-                    {showcase.map((flavor,index)=><button key={flavor.name} type="button" onClick={()=>setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={"group flex min-w-0 items-center gap-2 overflow-hidden rounded-xl border p-2 text-left transition "+(juiceShowcaseIndex===index?"border-[#ef7d18] bg-[#ef7d18]/10":"border-white/10 bg-black/35 hover:border-white/30")}>
-                      <img src={flavor.image} alt={flavor.name} loading="lazy" className="h-14 w-14 shrink-0 rounded-lg object-cover sm:h-16 sm:w-16"/>
-                      <span className="min-w-0"><span className="block truncate text-xs font-black sm:text-sm">{flavor.name}</span><span className="mt-1 block text-[9px] text-white/40">{flavor.badge}</span></span>
-                    </button>)}
-                  </div>
-                  <div className="mt-5 grid grid-cols-2 gap-3">
-                    <button type="button" onClick={() => { const product = juiceProducts.find((p) => p.name === item.name + " — 300 ml"); if (product) addToOrder(product); }} className="rounded-2xl border border-white/20 bg-black/50 px-4 py-4 text-left transition hover:border-[#a7b86a]"><span className="block text-xs text-white/55">Garrafa 300 ml</span><span className="mt-1 block text-xl font-black text-[#ef7d18]">R$ 9,90</span><span className="mt-1 block text-[10px] font-bold text-white/40">Adicionar ao pedido</span></button>
-                    <button type="button" onClick={() => { const product = juiceProducts.find((p) => p.name === item.name + " — 500 ml"); if (product) addToOrder(product); }} className="rounded-2xl bg-[#ef7d18] px-4 py-4 text-left text-black transition hover:bg-orange-400"><span className="block text-xs text-black/65">Garrafa 500 ml</span><span className="mt-1 block text-xl font-black">R$ 12,90</span><span className="mt-1 block text-[10px] font-bold text-black/60">Adicionar ao pedido</span></button>
-                  </div>
-                  <p className="mt-4 text-center text-[10px] leading-5 text-white/35">Os preços e tamanhos permanecem ligados ao catálogo da Nutrifit.</p>
-                </div>
-              </div>
-            </>;
-          })()}
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
