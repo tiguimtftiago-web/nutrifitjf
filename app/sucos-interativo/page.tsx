@@ -37,7 +37,7 @@ export default function SucosInterativosPage() {
         </div>
       </header>
 
-      <section className="relative isolate mx-auto grid min-h-[640px] max-w-7xl items-center gap-4 px-4 py-10 sm:px-7 md:min-h-[690px] md:grid-cols-[.85fr_1.15fr] md:py-14">
+      <section className="relative isolate mx-auto grid min-h-[560px] max-w-7xl items-center gap-4 px-4 py-10 sm:px-7 md:min-h-[640px] md:grid-cols-[.85fr_1.15fr] md:py-14">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_70%_45%,rgba(239,125,24,.18),transparent_42%),radial-gradient(ellipse_at_20%_70%,rgba(167,184,106,.12),transparent_38%)]" />
         <div className="relative z-10 order-2 md:order-1">
           <p className="text-xs font-black uppercase tracking-[.3em] text-[#a7b86a]">Sucos naturais Nutrifit</p>
@@ -57,7 +57,7 @@ export default function SucosInterativosPage() {
         <div className="order-1 flex min-w-0 flex-col items-center md:order-2">
           <div className="relative w-full max-w-[700px] overflow-hidden">
             <div className="absolute inset-0 rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .16 }} />
-            <div className="relative flex min-h-[350px] items-center justify-center sm:min-h-[500px]">
+            <div className="relative flex min-h-[300px] items-center justify-center sm:min-h-[440px]">
               <button type="button" aria-label={`Selecionar ${juices[(active + juices.length - 1) % juices.length].name}`} onClick={() => choose(active - 1)} className="absolute left-0 z-10 w-[31%] opacity-55 transition duration-500 hover:opacity-90 [mask-image:linear-gradient(to_right,transparent,black_25%,black_85%,transparent)]">
                 <div className="scale-[.78] sm:scale-[.82]"><JuiceBottle3D key={`prev-${juices[(active + juices.length - 1) % juices.length].name}`} flavor={juices[(active + juices.length - 1) % juices.length].name} color={juices[(active + juices.length - 1) % juices.length].color} label={juices[(active + juices.length - 1) % juices.length].badge} /></div>
                 <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/65">{juices[(active + juices.length - 1) % juices.length].name}</span>
@@ -73,7 +73,7 @@ export default function SucosInterativosPage() {
               <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-1 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/80 backdrop-blur transition hover:border-[#ef7d18] sm:right-2 sm:h-12 sm:w-12"><ArrowRight/></button>
             </div>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-white/35"><MousePointer2 size={14}/> Carrossel 3D • toque nos lados ou arraste as garrafas</div>
+          <div className="mt-1 flex items-center gap-2 text-center text-[10px] font-bold uppercase tracking-[.12em] text-white/50 sm:text-[11px] sm:tracking-[.18em]"><MousePointer2 size={14}/> Carrossel 3D • toque nos lados ou arraste as garrafas</div>
           <div className="mt-3 flex justify-center gap-2">
             {juices.map((item, index) => <button key={item.name} aria-label={`Ir para ${item.name}`} onClick={() => choose(index)} className={`h-1.5 rounded-full transition-all ${active === index ? "w-8 bg-[#ef7d18]" : "w-2 bg-white/25 hover:bg-white/50"}`} />)}
           </div>
