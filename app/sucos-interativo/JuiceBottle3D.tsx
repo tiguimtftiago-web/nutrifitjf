@@ -81,8 +81,9 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
       ctx.fillStyle = "#ffffff"; ctx.font = "bold 20px Arial"; ctx.fillText("500 ml",384,630,180);
     }
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-    const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.456,0.456,0.74,96,1,true), new THREE.MeshBasicMaterial({ map:texture, side:THREE.DoubleSide, toneMapped:false }));
-    labelMesh.position.y = -0.16; group.add(labelMesh);
+    const labelMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, toneMapped: false });
+    const labelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 0.74), labelMaterial);
+    labelMesh.position.set(0, -0.16, 0.455); group.add(labelMesh);
 
     // Stylized 3D juice splash: curved liquid ribbons and droplets behind the bottle.
     const splashGroup = new THREE.Group();
