@@ -1954,7 +1954,7 @@ export default function Home() {
                   </div>
                   {category === "FRUTAS" && (
                     <img
-                      src="/images/frutas-picadas-nutrifit.jpg"
+                      src="/images/frutas-picadas-header.jpg"
                       alt="Porção de frutas frescas picadas Nutrifit"
                       className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
                       loading="lazy"
