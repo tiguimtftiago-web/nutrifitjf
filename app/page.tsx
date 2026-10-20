@@ -1506,7 +1506,7 @@ export default function Home() {
 
       setOrderItems([]);
       setOrderOpen(false);
-      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(message + reference);
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
       else window.location.href = finalUrl;
