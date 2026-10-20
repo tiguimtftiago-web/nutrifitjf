@@ -17,7 +17,6 @@ const juices = [
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
   const [resetKey, setResetKey] = useState(0);
-  const [resetKey, setResetKey] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
@@ -56,15 +55,28 @@ export default function SucosInterativosPage() {
         </div>
 
         <div className="order-1 flex min-w-0 flex-col items-center md:order-2">
-          <div className="relative flex w-full max-w-[620px] items-center justify-center">
-            <div className="absolute h-[72%] w-[72%] rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .18 }} />
-            <div className="relative z-10 w-full">
-              <JuiceBottle3D key={`${juice.name}-${resetKey}`} flavor={juice.name} color={juice.color} label={juice.badge} />
+          <div className="relative w-full max-w-[700px] overflow-hidden">
+            <div className="absolute inset-0 rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .16 }} />
+            <div className="relative flex min-h-[350px] items-center justify-center sm:min-h-[500px]">
+              <button type="button" aria-label={`Selecionar ${juices[(active + juices.length - 1) % juices.length].name}`} onClick={() => choose(active - 1)} className="absolute left-0 z-10 w-[31%] opacity-55 transition duration-500 hover:opacity-90 [mask-image:linear-gradient(to_right,transparent,black_25%,black_85%,transparent)]">
+                <div className="scale-[.78] sm:scale-[.82]"><JuiceBottle3D key={`prev-${juices[(active + juices.length - 1) % juices.length].name}`} flavor={juices[(active + juices.length - 1) % juices.length].name} color={juices[(active + juices.length - 1) % juices.length].color} label={juices[(active + juices.length - 1) % juices.length].badge} /></div>
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/65">{juices[(active + juices.length - 1) % juices.length].name}</span>
+              </button>
+              <div className="relative z-20 w-[58%] transition-transform duration-500">
+                <JuiceBottle3D key={`${juice.name}-${resetKey}`} flavor={juice.name} color={juice.color} label={juice.badge} />
+              </div>
+              <button type="button" aria-label={`Selecionar ${juices[(active + 1) % juices.length].name}`} onClick={() => choose(active + 1)} className="absolute right-0 z-10 w-[31%] opacity-55 transition duration-500 hover:opacity-90 [mask-image:linear-gradient(to_left,transparent,black_25%,black_85%,transparent)]">
+                <div className="scale-[.78] sm:scale-[.82]"><JuiceBottle3D key={`next-${juices[(active + 1) % juices.length].name}`} flavor={juices[(active + 1) % juices.length].name} color={juices[(active + 1) % juices.length].color} label={juices[(active + 1) % juices.length].badge} /></div>
+                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/10 bg-black/75 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white/65">{juices[(active + 1) % juices.length].name}</span>
+              </button>
+              <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-1 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/80 backdrop-blur transition hover:border-[#ef7d18] sm:left-2 sm:h-12 sm:w-12"><ArrowLeft/></button>
+              <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-1 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/80 backdrop-blur transition hover:border-[#ef7d18] sm:right-2 sm:h-12 sm:w-12"><ArrowRight/></button>
             </div>
-            <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowLeft/></button>
-            <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowRight/></button>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-white/35"><MousePointer2 size={14}/> Arraste a garrafa 3D para girar</div>
+          <div className="mt-1 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.18em] text-white/35"><MousePointer2 size={14}/> Carrossel 3D • toque nos lados ou arraste as garrafas</div>
+          <div className="mt-3 flex justify-center gap-2">
+            {juices.map((item, index) => <button key={item.name} aria-label={`Ir para ${item.name}`} onClick={() => choose(index)} className={`h-1.5 rounded-full transition-all ${active === index ? "w-8 bg-[#ef7d18]" : "w-2 bg-white/25 hover:bg-white/50"}`} />)}
+          </div>
         </div>
       </section>
 
