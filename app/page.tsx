@@ -1368,7 +1368,7 @@ export default function Home() {
     if (!code) { setCouponMessage("Digite o código do cupom."); setCouponStatus("error"); return; }
     setCouponStatus("loading"); setCouponMessage("");
     try {
-      const response = await fetch(SUPABASE_URL + "/rest/v1/rpc/validate_nutrifit_coupon", {
+      const response = await fetch(SUPABASE_URL + "/functions/v1/validate-nutrifit-coupon", {
         method: "POST",
         headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json" },
         body: JSON.stringify({ p_code: code, p_order_total: orderSubtotal }),
