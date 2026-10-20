@@ -175,6 +175,25 @@ const juiceFlavors: Array<{ name: string; image: string; description: string; li
   ...naturalJuices.map(([name, image]) => ({ name, image, description: "Suco natural Nutrifit.", line: "SUCOS" })),
 ];
 
+const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
+  {
+    name: `${flavor.name} — 500 ml`,
+    line: flavor.line,
+    weight: "500 ml",
+    price: "R$ 12,90",
+    description: flavor.description,
+    image: flavor.image,
+  },
+  {
+    name: `${flavor.name} — 300 ml`,
+    line: flavor.line,
+    weight: "300 ml",
+    price: "R$ 9,90",
+    description: flavor.description,
+    image: flavor.image,
+  },
+]);
+
 function JuiceFlavorCard({
   flavor,
   onAdd,
