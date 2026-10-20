@@ -57,7 +57,7 @@ export default function SucosInterativosPage() {
           <div className="relative flex w-full max-w-[620px] items-center justify-center">
             <div className="absolute h-[72%] w-[72%] rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .18 }} />
             <div className="relative z-10 w-full">
-              <JuiceBottle3D flavor={juice.name} color={juice.color} label={juice.badge} />
+              <JuiceBottle3D key={juice.name} flavor={juice.name} color={juice.color} label={juice.badge} />
             </div>
             <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowLeft/></button>
             <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowRight/></button>
