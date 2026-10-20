@@ -2071,7 +2071,8 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-              </det      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
+              </div>
+      <section id="sucos" className="scroll-mt-[120px] border-y border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div><p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Sucos naturais Nutrifit</p><h2 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2><p className="mt-3 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor, confira os dois tamanhos e adicione ao carrinho.</p></div>
