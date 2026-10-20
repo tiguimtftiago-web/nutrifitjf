@@ -170,16 +170,61 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
-const juiceProducts: Product[] = [
-  ...functionalJuices.flatMap(([name, image]) => [
-    { name: `${name} — 500 ml`, line: "SUCOS", weight: "500 ml", price: "R$ 12,90", description: "Suco funcional Nutrifit.", image },
-    { name: `${name} — 300 ml`, line: "SUCOS", weight: "300 ml", price: "R$ 9,90", description: "Suco funcional Nutrifit.", image },
-  ]),
-  ...naturalJuices.flatMap(([name, image]) => [
-    { name: `${name} — 500 ml`, line: "SUCOS", weight: "500 ml", price: "R$ 12,90", description: "Suco natural Nutrifit.", image },
-    { name: `${name} — 300 ml`, line: "SUCOS", weight: "300 ml", price: "R$ 9,90", description: "Suco natural Nutrifit.", image },
-  ]),
+const juiceFlavors: Array<{ name: string; image: string; description: string; line: string }> = [
+  ...functionalJuices.map(([name, image]) => ({ name, image, description: "Suco funcional Nutrifit.", line: "SUCOS" })),
+  ...naturalJuices.map(([name, image]) => ({ name, image, description: "Suco natural Nutrifit.", line: "SUCOS" })),
 ];
+
+function JuiceFlavorCard({
+  flavor,
+  onAdd,
+}: {
+  flavor: { name: string; image: string; description: string; line: string };
+  onAdd: (product: Product) => void;
+}) {
+  const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
+  const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
+  const product: Product = {
+    name: `${flavor.name} — ${size}`,
+    line: flavor.line,
+    weight: size,
+    price,
+    description: flavor.description,
+    image: flavor.image,
+  };
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+      <div className="aspect-[4/3] overflow-hidden bg-black">
+        <img src={flavor.image} alt={`Suco Nutrifit ${flavor.name}`} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-105" />
+      </div>
+      <div className="p-4">
+        <h3 className="font-black">{flavor.name}</h3>
+        <p className="mt-1 text-xs text-white/45">{flavor.description}</p>
+        <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
+          {([
+            { value: "500 ml" as const, price: "R$ 12,90" },
+            { value: "300 ml" as const, price: "R$ 9,90" },
+          ]).map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={size === option.value}
+              onClick={() => setSize(option.value)}
+              className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#ef7d18] bg-[#ef7d18]/15" : "border-white/10 bg-white/[.03]"}`}
+            >
+              <span className="block text-sm font-black">{option.value}</span>
+              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#ef7d18]" : "text-white/70"}`}>{option.price}</span>
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black transition hover:bg-orange-400">
+          Adicionar {size} ao carrinho
+        </button>
+      </div>
+    </article>
+  );
+}
 
 type ComplementOption = {
   name: string;
@@ -2084,17 +2129,8 @@ export default function Home() {
             <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml e 500 ml</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {juiceProducts.map((product) => (
-              <article key={product.name} className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
-                <div className="aspect-[4/3] overflow-hidden bg-black">
-                  <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-105" />
-                </div>
-                <div className="p-4">
-                  <h3 className="font-black">{product.name}</h3>
-                  <p className="mt-2 text-lg font-black text-[#ef7d18]">{product.price}</p>
-                  <button type="button" onClick={() => addToOrder(product)} className="mt-3 w-full rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black transition hover:bg-orange-400">Adicionar ao pedido</button>
-                </div>
-              </article>
+            {juiceFlavors.map((flavor) => (
+              <JuiceFlavorCard key={flavor.name} flavor={flavor} onAdd={addToOrder} />
             ))}
           </div>
         </div>
