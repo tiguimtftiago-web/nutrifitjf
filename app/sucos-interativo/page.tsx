@@ -16,6 +16,7 @@ const juices = [
 
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
@@ -48,7 +49,7 @@ export default function SucosInterativosPage() {
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <a href={whatsapp} target="_blank" rel="noreferrer" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 font-black shadow-[0_10px_40px_rgba(239,125,24,.2)] transition hover:scale-[1.02]"><MessageCircle size={20}/> Pedir {juice.name} <ArrowRight size={19}/></a>
-            <button onClick={() => setRotation(0)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/15 px-5 font-bold text-white/75 hover:border-white/40"><RotateCcw size={17}/> Recentrar</button>
+            <button onClick={() => setResetKey((value) => value + 1)} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/15 px-5 font-bold text-white/75 hover:border-white/40"><RotateCcw size={17}/> Recentrar</button>
           </div>
           <p className="mt-4 text-xs text-white/35">A garrafa é um objeto 3D real: arraste para girar e explore o rótulo em diferentes ângulos.</p>
         </div>
@@ -57,7 +58,7 @@ export default function SucosInterativosPage() {
           <div className="relative flex w-full max-w-[620px] items-center justify-center">
             <div className="absolute h-[72%] w-[72%] rounded-full blur-3xl transition-colors duration-500" style={{ background: juice.color, opacity: .18 }} />
             <div className="relative z-10 w-full">
-              <JuiceBottle3D key={juice.name} flavor={juice.name} color={juice.color} label={juice.badge} />
+              <JuiceBottle3D key={`${juice.name}-${resetKey}`} flavor={juice.name} color={juice.color} label={juice.badge} />
             </div>
             <button aria-label="Sabor anterior" onClick={() => choose(active - 1)} className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowLeft/></button>
             <button aria-label="Próximo sabor" onClick={() => choose(active + 1)} className="absolute right-0 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/65 backdrop-blur transition hover:border-[#ef7d18] sm:h-14 sm:w-14"><ArrowRight/></button>
