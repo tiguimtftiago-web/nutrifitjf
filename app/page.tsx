@@ -1083,7 +1083,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             aria-label={product.name}
             role="img"
             className="h-full w-full bg-cover bg-no-repeat brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105"
-            style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "200% 100%" : "400% 200%", backgroundPosition: product.crop }}
+            style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }}
           />
         ) : (
           <img src={product.image} alt={product.name} className="h-full w-full object-cover brightness-[1.1] contrast-[1.08] saturate-[1.08] transition duration-500 group-hover:scale-105" loading="lazy" />
