@@ -70,12 +70,15 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
       ctx.fillStyle = "#a7b86a"; ctx.fillRect(0,0,768,22);
       ctx.fillStyle = "#ef7d18"; ctx.fillRect(0,730,768,38);
       ctx.textAlign = "center";
-      ctx.fillStyle = "#a7b86a"; ctx.font = "900 68px Arial"; ctx.fillText("NUTRI",320,118); ctx.fillStyle = "#ef7d18"; ctx.fillText("FIT",500,118);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 34px Arial"; ctx.fillText("SUCO NATURAL",384,180);
-      ctx.fillStyle = "#ef7d18"; ctx.font = "900 58px Arial"; ctx.fillText(flavorRef.current.toUpperCase().slice(0,18),384,350,690);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 25px Arial"; ctx.fillText(labelRef.current.toUpperCase(),384,415,680);
-      ctx.strokeStyle = "#a7b86a"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(384,570,62,0,Math.PI*2); ctx.stroke();
-      ctx.fillStyle = "#a7b86a"; ctx.font = "bold 30px Arial"; ctx.fillText("NATURAL",384,562); ctx.fillStyle = "#ffffff"; ctx.font = "bold 27px Arial"; ctx.fillText("500 ml",384,600);
+      // Label typography is centered in the visible front arc of the bottle.
+      ctx.fillStyle = "#a7b86a"; ctx.font = "900 64px Arial"; ctx.fillText("NUTRI",384,112);
+      ctx.fillStyle = "#ef7d18"; ctx.font = "900 64px Arial"; ctx.fillText("FIT",384,176);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 26px Arial"; ctx.fillText("SUCO NATURAL",384,236);
+      ctx.fillStyle = "#ef7d18"; ctx.font = "900 52px Arial"; ctx.fillText(flavorRef.current.toUpperCase().slice(0,14),384,360,650);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 24px Arial"; ctx.fillText(labelRef.current.toUpperCase(),384,414,650);
+      ctx.strokeStyle = "#a7b86a"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(384,545,52,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle = "#a7b86a"; ctx.font = "bold 24px Arial"; ctx.fillText("NATURAL",384,552);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 26px Arial"; ctx.fillText("500 ml",384,630);
     }
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
     const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.456,0.456,0.74,96,1,true), new THREE.MeshBasicMaterial({ map:texture, side:THREE.DoubleSide, toneMapped:false }));
