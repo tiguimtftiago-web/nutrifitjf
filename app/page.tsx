@@ -2084,14 +2084,14 @@ export default function Home() {
             <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml e 500 ml</span>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {juiceProducts.filter((product) => product.category === "suco").map((product) => (
+            {juiceProducts.map((product) => (
               <article key={product.name} className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
                 <div className="aspect-[4/3] overflow-hidden bg-black">
                   <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-105" />
                 </div>
                 <div className="p-4">
                   <h3 className="font-black">{product.name}</h3>
-                  <p className="mt-2 text-lg font-black text-[#ef7d18]">{formatPrice(product.price)}</p>
+                  <p className="mt-2 text-lg font-black text-[#ef7d18]">{product.price}</p>
                   <button type="button" onClick={() => addToOrder(product)} className="mt-3 w-full rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black transition hover:bg-orange-400">Adicionar ao pedido</button>
                 </div>
               </article>
