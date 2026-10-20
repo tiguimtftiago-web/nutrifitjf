@@ -58,8 +58,11 @@ export default function SucosInterativosPage() {
           <div className="relative w-full max-w-[760px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-black">
             <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, ${juice.color}55, #050505 72%)` }} />
             <div className="relative flex min-h-[340px] items-center justify-center sm:min-h-[480px]">
-              <img key={juice.name} src={juice.image} alt={`Suco Nutrifit sabor ${juice.name} com frutas frescas`} className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/40" />
+              <img key={juice.name} src={juice.image} alt={`Frutas do suco Nutrifit sabor ${juice.name}`} className="absolute inset-0 h-full w-full object-cover opacity-25 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-black/45" />
+              <div className="relative z-[5] w-full max-w-[560px] drop-shadow-[0_20px_45px_rgba(0,0,0,.65)]">
+                <JuiceBottle3D key={`${juice.name}-${resetKey}`} flavor={juice.name} color={juice.color} label={juice.badge} />
+              </div>
               <div className="absolute left-3 top-4 z-10 flex flex-col gap-3 sm:left-5 sm:top-6">
                 <span className="rounded-full border border-[#a7b86a]/70 bg-black/75 px-3 py-2 text-xs font-black text-white backdrop-blur">100% NATURAL</span>
                 <span className="rounded-full border border-white/25 bg-black/75 px-3 py-2 text-xs font-black text-white backdrop-blur">SEM CONSERVANTES</span>
