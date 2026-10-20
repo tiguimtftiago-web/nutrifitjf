@@ -23,7 +23,7 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     renderer.setSize(host.clientWidth, host.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.3;
     renderer.domElement.setAttribute("aria-label", "Garrafa 3D interativa. Arraste com o mouse ou dedo para girar.");
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
@@ -41,8 +41,8 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     const rim = new THREE.DirectionalLight(0x9cab63, 3.8); rim.position.set(-4, 1, -3); scene.add(rim);
     const front = new THREE.PointLight(0xff7a20, 28, 12); front.position.set(0, 1, 4); scene.add(front);
 
-    const glass = new THREE.MeshPhysicalMaterial({ color: 0xc9d7bd, roughness: 0.16, metalness: 0.04, transmission: 0.18, thickness: 0.35, transparent: true, opacity: 0.92, clearcoat: 0.9, clearcoatRoughness: 0.12 });
-    const juice = new THREE.MeshPhysicalMaterial({ color: colorRef.current, roughness: 0.22, metalness: 0.02, clearcoat: 0.45, clearcoatRoughness: 0.18 });
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0xf2f0e7, roughness: 0.12, metalness: 0.02, transmission: 0.04, thickness: 0.18, transparent: true, opacity: 0.98, clearcoat: 1, clearcoatRoughness: 0.08 });
+    const juice = new THREE.MeshPhysicalMaterial({ color: colorRef.current, roughness: 0.28, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.14 });
     const dark = new THREE.MeshStandardMaterial({ color: 0x161914, roughness: 0.26, metalness: 0.35 });
     const orange = new THREE.MeshStandardMaterial({ color: 0xef7d18, roughness: 0.3, metalness: 0.1 });
     const green = new THREE.MeshStandardMaterial({ color: 0xa7b86a, roughness: 0.35 });
@@ -63,23 +63,23 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
       ridge.rotation.y = a; group.add(ridge);
     }
     // Label is a real texture mapped onto a curved cylinder.
-    const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 640;
+    const canvas = document.createElement("canvas"); canvas.width = 768; canvas.height = 768;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.fillStyle = "#10130e"; ctx.fillRect(0,0,512,640);
-      ctx.fillStyle = "#a7b86a"; ctx.fillRect(0,0,512,15);
-      ctx.fillStyle = "#ef7d18"; ctx.fillRect(0,610,512,30);
+      ctx.fillStyle = "#080a07"; ctx.fillRect(0,0,768,768);
+      ctx.fillStyle = "#a7b86a"; ctx.fillRect(0,0,768,22);
+      ctx.fillStyle = "#ef7d18"; ctx.fillRect(0,730,768,38);
       ctx.textAlign = "center";
-      ctx.fillStyle = "#a7b86a"; ctx.font = "bold 48px Arial"; ctx.fillText("NUTRIFIT",256,110);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 26px Arial"; ctx.fillText("SUCO NATURAL",256,170);
-      ctx.fillStyle = "#ef7d18"; ctx.font = "bold 62px Arial"; ctx.fillText(flavorRef.current.toUpperCase(),256,330);
-      ctx.fillStyle = "#d9ddcf"; ctx.font = "24px Arial"; ctx.fillText("SABOR E EQUILÍBRIO",256,390);
-      ctx.strokeStyle = "#a7b86a"; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(256,495,54,0,Math.PI*2); ctx.stroke();
-      ctx.fillStyle = "#a7b86a"; ctx.font = "bold 26px Arial"; ctx.fillText("500 ml",256,505);
+      ctx.fillStyle = "#a7b86a"; ctx.font = "900 78px Arial"; ctx.fillText("NUTRI",384,118); ctx.fillStyle = "#ef7d18"; ctx.fillText("FIT",516,118);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 34px Arial"; ctx.fillText("SUCO NATURAL",384,180);
+      ctx.fillStyle = "#ef7d18"; ctx.font = "900 76px Arial"; ctx.fillText(flavorRef.current.toUpperCase(),384,365);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 28px Arial"; ctx.fillText(labelRef.current.toUpperCase(),384,430);
+      ctx.strokeStyle = "#a7b86a"; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(384,570,62,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle = "#a7b86a"; ctx.font = "bold 30px Arial"; ctx.fillText("NATURAL",384,562); ctx.fillStyle = "#ffffff"; ctx.font = "bold 27px Arial"; ctx.fillText("500 ml",384,600);
     }
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-    const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.432,0.432,0.72,64,1,true), new THREE.MeshStandardMaterial({ map:texture, roughness:0.38, metalness:0.03, side:THREE.DoubleSide }));
-    labelMesh.position.y = -0.16; group.add(labelMesh);
+    const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.444,0.444,0.92,64,1,true), new THREE.MeshStandardMaterial({ map:texture, roughness:0.38, metalness:0.03, side:THREE.DoubleSide }));
+    labelMesh.position.y = -0.12; group.add(labelMesh);
 
     // Bottle shoulder/collar accents and bottom glass ring.
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.405,0.025,12,64), green); ring.rotation.x=Math.PI/2; ring.position.y=-1.64; group.add(ring);
@@ -108,5 +108,5 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     if(canvas) canvas.setAttribute("aria-label", `Garrafa 3D Nutrifit ${flavor}. Arraste para girar.`);
   }, [flavor]);
 
-  return <div ref={hostRef} className="h-[390px] w-full cursor-grab select-none active:cursor-grabbing sm:h-[500px]" role="img" aria-label={`Garrafa 3D de suco Nutrifit sabor ${flavor}, ${label}`} />;
+  return <div ref={hostRef} className="h-[320px] w-full cursor-grab select-none active:cursor-grabbing sm:h-[450px]" role="img" aria-label={`Garrafa 3D de suco Nutrifit sabor ${flavor}, ${label}`} />;
 }
