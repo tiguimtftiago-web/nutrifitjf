@@ -4,20 +4,19 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Leaf, MessageCircle } from "lucide-react";
 
 const juices = [
-  { name: "Energy", badge: "FUNCIONAL", ingredients: "Beterraba • Laranja • Maçã • Limão", image: "/images/page-36.jpg", color: "#ef7d18" },
-  { name: "Green", badge: "DETOX", ingredients: "Maçã • Pepino • Gengibre • Hortelã • Limão", image: "/images/page-37.jpg", color: "#a7b86a" },
-  { name: "Pink", badge: "FUNCIONAL", ingredients: "Morango • Beterraba • Laranja • Limão", image: "/images/page-38.jpg", color: "#ed5d85" },
-  { name: "Sun", badge: "REFRESCANTE", ingredients: "Abacaxi • Maracujá • Laranja • Gengibre", image: "/images/page-39.jpg", color: "#f4b72d" },
-  { name: "Purple", badge: "ANTIOXIDANTE", ingredients: "Uva • Frutas vermelhas • Limão", image: "/images/page-40.jpg", color: "#a780d4" },
-  { name: "Glow", badge: "FUNCIONAL", ingredients: "Morango • Laranja • Cenoura • Beterraba • Limão", image: "/images/page-41.jpg", color: "#d2e56b" },
-  { name: "Laranja", badge: "NATURAL", ingredients: "Laranja fresca", image: "/images/page-42.jpg", color: "#ef7d18" },
-  { name: "Laranja com Acerola", badge: "NATURAL", ingredients: "Laranja • Acerola", image: "/images/page-43.jpg", color: "#ef7d18" },
-  { name: "Abacaxi", badge: "REFRESCANTE", ingredients: "Abacaxi • Hortelã", image: "/images/page-44.jpg", color: "#d2e56b" },
+  { name: "Laranja", badge: "NATURAL", ingredients: "Suco natural Nutrifit", image: "/images/page-42.jpg", color: "#ef7d18" },
+  { name: "Green", badge: "DETOX", ingredients: "Suco funcional Nutrifit", image: "/images/page-37.jpg", color: "#a7b86a" },
+  { name: "Abacaxi com Hortelã", badge: "NATURAL", ingredients: "Suco natural Nutrifit", image: "/images/page-44.jpg", color: "#d2e56b" },
+  { name: "Energy", badge: "FUNCIONAL", ingredients: "Suco funcional Nutrifit", image: "/images/page-36.jpg", color: "#ef7d18" },
+  { name: "Purple", badge: "ANTIOXIDANTE", ingredients: "Suco funcional Nutrifit", image: "/images/page-40.jpg", color: "#a780d4" },
+  { name: "Glow", badge: "FUNCIONAL", ingredients: "Suco funcional Nutrifit", image: "/images/page-41.jpg", color: "#d2e56b" },
+  { name: "Pink", badge: "FUNCIONAL", ingredients: "Suco funcional Nutrifit", image: "/images/page-38.jpg", color: "#ed5d85" },
+  { name: "Sun", badge: "REFRESCANTE", ingredients: "Suco funcional Nutrifit", image: "/images/page-39.jpg", color: "#f4b72d" },
+  { name: "Laranja com Acerola", badge: "NATURAL", ingredients: "Suco natural Nutrifit", image: "/images/page-43.jpg", color: "#ef7d18" },
 ];
 
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
-  const [resetKey, setResetKey] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
@@ -47,7 +46,7 @@ export default function SucosInterativosPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/5"/>
               <span className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/75 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6">NUTRIFIT • SUCOS NATURAIS</span>
               <button type="button" aria-label="Sabor anterior" onClick={() => choose(active-1)} className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#ef7d18] bg-black/75 text-[#ef7d18] sm:left-5"><ArrowLeft/></button>
-              <button type="button" aria-label="Próximo sabor" onClick={() => choose(active+1)} className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#ef7d18] bg-black/75 text-[#ef7d18] sm:right-5 lg:hidden"><ArrowRight/></button>
+              <button type="button" aria-label="Próximo sabor" onClick={() => choose(active+1)} className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#ef7d18] bg-black/75 text-[#ef7d18] sm:right-5"><ArrowRight/></button>
               <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7">
                 <p className="text-[10px] font-black uppercase tracking-[.25em] text-[#d8e7a0]">{juice.badge}</p>
                 <h1 className="mt-1 text-4xl font-black sm:text-6xl">{juice.name}</h1>
@@ -57,7 +56,7 @@ export default function SucosInterativosPage() {
             <aside className="flex flex-col justify-center border-t border-white/10 bg-[#080a07] p-5 sm:p-6 lg:border-l lg:border-t-0">
               <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Suco natural</p>
               <h2 className="mt-2 text-3xl font-black uppercase leading-none text-[#ef7d18]">{juice.name}</h2>
-              <p className="mt-3 text-sm leading-5 text-white/65">{juice.ingredients}. Sabor selecionado para acompanhar sua rotina.</p>
+              <p className="mt-3 text-sm leading-5 text-white/65">{juice.ingredients}. Escolha o volume e faça seu pedido.</p>
               <div className="mt-5 space-y-3 text-xs text-white/75">
                 <div className="flex items-center gap-2"><Leaf size={16} className="text-[#a7b86a]"/> Ingredientes selecionados</div>
                 <div className="flex items-center gap-2"><Leaf size={16} className="text-[#a7b86a]"/> Prático para o seu dia</div>
@@ -70,7 +69,6 @@ export default function SucosInterativosPage() {
               </div>
               <p className="mt-4 text-xs text-white/55">Selecionado: {size}</p>
               <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => {}} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-3 py-3 text-center text-xs font-black text-black transition hover:bg-orange-400"><MessageCircle size={15}/> Pedir agora pelo WhatsApp</a>
-              <button type="button" onClick={() => window.open(whatsapp, "_blank", "noopener,noreferrer")} className="mt-2 flex items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-3 text-xs font-bold text-white/80"><MessageCircle size={14}/> Fazer pedido</button>
             </aside>
           </div>
           <div className="border-t border-white/10 bg-[#080a07] p-3 sm:p-4">
