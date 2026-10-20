@@ -893,7 +893,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
               <div className="mt-3 rounded-3xl border border-white/10 bg-white/[.025] p-4">
                 {category === "FRUTAS" && (
                   <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
-                    <img src="/images/frutas-picadas-header.jpg" alt="Frutas picadas Nutrifit" className="h-auto max-h-56 w-full object-cover" />
+                    <img src="/images/frutas-picadas-header.jpg" alt="Frutas picadas Nutrifit" className="mx-auto block h-auto max-h-56 w-full object-contain object-center" />
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-3">
@@ -1956,7 +1956,7 @@ export default function Home() {
                     <img
                       src="/images/frutas-picadas-nutrifit.jpg"
                       alt="Porção de frutas frescas picadas Nutrifit"
-                      className="h-16 w-20 shrink-0 rounded-xl object-cover ring-1 ring-white/10 sm:h-20 sm:w-28"
+                      className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
                       loading="lazy"
                       decoding="async"
                     />
