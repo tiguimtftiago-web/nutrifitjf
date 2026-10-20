@@ -41,8 +41,8 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     const rim = new THREE.DirectionalLight(0x9cab63, 3.8); rim.position.set(-4, 1, -3); scene.add(rim);
     const front = new THREE.PointLight(0xfff1d8, 9, 12); front.position.set(0, 1, 4); scene.add(front);
 
-    const glass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.12, metalness: 0, transmission: 0, transparent: true, opacity: 0.16, clearcoat: 1, clearcoatRoughness: 0.035, side: THREE.DoubleSide, depthWrite: false });
-    const juice = new THREE.MeshStandardMaterial({ color: colorRef.current, roughness: 0.28, metalness: 0, transparent: false });
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0xf8f4e9, roughness: 0.12, metalness: 0, transmission: 0, transparent: true, opacity: 0.075, clearcoat: 1, clearcoatRoughness: 0.035, side: THREE.DoubleSide, depthWrite: false });
+    const juice = new THREE.MeshStandardMaterial({ color: colorRef.current, roughness: 0.24, metalness: 0, transparent: false, emissive: new THREE.Color(colorRef.current), emissiveIntensity: 0.08 });
     const dark = new THREE.MeshStandardMaterial({ color: 0x161914, roughness: 0.26, metalness: 0.35 });
     const orange = new THREE.MeshStandardMaterial({ color: 0xef7d18, roughness: 0.3, metalness: 0.1 });
     const green = new THREE.MeshStandardMaterial({ color: 0xa7b86a, roughness: 0.35 });
@@ -81,6 +81,40 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     const labelMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.456,0.456,0.74,96,1,true), new THREE.MeshBasicMaterial({ map:texture, side:THREE.DoubleSide, toneMapped:false }));
     labelMesh.position.y = -0.16; group.add(labelMesh);
 
+    // Stylized 3D juice splash: curved liquid ribbons and droplets behind the bottle.
+    const splashGroup = new THREE.Group();
+    splashGroup.position.set(0, 0.05, -0.48);
+    group.add(splashGroup);
+    const splashMaterial = new THREE.MeshPhysicalMaterial({
+      color: colorRef.current, roughness: 0.16, metalness: 0.02,
+      clearcoat: 1, clearcoatRoughness: 0.04, emissive: new THREE.Color(colorRef.current),
+      emissiveIntensity: 0.12, transparent: true, opacity: 0.82
+    });
+    const splashPoints = [
+      [[-0.82,-0.18],[-1.02,0.12],[-0.88,0.48],[-0.58,0.68],[-0.22,0.72]],
+      [[0.42,0.62],[0.76,0.44],[0.94,0.12],[0.86,-0.22],[0.62,-0.42]],
+      [[-0.68,-0.54],[-0.38,-0.72],[0.02,-0.75],[0.34,-0.62]]
+    ];
+    splashPoints.forEach((coords, idx) => {
+      const curve = new THREE.CatmullRomCurve3(coords.map(([x,y]) => new THREE.Vector3(x,y,-0.02 + idx*0.015)));
+      const ribbon = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, idx===1?0.055:0.035, 8, false), splashMaterial);
+      splashGroup.add(ribbon);
+    });
+    const droplets: THREE.Mesh[] = [];
+    const dropletSpecs = [
+      [-1.02,0.64,0.02,0.075],[-0.76,0.92,0.01,0.045],[-0.35,0.83,0.03,0.055],
+      [0.8,0.88,0.01,0.06],[1.05,0.48,0.02,0.045],[1.0,-0.02,0.03,0.07],
+      [0.56,-0.72,0.02,0.05],[-0.84,-0.78,0.02,0.045],[-1.12,-0.12,0.01,0.04]
+    ];
+    dropletSpecs.forEach(([x,y,z,r], i) => {
+      const drop = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 12), splashMaterial);
+      drop.position.set(x,y,z);
+      drop.scale.set(0.82,1.18,0.72);
+      drop.userData.baseY = y;
+      drop.userData.phase = i*0.73;
+      splashGroup.add(drop); droplets.push(drop);
+    });
+
     // Bottle shoulder/collar accents and bottom glass ring.
     const ring = new THREE.Mesh(new THREE.TorusGeometry(0.405,0.018,12,64), green); ring.rotation.x=Math.PI/2; ring.position.y=-1.64; group.add(ring);
     const floor = new THREE.Mesh(new THREE.CircleGeometry(2.1,64), new THREE.MeshBasicMaterial({ color:0x0b0e09, transparent:true, opacity:0.7 }));
@@ -95,7 +129,7 @@ export default function JuiceBottle3D({ flavor, color, label }: Juice3DProps) {
     const resize=()=>{ if(!host) return; camera.aspect=host.clientWidth/host.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(host.clientWidth,host.clientHeight); };
     const observer=new ResizeObserver(resize); observer.observe(host);
     let frame=0;
-    const animate=()=>{ frame=requestAnimationFrame(animate); if(!dragging) targetY+=0.0025; group.rotation.y+=(targetY-group.rotation.y)*0.08; group.rotation.x+=(targetX-group.rotation.x)*0.08; group.position.y=Math.sin(performance.now()*0.0008)*0.035; renderer.render(scene,camera); };
+    const animate=()=>{ frame=requestAnimationFrame(animate); if(!dragging) targetY+=0.0025; group.rotation.y+=(targetY-group.rotation.y)*0.08; group.rotation.x+=(targetX-group.rotation.x)*0.08; group.position.y=Math.sin(performance.now()*0.0008)*0.035; const t=performance.now()*0.001; splashGroup.rotation.z=Math.sin(t*0.7)*0.035; droplets.forEach((drop)=>{drop.position.y=drop.userData.baseY+Math.sin(t*1.4+drop.userData.phase)*0.035;}); renderer.render(scene,camera); };
     animate();
 
     return ()=>{ cancelAnimationFrame(frame); observer.disconnect(); renderer.domElement.removeEventListener("pointerdown",down); renderer.domElement.removeEventListener("pointermove",move); renderer.domElement.removeEventListener("pointerup",up); renderer.domElement.removeEventListener("pointercancel",up); renderer.domElement.removeEventListener("pointerleave",up); scene.traverse(obj=>{ if(obj instanceof THREE.Mesh){obj.geometry.dispose(); const mats=Array.isArray(obj.material)?obj.material:[obj.material]; mats.forEach(m=>{ if("map" in m && m.map) (m.map as THREE.Texture).dispose(); m.dispose(); });}}); renderer.dispose(); renderer.domElement.remove(); };
