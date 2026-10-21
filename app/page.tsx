@@ -2224,7 +2224,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-      
+            </div>
 
             <div className="absolute inset-x-3 bottom-3 z-20 rounded-2xl border border-white/15 bg-black/80 p-3 shadow-[0_12px_40px_rgba(0,0,0,.6)] backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-4 lg:hidden">
               <div className="flex items-start justify-between gap-2">
