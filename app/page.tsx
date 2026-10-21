@@ -171,8 +171,15 @@ const naturalJuices = [
 ];
 
 const juiceFlavors: Array<{ name: string; image: string; description: string; line: string }> = [
-  ...functionalJuices.map(([name, image]) => ({ name, image, description: "Suco funcional Nutrifit.", line: "SUCOS" })),
-  ...naturalJuices.map(([name, image]) => ({ name, image, description: "Suco natural Nutrifit.", line: "SUCOS" })),
+  { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Energia natural para o seu dia. Sabor cítrico e refrescante.", line: "SUCOS" },
+  { name: "Green", image: "/images/page-37.jpg", description: "Combinação refrescante de frutas e ingredientes selecionados.", line: "SUCOS" },
+  { name: "Abacaxi com Hortelã", image: "/images/page-44.jpg", description: "Sabor tropical com toque refrescante de hortelã.", line: "SUCOS" },
+  { name: "Energy", image: "/images/page-36.jpg", description: "Suco funcional Nutrifit, feito para acompanhar sua rotina.", line: "SUCOS" },
+  { name: "Purple", image: "/images/page-40.jpg", description: "Mistura de frutas com sabor marcante.", line: "SUCOS" },
+  { name: "Glow", image: "/images/page-41.jpg", description: "Combinação de frutas com sabor cítrico e vibrante.", line: "SUCOS" },
+  { name: "Pink", image: "/images/page-38.jpg", description: "Sabor frutado e refrescante.", line: "SUCOS" },
+  { name: "Sun", image: "/images/page-39.jpg", description: "Suco funcional Nutrifit.", line: "SUCOS" },
+  { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Suco natural de frutas cítricas.", line: "SUCOS" },
 ];
 
 const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
@@ -1303,6 +1310,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 export default function Home() {
   const [bannerIndex, setBannerIndex] = useState(0);
   const [juiceShowcaseIndex, setJuiceShowcaseIndex] = useState(0);
+  const [selectedJuiceSize, setSelectedJuiceSize] = useState<"500 ml" | "300 ml">("500 ml");
   const [comboOpen, setComboOpen] = useState(false);
   const [comboLineIndex, setComboLineIndex] = useState(0);
   const [topComboOpen, setTopComboOpen] = useState(false);
@@ -2141,74 +2149,77 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sucos" className="scroll-mt-[120px] overflow-hidden border-y border-white/10 bg-[#050605]">
-        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-9 md:px-8 md:py-12">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[.28em] text-[#a7b86a]">Linha de sucos Nutrifit</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-5xl">Mais sabor. <span className="text-[#ef7d18]">Mais movimento.</span></h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sabor e o tamanho ideal para sua rotina.</p>
-            </div>
-            <span className="rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-bold text-[#d8e7a0]">300 ml • R$ 9,90 &nbsp; | &nbsp; 500 ml • R$ 12,90</span>
-          </div>
-
-          <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#080a07] shadow-[0_20px_70px_rgba(0,0,0,.3)]">
-            <div className="grid grid-cols-1 lg:grid-cols-[170px_minmax(0,1fr)_290px]">
-              <aside className="hidden flex-col justify-center gap-6 border-r border-white/10 bg-black/70 p-5 lg:flex">
+      <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
+        <div className="mx-auto max-w-[1500px] px-3 py-4 sm:px-5 sm:py-6 lg:px-7">
+          <div className="overflow-hidden border border-white/10 bg-[#030303]">
+            <div className="grid grid-cols-1 lg:grid-cols-[205px_minmax(0,1fr)_340px]">
+              <aside className="hidden flex-col justify-center gap-5 border-r border-white/10 bg-black px-5 py-7 lg:flex">
                 {[
-                  { icon: "◉", title: "100% natural", detail: "Sabor de verdade" },
-                  { icon: "✳", title: "Sem conservantes", detail: "Seleção Nutrifit" },
-                  { icon: "◇", title: "Ingredientes", detail: "Cuidadosamente selecionados" },
-                  { icon: "✓", title: "Mais praticidade", detail: "Para sua rotina" },
-                ].map((feature) => (
-                  <div key={feature.title} className="flex items-center gap-3">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#a7b86a]/70 text-sm text-[#a7b86a]">{feature.icon}</span>
-                    <span><span className="block text-[10px] font-black uppercase leading-4 text-white/85">{feature.title}</span><span className="mt-0.5 block text-[10px] leading-4 text-white/45">{feature.detail}</span></span>
-                  </div>
-                ))}
+                  { icon: Leaf, title: "100% natural" },
+                  { icon: Check, title: "Sem conservantes" },
+                  { icon: ShoppingBag, title: "Sem adição de açúcar" },
+                  { icon: Apple, title: "Ingredientes selecionados" },
+                ].map((feature) => {
+                  const FeatureIcon = feature.icon;
+                  return <div key={feature.title} className="flex items-center gap-3">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#a7b86a] text-[#a7b86a]"><FeatureIcon size={22} strokeWidth={1.5}/></span>
+                    <span className="text-[11px] font-semibold uppercase leading-4 text-white/90">{feature.title}</span>
+                  </div>;
+                })}
+                <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="mt-3 grid h-14 w-14 place-items-center rounded-full border-2 border-[#ef7d18] text-3xl text-[#ef7d18] transition hover:bg-[#ef7d18]/10">‹</button>
               </aside>
 
-              <div className="relative min-h-[390px] overflow-hidden bg-black sm:min-h-[470px] lg:min-h-[540px]">
-                <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit sabor ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"} com frutas`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-black/20" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/10" />
-                <div className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/70 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6 sm:text-xs">NUTRIFIT • SUCOS</div>
-                <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7">
+              <div className="relative min-h-[360px] overflow-hidden bg-black sm:min-h-[450px] lg:min-h-[520px]">
+                <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300"/>
+                <div className="absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-black/35 to-transparent lg:hidden"/>
+                <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="absolute left-3 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#ef7d18] bg-black/70 text-2xl text-[#ef7d18] lg:hidden">‹</button>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-5 pb-5 pt-20 sm:px-7 sm:pb-7 lg:hidden">
                   <p className="text-[10px] font-black uppercase tracking-[.25em] text-[#d8e7a0]">Sabor selecionado</p>
-                  <h3 className="mt-1 text-4xl font-black leading-none sm:text-5xl lg:text-6xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
-                  <p className="mt-3 max-w-md text-sm text-white/85 sm:text-base">Frutas selecionadas • Sabor e praticidade no seu dia</p>
+                  <h3 className="mt-1 text-3xl font-black uppercase leading-none sm:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                 </div>
               </div>
 
-              <aside className="flex flex-col justify-center border-t border-white/10 bg-[#080a07] p-4 sm:p-6 lg:border-l lg:border-t-0 lg:p-6">
-                <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Suco Nutrifit</p>
-                <h3 className="mt-2 text-2xl font-black uppercase leading-tight text-[#ef7d18] sm:text-3xl">{juiceFlavors[juiceShowcaseIndex]?.name || "Suco de Laranja"}</h3>
-                <p className="mt-2 text-sm leading-5 text-white/60">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."} Escolha o tamanho para adicionar ao pedido.</p>
-                <p className="mt-5 text-[10px] font-black uppercase tracking-[.22em] text-[#a7b86a]">Escolha o tamanho</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-3">
-                  {([{size:"300 ml",price:"R$ 9,90"},{size:"500 ml",price:"R$ 12,90"}]).map((option) => {
-                    const selectedFlavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
-                    const product = juiceProducts.find((item) => item.name === `${selectedFlavor.name} — ${option.size}`);
-                    return <button key={option.size} type="button" onClick={() => { if (product) addToOrder(product); }} className="min-h-[112px] rounded-xl border border-[#ef7d18]/60 bg-[#ef7d18]/10 px-3 py-4 text-left transition hover:border-[#ef7d18] hover:bg-[#ef7d18]/20 active:scale-[.98]">
-                      <span className="block text-sm font-black text-white/85">{option.size}</span>
-                      <span className="mt-1 block text-xl font-black text-[#ef7d18]">{option.price}</span>
-                      <span className="mt-3 block text-[9px] font-bold uppercase leading-4 tracking-wide text-white/50">Adicionar ao pedido</span>
-                    </button>;
+              <aside className="flex flex-col justify-center border-t border-white/10 bg-black px-5 py-6 sm:px-7 lg:border-l lg:border-t-0 lg:px-6">
+                <p className="text-xs font-black uppercase text-[#a7b86a]">Suco natural</p>
+                <h3 className="mt-1 text-4xl font-black uppercase leading-none text-[#ef7d18] sm:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
+                <p className="mt-3 text-sm leading-5 text-white/85">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
+                <div className="mt-4 flex flex-col gap-3">
+                  {[
+                    { icon: Check, label: "Ingredientes selecionados" },
+                    { icon: Leaf, label: "Sabor natural" },
+                    { icon: HeartPulse, label: "Praticidade no seu dia" },
+                  ].map((benefit) => {
+                    const BenefitIcon = benefit.icon;
+                    return <div key={benefit.label} className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#ef7d18] text-[#ef7d18]"><BenefitIcon size={18}/></span>
+                      <span className="text-xs font-medium uppercase leading-4 text-white/90">{benefit.label}</span>
+                    </div>;
                   })}
                 </div>
-                <p className="mt-3 text-[10px] leading-4 text-white/35">O tamanho escolhido entra no carrinho com o preço correspondente.</p>
+                <p className="mt-5 text-xs font-black uppercase text-white">Escolha o tamanho:</p>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {([{ size: "500 ml" as const, price: "R$ 12,90" }, { size: "300 ml" as const, price: "R$ 9,90" }]).map((option) => (
+                    <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center transition ${selectedJuiceSize === option.size ? "border-[#ef7d18] bg-[#ef7d18]/15 shadow-[0_0_14px_rgba(239,125,24,.16)]" : "border-white/20 bg-white/[.03] hover:border-white/40"}`}>
+                      <span className="block text-sm font-black text-white">{option.size}</span>
+                      <span className={`mt-0.5 block text-lg font-black ${selectedJuiceSize === option.size ? "text-[#ef7d18]" : "text-white"}`}>{option.price}</span>
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => {
+                  const flavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
+                  const product = juiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
+                  if (product) addToOrder(product);
+                }} className="mt-3 flex w-full items-center justify-center gap-3 rounded-full bg-[#ff650b] px-4 py-3.5 text-base font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99]">
+                  <ShoppingCart size={22}/> Adicionar ao carrinho
+                </button>
               </aside>
             </div>
 
-            <div className="border-t border-white/10 bg-[#080a07] p-3 sm:p-5">
-              <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
-                <h4 className="text-base font-black sm:text-lg">Escolha seu sabor</h4>
-                <span className="text-xs font-bold text-white/40">{juiceShowcaseIndex + 1} / {juiceFlavors.length}</span>
-              </div>
-              <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:gap-3">
-                {juiceFlavors.map((flavor,index) => <button key={flavor.name} type="button" onClick={() => setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`group w-[31%] shrink-0 snap-start overflow-hidden rounded-xl border text-left transition sm:w-[23.5%] md:w-[18.5%] lg:w-[13.8%] ${juiceShowcaseIndex===index ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_18px_rgba(239,125,24,.18)]" : "border-white/10 bg-black hover:border-white/30"}`}>
-                  <img src={flavor.image} alt={flavor.name} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
-                  <span className="block truncate px-1.5 py-2 text-center text-[10px] font-black sm:text-xs">{flavor.name === "Suco de Laranja" ? "Laranja" : flavor.name === "Abacaxi com Hortelã" ? "Abacaxi" : flavor.name}</span>
+            <div className="border-t border-white/10 bg-black px-3 py-3 sm:px-5 sm:py-4">
+              <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:gap-3">
+                {juiceFlavors.map((flavor, index) => <button key={flavor.name} type="button" onClick={() => setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex === index} className={`group w-[30%] shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition sm:w-[22%] md:w-[18%] lg:w-[13.6%] ${juiceShowcaseIndex === index ? "border-[#ef7d18] shadow-[0_0_16px_rgba(239,125,24,.22)]" : "border-white/15 hover:border-white/40"}`}>
+                  <img src={flavor.image} alt={flavor.name} loading="lazy" className="aspect-[1.45/1] w-full object-cover transition duration-300 group-hover:scale-[1.03]"/>
+                  <span className="block truncate bg-black px-1 py-1.5 text-center text-[10px] font-black uppercase text-white sm:text-xs">{flavor.name === "Suco de Laranja" ? "Laranja" : flavor.name === "Abacaxi com Hortelã" ? "Abacaxi" : flavor.name}</span>
                 </button>)}
               </div>
             </div>
