@@ -2148,23 +2148,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
-        <button type="button" onClick={openTopComboBuilder} className="group relative flex min-h-[142px] w-full items-center overflow-hidden rounded-[1.5rem] border border-[#ef7d18]/65 bg-gradient-to-r from-[#17130d] via-[#1b160d] to-[#10150d] text-left transition hover:-translate-y-0.5 hover:border-[#ef7d18] sm:min-h-[158px]">
-          <div className="relative z-10 min-w-0 flex-1 p-4 pr-28 sm:p-6 sm:pr-40">
-            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
-            <div className="mt-1 text-[22px] font-black leading-tight sm:text-3xl">MONTE SEU COMBO</div>
-            <div className="mt-1 text-[18px] font-black leading-tight text-[#ef7d18] sm:text-2xl">COMPRE MAIS • PAGUE MENOS</div>
-            <p className="mt-2 max-w-md text-[11px] leading-4 text-white/50 sm:text-sm sm:leading-5">Escolha suas marmitas e monte o combo ideal para sua rotina.</p>
+      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-3 pb-3 sm:px-5 sm:pb-4 md:px-8">
+        <button type="button" onClick={openTopComboBuilder} aria-expanded={topComboOpen} className="group relative flex min-h-[112px] w-full items-center overflow-hidden rounded-[1.25rem] border border-[#ef7d18]/55 bg-gradient-to-r from-[#17130d] via-[#19160f] to-[#10150d] text-left transition hover:border-[#ef7d18] sm:min-h-[150px] sm:rounded-[1.5rem]">
+          <div className="relative z-10 min-w-0 flex-1 p-3 pr-[6.4rem] sm:p-6 sm:pr-44">
+            <div className="text-[9px] font-black uppercase tracking-[.16em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
+            <div className="mt-1 text-[20px] font-black leading-tight sm:text-3xl">Monte seu combo</div>
+            <p className="mt-1.5 max-w-md text-[11px] leading-4 text-white/55 sm:mt-2 sm:text-sm sm:leading-5">Escolha seus pratos favoritos e economize no pedido.</p>
+            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#ef7d18] px-3 py-1.5 text-[10px] font-black text-black sm:mt-3 sm:px-4 sm:py-2 sm:text-xs">ESCOLHER COMBO <span aria-hidden="true">→</span></span>
           </div>
-          <div className="absolute right-3 top-1/2 h-[116px] w-[116px] -translate-y-1/2 overflow-hidden rounded-[1.15rem] border border-white/10 bg-black sm:right-5 sm:h-[130px] sm:w-[170px]">
-            <img src="/images/page-6.jpg" alt="Marmita Nutrifit" className="h-full w-full scale-[1.45] object-cover object-[78%_center] sm:scale-[1.3]" />
+          <div className="absolute right-2.5 top-1/2 h-[82px] w-[82px] -translate-y-1/2 overflow-hidden rounded-xl border border-white/10 bg-black sm:right-5 sm:h-[120px] sm:w-[150px] sm:rounded-[1.15rem]">
+            <img src="/images/page-6.jpg" alt="Marmita Nutrifit" loading="lazy" className="h-full w-full object-cover object-[78%_center] transition duration-300 group-hover:scale-[1.04]" />
           </div>
-          <span className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-lg font-black text-black sm:bottom-4 sm:right-4 sm:h-11 sm:w-11">→</span>
         </button>
 
         {topComboOpen && (
-          <div className="mt-3 rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-4 sm:p-5">
-            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-[#ef7d18] bg-[#ef7d18] p-3.5 sm:p-4">
+          <div className="mt-3 rounded-[1.25rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-4 sm:rounded-[1.5rem] sm:p-5">
+            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-[#ef7d18] bg-[#ef7d18] p-3 sm:p-4">
               <div>
                 <div className="text-[10px] font-black uppercase tracking-[.18em] text-white">Montar agora</div>
                 <div className="mt-1 text-sm font-black sm:text-base">Escolha suas marmitas sem sair daqui.</div>
