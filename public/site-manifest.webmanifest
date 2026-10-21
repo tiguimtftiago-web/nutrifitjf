@@ -1,0 +1,18 @@
+{
+  "name": "Nutrifit",
+  "short_name": "Nutrifit",
+  "description": "Loja Nutrifit — cardápio e pedidos",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080a07",
+  "theme_color": "#080a07",
+  "icons": [
+    {
+      "src": "/images/nutrifit-logo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
