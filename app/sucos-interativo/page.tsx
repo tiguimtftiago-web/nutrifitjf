@@ -29,6 +29,7 @@ const juiceDetails: Record<string, { recipe: string[]; estimate500: [number, num
 
 function JuiceDetails({ name }: { name: string }) {
   const data = juiceDetails[name];
+  const [activeTab, setActiveTab] = useState<"info" | "ingredients" | "nutrition" | "benefits">("info");
   if (!data) return null;
   const nutrients = [
     ["Energia", "kcal", data.estimate500[0]],
@@ -38,24 +39,75 @@ function JuiceDetails({ name }: { name: string }) {
     ["Fibras alimentares", "g", data.estimate500[4]]
   ] as const;
   const fmt = (value: number) => value.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const tabs = [
+    { id: "info" as const, label: "Informações" },
+    { id: "ingredients" as const, label: "Ingredientes" },
+    { id: "nutrition" as const, label: "Nutricional" },
+    { id: "benefits" as const, label: "Benefícios" }
+  ];
   return (
-    <details className="group mt-4 rounded-xl border border-[#a7b86a]/25 bg-black/55">
+    <details className="group mt-3 rounded-xl border border-[#a7b86a]/25 bg-black/65">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-3 py-3 text-left transition hover:bg-white/[.04]">
-        <span className="min-w-0"><span className="block text-xs font-black text-white">Ingredientes e perfil nutricional</span><span className="mt-0.5 block text-[10px] text-[#a7b86a]">Receita-base, características e estimativas</span></span>
+        <span className="min-w-0">
+          <span className="block text-xs font-black text-white">Conheça este suco</span>
+          <span className="mt-0.5 block text-[10px] text-[#a7b86a]">Ingredientes, nutrição e características</span>
+        </span>
         <span className="shrink-0 text-lg font-bold text-[#ef7d18] transition group-open:rotate-180">⌄</span>
       </summary>
-      <div className="space-y-3 border-t border-white/10 px-3 py-3">
-        <div><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes da receita-base (500 ml)</p><ul className="mt-2 space-y-1.5">{data.recipe.map(line => <li key={line} className="text-[11px] leading-4 text-white/80">• {line}</li>)}</ul></div>
-        <div><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Características dos ingredientes</p><p className="mt-1 text-[11px] leading-4 text-white/75">{data.ingredientNotes}</p><p className="mt-1 text-[11px] leading-4 text-white/65">{data.profile}</p></div>
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
-          <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span>300 ml</span><span>500 ml</span></div>
-            {nutrients.map(([label, unit, value], i) => <div key={label} className={i % 2 === 0 ? "grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.04] px-2 py-2 text-[10px]" : "grid grid-cols-[1fr_auto_auto] gap-2 px-2 py-2 text-[10px]"}><span className="text-white/85">{label}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value*0.6)} {unit}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value)} {unit}</span></div>)}
-          </div>
-          <p className="mt-2 text-[10px] leading-4 text-white/55">Estimativas calculadas a partir de composição média dos ingredientes, considerando 500 ml de rendimento, sem açúcar adicionado e polpa mantida quando há fruta inteira. Não são laudo laboratorial nem tabela nutricional legal validada. Açúcares totais, sódio e micronutrientes ainda precisam ser confirmados.</p>
+      <div className="border-t border-white/10">
+        <div role="tablist" aria-label={"Informações do suco " + name} className="grid grid-cols-2 gap-1 border-b border-white/10 p-1 sm:grid-cols-4">
+          {tabs.map(tab => (
+            <button key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} onClick={() => setActiveTab(tab.id)}
+              className={"rounded-lg px-2 py-2 text-[10px] font-black transition sm:text-[11px] " + (activeTab === tab.id ? "bg-[#ff650b] text-white shadow-[0_0_12px_rgba(255,101,11,.18)]" : "text-white/65 hover:bg-white/[.06] hover:text-white")}>
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <p className="text-[10px] leading-4 text-white/45">As informações descrevem ingredientes e características alimentares; não prometem prevenção, tratamento ou cura de doenças. Os valores mudam conforme a matéria-prima, o rendimento e o método de preparo. Fonte de referência: TBCA/USP.</p>
+        <div className="min-h-[132px] p-3 sm:p-4">
+          {activeTab === "info" && (
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Sobre este suco</p>
+              <p className="mt-1.5 text-xs leading-5 text-white/85">{data.profile}</p>
+              <div className="mt-3 rounded-lg border border-white/10 bg-white/[.03] p-3">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[#ef7d18]">Perfil de sabor</p>
+                <p className="mt-1 text-[11px] leading-4 text-white/75">{data.ingredientNotes}</p>
+              </div>
+              <p className="mt-2 text-[9px] leading-4 text-white/45">As características podem variar conforme a fruta, o processamento e o preparo.</p>
+            </div>
+          )}
+          {activeTab === "ingredients" && (
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Receita-base • 500 ml</p>
+              <ul className="mt-2 divide-y divide-white/10 overflow-hidden rounded-lg border border-white/10">
+                {data.recipe.map(line => <li key={line} className="bg-white/[.025] px-3 py-2 text-[11px] leading-4 text-white/85">{line}</li>)}
+              </ul>
+              <p className="mt-2 text-[10px] leading-4 text-white/50">Formulação de referência. O preparo final deve seguir a ficha técnica validada da Nutrifit.</p>
+            </div>
+          )}
+          {activeTab === "nutrition" && (
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
+              <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+                <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
+                {nutrients.map(([label, unit, value], i) => <div key={label} className={"grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] " + (i % 2 === 0 ? "bg-white/[.04]" : "")}><span className="text-white/85">{label}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value*0.6)} {unit}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value)} {unit}</span></div>)}
+              </div>
+              <p className="mt-2 text-[9px] leading-4 text-white/50">Estimativas baseadas em composição média dos ingredientes, considerando 500 ml, sem açúcar adicionado e polpa mantida quando há fruta inteira. Não são laudo laboratorial nem tabela nutricional legal validada. Açúcares, sódio e micronutrientes ainda precisam ser confirmados.</p>
+            </div>
+          )}
+          {activeTab === "benefits" && (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-[#a7b86a]/20 bg-[#a7b86a]/[.06] p-3">
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">O que os ingredientes oferecem</p>
+                <p className="mt-1.5 text-[11px] leading-5 text-white/80">{data.ingredientNotes}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Quando consumir</p>
+                <p className="mt-1 text-[11px] leading-5 text-white/75">Pode fazer parte da alimentação ao longo do dia, conforme sua preferência e rotina. O suco não substitui, por si só, uma alimentação variada e equilibrada.</p>
+              </div>
+              <p className="text-[9px] leading-4 text-white/45">Informações gerais sobre alimentos, não recomendações médicas. Não atribuímos ao suco prevenção, tratamento, cura ou efeito detox.</p>
+            </div>
+          )}
+        </div>
       </div>
     </details>
   );
