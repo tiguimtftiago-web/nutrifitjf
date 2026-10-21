@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   appleWebApp: { capable: true, title: "Nutrifit", statusBarStyle: "black-translucent" },
+  manifest: "/site-manifest.webmanifest",
   formatDetection: { telephone: false },
   referrer: "strict-origin-when-cross-origin",
   keywords: [
@@ -34,6 +35,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/images/nutrifit-logo-icon.svg",
     shortcut: "/images/nutrifit-logo-icon.svg",
+    apple: "/images/nutrifit-logo-icon.svg",
   },
   openGraph: {
     title: "Nutrifit | Marmitas Fit em Juiz de Fora",
