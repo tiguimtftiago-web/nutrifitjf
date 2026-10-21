@@ -324,7 +324,22 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
         </span>
         <span className="shrink-0 text-lg font-bold text-[#ef7d18] transition group-open:rotate-180">⌄</span>
       </summary>
-      <div className="space-y-3 border-t border-white/10 px-3 py-3">
+      <div className="max-h-[46vh] touch-pan-y space-y-3 overflow-y-auto overscroll-contain border-t border-white/10 px-3 py-3 [scrollbar-color:#a7b86a_#111] [scrollbar-width:thin]">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
+          <p className="mt-1 text-[10px] leading-4 text-white/65">Valores estimados a partir de composição média dos ingredientes da receita-base, por rendimento de 500 ml, sem açúcar adicionado e assumindo que a polpa não é coada. Não são laudo laboratorial nem tabela nutricional legal validada.</p>
+          <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
+            {nutrients.map((nutrient,index)=>(
+              <div key={nutrient.label} className={`grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
+                <span className="text-white/85">{nutrient.label}</span>
+                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value*0.6)} {nutrient.unit}</span>
+                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value)} {nutrient.unit}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] leading-4 text-white/60">{data?.waterNote || "Formulação-base a validar."} Açúcares totais, sódio, micronutrientes e valores finais devem ser confirmados com a receita efetivamente produzida antes de uso em rotulagem oficial.</p>
+        </div>
         <div>
           <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes por receita-base de 500 ml</p>
           <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
@@ -345,21 +360,6 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
               </div>
             ))}
           </div>
-        </div>
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
-          <p className="mt-1 text-[10px] leading-4 text-white/65">Valores estimados a partir de composição média dos ingredientes da receita-base, por rendimento de 500 ml, sem açúcar adicionado e assumindo que a polpa não é coada. Não são laudo laboratorial nem tabela nutricional legal validada.</p>
-          <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
-            <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
-            {nutrients.map((nutrient,index)=>(
-              <div key={nutrient.label} className={`grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
-                <span className="text-white/85">{nutrient.label}</span>
-                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value*0.6)} {nutrient.unit}</span>
-                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value)} {nutrient.unit}</span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 text-[10px] leading-4 text-white/60">{data?.waterNote || "Formulação-base a validar."} Açúcares totais, sódio, micronutrientes e valores finais devem ser confirmados com a receita efetivamente produzida antes de uso em rotulagem oficial.</p>
         </div>
         <div>
           <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Perfil do sabor</p>
