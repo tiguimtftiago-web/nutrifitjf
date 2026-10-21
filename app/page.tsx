@@ -2587,28 +2587,41 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-2 sm:mt-10 sm:gap-5">
-            <div className="rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:rounded-[2rem] sm:p-7 md:p-9">
-              <div className="flex items-center gap-3"><Truck className="text-[#a7b86a]" size={21} /><h2 className="text-lg font-black sm:text-2xl">Entrega em Juiz de Fora</h2></div>
-              <p className="mt-2.5 text-xs leading-5 text-white/55 sm:mt-3 sm:text-sm sm:leading-7">Calcule pelo CEP no montador de combos ou escolha retirar diretamente na Nutrifit.</p>
-              <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black">Consultar entrega <ArrowRight size={15} /></a>
+          <div className="mt-6 grid gap-3 sm:mt-8 sm:gap-5 md:grid-cols-2">
+            <div className="group relative overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#1c2414] to-[#11140e] p-4 transition hover:border-[#a7b86a]/50 sm:rounded-[1.75rem] sm:p-6">
+              <div className="flex items-start gap-3">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/10"><Truck className="text-[#b7c879]" size={21} /></div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#b7c879]">Receba do seu jeito</div>
+                  <h2 className="mt-1 text-base font-black sm:text-xl">Entrega ou retirada</h2>
+                  <p className="mt-1.5 text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Consulte a entrega pelo WhatsApp ou retire diretamente na Nutrifit.</p>
+                  <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-[11px] font-black text-black transition hover:bg-[#c2d58a] sm:text-xs">Consultar entrega <ArrowRight size={14} /></a>
+                </div>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5 sm:rounded-[2rem] sm:p-7 md:p-9">
-              <div className="flex items-center gap-3"><MessageCircle className="text-[#ef7d18]" size={21} /><h2 className="text-lg font-black sm:text-2xl">Pedido e pagamento</h2></div>
-              <p className="mt-2.5 text-xs leading-5 text-white/55 sm:mt-3 sm:text-sm sm:leading-7">Escolha seus produtos, confirme o pedido e finalize pelo WhatsApp. Receba em casa ou retire na Nutrifit.</p>
-              <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-xs font-black">Falar com a Nutrifit <MessageCircle size={15} /></a>
+            <div className="group relative overflow-hidden rounded-2xl border border-[#ef7d18]/20 bg-gradient-to-br from-[#21180f] to-[#12110d] p-4 transition hover:border-[#ef7d18]/45 sm:rounded-[1.75rem] sm:p-6">
+              <div className="flex items-start gap-3">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/10"><MessageCircle className="text-[#ef8a2c]" size={21} /></div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef8a2c]">Atendimento direto</div>
+                  <h2 className="mt-1 text-base font-black sm:text-xl">Pedido pelo WhatsApp</h2>
+                  <p className="mt-1.5 text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições, confira o pedido e combine a entrega ou retirada.</p>
+                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-4 py-2.5 text-[11px] font-black transition hover:border-[#ef7d18]/50 hover:bg-white/10 sm:text-xs">Falar com a Nutrifit <MessageCircle size={14} /></a>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-5 overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/10 p-4 sm:mt-7 sm:rounded-[2rem] sm:p-6 md:flex md:items-center md:justify-between md:gap-6">
-            <div className="min-w-0">
-              <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#d8e7a0]">Pronto para começar?</div>
-              <h2 className="mt-1 text-lg font-black sm:text-2xl">Monte seu pedido e fale com a Nutrifit.</h2>
-              <p className="mt-1 text-xs leading-5 text-white/50 sm:text-sm">Escolha suas refeições, confira o total e finalize pelo WhatsApp.</p>
+          <div className="relative mt-4 overflow-hidden rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#12160e] p-4 sm:mt-6 sm:rounded-[2rem] sm:p-6 md:flex md:items-center md:justify-between md:gap-6">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-[#a7b86a]/10 blur-2xl sm:h-48 sm:w-48" />
+            <div className="relative min-w-0 flex-1">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.16em] text-[#d8e7a0]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]" /> Sua rotina mais prática</div>
+              <h2 className="mt-2 text-xl font-black leading-tight sm:text-2xl">Sua próxima refeição começa aqui.</h2>
+              <p className="mt-1.5 max-w-xl text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Escolha seus favoritos no cardápio Nutrifit e monte um pedido do seu jeito.</p>
             </div>
-            <a href="#cardapio" className="mt-3 inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black sm:mt-4 sm:w-auto md:mt-0">
-              Ver cardápio <ArrowRight size={15} />
+            <a href="#cardapio" className="relative mt-4 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black shadow-[0_8px_24px_rgba(239,125,24,.16)] transition hover:bg-[#ff963b] sm:mt-4 sm:w-auto md:mt-0">
+              Explorar cardápio <ArrowRight size={16} />
             </a>
           </div>
         </div>
