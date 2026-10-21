@@ -2164,7 +2164,7 @@ export default function Home() {
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
         <div className="mx-auto max-w-[1500px] px-3 py-4 sm:px-5 sm:py-6 lg:px-7">
           <div className="relative isolate min-h-[920px] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)] sm:min-h-[900px] lg:min-h-[720px]">
-            <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute left-0 top-0 -z-20 h-[470px] w-full object-contain object-top brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 sm:h-[530px] lg:inset-0 lg:h-full lg:object-cover lg:object-center lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
+            <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute left-0 top-0 -z-20 h-auto w-full object-contain object-top brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 lg:inset-0 lg:h-full lg:object-cover lg:object-center lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
             <div className="absolute inset-0 -z-10 bg-black/10 lg:bg-black/35"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-transparent to-black/95 sm:from-black/5 sm:via-transparent sm:to-black/95 lg:bg-gradient-to-r lg:from-black/65 lg:via-black/15 lg:to-black/90"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-transparent to-transparent"/>
@@ -2176,7 +2176,7 @@ export default function Home() {
             <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="absolute left-2 top-[27%] z-30 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#ef7d18] bg-black/65 text-2xl text-[#ef7d18] transition hover:bg-black sm:left-5 sm:top-[32%] lg:top-1/2">‹</button>
             <button type="button" aria-label="Próximo sabor" onClick={() => setJuiceShowcaseIndex((current) => (current + 1) % juiceFlavors.length)} className="absolute right-2 top-[27%] z-30 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#ef7d18] bg-black/65 text-2xl text-[#ef7d18] transition hover:bg-black sm:right-5 sm:top-[32%] lg:top-1/2">›</button>
 
-            <div className="relative z-10 grid min-h-[980px] grid-cols-1 content-start gap-4 px-4 pb-[190px] pt-[390px] sm:min-h-[980px] sm:px-7 sm:pb-[200px] sm:pt-[440px] lg:min-h-[720px] lg:grid-cols-[205px_minmax(0,1fr)_355px] lg:content-start lg:gap-5 lg:px-10 lg:pb-[165px] lg:pt-10 xl:grid-cols-[220px_minmax(0,1fr)_385px]">
+            <div className="relative z-10 grid min-h-[980px] grid-cols-1 content-start gap-4 px-4 pb-[190px] pt-[250px] sm:min-h-[900px] sm:px-7 sm:pb-[200px] sm:pt-[300px] lg:min-h-[720px] lg:grid-cols-[205px_minmax(0,1fr)_355px] lg:content-start lg:gap-5 lg:px-10 lg:pb-[165px] lg:pt-10 xl:grid-cols-[220px_minmax(0,1fr)_385px]">
               <aside className="hidden flex-col justify-center gap-5 lg:flex">
                 {[
                   { icon: Leaf, title: "100% natural" },
