@@ -170,16 +170,16 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
-const juiceFlavors: Array<{ name: string; image: string; description: string; line: string }> = [
-  { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Energia natural para o seu dia. Sabor cítrico e refrescante.", line: "SUCOS" },
-  { name: "Green", image: "/images/page-37.jpg", description: "Combinação refrescante de frutas e ingredientes selecionados.", line: "SUCOS" },
-  { name: "Abacaxi com Hortelã", image: "/images/page-44.jpg", description: "Sabor tropical com toque refrescante de hortelã.", line: "SUCOS" },
-  { name: "Energy", image: "/images/page-36.jpg", description: "Suco funcional Nutrifit, feito para acompanhar sua rotina.", line: "SUCOS" },
-  { name: "Purple", image: "/images/page-40.jpg", description: "Mistura de frutas com sabor marcante.", line: "SUCOS" },
-  { name: "Glow", image: "/images/page-41.jpg", description: "Combinação de frutas com sabor cítrico e vibrante.", line: "SUCOS" },
-  { name: "Pink", image: "/images/page-38.jpg", description: "Sabor frutado e refrescante.", line: "SUCOS" },
-  { name: "Sun", image: "/images/page-39.jpg", description: "Suco funcional Nutrifit.", line: "SUCOS" },
-  { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Suco natural de frutas cítricas.", line: "SUCOS" },
+const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
+  { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
+  { name: "Green", image: "/images/page-37.jpg", description: "Perfil leve e refrescante, com notas cítricas, hortelã e gengibre.", ingredients: ["Maçã", "Limão", "Pepino", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Gengibre discreto"], line: "SUCOS" },
+  { name: "Abacaxi com Hortelã", image: "/images/page-44.jpg", description: "Abacaxi com um toque herbal e refrescante de hortelã.", ingredients: ["Abacaxi", "Hortelã", "Água"], highlights: ["Sabor tropical", "Toque herbal", "Refrescante"], line: "SUCOS" },
+  { name: "Energy", image: "/images/page-36.jpg", description: "Combinação frutada de beterraba, laranja, maçã e limão.", ingredients: ["Beterraba", "Laranja", "Maçã", "Limão", "Água"], highlights: ["Frutado e cítrico", "Mistura de frutas", "Cor intensa"], line: "SUCOS" },
+  { name: "Purple", image: "/images/page-40.jpg", description: "Uva e maçã com notas cítricas e toque de beterraba.", ingredients: ["Uva", "Maçã", "Beterraba", "Limão", "Água"], highlights: ["Sabor marcante", "Notas frutadas", "Cor intensa"], line: "SUCOS" },
+  { name: "Glow", image: "/images/page-41.jpg", description: "Mistura frutada de morango, laranja, cenoura e beterraba.", ingredients: ["Morango", "Laranja", "Cenoura", "Beterraba", "Limão", "Água"], highlights: ["Frutado e cítrico", "Mistura de frutas e vegetais", "Sabor vibrante"], line: "SUCOS" },
+  { name: "Pink", image: "/images/page-38.jpg", description: "Morango e beterraba combinados com laranja e limão.", ingredients: ["Morango", "Beterraba", "Laranja", "Limão", "Água"], highlights: ["Sabor frutado", "Toque cítrico", "Cor rosada intensa"], line: "SUCOS" },
+  { name: "Sun", image: "/images/page-39.jpg", description: "Abacaxi, maracujá e laranja com um toque sutil de gengibre.", ingredients: ["Abacaxi", "Maracujá", "Laranja", "Gengibre", "Água"], highlights: ["Tropical e aromático", "Acidez agradável", "Gengibre suave"], line: "SUCOS" },
+  { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Duas frutas cítricas em uma combinação de sabor intenso e fresco.", ingredients: ["Laranja", "Acerola", "Água"], highlights: ["Sabor cítrico", "Duas frutas", "Refrescante"], line: "SUCOS" },
 ];
 
 function getJuicePrice(flavorName: string, size: "300 ml" | "500 ml"): string {
@@ -217,7 +217,7 @@ function JuiceFlavorCard({
   flavor,
   onAdd,
 }: {
-  flavor: { name: string; image: string; description: string; line: string };
+  flavor: { name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string };
   onAdd: (product: Product) => void;
 }) {
   const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
@@ -2198,18 +2198,15 @@ export default function Home() {
                 <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Suco natural</p>
                 <h3 className="mt-1 text-3xl font-black uppercase leading-none text-[#ef7d18] drop-shadow sm:text-4xl lg:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                 <p className="mt-2 text-xs leading-5 text-white drop-shadow sm:text-sm">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  {[
-                    { icon: Check, label: "Ingredientes selecionados" },
-                    { icon: Leaf, label: "Sabor natural" },
-                    { icon: HeartPulse, label: "Praticidade no seu dia" },
-                  ].map((benefit) => {
-                    const BenefitIcon = benefit.icon;
-                    return <div key={benefit.label} className="flex flex-col items-center gap-1 text-center">
-                      <span className="grid h-8 w-8 place-items-center rounded-full border border-[#ef7d18] bg-black/30 text-[#ef7d18]"><BenefitIcon size={16}/></span>
-                      <span className="text-[8px] font-bold uppercase leading-3 text-white sm:text-[9px]">{benefit.label}</span>
-                    </div>;
-                  })}
+                <div className="mt-3 rounded-xl border border-white/15 bg-black/45 p-3 backdrop-blur-sm">
+                  <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#a7b86a] sm:text-xs">Ingredientes</p>
+                  <p className="mt-1 text-[11px] leading-5 text-white sm:text-xs">{(juiceFlavors[juiceShowcaseIndex]?.ingredients || []).join(" • ")}</p>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18] sm:text-xs">Destaques do sabor</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).map((highlight) => (
+                      <span key={highlight} className="rounded-full border border-[#a7b86a]/40 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-bold text-white sm:text-[10px]">{highlight}</span>
+                    ))}
+                  </div>
                 </div>
                 <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                 <div className="mt-2 grid grid-cols-2 gap-2">
