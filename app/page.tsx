@@ -2194,7 +2194,7 @@ export default function Home() {
 
               <div className="hidden min-w-0 lg:block" aria-hidden="true"/>
 
-              <div className="min-w-0 self-end rounded-xl border border-white/10 bg-black/72 p-3 shadow-[0_12px_40px_rgba(0,0,0,.28)] backdrop-blur-md sm:p-4 lg:self-center lg:border-0 lg:bg-black/45 lg:p-5 lg:shadow-none lg:backdrop-blur-[2px]">
+              <div className="min-w-0 self-start rounded-xl border border-white/10 bg-black/72 p-3 shadow-[0_12px_40px_rgba(0,0,0,.28)] backdrop-blur-md sm:p-4 lg:self-center lg:border-0 lg:bg-black/45 lg:p-5 lg:shadow-none lg:backdrop-blur-[2px]">
                 <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Suco natural</p>
                 <h3 className="mt-1 text-3xl font-black uppercase leading-none text-[#ef7d18] drop-shadow sm:text-4xl lg:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                 <p className="mt-2 text-xs leading-5 text-white drop-shadow sm:text-sm">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
