@@ -2485,17 +2485,6 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="mt-3 rounded-[1.15rem] border border-white/10 bg-black/20 px-3.5 py-3 sm:px-4 sm:py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="text-xs font-black sm:text-sm">2. Monte os sabores</div>
-                    <div className="mt-0.5 text-[10px] leading-4 text-white/40 sm:text-xs">Escolha a quantidade e os sabores depois de selecionar a linha.</div>
-                  </div>
-                  <button type="button" onClick={() => openComboBuilder()} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#a7b86a] px-4 py-2.5 text-[10px] font-black text-black shadow-lg transition hover:scale-[1.01] sm:text-xs">
-                    Montar <ArrowRight size={14} />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
 
