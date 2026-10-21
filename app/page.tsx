@@ -182,12 +182,24 @@ const juiceFlavors: Array<{ name: string; image: string; description: string; li
   { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Suco natural de frutas cítricas.", line: "SUCOS" },
 ];
 
+function getJuicePrice(flavorName: string, size: "300 ml" | "500 ml"): string {
+  const isPurple = flavorName.trim().toLowerCase() === "purple";
+  if (isPurple) return size === "500 ml" ? "R$ 14,90" : "R$ 10,90";
+  return size === "500 ml" ? "R$ 13,90" : "R$ 9,90";
+}
+
+function getJuicePriceNumber(flavorName: string, size: "300 ml" | "500 ml"): number {
+  const isPurple = flavorName.trim().toLowerCase() === "purple";
+  if (isPurple) return size === "500 ml" ? 14.90 : 10.90;
+  return size === "500 ml" ? 13.90 : 9.90;
+}
+
 const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
   {
     name: `${flavor.name} — 500 ml`,
     line: flavor.line,
     weight: "500 ml",
-    price: "R$ 12,90",
+    price: getJuicePrice(flavor.name, "500 ml"),
     description: flavor.description,
     image: flavor.image,
   },
@@ -195,7 +207,7 @@ const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
     name: `${flavor.name} — 300 ml`,
     line: flavor.line,
     weight: "300 ml",
-    price: "R$ 9,90",
+    price: getJuicePrice(flavor.name, "300 ml"),
     description: flavor.description,
     image: flavor.image,
   },
@@ -209,7 +221,7 @@ function JuiceFlavorCard({
   onAdd: (product: Product) => void;
 }) {
   const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
-  const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
+  const price = getJuicePrice(flavor.name, size);
   const product: Product = {
     name: `${flavor.name} — ${size}`,
     line: flavor.line,
@@ -229,8 +241,8 @@ function JuiceFlavorCard({
         <p className="mt-1 text-xs text-white/45">{flavor.description}</p>
         <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
           {([
-            { value: "500 ml" as const, price: "R$ 12,90" },
-            { value: "300 ml" as const, price: "R$ 9,90" },
+            { value: "500 ml" as const, price: getJuicePrice(flavor.name, "500 ml") },
+            { value: "300 ml" as const, price: getJuicePrice(flavor.name, "300 ml") },
           ]).map((option) => (
             <button
               key={option.value}
@@ -262,20 +274,20 @@ type ComplementOption = {
 };
 
 const comboComplements: ComplementOption[] = [
-  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
-  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
-  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
-  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-36.jpg", emoji: "🥤" },
+  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-42.jpg", emoji: "🥤" },
+  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-43.jpg", emoji: "🥤" },
+  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-44.jpg", emoji: "🥤" },
+  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-36.jpg", emoji: "🥤" },
   { name: "Energy — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-37.jpg", emoji: "🥤" },
+  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-37.jpg", emoji: "🥤" },
   { name: "Green — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-38.jpg", emoji: "🥤" },
+  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-38.jpg", emoji: "🥤" },
   { name: "Pink — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-39.jpg", emoji: "🥤" },
+  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-39.jpg", emoji: "🥤" },
   { name: "Sun — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-41.jpg", emoji: "🥤" },
+  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 14.90, image: "/images/page-40.jpg", emoji: "🥤" },
+  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 10.90, image: "/images/page-40.jpg", emoji: "🥤" },
+  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
   { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
@@ -2201,7 +2213,7 @@ export default function Home() {
                 </div>
                 <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  {([{ size: "500 ml" as const, price: "R$ 12,90" }, { size: "300 ml" as const, price: "R$ 9,90" }]).map((option) => (
+                  {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
                     <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition sm:px-3 sm:py-2.5 ${selectedJuiceSize === option.size ? "border-[#ef7d18] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                       <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
                       <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#ef7d18]" : "text-white"}`}>{option.price}</span>
