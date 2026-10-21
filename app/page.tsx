@@ -2266,6 +2266,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      </div>
       </section>
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
