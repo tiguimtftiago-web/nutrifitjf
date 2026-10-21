@@ -172,7 +172,7 @@ const naturalJuices = [
 
 const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
   { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
-  { name: "Green", image: "/images/page-37.jpg", description: "Maçã, limão, pepino e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Limão", "Pepino", "Hortelã"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
+  { name: "Green", image: "/images/page-37.jpg", description: "Maçã, pepino, limão, gengibre e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Pepino", "Limão", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
   { name: "Abacaxi com Hortelã", image: "/images/page-44.jpg", description: "Abacaxi com um toque herbal e refrescante de hortelã.", ingredients: ["Abacaxi", "Hortelã", "Água"], highlights: ["Sabor tropical", "Toque herbal", "Refrescante"], line: "SUCOS" },
   { name: "Energy", image: "/images/page-36.jpg", description: "Beterraba, laranja, maçã e limão em um perfil frutado e cítrico.", ingredients: ["Beterraba", "Laranja", "Maçã", "Limão"], highlights: ["Frutado e cítrico", "Mistura de frutas", "Cor intensa"], line: "SUCOS" },
   { name: "Purple", image: "/images/page-40.jpg", description: "Uva, morango, maçã e limão em uma combinação frutada e vibrante.", ingredients: ["Uva", "Morango", "Maçã", "Limão"], highlights: ["Sabor marcante", "Notas frutadas", "Cor intensa"], line: "SUCOS" },
@@ -214,40 +214,129 @@ const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
 ]);
 
 const juiceIngredientNotes: Record<string, string> = {
-  "Laranja": "Fonte natural de vitamina C e carboidratos; a quantidade varia conforme a fruta e a receita.",
-  "Laranja natural": "Fonte natural de vitamina C e carboidratos; a quantidade varia conforme a fruta e a receita.",
-  "Acerola": "Fruta conhecida pelo teor de vitamina C; o valor final depende da proporção utilizada.",
-  "Limão": "Contribui com acidez e pode fornecer vitamina C, em quantidade dependente da receita.",
-  "Maçã": "Fornece carboidratos. A contribuição de fibras depende de quanto da polpa é mantido no preparo.",
-  "Pepino": "Ingrediente com alto teor de água, sabor suave e contribuição para o perfil refrescante.",
-  "Gengibre": "Acrescenta aroma e compostos vegetais característicos; não significa efeito terapêutico do suco.",
-  "Cúrcuma": "Especiaria que acrescenta cor e compostos vegetais; sua presença não permite prometer efeitos medicinais.",
-  "Hortelã": "Acrescenta aroma herbal e frescor ao sabor.",
-  "Água": "Compõe a bebida e influencia sua diluição e concentração nutricional.",
-  "Abacaxi": "Fornece carboidratos e pode contribuir com vitamina C; os valores dependem da quantidade usada.",
-  "Beterraba": "Contribui com pigmentos naturais e nutrientes como folato; a quantidade depende da receita.",
-  "Uva": "Fornece carboidratos e compostos vegetais naturais; o teor varia com a variedade e o preparo.",
-  "Morango": "Pode contribuir com vitamina C e compostos vegetais; a quantidade depende da proporção utilizada.",
-  "Cenoura": "Contém carotenoides, incluindo beta-caroteno; a contribuição depende da quantidade e do processamento.",
-  "Maracujá": "Acrescenta acidez e aroma; a contribuição de fibras depende de como a polpa é utilizada."
+  "Laranja": "Fornece carboidratos e pode contribuir com vitamina C; o teor depende da fruta e do preparo.",
+  "Laranja natural": "Fornece carboidratos e pode contribuir com vitamina C; o teor depende da fruta e do preparo.",
+  "Acerola": "Fruta conhecida pelo teor de vitamina C; a quantidade final depende da matéria-prima e da receita.",
+  "Limão": "Acrescenta acidez e pode contribuir com vitamina C.",
+  "Maçã": "Fornece carboidratos; parte das fibras é mantida quando a polpa não é descartada.",
+  "Pepino": "Tem alto teor de água e contribui para o perfil leve e refrescante.",
+  "Gengibre": "Acrescenta aroma e sabor característico; sua presença não comprova efeito terapêutico.",
+  "Cúrcuma": "Acrescenta cor e compostos vegetais; não deve ser apresentada como tratamento.",
+  "Hortelã": "Acrescenta aroma herbal e frescor.",
+  "Água": "Ajusta a diluição e o volume final da bebida.",
+  "Abacaxi": "Fornece carboidratos e pode contribuir com vitamina C.",
+  "Beterraba": "Contribui com carboidratos, folato e pigmentos naturais.",
+  "Uva": "Fornece carboidratos e compostos vegetais naturais.",
+  "Morango": "Pode contribuir com vitamina C e outros compostos vegetais.",
+  "Cenoura": "Contém carotenoides, incluindo beta-caroteno.",
+  "Maracujá": "Acrescenta aroma e acidez; a contribuição de fibras depende do processamento."
+};
+
+type JuiceRecipeLine = { ingredient: string; quantity: string };
+type JuiceNutritionEstimate = { kcal: number; carbs: number; protein: number; fat: number; fiber: number };
+type JuiceRecipeInfo = { recipe: JuiceRecipeLine[]; waterNote: string; estimate500: JuiceNutritionEstimate; highlights: string[]; profile: string };
+
+const juiceRecipeData: Record<string, JuiceRecipeInfo> = {
+  "Suco de Laranja": {
+    recipe: [{ ingredient: "Suco de laranja natural", quantity: "500 ml" }],
+    waterNote: "Sem adição de açúcar na formulação-base.",
+    estimate500: { kcal: 185, carbs: 42.5, protein: 3.5, fat: 0.5, fiber: 1.0 },
+    highlights: ["Carboidratos naturalmente presentes", "Pode contribuir com vitamina C"],
+    profile: "Bebida cítrica feita com suco de laranja natural."
+  },
+  "Green": {
+    recipe: [{ ingredient: "Maçã com casca, sem sementes", quantity: "150 g" }, { ingredient: "Pepino com casca", quantity: "100 g" }, { ingredient: "Suco de limão Tahiti", quantity: "20 ml" }, { ingredient: "Gengibre fresco", quantity: "2 g" }, { ingredient: "Hortelã", quantity: "4 g" }, { ingredient: "Água filtrada", quantity: "aprox. 300 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 102, carbs: 27.1, protein: 1.4, fat: 0.2, fiber: 3.3 },
+    highlights: ["Perfil leve e refrescante", "Carboidratos provenientes principalmente da maçã"],
+    profile: "Maçã como base, com limão, pepino, hortelã e gengibre em segundo plano."
+  },
+  "Abacaxi com Hortelã": {
+    recipe: [{ ingredient: "Abacaxi", quantity: "250 g" }, { ingredient: "Hortelã", quantity: "5 g" }, { ingredient: "Água filtrada", quantity: "aprox. 245 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 125, carbs: 29.4, protein: 1.9, fat: 0.3, fiber: 2.8 },
+    highlights: ["Perfil tropical", "Carboidratos naturalmente presentes no abacaxi"],
+    profile: "Abacaxi com um toque herbal de hortelã."
+  },
+  "Energy": {
+    recipe: [{ ingredient: "Laranja descascada, sem sementes", quantity: "220 g" }, { ingredient: "Maçã com casca, sem sementes", quantity: "120 g" }, { ingredient: "Beterraba crua", quantity: "45 g" }, { ingredient: "Suco de limão Tahiti", quantity: "15 ml" }, { ingredient: "Água filtrada", quantity: "aprox. 260 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 173, carbs: 43.8, protein: 3.3, fat: 0.3, fiber: 4.9 },
+    highlights: ["Combinação frutada e cítrica", "Beterraba contribui com folato"],
+    profile: "Laranja e maçã dão base frutada; a beterraba fica moderada."
+  },
+  "Purple": {
+    recipe: [{ ingredient: "Uva sem sementes", quantity: "160 g" }, { ingredient: "Morango", quantity: "90 g" }, { ingredient: "Maçã com casca, sem sementes", quantity: "120 g" }, { ingredient: "Suco de limão Tahiti", quantity: "15 ml" }, { ingredient: "Água filtrada", quantity: "aprox. 230 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 182, carbs: 47.2, protein: 2.3, fat: 0.6, fiber: 4.6 },
+    highlights: ["Perfil frutado", "Carboidratos provenientes principalmente das frutas"],
+    profile: "Uva e maçã dão corpo e doçura natural; o limão realça o sabor."
+  },
+  "Glow": {
+    recipe: [{ ingredient: "Laranja descascada, sem sementes", quantity: "300 g" }, { ingredient: "Suco de limão Tahiti", quantity: "15 ml" }, { ingredient: "Gengibre fresco", quantity: "2 g" }, { ingredient: "Cúrcuma fresca", quantity: "3 g" }, { ingredient: "Água filtrada", quantity: "aprox. 230 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 118, carbs: 28.5, protein: 2.8, fat: 0.4, fiber: 2.5 },
+    highlights: ["Perfil cítrico e aromático", "Gengibre e cúrcuma usados como ingredientes de sabor"],
+    profile: "Laranja com limão, gengibre e cúrcuma em segundo plano."
+  },
+  "Pink": {
+    recipe: [{ ingredient: "Morango", quantity: "120 g" }, { ingredient: "Laranja descascada, sem sementes", quantity: "220 g" }, { ingredient: "Beterraba crua", quantity: "35 g" }, { ingredient: "Suco de limão Tahiti", quantity: "15 ml" }, { ingredient: "Água filtrada", quantity: "aprox. 250 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 137, carbs: 32.7, protein: 3.8, fat: 0.6, fiber: 5.0 },
+    highlights: ["Morango e laranja em destaque", "Beterraba contribui com pigmentos naturais"],
+    profile: "Frutado e cítrico, com a beterraba em quantidade moderada."
+  },
+  "Sun": {
+    recipe: [{ ingredient: "Abacaxi", quantity: "170 g" }, { ingredient: "Laranja descascada, sem sementes", quantity: "160 g" }, { ingredient: "Polpa de maracujá", quantity: "35 g" }, { ingredient: "Gengibre fresco", quantity: "2 g" }, { ingredient: "Água filtrada", quantity: "aprox. 220 ml; completar até 500 ml" }],
+    waterNote: "Estimativa calculada considerando a polpa mantida, sem coar e sem açúcar adicionado.",
+    estimate500: { kcal: 168, carbs: 38.6, protein: 3.3, fat: 1.1, fiber: 3.4 },
+    highlights: ["Perfil tropical e aromático", "Acidez proveniente das frutas"],
+    profile: "Abacaxi e laranja sustentam o sabor; maracujá e gengibre dão aroma."
+  },
+  "Laranja com Acerola": {
+    recipe: [{ ingredient: "Suco de laranja natural", quantity: "350 ml" }, { ingredient: "Acerola", quantity: "120 g" }, { ingredient: "Água filtrada", quantity: "aprox. 50 ml; ajustar ao volume final" }],
+    waterNote: "Estimativa calculada a partir da formulação-base; validar volume final e se a polpa é coada.",
+    estimate500: { kcal: 169, carbs: 39.4, protein: 3.5, fat: 0.6, fiber: 2.5 },
+    highlights: ["Combinação de frutas cítricas", "A acerola é conhecida pelo teor de vitamina C"],
+    profile: "Laranja e acerola com sabor cítrico intenso."
+  }
 };
 
 function JuiceNutritionDetails({ flavor, compact = false }: {
   flavor: { name: string; ingredients: string[]; description: string };
   compact?: boolean;
 }) {
+  const data = juiceRecipeData[flavor.name];
+  const nutrients = [
+    { label: "Energia", unit: "kcal", value: data?.estimate500.kcal ?? 0 },
+    { label: "Carboidratos", unit: "g", value: data?.estimate500.carbs ?? 0 },
+    { label: "Proteínas", unit: "g", value: data?.estimate500.protein ?? 0 },
+    { label: "Gorduras totais", unit: "g", value: data?.estimate500.fat ?? 0 },
+    { label: "Fibras alimentares", unit: "g", value: data?.estimate500.fiber ?? 0 }
+  ];
+  const fmt = (n: number) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   return (
     <details className={`group rounded-xl border border-[#a7b86a]/25 bg-black/55 ${compact ? "mt-2" : "mt-3"}`}>
       <summary className={`flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[.04] ${compact ? "text-[10px]" : "text-xs"}`}>
         <span className="min-w-0">
-          <span className="block font-black text-white">Informações nutricionais e ingredientes</span>
-          <span className="mt-0.5 block text-[10px] font-medium text-[#a7b86a]">Conheça os componentes do {flavor.name}</span>
+          <span className="block font-black text-white">Ingredientes e perfil nutricional</span>
+          <span className="mt-0.5 block text-[10px] font-medium text-[#a7b86a]">Receita-base de {flavor.name}</span>
         </span>
         <span className="shrink-0 text-lg font-bold text-[#ef7d18] transition group-open:rotate-180">⌄</span>
       </summary>
       <div className="space-y-3 border-t border-white/10 px-3 py-3">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes cadastrados</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes por receita-base de 500 ml</p>
+          <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+            {(data?.recipe || flavor.ingredients.map(ingredient => ({ingredient,quantity:"Quantidade a confirmar"}))).map((line,index)=>(
+              <div key={line.ingredient} className={`grid grid-cols-[1fr_auto] gap-3 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
+                <span className="text-white/85">{line.ingredient}</span><span className="text-right font-bold text-[#a7b86a]">{line.quantity}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Características dos ingredientes</p>
           <div className="mt-2 divide-y divide-white/10">
             {flavor.ingredients.map((ingredient) => (
               <div key={ingredient} className="grid grid-cols-[minmax(84px,.7fr)_1.3fr] gap-3 py-2 text-[11px] leading-4">
@@ -258,18 +347,26 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Tabela nutricional</p>
-          <p className="mt-1 text-[10px] leading-4 text-white/65">Os valores numéricos por 300 ml e 500 ml serão publicados após validar as quantidades exatas de cada ingrediente e o rendimento final da receita. Não exibimos estimativas como se fossem valores medidos.</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
+          <p className="mt-1 text-[10px] leading-4 text-white/65">Valores estimados a partir de composição média dos ingredientes da receita-base, por rendimento de 500 ml, sem açúcar adicionado e assumindo que a polpa não é coada. Não são laudo laboratorial nem tabela nutricional legal validada.</p>
           <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
-            {["Valor energético", "Carboidratos", "Açúcares totais", "Açúcares adicionados", "Proteínas", "Gorduras totais", "Gorduras saturadas", "Fibras alimentares", "Sódio"].map((nutrient, index) => (
-              <div key={nutrient} className={`grid grid-cols-[1fr_auto] gap-3 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
-                <span className="text-white/85">{nutrient}</span>
-                <span className="font-bold text-[#a7b86a]">A validar</span>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
+            {nutrients.map((nutrient,index)=>(
+              <div key={nutrient.label} className={`grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
+                <span className="text-white/85">{nutrient.label}</span>
+                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value*0.6)} {nutrient.unit}</span>
+                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value)} {nutrient.unit}</span>
               </div>
             ))}
           </div>
+          <p className="mt-2 text-[10px] leading-4 text-white/60">{data?.waterNote || "Formulação-base a validar."} Açúcares totais, sódio, micronutrientes e valores finais devem ser confirmados com a receita efetivamente produzida antes de uso em rotulagem oficial.</p>
         </div>
-        <p className="text-[10px] leading-4 text-white/50">As características descritas são informações gerais dos ingredientes, não promessas de prevenção ou tratamento de doenças. A composição varia conforme a receita e o preparo.</p>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Perfil do sabor</p>
+          <p className="mt-1 text-[11px] leading-4 text-white/80">{data?.profile || flavor.description}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
+        </div>
+        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; validar a receita e a rotulagem com profissional responsável antes de divulgar como informação oficial.</p>
       </div>
     </details>
   );
