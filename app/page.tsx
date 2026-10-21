@@ -213,6 +213,67 @@ const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
   },
 ]);
 
+const juiceIngredientNotes: Record<string, string> = {
+  "Laranja": "Fonte natural de vitamina C e carboidratos; a quantidade varia conforme a fruta e a receita.",
+  "Laranja natural": "Fonte natural de vitamina C e carboidratos; a quantidade varia conforme a fruta e a receita.",
+  "Acerola": "Fruta conhecida pelo teor de vitamina C; o valor final depende da proporção utilizada.",
+  "Limão": "Contribui com acidez e pode fornecer vitamina C, em quantidade dependente da receita.",
+  "Maçã": "Fornece carboidratos. A contribuição de fibras depende de quanto da polpa é mantido no preparo.",
+  "Pepino": "Ingrediente com alto teor de água, sabor suave e contribuição para o perfil refrescante.",
+  "Gengibre": "Acrescenta aroma e compostos vegetais característicos; não significa efeito terapêutico do suco.",
+  "Hortelã": "Acrescenta aroma herbal e frescor ao sabor.",
+  "Água": "Compõe a bebida e influencia sua diluição e concentração nutricional.",
+  "Abacaxi": "Fornece carboidratos e pode contribuir com vitamina C; os valores dependem da quantidade usada.",
+  "Beterraba": "Contribui com pigmentos naturais e nutrientes como folato; a quantidade depende da receita.",
+  "Uva": "Fornece carboidratos e compostos vegetais naturais; o teor varia com a variedade e o preparo.",
+  "Morango": "Pode contribuir com vitamina C e compostos vegetais; a quantidade depende da proporção utilizada.",
+  "Cenoura": "Contém carotenoides, incluindo beta-caroteno; a contribuição depende da quantidade e do processamento.",
+  "Maracujá": "Acrescenta acidez e aroma; a contribuição de fibras depende de como a polpa é utilizada."
+};
+
+function JuiceNutritionDetails({ flavor, compact = false }: {
+  flavor: { name: string; ingredients: string[]; description: string };
+  compact?: boolean;
+}) {
+  return (
+    <details className={`group rounded-xl border border-[#a7b86a]/25 bg-black/55 ${compact ? "mt-2" : "mt-3"}`}>
+      <summary className={`flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[.04] ${compact ? "text-[10px]" : "text-xs"}`}>
+        <span className="min-w-0">
+          <span className="block font-black text-white">Informações nutricionais e ingredientes</span>
+          <span className="mt-0.5 block text-[10px] font-medium text-[#a7b86a]">Conheça os componentes do {flavor.name}</span>
+        </span>
+        <span className="shrink-0 text-lg font-bold text-[#ef7d18] transition group-open:rotate-180">⌄</span>
+      </summary>
+      <div className="space-y-3 border-t border-white/10 px-3 py-3">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes cadastrados</p>
+          <div className="mt-2 divide-y divide-white/10">
+            {flavor.ingredients.map((ingredient) => (
+              <div key={ingredient} className="grid grid-cols-[minmax(84px,.7fr)_1.3fr] gap-3 py-2 text-[11px] leading-4">
+                <span className="font-bold text-white">{ingredient}</span>
+                <span className="text-white/70">{juiceIngredientNotes[ingredient] || "Contribui para o sabor e a composição da bebida; a contribuição nutricional depende da quantidade utilizada."}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Tabela nutricional</p>
+          <p className="mt-1 text-[10px] leading-4 text-white/65">Os valores numéricos por 300 ml e 500 ml serão publicados após validar as quantidades exatas de cada ingrediente e o rendimento final da receita. Não exibimos estimativas como se fossem valores medidos.</p>
+          <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
+            {["Valor energético", "Carboidratos e açúcares", "Proteínas", "Gorduras totais e saturadas", "Fibras", "Sódio"].map((nutrient, index) => (
+              <div key={nutrient} className={`grid grid-cols-[1fr_auto] gap-3 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
+                <span className="text-white/85">{nutrient}</span>
+                <span className="font-bold text-[#a7b86a]">A validar</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="text-[10px] leading-4 text-white/50">As características descritas são informações gerais dos ingredientes, não promessas de prevenção ou tratamento de doenças. A composição varia conforme a receita e o preparo.</p>
+      </div>
+    </details>
+  );
+}
+
 function JuiceFlavorCard({
   flavor,
   onAdd,
@@ -239,6 +300,7 @@ function JuiceFlavorCard({
       <div className="p-4">
         <h3 className="font-black">{flavor.name}</h3>
         <p className="mt-1 text-xs text-white/45">{flavor.description}</p>
+        <JuiceNutritionDetails flavor={flavor} />
         <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
           {([
             { value: "500 ml" as const, price: getJuicePrice(flavor.name, "500 ml") },
@@ -2206,6 +2268,7 @@ export default function Home() {
                       {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).map((highlight) => <span key={highlight} className="rounded-full border border-[#a7b86a]/40 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-bold text-white sm:text-[10px]">{highlight}</span>)}
                     </div>
                   </div>
+                  <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
@@ -2239,6 +2302,7 @@ export default function Home() {
               <div className="mt-2 flex flex-wrap gap-1">
                 {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).slice(0,2).map((highlight)=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}
               </div>
+              <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
                 {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
