@@ -303,7 +303,7 @@ const juiceRecipeData: Record<string, JuiceRecipeInfo> = {
 };
 
 function JuiceNutritionDetails({ flavor, compact = false }: {
-  flavor: { name: string; ingredients: string[]; description: string };
+  flavor: { name: string; ingredients: string[]; description: string; highlights: string[] };
   compact?: boolean;
 }) {
   const data = juiceRecipeData[flavor.name];
