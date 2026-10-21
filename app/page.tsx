@@ -172,13 +172,13 @@ const naturalJuices = [
 
 const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
   { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
-  { name: "Green", image: "/images/page-37.jpg", description: "Perfil leve e refrescante, com notas cítricas, hortelã e gengibre.", ingredients: ["Maçã", "Limão", "Pepino", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Gengibre discreto"], line: "SUCOS" },
+  { name: "Green", image: "/images/page-37.jpg", description: "Maçã, limão, pepino e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Limão", "Pepino", "Hortelã"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
   { name: "Abacaxi com Hortelã", image: "/images/page-44.jpg", description: "Abacaxi com um toque herbal e refrescante de hortelã.", ingredients: ["Abacaxi", "Hortelã", "Água"], highlights: ["Sabor tropical", "Toque herbal", "Refrescante"], line: "SUCOS" },
-  { name: "Energy", image: "/images/page-36.jpg", description: "Combinação frutada de beterraba, laranja, maçã e limão.", ingredients: ["Beterraba", "Laranja", "Maçã", "Limão", "Água"], highlights: ["Frutado e cítrico", "Mistura de frutas", "Cor intensa"], line: "SUCOS" },
-  { name: "Purple", image: "/images/page-40.jpg", description: "Uva e maçã com notas cítricas e toque de beterraba.", ingredients: ["Uva", "Maçã", "Beterraba", "Limão", "Água"], highlights: ["Sabor marcante", "Notas frutadas", "Cor intensa"], line: "SUCOS" },
-  { name: "Glow", image: "/images/page-41.jpg", description: "Mistura frutada de morango, laranja, cenoura e beterraba.", ingredients: ["Morango", "Laranja", "Cenoura", "Beterraba", "Limão", "Água"], highlights: ["Frutado e cítrico", "Mistura de frutas e vegetais", "Sabor vibrante"], line: "SUCOS" },
-  { name: "Pink", image: "/images/page-38.jpg", description: "Morango e beterraba combinados com laranja e limão.", ingredients: ["Morango", "Beterraba", "Laranja", "Limão", "Água"], highlights: ["Sabor frutado", "Toque cítrico", "Cor rosada intensa"], line: "SUCOS" },
-  { name: "Sun", image: "/images/page-39.jpg", description: "Abacaxi, maracujá e laranja com um toque sutil de gengibre.", ingredients: ["Abacaxi", "Maracujá", "Laranja", "Gengibre", "Água"], highlights: ["Tropical e aromático", "Acidez agradável", "Gengibre suave"], line: "SUCOS" },
+  { name: "Energy", image: "/images/page-36.jpg", description: "Beterraba, laranja, maçã e limão em um perfil frutado e cítrico.", ingredients: ["Beterraba", "Laranja", "Maçã", "Limão"], highlights: ["Frutado e cítrico", "Mistura de frutas", "Cor intensa"], line: "SUCOS" },
+  { name: "Purple", image: "/images/page-40.jpg", description: "Uva, morango, maçã e limão em uma combinação frutada e vibrante.", ingredients: ["Uva", "Morango", "Maçã", "Limão"], highlights: ["Sabor marcante", "Notas frutadas", "Cor intensa"], line: "SUCOS" },
+  { name: "Glow", image: "/images/page-41.jpg", description: "Laranja, limão, gengibre e cúrcuma em um perfil cítrico e aromático.", ingredients: ["Laranja", "Limão", "Gengibre", "Cúrcuma"], highlights: ["Cítrico e aromático", "Gengibre e cúrcuma", "Sabor vibrante"], line: "SUCOS" },
+  { name: "Pink", image: "/images/page-38.jpg", description: "Morango, beterraba, laranja e limão em uma combinação frutada e cítrica.", ingredients: ["Morango", "Beterraba", "Laranja", "Limão"], highlights: ["Sabor frutado", "Toque cítrico", "Cor rosada intensa"], line: "SUCOS" },
+  { name: "Sun", image: "/images/page-39.jpg", description: "Abacaxi, maracujá, laranja e gengibre em uma mistura tropical e aromática.", ingredients: ["Abacaxi", "Maracujá", "Laranja", "Gengibre"], highlights: ["Tropical e aromático", "Acidez agradável", "Gengibre suave"], line: "SUCOS" },
   { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Duas frutas cítricas em uma combinação de sabor intenso e fresco.", ingredients: ["Laranja", "Acerola", "Água"], highlights: ["Sabor cítrico", "Duas frutas", "Refrescante"], line: "SUCOS" },
 ];
 
@@ -221,6 +221,7 @@ const juiceIngredientNotes: Record<string, string> = {
   "Maçã": "Fornece carboidratos. A contribuição de fibras depende de quanto da polpa é mantido no preparo.",
   "Pepino": "Ingrediente com alto teor de água, sabor suave e contribuição para o perfil refrescante.",
   "Gengibre": "Acrescenta aroma e compostos vegetais característicos; não significa efeito terapêutico do suco.",
+  "Cúrcuma": "Especiaria que acrescenta cor e compostos vegetais; sua presença não permite prometer efeitos medicinais.",
   "Hortelã": "Acrescenta aroma herbal e frescor ao sabor.",
   "Água": "Compõe a bebida e influencia sua diluição e concentração nutricional.",
   "Abacaxi": "Fornece carboidratos e pode contribuir com vitamina C; os valores dependem da quantidade usada.",
@@ -260,7 +261,7 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Tabela nutricional</p>
           <p className="mt-1 text-[10px] leading-4 text-white/65">Os valores numéricos por 300 ml e 500 ml serão publicados após validar as quantidades exatas de cada ingrediente e o rendimento final da receita. Não exibimos estimativas como se fossem valores medidos.</p>
           <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
-            {["Valor energético", "Carboidratos e açúcares", "Proteínas", "Gorduras totais e saturadas", "Fibras", "Sódio"].map((nutrient, index) => (
+            {["Valor energético", "Carboidratos", "Açúcares totais", "Açúcares adicionados", "Proteínas", "Gorduras totais", "Gorduras saturadas", "Fibras alimentares", "Sódio"].map((nutrient, index) => (
               <div key={nutrient} className={`grid grid-cols-[1fr_auto] gap-3 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
                 <span className="text-white/85">{nutrient}</span>
                 <span className="font-bold text-[#a7b86a]">A validar</span>
