@@ -37,6 +37,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [finance,setFinance]=useState<Finance[]>([]);
   const [deliveries,setDeliveries]=useState<Delivery[]>([]);
   const [production,setProduction]=useState<Production[]>([]);
+  const [productionFilter,setProductionFilter]=useState<string>("todas");
+  const [selectedProduction,setSelectedProduction]=useState<Production|null>(null);
   const [coupons,setCoupons]=useState<Coupon[]>([]);
   const [inventory,setInventory]=useState<InventoryItem[]>([]);
   const [movements,setMovements]=useState<Movement[]>([]);
