@@ -33,9 +33,9 @@ export const metadata: Metadata = {
     "sucos naturais Juiz de Fora",
   ],
   icons: {
-    icon: "/images/nutrifit-logo-icon.svg",
-    shortcut: "/images/nutrifit-logo-icon.svg",
-    apple: "/images/nutrifit-logo-icon.svg",
+    icon: "/images/nutrifit-logo-icon.svg?v=2",
+    shortcut: "/images/nutrifit-logo-icon.svg?v=2",
+    apple: "/images/nutrifit-logo-icon.svg?v=2",
   },
   openGraph: {
     title: "Nutrifit | Marmitas Fit em Juiz de Fora",
@@ -74,7 +74,7 @@ const structuredData = {
   "@id": siteUrl + "/#restaurant",
   name: "Nutrifit",
   url: siteUrl,
-  logo: siteUrl + "/images/nutrifit-logo-icon.svg",
+  logo: siteUrl + "/images/nutrifit-logo-icon.svg?v=2",
   image: siteUrl + "/images/banner-site-1.jpg",
   description:
     "Nutrifit: marmitas Fit, Performance e Tradicional, saladas, sucos e combos em Juiz de Fora, MG.",
