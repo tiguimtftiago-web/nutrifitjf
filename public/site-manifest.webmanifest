@@ -9,7 +9,7 @@
   "theme_color": "#080a07",
   "icons": [
     {
-      "src": "/images/nutrifit-logo-icon.svg",
+      "src": "/images/nutrifit-logo-icon.svg?v=3",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
