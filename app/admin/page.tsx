@@ -293,7 +293,12 @@ export default function AdminPage() {
       const count=Number(result||0);
       if(count===0){setError("A produção já foi gerada para este pedido ou nenhum item possui ficha técnica ativa.");return;}
       setError("Produção gerada com sucesso. Ela ficará planejada e o estoque só será baixado quando for concluída.");
-    }catch(e){console.error(e);setError("Não foi possível gerar a produção deste pedido.");}
+    }catch(e){
+      console.error(e);
+      let detail=e instanceof Error?e.message:"";
+      try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}
+      setError(detail||"Não foi possível gerar a produção deste pedido.");
+    }
     finally{setBusy(false);}
   }
 
