@@ -158,21 +158,56 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});await load();
     }catch{setError("Não foi possível registrar a movimentação. Verifique o estoque disponível.");}finally{setBusy(false);}
   }
-  async function addRecipe(){
-    if(!recipeForm.name.trim()||!recipeForm.yield_quantity)return;
-    setBusy(true);
+  function readableError(e:unknown,fallback:string){
+    const raw=e instanceof Error?e.message:String(e||"");
     try{
-      await req(URL+"/rest/v1/inventory_recipes",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:recipeForm.name.trim(),product_name:recipeForm.product_name||null,yield_quantity:Number(recipeForm.yield_quantity),yield_unit:recipeForm.yield_unit||"g"})});
-      setRecipeForm({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});await load();
-    }catch{setError("Não foi possível cadastrar a ficha técnica.");}finally{setBusy(false);}
+      const parsed=JSON.parse(raw);
+      const detail=parsed.message||parsed.details||parsed.hint||parsed.error_description;
+      return detail?fallback+" Detalhe: "+String(detail):fallback+" Detalhe: "+raw;
+    }catch{
+      return raw?fallback+" Detalhe: "+raw:fallback;
+    }
+  }
+  async function addRecipe(){
+    const name=recipeForm.name.trim();
+    const yieldQuantity=Number(recipeForm.yield_quantity);
+    if(!name){setError("Informe o nome da ficha técnica.");return;}
+    if(!Number.isFinite(yieldQuantity)||yieldQuantity<=0){setError("Informe um rendimento maior que zero.");return;}
+    setBusy(true);setError("");
+    try{
+      await req(URL+"/rest/v1/inventory_recipes",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({name,product_name:recipeForm.product_name.trim()||null,yield_quantity:yieldQuantity,yield_unit:recipeForm.yield_unit||"g"})});
+      setRecipeForm({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
+      await load();
+      setError("");
+    }catch(e){setError(readableError(e,"Não foi possível salvar a ficha técnica."));}
+    finally{setBusy(false);}
   }
   async function addRecipeItem(){
-    if(!recipeItemForm.recipe_id||!recipeItemForm.item_id||!recipeItemForm.quantity)return;
-    setBusy(true);
+    const quantity=Number(recipeItemForm.quantity);
+    if(!recipeItemForm.recipe_id){setError("Selecione a ficha técnica.");return;}
+    if(!recipeItemForm.item_id){setError("Selecione o insumo.");return;}
+    if(!Number.isFinite(quantity)||quantity<=0){setError("Informe uma quantidade do insumo maior que zero.");return;}
+    setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/inventory_recipe_items",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:recipeItemForm.recipe_id,item_id:recipeItemForm.item_id,quantity:Number(recipeItemForm.quantity)})});
-      setRecipeItemForm({...recipeItemForm,item_id:"",quantity:""});await load();
-    }catch{setError("Não foi possível adicionar o insumo à ficha técnica.");}finally{setBusy(false);}
+      await req(URL+"/rest/v1/inventory_recipe_items",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({recipe_id:recipeItemForm.recipe_id,item_id:recipeItemForm.item_id,quantity})});
+      setRecipeItemForm({...recipeItemForm,item_id:"",quantity:""});
+      await load();
+      setError("");
+    }catch(e){setError(readableError(e,"Não foi possível salvar o insumo na ficha técnica."));}
+    finally{setBusy(false);}
+  }
+  function printRecipe(recipe:Recipe){
+    const ingredients=recipeItems.filter(x=>x.recipe_id===recipe.id).map(ri=>{
+      const item=inventory.find(i=>i.id===ri.item_id);
+      return item?{name:item.name,quantity:Number(ri.quantity),unit:item.unit,cost:Number(ri.quantity)*Number(item.average_cost||0)}:null;
+    }).filter((x):x is {name:string;quantity:number;unit:string;cost:number}=>Boolean(x));
+    const total=ingredients.reduce((sum,item)=>sum+item.cost,0);
+    const fmt=(n:number)=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]||c));
+    const w=window.open("","_blank","noopener,noreferrer");
+    if(!w){setError("O navegador bloqueou a impressão. Permita pop-ups para este site e tente novamente.");return;}
+    w.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Ficha técnica Nutrifit</title><style>body{font:14px Arial,sans-serif;color:#111;margin:24mm}h1{font-size:22px;margin-bottom:4px}p{color:#444}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.total{font-weight:bold;margin-top:18px}.note{margin-top:28px;font-size:11px;color:#555}</style></head><body><h1>Nutrifit — Ficha técnica</h1><p><b>"+esc(recipe.name)+"</b></p><p>Produto: "+esc(recipe.product_name||"Não informado")+" · Rendimento: "+recipe.yield_quantity+" "+esc(recipe.yield_unit)+"</p><table><thead><tr><th>Insumo</th><th>Quantidade</th><th>Custo estimado</th></tr></thead><tbody>"+ingredients.map(i=>"<tr><td>"+esc(i.name)+"</td><td>"+i.quantity.toLocaleString("pt-BR")+" "+esc(i.unit)+"</td><td>"+fmt(i.cost)+"</td></tr>").join("")+"</tbody></table><p class='total'>Custo estimado dos insumos: "+fmt(total)+"</p><p class='note'>Estimativa com base no custo médio cadastrado no estoque. Não inclui embalagem, mão de obra, energia, perdas ou outros custos indiretos. Confirme se as unidades de medida são compatíveis.</p><script>window.onload=()=>window.print()</script></body></html>");
+    w.document.close();
   }
   async function addProduction(){
     if(!productionForm.recipe_id||!productionForm.quantity)return;
@@ -559,6 +594,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <div className="truncate font-black">{r.name}</div>
           <div className="mt-1 truncate text-xs text-white/35">{r.product_name||"Sem produto"} · rendimento {r.yield_quantity} {r.yield_unit}</div>
           <div className="mt-2 break-words text-xs text-white/55">{recipeItems.filter(x=>x.recipe_id===r.id).map(x=>{const item=inventory.find(i=>i.id===x.item_id);return item?item.name+" · "+x.quantity+" "+item.unit:null}).filter(Boolean).join(" · ")||"Nenhum insumo cadastrado"}</div>
+          <div className="mt-2 text-xs text-white/60">Custo estimado dos insumos: <b>{money(recipeItems.filter(x=>x.recipe_id===r.id).reduce((sum,x)=>{const item=inventory.find(i=>i.id===x.item_id);return sum+Number(x.quantity)*Number(item?.average_cost||0)},0))}</b></div>
+          <button type="button" onClick={()=>printRecipe(r)} className="mt-3 rounded-full border border-[#ef7d18]/40 px-3 py-2 text-xs font-bold text-[#f1b06e]">Imprimir / salvar PDF</button>
         </div>)}
       </div>
     </div>
