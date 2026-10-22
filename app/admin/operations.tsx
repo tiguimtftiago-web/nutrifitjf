@@ -176,16 +176,33 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   }
   async function addProduction(){
     if(!productionForm.recipe_id||!productionForm.quantity)return;
-    setBusy(true);
+    const qty=Number(productionForm.quantity);
+    const recipe=recipes.find(r=>r.id===productionForm.recipe_id);
+    const ingredients=recipeItems.filter(x=>x.recipe_id===productionForm.recipe_id);
+    if(!recipe||!recipe.active){setError("Não é possível produzir: selecione uma ficha técnica ativa.");return;}
+    if(!Number.isFinite(qty)||qty<=0){setError("Informe uma quantidade de produção maior que zero.");return;}
+    if(ingredients.length===0){setError("Produção bloqueada: esta ficha técnica não possui insumos cadastrados.");return;}
+    if(productionForm.status==="concluida"){
+      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*qty;return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
+      if(shortage.length){setError("Produção bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
+    }
+    setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:productionForm.recipe_id,quantity:Number(productionForm.quantity),status:productionForm.status,notes:productionForm.notes||null})});
+      await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:productionForm.recipe_id,quantity:qty,status:productionForm.status,notes:productionForm.notes||null})});
       setProductionForm({recipe_id:"",quantity:"",status:"planejada",notes:""});await load();
-    }catch{setError("Não foi possível criar a produção.");}finally{setBusy(false);}
+    }catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível criar a produção.");}finally{setBusy(false);}
   }
   async function updateProductionStatus(id:string,status:string){
-    setBusy(true);
+    const batch=production.find(p=>p.id===id);
+    if(status==="concluida"&&batch){
+      const ingredients=recipeItems.filter(x=>x.recipe_id===batch.recipe_id);
+      if(!ingredients.length){setError("Conclusão bloqueada: a ficha técnica não possui insumos cadastrados.");return;}
+      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*Number(batch.quantity);return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
+      if(shortage.length){setError("Conclusão bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
+    }
+    setBusy(true);setError("");
     try{await req(URL+"/rest/v1/production_batches?id=eq."+id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});await load();}
-    catch{setError("Não foi possível atualizar a produção. Se estiver concluindo, confira o estoque dos insumos.");}
+    catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível atualizar a produção. Confira o estoque dos insumos.");}
     finally{setBusy(false);}
   }
 
