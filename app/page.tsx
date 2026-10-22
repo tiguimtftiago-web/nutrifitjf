@@ -72,11 +72,11 @@ type Product = {
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
 
 const fit: Product[] = [
-  ["Carne Moída com Abóbora","FIT","350 g","R$ 23,97","Carne moída acompanhado de abóbora cremosa."],
-  ["Carne Moída com Batata-Doce","FIT","350 g","R$ 23,97","Carne moída acompanhado de batata-doce macia e bem preparada."],
-  ["Carne Moída com Legumes na Manteiga","FIT","350 g","R$ 23,97","Carne moída acompanhado de legumes preparados na manteiga."],
+  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
+  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
+  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes preparados na manteiga."],
   ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de mix de legumes, em uma refeição equilibrada e saborosa."],
-  ["Carne Bovina Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
   ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas acompanhado de legumes selecionados."],
   ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
   ["Tilápia Fit com Arroz Branco e Legumes","FIT","350 g","R$ 27,90","Tilápia grelhada acompanhada de arroz branco, brócolis, couve-flor e cenoura."],
@@ -90,7 +90,7 @@ const fitComingSoon: Product[] = [
   { name: "Pernil Acebolado com Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno acebolado acompanhado de batata inglesa.", image: "/images/pernil_acebolado_batata_real.jpg", comingSoon: false },
   { name: "Frango com Purê de Batata Inglesa", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango grelhado acompanhado de purê cremoso de batata inglesa.", image: "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png", comingSoon: false },
   { name: "Frango ao Molho de Mostarda com Batata", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango ao molho de mostarda acompanhado de batata inglesa.", image: "/images/frangomostarda.png", comingSoon: false },
-  { name: "Escondidinho de Carne Moída Fit", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Carne moída com purê de batata em uma versão fit.", image: "/images/escondidinho-fit-frango-real.jpg", comingSoon: false },
+  { name: "Escondidinho de Patinho Fit", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Patinho moído com purê de batata em uma versão fit.", image: "/images/escondidinho-fit-frango-real.jpg", comingSoon: false },
   { name: "Frango Empanado Assado com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Frango empanado e assado acompanhado de arroz integral.", image: "/images/frango-empanado-arroz-com-ervilha-e-cenoura.jpg", comingSoon: false },
   { name: "Pernil Desfiado ao Molho com Arroz Integral", line: "FIT", weight: "350 g", price: "R$ 23,97", description: "Pernil suíno desfiado ao molho acompanhado de arroz integral.", image: "/images/pernil-desfiado-molho-arroz-integral-cenoura.jpg", comingSoon: false },
 ];
@@ -100,12 +100,12 @@ fit.push(...fitComingSoon);
 const performance: Product[] = [
   ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, molho de tomate artesanal, queijo parmesão, arroz integral e legumes."],
   ["Tilápia Power","PERFORMANCE","450 g","R$ 32,90","Tilápia grelhada, arroz integral, batata-doce assada e legumes."],
-  ["Carne bovina com batata-doce","PERFORMANCE","450 g","R$ 29,90","Carne bovina grelhada, batata-doce assada e arroz branco."],
+  ["Beef & Sweet Potato","PERFORMANCE","450 g","R$ 29,90","Carne bovina grelhada, batata-doce assada e arroz branco."],
   ["Chicken Sweet Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, batata-doce assada e arroz branco."],
   ["Chicken Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, purê de batata inglesa, brócolis, cenoura e couve-flor."],
-  ["Carne Moída Strong","PERFORMANCE","450 g","R$ 29,90","Carne moída temperado, purê de abóbora e arroz branco."],
+  ["Patinho Strong","PERFORMANCE","450 g","R$ 29,90","Patinho moído temperado, purê de abóbora e arroz branco."],
   ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, arroz branco e legumes salteados."],
-  ["Macarrão com carne bovina","PERFORMANCE","450 g","R$ 29,90","Carne bovina em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
+  ["Beef Pasta","PERFORMANCE","450 g","R$ 29,90","Patinho em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[12,13,14,15,16,17,18,19][i]}.jpg`}));
 
 const salads: Product[] = [
@@ -118,14 +118,14 @@ const salads: Product[] = [
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
 const traditional: Product[] = [
-  ["Carne Moída com Abóbora","TRADICIONAL","500 g","R$ 29,90","Carne moída refogado, purê de abóbora cremoso e arroz branco soltinho."],
+  ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
   ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado."],
   ["Feijoada Fit","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
   ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga."],
   ["Churrasco Fit Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
   ["Executivo Saudável","TRADICIONAL","500 g","R$ 26,90","Lombo suíno grelhado, macarrão alho e óleo, molho cremoso leve e brócolis."],
-  ["Carne Bovina de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco."],
+  ["Carne de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco."],
   ["Cupim com Mandioca","TRADICIONAL","500 g","R$ 29,90","Cupim macio ao molho, mandioca e arroz com brócolis."],
   ["Panqueca de Frango ao Molho de Tomate","TRADICIONAL","500 g","R$ 27,00","Panquecas recheadas com frango desfiado, molho de tomate artesanal e ervas."],
   ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel, acompanhada de arroz primavera."]
@@ -2230,7 +2230,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Carne Moída com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
