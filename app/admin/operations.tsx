@@ -107,8 +107,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       const weight=String(item.weight||"").trim();
       const sameNameDifferentWeight=orderItems.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
       const candidates=recipes.filter(r=>r.active);
-      const recipe=candidates.find(r=>norm(r.product_name||"")===norm(name+(sameNameDifferentWeight&&weight?" "+weight:"")))||
-        candidates.find(r=>norm(r.name)===norm(name+(sameNameDifferentWeight&&weight?" "+weight:"")))||
+      const recipe=candidates.find(r=>norm(r.product_name||"")===norm(name+(sameNameDifferentWeight&&weight?" — "+weight:"")))||
+        candidates.find(r=>norm(r.name)===norm(name+(sameNameDifferentWeight&&weight?" — "+weight:"")))||
         candidates.find(r=>norm(r.product_name||"")===norm(name))||
         candidates.find(r=>norm(r.name)===norm(name));
       if(!recipe){unmatched.push(name+(sameNameDifferentWeight&&weight?" ("+weight+")":"")||"Item sem nome");continue;}
@@ -150,8 +150,13 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const rows=items.map(item=>'<tr><td>'+esc(item.name||"Item")+'</td><td>'+esc(item.line||"—")+'</td><td>'+esc(item.weight||"—")+'</td><td>'+Number(item.quantity||0)+'</td><td>☐</td><td>☐</td></tr>').join("");
     const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const ingredientRows=items.flatMap(item=>{
-      const name=String(item.name||"").trim();const qty=Number(item.quantity||0);
-      const recipe=recipes.find(r=>r.active&&(norm(r.name)===norm(name)||norm(r.product_name||"")===norm(name)));
+      const name=String(item.name||"").trim();const weight=String(item.weight||"").trim();const qty=Number(item.quantity||0);
+      const sameNameDifferentWeight=items.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
+      const exactName=name+(sameNameDifferentWeight&&weight?" — "+weight:"");
+      const activeRecipes=recipes.filter(r=>r.active);
+      const recipe=activeRecipes.find(r=>norm(r.product_name||"")===norm(exactName))||
+        activeRecipes.find(r=>norm(r.name)===norm(exactName))||
+        (!sameNameDifferentWeight?activeRecipes.find(r=>norm(r.product_name||"")===norm(name)||norm(r.name)===norm(name)):undefined);
       if(!recipe)return [{dish:name||"Item sem nome",ingredient:"Ficha técnica não encontrada/ativa",required:"—",stock:"—",state:"Cadastrar ficha"}];
       const ingredients=recipeItems.filter(ri=>ri.recipe_id===recipe.id);
       if(!ingredients.length)return [{dish:name,ingredient:"Ficha técnica sem insumos",required:"—",stock:"—",state:"Completar ficha"}];
