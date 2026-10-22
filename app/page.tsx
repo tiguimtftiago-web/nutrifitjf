@@ -105,7 +105,7 @@ const performance: Product[] = [
   ["Chicken Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, purê de batata inglesa, brócolis, cenoura e couve-flor."],
   ["Carne Moída Strong","PERFORMANCE","450 g","R$ 29,90","Carne moída temperado, purê de abóbora e arroz branco."],
   ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, arroz branco e legumes salteados."],
-  ["Macarrão com carne bovina","PERFORMANCE","450 g","R$ 29,90","Patinho em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
+  ["Macarrão com carne bovina","PERFORMANCE","450 g","R$ 29,90","Carne bovina em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[12,13,14,15,16,17,18,19][i]}.jpg`}));
 
 const salads: Product[] = [
