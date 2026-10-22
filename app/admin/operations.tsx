@@ -96,6 +96,45 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     return ()=>window.clearInterval(interval);
   },[section]);
 
+  async function createProductionPlan(order:CustomerOrder){
+    const orderItems=Array.isArray(order.items)?order.items:[];
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const existing=production.filter(p=>p.order_id===order.id);
+    const planned=new Map<string,{recipe:Recipe;quantity:number;name:string}>();
+    const unmatched:string[]=[];
+    for(const item of orderItems){
+      const name=String(item.name||"").trim();
+      const recipe=recipes.find(r=>r.active&&(norm(r.name)===norm(name)||norm(r.product_name||"")===norm(name)));
+      if(!recipe){unmatched.push(name||"Item sem nome");continue;}
+      const already=existing.filter(p=>p.recipe_id===recipe.id).reduce((n,p)=>n+Number(p.quantity||0),0);
+      const prior=planned.get(recipe.id);
+      const qty=Number(item.quantity||0);
+      if(!Number.isFinite(qty)||qty<=0){unmatched.push(name+" (quantidade inválida)");continue;}
+      if(prior)prior.quantity+=qty;
+      else planned.set(recipe.id,{recipe,quantity:Math.max(0,qty-already),name});
+    }
+    const toCreate=[...planned.values()].filter(x=>x.quantity>0);
+    if(!toCreate.length){
+      setError(unmatched.length?"Não foi possível criar o plano. Cadastre/ative as fichas técnicas correspondentes a: "+[...new Set(unmatched)].join(", "):"Este pedido já possui registros de produção para os pratos identificados.");
+      return;
+    }
+    setBusy(true);setError("");
+    try{
+      for(const entry of toCreate){
+        const recipeIngredients=recipeItems.filter(x=>x.recipe_id===entry.recipe.id);
+        if(!recipeIngredients.length)throw new Error("A ficha "+entry.recipe.name+" não possui insumos cadastrados. Complete a ficha técnica antes de planejar este prato.");
+        await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:entry.recipe.id,quantity:entry.quantity,status:"planejada",order_id:order.id,notes:"Gerado a partir do pedido de "+(order.customer_name||"cliente")+" (#"+order.id.slice(0,8)+"). Conferir ficha técnica e insumos antes de iniciar."})});
+      }
+      await load();
+      if(unmatched.length)setError("Plano criado para os pratos com ficha técnica ativa. Itens que precisam de ficha correspondente: "+[...new Set(unmatched)].join(", "));
+    }catch(e){
+      let detail=e instanceof Error?e.message:"";
+      try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}
+      setError("O plano pode ter sido criado parcialmente. Confira os registros do pedido antes de tentar novamente. "+(detail||"Falha ao criar o plano."));
+      await load(true);
+    }finally{setBusy(false);}
+  }
+
   function printOrderProductionSheet(order:CustomerOrder){
     const items=Array.isArray(order.items)?order.items:[];
     const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
@@ -568,7 +607,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         return <article key={order.id} className="rounded-2xl border border-white/10 bg-black/20 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><div className="text-xs text-white/40">Pedido #{order.id.slice(0,8)} · {new Date(order.created_at).toLocaleString("pt-BR")}</div><h3 className="mt-1 break-words text-lg font-black">{order.customer_name||"Cliente sem nome"}</h3><div className="mt-1 text-sm text-white/60">{order.item_count||items.reduce((n,x)=>n+Number(x.quantity||0),0)} marmita(s) · {money(Number(order.total||0))}</div></div><span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-1.5 text-xs font-bold text-[#c4d38c]">{statusLabel(order.status||"recebido")}</span></div>
         <div className="mt-3 rounded-xl border border-white/5 bg-white/[.025] p-3"><div className="mb-2 text-xs font-black uppercase tracking-wider text-white/45">Itens solicitados</div><div className="space-y-2">{items.map((item,i)=><div key={i} className="flex items-start justify-between gap-3 border-b border-white/5 pb-2 last:border-0 last:pb-0"><div className="min-w-0"><div className="break-words text-sm font-semibold">{item.name||"Item sem nome"}</div><div className="mt-0.5 text-xs text-white/40">{item.line||"Linha não informada"} · {item.weight||"Peso não informado"}</div></div><div className="shrink-0 rounded-lg bg-white/5 px-2.5 py-1.5 text-sm font-black">×{Number(item.quantity||0)}</div></div>)}</div></div>
         {order.notes&&<div className="mt-3 rounded-lg bg-white/[.025] p-3 text-sm text-white/65"><b>Observações:</b> {order.notes}</div>}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div className="text-xs text-white/45">{linked.length?linked.length+" registro(s) de produção vinculado(s)":"Sem registro de produção vinculado"}</div><button type="button" onClick={()=>printOrderProductionSheet(order)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">Gerar ficha de preparo</button></div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div className="text-xs text-white/45">{linked.length?linked.length+" registro(s) de produção vinculado(s)":"Sem registro de produção vinculado"}</div><div className="flex flex-wrap gap-2"><button type="button" disabled={busy} onClick={()=>void createProductionPlan(order)} className="rounded-full border border-[#a7b86a]/50 px-4 py-2.5 text-sm font-black text-[#c4d38c] disabled:opacity-50">Gerar plano de produção</button><button type="button" onClick={()=>printOrderProductionSheet(order)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">Imprimir ficha</button></div></div>
         {linked.length>0&&<div className="mt-3 space-y-2">{linked.map(p=><button type="button" key={p.id} onClick={()=>setSelectedProduction(p)} className="flex w-full flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 p-3 text-left"><span className="text-sm font-semibold">{recipes.find(r=>r.id===p.recipe_id)?.name||products.find(x=>x.id===p.product_id)?.name||"Produção vinculada"} · {p.quantity} un.</span><span className="text-xs text-[#c4d38c]">{statusLabel(p.status)}</span></button>)}</div>}</article>
       })}</div>
     </div><div className="grid gap-3 sm:grid-cols-3">{([{key:"planejada",label:"Planejadas",count:production.filter(x=>x.status==="planejada").length},{key:"em_producao",label:"Em produção",count:production.filter(x=>x.status==="em_producao").length},{key:"concluida",label:"Concluídas",count:production.filter(x=>x.status==="concluida").length}] as const).map(s=><button key={s.key} type="button" onClick={()=>setProductionFilter(productionFilter===s.key?"todas":s.key)} aria-pressed={productionFilter===s.key} className={"rounded-2xl border p-4 text-left transition "+(productionFilter===s.key?"border-[#a7b86a] bg-[#a7b86a]/10":"border-white/10 bg-white/[.025] hover:border-[#a7b86a]/50")}><div className="text-sm text-white/55">{s.label}</div><div className="mt-2 text-3xl font-black">{s.count}</div><div className="mt-2 text-xs text-[#c4d38c]">Toque para filtrar</div></button>)}</div>
