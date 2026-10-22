@@ -104,14 +104,23 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const unmatched:string[]=[];
     for(const item of orderItems){
       const name=String(item.name||"").trim();
-      const recipe=recipes.find(r=>r.active&&(norm(r.name)===norm(name)||norm(r.product_name||"")===norm(name)));
-      if(!recipe){unmatched.push(name||"Item sem nome");continue;}
-      const already=existing.filter(p=>p.recipe_id===recipe.id).reduce((n,p)=>n+Number(p.quantity||0),0);
-      const prior=planned.get(recipe.id);
+      const weight=String(item.weight||"").trim();
+      const sameNameDifferentWeight=orderItems.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
+      const candidates=recipes.filter(r=>r.active);
+      const recipe=candidates.find(r=>norm(r.product_name||"")===norm(name+(sameNameDifferentWeight&&weight?" "+weight:"")))||
+        candidates.find(r=>norm(r.name)===norm(name+(sameNameDifferentWeight&&weight?" "+weight:"")))||
+        candidates.find(r=>norm(r.product_name||"")===norm(name))||
+        candidates.find(r=>norm(r.name)===norm(name));
+      if(!recipe){unmatched.push(name+(sameNameDifferentWeight&&weight?" ("+weight+")":"")||"Item sem nome");continue;}
       const qty=Number(item.quantity||0);
       if(!Number.isFinite(qty)||qty<=0){unmatched.push(name+" (quantidade inválida)");continue;}
+      const prior=planned.get(recipe.id);
       if(prior)prior.quantity+=qty;
-      else planned.set(recipe.id,{recipe,quantity:Math.max(0,qty-already),name});
+      else planned.set(recipe.id,{recipe,quantity:qty,name});
+    }
+    for(const entry of planned.values()){
+      const already=existing.filter(p=>p.recipe_id===entry.recipe.id).reduce((n,p)=>n+Number(p.quantity||0),0);
+      entry.quantity=Math.max(0,entry.quantity-already);
     }
     const toCreate=[...planned.values()].filter(x=>x.quantity>0);
     if(!toCreate.length){
@@ -139,9 +148,21 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const items=Array.isArray(order.items)?order.items:[];
     const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
     const rows=items.map(item=>'<tr><td>'+esc(item.name||"Item")+'</td><td>'+esc(item.line||"—")+'</td><td>'+esc(item.weight||"—")+'</td><td>'+Number(item.quantity||0)+'</td><td>☐</td><td>☐</td></tr>').join("");
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const ingredientRows=items.flatMap(item=>{
+      const name=String(item.name||"").trim();const qty=Number(item.quantity||0);
+      const recipe=recipes.find(r=>r.active&&(norm(r.name)===norm(name)||norm(r.product_name||"")===norm(name)));
+      if(!recipe)return [{dish:name||"Item sem nome",ingredient:"Ficha técnica não encontrada/ativa",required:"—",stock:"—",state:"Cadastrar ficha"}];
+      const ingredients=recipeItems.filter(ri=>ri.recipe_id===recipe.id);
+      if(!ingredients.length)return [{dish:name,ingredient:"Ficha técnica sem insumos",required:"—",stock:"—",state:"Completar ficha"}];
+      return ingredients.map(ri=>{
+        const inv=inventory.find(x=>x.id===ri.item_id);const required=Number(ri.quantity||0)*qty;
+        return {dish:name,ingredient:inv?.name||"Insumo não encontrado",required:Number.isFinite(required)?required.toLocaleString("pt-BR"): "—",stock:inv?Number(inv.current_quantity||0).toLocaleString("pt-BR")+" "+inv.unit:"—",state:inv&&Number(inv.current_quantity||0)>=required?"Estoque suficiente":inv?"Conferir falta":"Conferir cadastro"};
+      });
+    }).map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+esc(x.required)+'</td><td>'+esc(x.stock)+'</td><td>'+esc(x.state)+'</td></tr>').join("");
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a ficha. Permita janelas pop-up para imprimir.");return;}
-    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha de produção Nutrifit</title><style>body{font:14px Arial,sans-serif;color:#111;padding:24px}h1{margin:0 0 4px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #bbb;padding:10px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.checks{margin-top:20px;line-height:2}</style></head><body><h1>NUTRIFIT — Ficha de produção</h1><small>Conferência de pedido e preparo</small><div class="meta"><div class="box"><b>Cliente</b><br>'+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido</b><br>'+esc(order.id)+'</div><div class="box"><b>Recebido em</b><br>'+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status do pedido</b><br>'+esc(order.status||"—")+'</div></div><b>Itens solicitados</b><table><thead><tr><th>Prato</th><th>Linha</th><th>Peso</th><th>Qtd.</th><th>Preparado</th><th>Conferido</th></tr></thead><tbody>'+rows+'</tbody></table><div class="checks"><b>Conferência final</b><br>☐ Quantidades conferidas<br>☐ Etiquetas conferidas<br>☐ Pedido completo<br>☐ Estoque registrado conforme produção efetiva</div><p><small>Esta ficha é uma lista de preparo; não realiza baixa automática de estoque.</small></p><script>window.onload=()=>window.print()</script></body></html>');
+    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha de produção Nutrifit</title><style>body{font:14px Arial,sans-serif;color:#111;padding:24px}h1{margin:0 0 4px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #bbb;padding:10px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.checks{margin-top:20px;line-height:2}</style></head><body><h1>NUTRIFIT — Ficha de produção</h1><small>Conferência de pedido e preparo</small><div class="meta"><div class="box"><b>Cliente</b><br>'+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido</b><br>'+esc(order.id)+'</div><div class="box"><b>Recebido em</b><br>'+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status do pedido</b><br>'+esc(order.status||"—")+'</div></div><b>Itens solicitados</b><table><thead><tr><th>Prato</th><th>Linha</th><th>Peso</th><th>Qtd.</th><th>Preparado</th><th>Conferido</th></tr></thead><tbody>'+rows+'</tbody></table><div class="checks"><b>Conferência final</b><br>☐ Quantidades conferidas<br>☐ Etiquetas conferidas<br>☐ Pedido completo<br>☐ Estoque registrado conforme produção efetiva</div><h2 style="margin-top:28px">Conferência de insumos (estimativa pela ficha técnica)</h2><table><thead><tr><th>Prato</th><th>Insumo</th><th>Necessário</th><th>Estoque atual</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table><p><small>Quantidades estimadas com base nos insumos cadastrados e na quantidade do pedido. Confirme unidades e rendimento da ficha. Esta impressão não altera nem baixa o estoque.</small></p><script>window.onload=()=>window.print()</script></body></html>');
     w.document.close();
   }
   async function addSupplier(){
@@ -604,7 +625,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <div className="mt-4 space-y-3">{customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length===0?<div className="rounded-xl border border-white/10 p-4 text-sm text-white/45">Nenhum pedido ativo encontrado.</div>:customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).map(order=>{
         const items=Array.isArray(order.items)?order.items:[];const linked=production.filter(p=>p.order_id===order.id);
         const statusLabel=(s:string)=>s==="pago_recebido"?"Pago / recebido":s==="enviado_whatsapp"?"Enviado pelo WhatsApp":s==="em_producao"?"Em produção":s==="concluido"||s==="concluida"?"Concluído":s.replace(/_/g," ");
-        return <article key={order.id} className="rounded-2xl border border-white/10 bg-black/20 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><div className="text-xs text-white/40">Pedido #{order.id.slice(0,8)} · {new Date(order.created_at).toLocaleString("pt-BR")}</div><h3 className="mt-1 break-words text-lg font-black">{order.customer_name||"Cliente sem nome"}</h3><div className="mt-1 text-sm text-white/60">{order.item_count||items.reduce((n,x)=>n+Number(x.quantity||0),0)} marmita(s) · {money(Number(order.total||0))}</div></div><span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-1.5 text-xs font-bold text-[#c4d38c]">{statusLabel(order.status||"recebido")}</span></div>
+        return <article key={order.id} className="rounded-2xl border border-white/10 bg-black/20 p-3 sm:p-4"><div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"><div className="min-w-0"><div className="text-xs text-white/40">Pedido #{order.id.slice(0,8)} · {new Date(order.created_at).toLocaleString("pt-BR")}</div><h3 className="mt-1 break-words text-lg font-black">{order.customer_name||"Cliente sem nome"}</h3><div className="mt-1 text-sm text-white/60">{order.item_count||items.reduce((n,x)=>n+Number(x.quantity||0),0)} marmita(s) · {money(Number(order.total||0))}</div></div><span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-1.5 text-xs font-bold text-[#c4d38c]">{statusLabel(order.status||"recebido")}</span></div>
         <div className="mt-3 rounded-xl border border-white/5 bg-white/[.025] p-3"><div className="mb-2 text-xs font-black uppercase tracking-wider text-white/45">Itens solicitados</div><div className="space-y-2">{items.map((item,i)=><div key={i} className="flex items-start justify-between gap-3 border-b border-white/5 pb-2 last:border-0 last:pb-0"><div className="min-w-0"><div className="break-words text-sm font-semibold">{item.name||"Item sem nome"}</div><div className="mt-0.5 text-xs text-white/40">{item.line||"Linha não informada"} · {item.weight||"Peso não informado"}</div></div><div className="shrink-0 rounded-lg bg-white/5 px-2.5 py-1.5 text-sm font-black">×{Number(item.quantity||0)}</div></div>)}</div></div>
         {order.notes&&<div className="mt-3 rounded-lg bg-white/[.025] p-3 text-sm text-white/65"><b>Observações:</b> {order.notes}</div>}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div className="text-xs text-white/45">{linked.length?linked.length+" registro(s) de produção vinculado(s)":"Sem registro de produção vinculado"}</div><div className="flex flex-wrap gap-2"><button type="button" disabled={busy} onClick={()=>void createProductionPlan(order)} className="rounded-full border border-[#a7b86a]/50 px-4 py-2.5 text-sm font-black text-[#c4d38c] disabled:opacity-50">Gerar plano de produção</button><button type="button" onClick={()=>printOrderProductionSheet(order)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">Imprimir ficha</button></div></div>
