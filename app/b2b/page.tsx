@@ -28,7 +28,7 @@ export default function B2BPage() {
     ["Bife acebolado", "Arroz, feijão e batata frita", "/images/bife-acebolado.jpg"],
     ["Costelinha suína assada", "Arroz e feijão tropeiro", "/images/costelinha-suina-assada.jpg"],
     ["Feijoada completa", "Arroz e couve refogada", "/images/feijoada-completa.jpg"],
-    ["Carne bovina de panela com batatas", "Arroz e farofa", "/images/carne-de-panela-com-batatas.jpg"],
+    ["Carne de panela com batatas", "Arroz e farofa", "/images/carne-de-panela-com-batatas.jpg"],
     ["Pernil assado", "Arroz branco e maionese", "/images/pernil-assado.jpg"],
     ["Frango ensopado", "Arroz, feijão tropeiro e couve refogada", "/images/frango-ensopado.jpg"],
   ];
