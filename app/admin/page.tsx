@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [password,setPassword] = useState("");
   const [section,setSection] = useState<Section>("resumo");
   const [orders,setOrders] = useState<Order[]>([]);
+  const [showCancelledOrders,setShowCancelledOrders] = useState(false);
   const [customers,setCustomers] = useState<Customer[]>([]);
   const [messages,setMessages] = useState<Message[]>([]);
   const [leads,setLeads] = useState<Lead[]>([]);
@@ -303,6 +304,7 @@ export default function AdminPage() {
   }
 
   async function updateOrderStatus(order:Order,status:string){
+    if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal.")) return;
     setBusy(true); setError("");
     try{
       await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
@@ -352,6 +354,8 @@ export default function AdminPage() {
   const q=search.toLowerCase().trim();
   const filteredCustomers=customers.filter(x=>!q||[x.name,x.whatsapp,x.email||""].join(" ").toLowerCase().includes(q));
   const filteredLeads=leads.filter(x=>!q||[x.company,x.contact_name,x.whatsapp,x.email].join(" ").toLowerCase().includes(q));
+  const visibleOrders=orders.filter(x=>showCancelledOrders||x.status!=="cancelado");
+  const cancelledOrdersCount=orders.filter(x=>x.status==="cancelado").length;
   const revenue=orders.reduce((s,x)=>s+Number(x.total||0),0);
   const activeOrders=orders.filter(x=>!["entregue","cancelado"].includes(x.status)).length;
   const todayKey=new Date().toLocaleDateString("pt-BR");
@@ -528,8 +532,14 @@ export default function AdminPage() {
 
           {section==="pedidos"&&(
             <Panel title="Pedidos">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-white/45">{showCancelledOrders?"Exibindo todos os pedidos, inclusive cancelados.":"Pedidos cancelados ficam ocultos da lista principal."}</p>
+                <button type="button" onClick={()=>setShowCancelledOrders(v=>!v)} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-[#a7b86a] hover:bg-white/5">
+                  {showCancelledOrders?"Ocultar cancelados":"Mostrar cancelados"} ({cancelledOrdersCount})
+                </button>
+              </div>
               <div className="grid gap-3 lg:hidden">
-                {orders.map(o=>(
+                {visibleOrders.map(o=>(
                   <button key={o.id} onClick={()=>setSelectedOrder(o)} className="w-full rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
                     <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div>
                     <div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div>
@@ -540,7 +550,7 @@ export default function AdminPage() {
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full min-w-[900px] text-left text-sm">
                   <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th><th className="p-3"/></tr></thead>
-                  <tbody>{orders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>{setSelectedOrder(o);setOrderRequirements([]);setOrderProductions([]);if(["confirmado","pago_recebido","em_preparo","saiu_entrega","entregue"].includes(o.status)){void loadOrderRequirements(o.id);void loadOrderProduction(o.id)}}} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
+                  <tbody>{visibleOrders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>{setSelectedOrder(o);setOrderRequirements([]);setOrderProductions([]);if(["confirmado","pago_recebido","em_preparo","saiu_entrega","entregue"].includes(o.status)){void loadOrderRequirements(o.id);void loadOrderProduction(o.id)}}} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
                 </table>
               </div>
             </Panel>
