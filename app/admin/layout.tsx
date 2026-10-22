@@ -5,9 +5,9 @@ export const metadata: Metadata = {
   description: "Painel administrativo Nutrifit",
   manifest: "/admin-manifest.webmanifest",
   icons: {
-    icon: "/images/nutrifit-logo-icon.svg",
-    shortcut: "/images/nutrifit-logo-icon.svg",
-    apple: "/images/nutrifit-logo-icon.svg",
+    icon: "/images/nutrifit-logo-icon.svg?v=2",
+    shortcut: "/images/nutrifit-logo-icon.svg?v=2",
+    apple: "/images/nutrifit-logo-icon.svg?v=2",
   },
 };
 
