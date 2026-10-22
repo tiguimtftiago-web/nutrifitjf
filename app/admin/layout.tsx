@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/images/nutrifit-logo-icon.svg?v=5",
     shortcut: "/images/nutrifit-logo-icon.svg?v=5",
-    apple: [{ url: "/apple-touch-icon.png?v=1", sizes: "180x180", type: "image/png" }],
+    apple: "/images/nutrifit-logo-icon.svg?v=5",
   },
 };
 
