@@ -1,8 +1,8 @@
 {
-  "name": "Nutrifit",
+  "name": "Nutrifit | Acesso",
   "short_name": "Nutrifit",
-  "description": "Loja Nutrifit — cardápio e pedidos",
-  "start_url": "/",
+  "description": "Acesso ao painel administrativo e à loja Nutrifit",
+  "start_url": "/acesso",
   "scope": "/",
   "display": "standalone",
   "background_color": "#080a07",
