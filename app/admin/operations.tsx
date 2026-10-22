@@ -9,6 +9,7 @@ type Product = { id:string; name:string; category:string; line:string|null; size
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
+type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
@@ -37,6 +38,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [finance,setFinance]=useState<Finance[]>([]);
   const [deliveries,setDeliveries]=useState<Delivery[]>([]);
   const [production,setProduction]=useState<Production[]>([]);
+  const [customerOrders,setCustomerOrders]=useState<CustomerOrder[]>([]);
   const [productionFilter,setProductionFilter]=useState<string>("todas");
   const [selectedProduction,setSelectedProduction]=useState<Production|null>(null);
   const [coupons,setCoupons]=useState<Coupon[]>([]);
@@ -67,7 +69,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,d,b,c,i,m,r,ri,a,s]=await Promise.all([
+      const [p,f,d,b,c,i,m,r,ri,a,s,orders]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
@@ -78,9 +80,10 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         req(URL+"/rest/v1/inventory_recipes?select=id,name,product_name,yield_quantity,yield_unit,active&order=name.asc&limit=200",token),
         req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
-        req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token)
+        req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
+        req(URL+"/rest/v1/customer_orders?select=id,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);
+      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
