@@ -255,6 +255,43 @@ export default function B2BPage() {
             </div>
           </div>
 
+          <section id="precos-b2b" className="border-t border-white/10 p-5 sm:p-7">
+            <div className="overflow-hidden rounded-2xl border border-[#ef7d18]/25 bg-[#17130e] p-5 sm:p-7">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Condições comerciais</span>
+                  <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Quanto maior o volume, melhor o preço.</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">Preço-base de R$ 29,90 por refeição. Os descontos são calculados sobre o volume mensal contratado, com programação prévia dos pedidos.</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 md:min-w-48">
+                  <p className="text-xs font-bold text-white/45">Preço-base</p>
+                  <p className="mt-1 text-3xl font-black text-white">R$ 29,90</p>
+                  <p className="text-xs text-white/45">por marmita</p>
+                </div>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {[
+                  { volume: "1 a 19/mês", discount: "Sem desconto", price: "R$ 29,90", note: "Preço-base", featured: false },
+                  { volume: "20 a 49/mês", discount: "3% de desconto", price: "R$ 29,00", note: "Economia de R$ 0,90/un.", featured: false },
+                  { volume: "50 a 99/mês", discount: "5% de desconto", price: "R$ 28,41", note: "Economia de R$ 1,49/un.", featured: true },
+                  { volume: "100 ou mais/mês", discount: "8% de desconto", price: "R$ 27,51", note: "Economia de R$ 2,39/un.", featured: false },
+                ].map((tier) => (
+                  <article key={tier.volume} className={`rounded-xl border p-4 ${tier.featured ? "border-[#a7b86a]/60 bg-[#a7b86a]/10" : "border-white/10 bg-black/20"}`}>
+                    <p className="text-xs font-bold text-white/55">{tier.volume}</p>
+                    <p className={`mt-2 text-xs font-black uppercase tracking-wide ${tier.featured ? "text-[#c5d879]" : "text-[#ffab62]"}`}>{tier.discount}</p>
+                    <p className="mt-2 text-2xl font-black tracking-tight">{tier.price}</p>
+                    <p className="mt-1 text-xs text-white/45">por refeição</p>
+                    <p className="mt-3 border-t border-white/10 pt-3 text-xs text-white/60">{tier.note}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-col gap-3 rounded-xl border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="max-w-3xl text-xs leading-5 text-white/50">Valores de referência sujeitos à confirmação de cardápio, quantidades, frequência e logística de entrega. A faixa será definida pelo total mensal contratado; a proposta final confirma as condições aplicáveis.</p>
+                <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black transition hover:brightness-105">Solicitar orçamento <ArrowRight size={16} /></a>
+              </div>
+            </div>
+          </section>
+
           <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-5 sm:p-7">
             <div className="grid gap-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
               <div>
