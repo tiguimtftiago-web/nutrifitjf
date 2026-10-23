@@ -36,7 +36,10 @@ const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py
 
 export default function Operations({section,token}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string}) {
   const [products,setProducts]=useState<Product[]>([]);
-  const [finance,setFinance]=useState<Finance[]>([]);\n  const [inventoryPurchases,setInventoryPurchases]=useState<InventoryPurchase[]>([]);\n  const [financeSearch,setFinanceSearch]=useState("");\n  const [financePeriod,setFinancePeriod]=useState("30");
+  const [finance,setFinance]=useState<Finance[]>([]);
+  const [inventoryPurchases,setInventoryPurchases]=useState<InventoryPurchase[]>([]);
+  const [financeSearch,setFinanceSearch]=useState("");
+  const [financePeriod,setFinancePeriod]=useState("30");
   const [deliveries,setDeliveries]=useState<Delivery[]>([]);
   const [production,setProduction]=useState<Production[]>([]);
   const [customerOrders,setCustomerOrders]=useState<CustomerOrder[]>([]);
