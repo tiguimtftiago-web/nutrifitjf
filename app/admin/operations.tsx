@@ -75,7 +75,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     try{
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
-        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),\n        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
