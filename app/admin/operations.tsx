@@ -17,6 +17,7 @@ type Recipe = { id:string; name:string; product_name:string|null; yield_quantity
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 type Supplier = { id:string; name:string; active:boolean; };
+type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string}[]; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -35,7 +36,7 @@ const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py
 
 export default function Operations({section,token}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string}) {
   const [products,setProducts]=useState<Product[]>([]);
-  const [finance,setFinance]=useState<Finance[]>([]);
+  const [finance,setFinance]=useState<Finance[]>([]);\n  const [inventoryPurchases,setInventoryPurchases]=useState<InventoryPurchase[]>([]);\n  const [financeSearch,setFinanceSearch]=useState("");\n  const [financePeriod,setFinancePeriod]=useState("30");
   const [deliveries,setDeliveries]=useState<Delivery[]>([]);
   const [production,setProduction]=useState<Production[]>([]);
   const [customerOrders,setCustomerOrders]=useState<CustomerOrder[]>([]);
@@ -69,9 +70,9 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,d,b,c,i,m,r,ri,a,s,orders]=await Promise.all([
+      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
-        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=200",token),
+        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),\n        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
@@ -83,7 +84,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
         req(URL+"/rest/v1/customer_orders?select=id,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);
+      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
@@ -414,9 +415,50 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       </div></Td>
     </tr>)}</tbody></Table>
   </Panel></div>;
-  if(section==="financeiro")return <div>
-    {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
-    <Panel title="Financeiro"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><select value={expense.type} onChange={e=>setExpense({...expense,type:e.target.value})} className={input}><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="taxa">Taxa</option><option value="estorno">Estorno</option></select><input value={expense.category} onChange={e=>setExpense({...expense,category:e.target.value})} placeholder="Categoria" className={input}/><input value={expense.description} onChange={e=>setExpense({...expense,description:e.target.value})} placeholder="Descrição" className={input}/><input type="number" step="0.01" value={expense.amount} onChange={e=>setExpense({...expense,amount:e.target.value})} placeholder="Valor" className={input}/><button onClick={()=>void addFinance()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Lançar</button></div><div className="mt-5 grid gap-4 sm:grid-cols-3"><Stat label="Receitas" value={money(finance.filter(x=>x.type==="receita").reduce((s,x)=>s+Number(x.amount),0))}/><Stat label="Despesas" value={money(finance.filter(x=>x.type==="despesa").reduce((s,x)=>s+Number(x.amount),0))}/><Stat label="Saldo" value={money(finance.reduce((s,x)=>s+(x.type==="receita"?Number(x.amount):-Number(x.amount)),0))}/></div><Table><thead><tr><Th>Data</Th><Th>Tipo</Th><Th>Descrição</Th><Th>Valor</Th><Th>Status</Th></tr></thead><tbody>{finance.map(x=><tr key={x.id} className="border-t border-white/5"><Td>{new Date(x.created_at).toLocaleDateString("pt-BR")}</Td><Td>{x.type}</Td><Td>{x.description}<div className="text-xs text-white/35">{x.category}</div></Td><Td>{money(x.amount)}</Td><Td>{x.status}</Td></tr>)}</tbody></Table></Panel></div>;
+  if(section==="financeiro") {
+    const now=new Date();
+    const cutoff=new Date(now);
+    cutoff.setDate(cutoff.getDate()-(financePeriod==="all"?36500:Number(financePeriod)));
+    const inPeriod=(date:string)=>financePeriod==="all"||new Date(date)>=cutoff;
+    const visibleFinance=finance.filter(x=>inPeriod(x.created_at)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    const visiblePurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at)&&[x.invoice_number||"",x.notes||"",x.suppliers?.name||"",x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    const sum=(rows:Finance[],type:string)=>rows.filter(x=>x.type===type&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.amount||0),0);
+    const revenue=sum(finance.filter(x=>inPeriod(x.created_at)), "receita");
+    const expenses=sum(finance.filter(x=>inPeriod(x.created_at)), "despesa");
+    const fees=sum(finance.filter(x=>inPeriod(x.created_at)), "taxa");
+    const purchasesTotal=visiblePurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
+    const purchaseCount=visiblePurchases.filter(x=>x.status==="recebida").length;
+    const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
+    const balance=revenue-expenses-fees+sum(finance.filter(x=>inPeriod(x.created_at)),"estorno");
+    return <div className="space-y-5">
+      {error&&<div className="flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-3 py-2 text-xs font-black">Fechar</button></div>}
+      <Panel title="Financeiro NutriFit">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row">
+          <input value={financeSearch} onChange={e=>setFinanceSearch(e.target.value)} placeholder="Buscar descrição, fornecedor ou categoria..." className={input}/>
+          <select value={financePeriod} onChange={e=>setFinancePeriod(e.target.value)} className={input+" sm:max-w-[220px]"}><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o histórico</option></select>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Receitas registradas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(revenue)}</div><div className="mt-2 text-xs text-white/40">No período selecionado</div></div>
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas lançadas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(expenses+fees)}</div><div className="mt-2 text-xs text-white/40">Lançamentos do financeiro</div></div>
+          <div className={"min-w-0 rounded-2xl border p-5 sm:p-6 "+(balance<0?"border-[#ef7d18]/30 bg-[#21170f]":"border-white/10 bg-[#151711]")}><div className="text-sm font-bold text-white/55">Resultado registrado</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(balance)}</div><div className="mt-2 text-xs text-white/40">Não equivale ao saldo bancário</div></div>
+          <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Compras recebidas no estoque</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(purchasesTotal)}</div><div className="mt-2 text-xs text-white/50">{purchaseCount} compra(s) registrada(s) no período</div></div>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">Contas pendentes lançadas</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Baseado no status dos lançamentos financeiros</div></div>
+          <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-sm font-bold text-[#f1b06e]">Conferência necessária</div><p className="mt-2 text-sm leading-6 text-white/70">Compras do estoque e despesas financeiras aparecem em listas separadas até serem conciliadas. Isso evita somar a mesma compra duas vezes. Confira os registros abaixo antes de fechar o caixa.</p></div>
+        </div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-black">Lançamentos financeiros</h3><span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60">{visibleFinance.length} registro(s)</span></div>
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-white/10"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Tipo / categoria</th><th className="p-4">Descrição</th><th className="p-4">Valor</th><th className="p-4">Status</th></tr></thead><tbody>{visibleFinance.map(x=><tr key={x.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4">{new Date(x.created_at).toLocaleDateString("pt-BR")}</td><td className="p-4"><div className="font-bold">{x.type}</div><div className="mt-1 text-xs text-white/45">{x.category}</div></td><td className="max-w-[320px] whitespace-normal break-words p-4">{x.description}</td><td className="whitespace-nowrap p-4 font-black">{money(x.amount)}</td><td className="p-4"><span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold">{x.status}</span></td></tr>)}</tbody></table>{visibleFinance.length===0&&<div className="p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
+      </Panel>
+      <Panel title="Compras registradas no estoque">
+        <p className="mb-4 text-sm leading-6 text-white/55">Este histórico mostra as compras recebidas e os valores registrados na entrada de estoque. Elas ficam separadas do total de despesas até existir conciliação segura com o financeiro.</p>
+        <div className="overflow-x-auto rounded-2xl border border-white/10"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Fornecedor</th><th className="p-4">Documento / observações</th><th className="p-4">Itens</th><th className="p-4">Total</th><th className="p-4">Situação</th></tr></thead><tbody>{visiblePurchases.map(x=><tr key={x.id} className="border-t border-white/10 align-top"><td className="whitespace-nowrap p-4">{new Date(x.created_at).toLocaleDateString("pt-BR")}</td><td className="p-4 font-bold">{x.suppliers?.name||"Fornecedor não vinculado"}</td><td className="max-w-[360px] whitespace-normal break-words p-4"><div>{x.invoice_number||"Sem número de documento"}</div>{x.notes&&<details className="mt-2"><summary className="cursor-pointer text-xs font-bold text-[#b2bf78]">Ver detalhes da compra</summary><p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-white/55">{x.notes}</p></details>}</td><td className="p-4">{x.inventory_purchase_items?.length??"—"}</td><td className="whitespace-nowrap p-4 font-black">{money(x.total_cost)}</td><td className="p-4"><span className={"inline-flex rounded-full px-3 py-1 text-xs font-bold "+(x.status==="recebida"?"bg-[#b2bf78]/15 text-[#cbd69b]":x.status==="cancelada"?"bg-red-500/10 text-red-300":"bg-white/10 text-white/60")}>{x.status}</span></td></tr>)}</tbody></table>{visiblePurchases.length===0&&<div className="p-6 text-sm text-white/50">Nenhuma compra encontrada com esses filtros.</div>}</div>
+      </Panel>
+      <Panel title="Novo lançamento financeiro">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><select value={expense.type} onChange={e=>setExpense({...expense,type:e.target.value})} className={input}><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="taxa">Taxa</option><option value="estorno">Estorno</option></select><input value={expense.category} onChange={e=>setExpense({...expense,category:e.target.value})} placeholder="Categoria" className={input}/><input value={expense.description} onChange={e=>setExpense({...expense,description:e.target.value})} placeholder="Descrição" className={input}/><input type="number" step="0.01" value={expense.amount} onChange={e=>setExpense({...expense,amount:e.target.value})} placeholder="Valor" className={input}/><button onClick={()=>void addFinance()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black disabled:opacity-50">{busy?"Salvando...":"Lançar"}</button></div>
+      </Panel>
+    </div>;
+  }
   async function updateDeliveryStatus(id:string,status:string){
     setBusy(true);setError("");
     try{
