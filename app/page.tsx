@@ -153,6 +153,7 @@ const combos = [
   ["Tradicional 500 g","10 marmitas","R$ 278,00","R$ 27,80/un"],
   ["Tradicional 500 g","14 marmitas","R$ 383,90","R$ 27,42/un"],
   ["Tradicional 500 g","20 marmitas","R$ 538,00","R$ 26,90/un"],
+  ["Tradicional 500 g","30 marmitas","R$ 792,00","R$ 26,40/un"],
 ];
 
 
@@ -752,7 +753,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
 
 function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: number; autoScroll?: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
-  const [quantity, setQuantity] = useState<5 | 7 | 10 | 14 | 20>(5);
+  const [quantity, setQuantity] = useState<number>(5);
+  const [customQuantity, setCustomQuantity] = useState("31");
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [cep, setCep] = useState("");
@@ -766,8 +768,10 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS">("SUCOS");
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const price = option.prices[quantity];
-  const subtotal = Number(price.replace("R$ ", "").replace(".", "").replace(",", "."));
+  const price = option.line === "TRADICIONAL" && quantity >= 30
+    ? money(792 + Math.max(0, quantity - 30) * 26.4)
+    : (option.prices as Record<number, string>)[quantity];
+  const subtotal = Number(price.replace("R$ ", "").replace(/\\./g, "").replace(",", "."));
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
   const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
@@ -800,7 +804,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     setSelectedComplements({});
   };
 
-  const changeQuantity = (value: 5 | 7 | 10 | 14 | 20) => {
+  const changeQuantity = (value: number) => {
     setQuantity(value);
     setSelected({});
     setDelivery(null);
@@ -1089,13 +1093,23 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           <div className="mt-5">
             <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
             <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:gap-2">
-              {([5, 7, 10, 14, 20] as const).map((value) => (
+              {([...([5, 7, 10, 14, 20] as const), ...(option.line === "TRADICIONAL" ? [30] : [])]).map((value) => (
                 <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
                   <span className="block text-base sm:text-sm">{value}</span>
                   <span className={`mt-0.5 block truncate text-[8px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
                 </button>
               ))}
             </div>
+            {option.line === "TRADICIONAL" && (
+              <div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-3">
+                <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (R$ 26,40 por unidade adicional)
+                  <div className="mt-2 flex gap-2">
+                    <input type="number" min={31} max={300} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 300) changeQuantity(value); }} className="rounded-xl bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Aplicar</button>
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
 
           <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99]">
