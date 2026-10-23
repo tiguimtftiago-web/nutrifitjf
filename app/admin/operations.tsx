@@ -98,7 +98,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
 
   async function createProductionPlan(order:CustomerOrder){
     const orderItems=Array.isArray(order.items)?order.items:[];
-    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const existing=production.filter(p=>p.order_id===order.id);
     const planned=new Map<string,{recipe:Recipe;quantity:number;name:string}>();
     const unmatched:string[]=[];
@@ -148,7 +148,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const items=Array.isArray(order.items)?order.items:[];
     const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
     const rows=items.map(item=>'<tr><td>'+esc(item.name||"Item")+'</td><td>'+esc(item.line||"—")+'</td><td>'+esc(item.weight||"—")+'</td><td>'+Number(item.quantity||0)+'</td><td>☐</td><td>☐</td></tr>').join("");
-    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const ingredientRows=items.flatMap(item=>{
       const name=String(item.name||"").trim();const weight=String(item.weight||"").trim();const qty=Number(item.quantity||0);
       const sameNameDifferentWeight=items.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
@@ -280,12 +280,13 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       const item=inventory.find(i=>i.id===ri.item_id);
       return item?{name:item.name,quantity:Number(ri.quantity),unit:item.unit,cost:Number(ri.quantity)*Number(item.average_cost||0)}:null;
     }).filter((x):x is {name:string;quantity:number;unit:string;cost:number}=>Boolean(x));
+    const missingCostItems=recipeItems.filter(x=>x.recipe_id===recipe.id).filter(ri=>{const item=inventory.find(i=>i.id===ri.item_id);return !item||!Number.isFinite(Number(item.average_cost))||Number(item.average_cost)<=0;}).map(ri=>inventory.find(i=>i.id===ri.item_id)?.name||"Insumo não encontrado");
     const total=ingredients.reduce((sum,item)=>sum+item.cost,0);
     const fmt=(n:number)=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
     const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]||c));
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a impressão. Permita pop-ups para este site e tente novamente.");return;}
-    w.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Ficha técnica Nutrifit</title><style>body{font:14px Arial,sans-serif;color:#111;margin:24mm}h1{font-size:22px;margin-bottom:4px}p{color:#444}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.total{font-weight:bold;margin-top:18px}.note{margin-top:28px;font-size:11px;color:#555}</style></head><body><h1>Nutrifit — Ficha técnica</h1><p><b>"+esc(recipe.name)+"</b></p><p>Produto: "+esc(recipe.product_name||"Não informado")+" · Rendimento: "+recipe.yield_quantity+" "+esc(recipe.yield_unit)+"</p><table><thead><tr><th>Insumo</th><th>Quantidade</th><th>Custo estimado</th></tr></thead><tbody>"+ingredients.map(i=>"<tr><td>"+esc(i.name)+"</td><td>"+i.quantity.toLocaleString("pt-BR")+" "+esc(i.unit)+"</td><td>"+fmt(i.cost)+"</td></tr>").join("")+"</tbody></table><p class='total'>Custo estimado dos insumos: "+fmt(total)+"</p><p class='note'>Estimativa com base no custo médio cadastrado no estoque. Não inclui embalagem, mão de obra, energia, perdas ou outros custos indiretos. Confirme se as unidades de medida são compatíveis.</p><script>window.onload=()=>window.print()</script></body></html>");
+    w.document.write("<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><title>Ficha técnica Nutrifit</title><style>body{font:14px Arial,sans-serif;color:#111;margin:24mm}h1{font-size:22px;margin-bottom:4px}p{color:#444}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.total{font-weight:bold;margin-top:18px}.warning{border:1px solid #b45309;background:#fff7ed;padding:10px;color:#9a3412}.note{margin-top:28px;font-size:11px;color:#555}</style></head><body><h1>Nutrifit — Ficha técnica</h1><p><b>"+esc(recipe.name)+"</b></p><p>Produto: "+esc(recipe.product_name||"Não informado")+" · Rendimento: "+recipe.yield_quantity+" "+esc(recipe.yield_unit)+"</p><table><thead><tr><th>Insumo</th><th>Quantidade</th><th>Custo estimado</th></tr></thead><tbody>"+ingredients.map(i=>"<tr><td>"+esc(i.name)+"</td><td>"+i.quantity.toLocaleString("pt-BR")+" "+esc(i.unit)+"</td><td>"+fmt(i.cost)+"</td></tr>").join("")+"</tbody></table><p class='total'>Custo estimado dos insumos: "+fmt(total)+"</p>"+(missingCostItems.length?"<p class='warning'><b>Atenção:</b> custo ausente ou zerado para: "+esc(missingCostItems.join(", "))+". O total pode estar subestimado.</p>":"")+"<p class='note'>Estimativa com base no custo médio cadastrado no estoque. Não inclui embalagem, mão de obra, energia, perdas ou outros custos indiretos. Confirme se as unidades de medida são compatíveis.</p><script>window.onload=()=>window.print()</script></body></html>");
     w.document.close();
   }
   async function addProduction(){
