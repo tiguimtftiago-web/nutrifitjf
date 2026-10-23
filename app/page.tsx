@@ -148,11 +148,11 @@ const combos = [
   ["Performance 450 g","10 marmitas","R$ 274,90","R$ 27,49/un"],
   ["Performance 450 g","14 marmitas","R$ 384,90","R$ 27,49/un"],
   ["Performance 450 g","20 marmitas","R$ 539,90","R$ 27,00/un"],
-  ["Tradicional 500 g","5 marmitas","R$ 139,90","R$ 27,98/un"],
-  ["Tradicional 500 g","7 marmitas","R$ 194,90","R$ 27,84/un"],
-  ["Tradicional 500 g","10 marmitas","R$ 269,90","R$ 26,99/un"],
-  ["Tradicional 500 g","14 marmitas","R$ 379,90","R$ 27,14/un"],
-  ["Tradicional 500 g","20 marmitas","R$ 529,90","R$ 26,50/un"],
+  ["Tradicional 500 g","5 marmitas","R$ 141,90","R$ 28,38/un"],
+  ["Tradicional 500 g","7 marmitas","R$ 196,90","R$ 28,13/un"],
+  ["Tradicional 500 g","10 marmitas","R$ 278,00","R$ 27,80/un"],
+  ["Tradicional 500 g","14 marmitas","R$ 383,90","R$ 27,42/un"],
+  ["Tradicional 500 g","20 marmitas","R$ 538,00","R$ 26,90/un"],
 ];
 
 
@@ -583,13 +583,13 @@ const itemLineLabel = (line: string) => {
 const comboOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 269,90", 14: "R$ 379,90", 20: "R$ 529,90" } },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
 
 const monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 795,00", 60: "R$ 1.590,00" } },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 792,00", 60: "R$ 1.584,00" } },
 ] as const;
 
 function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => void }) {
