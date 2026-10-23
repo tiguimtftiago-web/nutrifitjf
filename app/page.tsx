@@ -2469,7 +2469,7 @@ export default function Home() {
                 {[
                   ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
                   ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
-                  ["TRADICIONAL","500 g","R$ 139,90","Sabor caseiro"],
+                  ["TRADICIONAL","500 g","R$ 141,90","Sabor caseiro"],
                 ].map(([line,weight,price,description], index) => (
                   <button
                     key={line}
