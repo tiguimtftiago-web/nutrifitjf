@@ -360,7 +360,7 @@ export default function AdminPage() {
   const activeOrders=orders.filter(x=>!["entregue","cancelado"].includes(x.status)).length;
   const todayKey=new Date().toLocaleDateString("pt-BR");
   const todayOrders=orders.filter(x=>new Date(x.created_at).toLocaleDateString("pt-BR")===todayKey);
-  const todayRevenue=todayOrders.reduce((s,x)=>s+Number(x.total||0),0);
+  const todayRevenue=todayOrders.filter(x=>x.status!=="cancelado").reduce((s,x)=>s+Number(x.total||0),0);
   const pendingOrders=orders.filter(x=>["enviado_whatsapp","novo","confirmado","pago_recebido"].includes(x.status));
   const prepOrders=orders.filter(x=>["em_preparo"].includes(x.status));
   const deliveryOrders=orders.filter(x=>x.status==="saiu_entrega");
@@ -476,7 +476,7 @@ export default function AdminPage() {
               <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Vendas de hoje</div>
+                    <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Valor dos pedidos hoje</div>
                     <div className="mt-2 text-3xl font-black">{money(todayRevenue)}</div>
                     <div className="mt-1 text-xs text-white/35">{todayOrders.length} {todayOrders.length===1?"pedido":"pedidos"} registrados hoje</div>
                   </div>
