@@ -771,7 +771,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const price = option.line === "TRADICIONAL" && quantity >= 30
     ? money(792 + Math.max(0, quantity - 30) * 26.4)
     : (option.prices as Record<number, string>)[quantity];
-  const subtotal = Number(price.replace("R$ ", "").replace(/\./g, "").replace(",", "."));
+  const subtotal = parseMoney(price);
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
   const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
