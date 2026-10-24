@@ -35,6 +35,7 @@ export default function CustomerCostsPage(){
   const [orders,setOrders]=useState<Order[]>([]);
   const [profiles,setProfiles]=useState<Profile[]>([]);
   const [items,setItems]=useState<CostItem[]>([]);
+  const [allCostItems,setAllCostItems]=useState<CostItem[]>([]);
   const [selectedId,setSelectedId]=useState("");
   const [search,setSearch]=useState("");
   const [error,setError]=useState("");
@@ -48,12 +49,13 @@ export default function CustomerCostsPage(){
     if(!t)return;
     setBusy(true);setError("");
     try{
-      const [r,o,p]=await Promise.all([
+      const [r,o,p,allItems]=await Promise.all([
         api("/rest/v1/customer_order_costs?select=*&order=created_at.desc&limit=500",t),
         api("/rest/v1/customer_orders?select=id,created_at,customer_name,total,status&order=created_at.desc&limit=200",t),
-        api("/rest/v1/customer_cost_profiles?select=*&order=customer_name.asc&limit=500",t)
+        api("/rest/v1/customer_cost_profiles?select=*&order=customer_name.asc&limit=500",t),
+        api("/rest/v1/customer_order_cost_items?select=*&order=created_at.asc&limit=5000",t)
       ]);
-      setRecords((r||[]) as CostRecord[]);setOrders((o||[]) as Order[]);setProfiles((p||[]) as Profile[]);
+      setRecords((r||[]) as CostRecord[]);setOrders((o||[]) as Order[]);setProfiles((p||[]) as Profile[]);setAllCostItems((allItems||[]) as CostItem[]);
       const saved=records.length?selectedId:"";
       const next=(r||[]) as CostRecord[];
       const chosen=next.find(x=>x.id===saved)||next[0];
@@ -90,6 +92,7 @@ export default function CustomerCostsPage(){
 
   const selected=records.find(r=>r.id===selectedId)||null;
   const selectedItems=useMemo(()=>items.filter(i=>i.cost_record_id===selectedId),[items,selectedId]);
+  const customerHistory=useMemo(()=>records.filter(r=>selected&&r.customer_name.toLowerCase()===selected.customer_name.toLowerCase()).map(r=>{const costs=allCostItems.filter(i=>i.cost_record_id===r.id).reduce((sum,i)=>sum+num(i.total_cost),0);const profit=num(r.revenue)-costs;return {...r,costs,profit,margin:num(r.revenue)>0?profit/num(r.revenue)*100:0,estimated:allCostItems.some(i=>i.cost_record_id===r.id&&i.is_estimate)};}).sort((a,b)=>new Date(a.created_at).getTime()-new Date(b.created_at).getTime()),[records,selected,allCostItems]);
   const costTotal=selectedItems.reduce((s,i)=>s+num(i.total_cost),0);
   const profit=num(recordDraft.revenue)-costTotal;
   const margin=num(recordDraft.revenue)>0?profit/num(recordDraft.revenue)*100:0;
@@ -153,7 +156,7 @@ export default function CustomerCostsPage(){
     try{
       const payload={cost_record_id:selected.id,category:draft.category,item_name:draft.item_name.trim(),quantity,unit:draft.unit,unit_price:unitPrice,total_cost:total,is_estimate:draft.is_estimate,notes:draft.notes||null,sort_order:selectedItems.length+1};
       const result=await api("/rest/v1/customer_order_cost_items?select=*",token,{method:"POST",headers:{"Prefer":"return=representation"},body:JSON.stringify(payload)});
-      setItems(prev=>[...prev,...((result||[]) as CostItem[])]);setDraft(blankItem);setNotice("Custo adicionado.");
+      setItems(prev=>[...prev,...((result||[]) as CostItem[])]);setAllCostItems(prev=>[...prev,...((result||[]) as CostItem[])]);setDraft(blankItem);setNotice("Custo adicionado.");
     }catch(e){setError(e instanceof Error?e.message:"Não foi possível adicionar o custo.");}
     finally{setBusy(false);}
   }
@@ -162,17 +165,17 @@ export default function CustomerCostsPage(){
     setError("");setNotice("");
     const next={...item,...patch};
     if(patch.quantity!==undefined||patch.unit_price!==undefined)next.total_cost=Math.round(num(next.quantity)*num(next.unit_price)*100)/100;
-    setItems(prev=>prev.map(i=>i.id===item.id?next:i));
+    setItems(prev=>prev.map(i=>i.id===item.id?next:i));setAllCostItems(prev=>prev.map(i=>i.id===item.id?next:i));
     try{
       await api("/rest/v1/customer_order_cost_items?id=eq."+item.id,token,{method:"PATCH",headers:{"Prefer":"return=minimal"},body:JSON.stringify({category:next.category,item_name:next.item_name,quantity:next.quantity,unit:next.unit,unit_price:next.unit_price,total_cost:next.total_cost,is_estimate:next.is_estimate,notes:next.notes})});
       setNotice("Item atualizado.");
-    }catch(e){setItems(prev=>prev.map(i=>i.id===item.id?item:i));setError(e instanceof Error?e.message:"Falha ao atualizar item.");}
+    }catch(e){setItems(prev=>prev.map(i=>i.id===item.id?item:i));setAllCostItems(prev=>prev.map(i=>i.id===item.id?item:i));setError(e instanceof Error?e.message:"Falha ao atualizar item.");}
   }
 
   async function removeItem(item:CostItem){
     if(!confirm("Excluir este custo da ficha?"))return;
     setBusy(true);setError("");setNotice("");
-    try{await api("/rest/v1/customer_order_cost_items?id=eq."+item.id,token,{method:"DELETE"});setItems(prev=>prev.filter(i=>i.id!==item.id));setNotice("Custo excluído.");}
+    try{await api("/rest/v1/customer_order_cost_items?id=eq."+item.id,token,{method:"DELETE"});setItems(prev=>prev.filter(i=>i.id!==item.id));setAllCostItems(prev=>prev.filter(i=>i.id!==item.id));setNotice("Custo excluído.");}
     catch(e){setError(e instanceof Error?e.message:"Falha ao excluir custo.");}
     finally{setBusy(false);}
   }
@@ -198,6 +201,11 @@ export default function CustomerCostsPage(){
             <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-xs text-white/45">Custos registrados</div><div className="mt-2 text-2xl font-black">{money(costTotal)}</div><div className="mt-1 text-[10px] text-white/35">Pode haver despesas faltantes</div></div>
             <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-xs text-white/45">Saldo parcial</div><div className={"mt-2 text-2xl font-black "+(profit>=0?"text-[#a7b86a]":"text-red-300")}>{money(profit)}</div></div>
             <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-xs text-white/45">Margem parcial</div><div className="mt-2 text-2xl font-black">{margin.toFixed(1).replace(".",",")}%</div><div className="mt-1 text-[10px] text-white/35">Sobre o valor do pedido</div></div>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
+            <div className="mb-3 flex items-center gap-2"><TrendingDown size={18} className="text-[#a7b86a]"/><h2 className="text-lg font-black">Histórico e comparação deste cliente</h2></div>
+            <p className="mb-3 text-xs text-white/45">Compara os pedidos registrados do mesmo cliente. O saldo é parcial enquanto houver custos estimados ou despesas ainda não lançadas.</p>
+            <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-xs"><thead className="text-white/45"><tr><th className="px-2 py-2">Data</th><th className="px-2 py-2">Pedido</th><th className="px-2 py-2">Receita</th><th className="px-2 py-2">Custos lançados</th><th className="px-2 py-2">Saldo parcial</th><th className="px-2 py-2">Margem parcial</th><th className="px-2 py-2">Apuração</th></tr></thead><tbody>{customerHistory.map(h=><tr key={h.id} className={"border-t border-white/10 "+(h.id===selectedId?"bg-white/[.04]":"")}><td className="px-2 py-3">{fmtDate(h.created_at)}</td><td className="px-2 py-3"><button onClick={()=>void chooseRecord(h)} className="font-bold text-[#ef7d18]">#{h.order_id.slice(0,8)}</button></td><td className="px-2 py-3">{money(h.revenue)}</td><td className="px-2 py-3">{money(h.costs)}</td><td className="px-2 py-3">{money(h.profit)}</td><td className="px-2 py-3">{h.margin.toFixed(1).replace(".",",")}%</td><td className="px-2 py-3">{h.estimated?"Tem estimativas":h.costs===0?"Sem custos lançados":"Custos lançados"}</td></tr>)}</tbody></table></div>
           </div>
           <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2"><Receipt size={18} className="text-[#ef7d18]"/><h2 className="text-lg font-black">Resumo financeiro do pedido</h2></div>
