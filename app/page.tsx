@@ -1370,12 +1370,15 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             </>
           )}
 
-          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
-              Continuar <ArrowRight size={17} />
-            </button>
+          <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#080a07]/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl backdrop-blur-xl sm:sticky sm:bottom-2 sm:mt-5 sm:rounded-2xl sm:border sm:bg-[#0b0e09]/95 sm:p-2">
+            <div className="mx-auto flex w-full max-w-3xl gap-2">
+              <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+              <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+                Continuar <ArrowRight size={17} />
+              </button>
+            </div>
           </div>
+          <div className="h-24 sm:hidden" aria-hidden="true" />
         </div>
       )}
 
