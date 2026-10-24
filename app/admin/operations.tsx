@@ -132,11 +132,15 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       setError(unmatched.length?"Não foi possível criar o plano. Cadastre/ative as fichas técnicas correspondentes a: "+[...new Set(unmatched)].join(", "):"Este pedido já possui registros de produção para os pratos identificados.");
       return;
     }
+    // Validar todas as fichas antes de gravar qualquer lote evita criação parcial por ficha incompleta.
+    const missingIngredients=toCreate.filter(entry=>!recipeItems.some(x=>x.recipe_id===entry.recipe.id)).map(entry=>entry.recipe.name);
+    if(missingIngredients.length){
+      setError("Plano não criado. Complete os insumos destas fichas técnicas primeiro: "+missingIngredients.join(", "));
+      return;
+    }
     setBusy(true);setError("");
     try{
       for(const entry of toCreate){
-        const recipeIngredients=recipeItems.filter(x=>x.recipe_id===entry.recipe.id);
-        if(!recipeIngredients.length)throw new Error("A ficha "+entry.recipe.name+" não possui insumos cadastrados. Complete a ficha técnica antes de planejar este prato.");
         await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:entry.recipe.id,quantity:entry.quantity,status:"planejada",order_id:order.id,notes:"Gerado a partir do pedido de "+(order.customer_name||"cliente")+" (#"+order.id.slice(0,8)+"). Conferir ficha técnica e insumos antes de iniciar."})});
       }
       await load();
