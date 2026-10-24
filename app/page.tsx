@@ -1083,17 +1083,17 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   }, [step, autoScroll]);
 
   return (
-    <div ref={comboRootRef} className="mt-8 rounded-[2rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-4 md:p-8">
+    <div ref={comboRootRef} className="mt-4 rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-8 sm:rounded-[2rem] sm:p-4 md:p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador Nutrifit</div>
-          <h3 className="mt-1.5 text-2xl font-black md:text-4xl">Monte seu combo</h3>
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-white/50">Você só precisa seguir os 5 passos. No celular, avance quando terminar cada etapa.</p>
+          <h3 className="mt-1 text-xl font-black leading-tight sm:mt-1.5 sm:text-2xl md:text-4xl">Monte seu combo</h3>
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-white/50 sm:mt-1.5 sm:text-sm sm:leading-6">Você só precisa seguir os 5 passos. No celular, avance quando terminar cada etapa.</p>
         </div>
         <button type="button" onClick={reset} className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
       </div>
 
-      <div className="sticky top-[72px] z-30 mt-5 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-3.5 shadow-xl backdrop-blur-xl sm:static sm:bg-white/[.025] sm:shadow-none">
+      <div className="sticky top-[64px] z-30 mt-3 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2.5 shadow-xl backdrop-blur-xl sm:static sm:mt-5 sm:bg-white/[.025] sm:p-3.5 sm:shadow-none">
         <div className="grid grid-cols-5 gap-1.5">
           {[["1","Escolha"],["2","Sabores"],["3","Complete"],["4","Entrega"],["5","Finalizar"]].map(([number,label]) => {
             const n = Number(number) as 1 | 2 | 3 | 4 | 5;
@@ -1111,7 +1111,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         </div>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
+      <div className="mt-3 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-3 sm:mt-5 sm:p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#a7b86a]">Seu combo</div>
@@ -1134,9 +1134,9 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             <div className="mt-1 text-sm text-white/45">Depois você escolhe os sabores sem precisar voltar.</div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
             {comboOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border p-4 text-left transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border px-3 py-3 text-left transition sm:p-4 ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
                 <div className="text-[11px] font-black tracking-wider text-[#a7b86a]">{item.line}</div>
                 <div className="mt-1 text-xs font-bold text-white/55">{item.weight}</div>
                 <div className="mt-2 text-xs font-black text-[#ef7d18]">{item.prices[5]} <span className="font-normal text-white/35">• 5 un.</span></div>
@@ -1166,7 +1166,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             )}
           </div>
 
-          <button type="button" onClick={() => setStep(2)} className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-4 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99]">
+          <button type="button" onClick={() => setStep(2)} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
             Escolher sabores <ArrowRight size={18} />
           </button>
           <div className="mt-2 text-center text-[10px] font-bold text-white/30">Você poderá alterar a linha e a quantidade antes de confirmar.</div>
@@ -2467,9 +2467,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-3 pb-3 sm:px-5 sm:pb-4 md:px-8">
+      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-3 pb-2 pt-1 sm:px-5 sm:pb-4 md:px-8">
         <button type="button" onClick={openTopComboBuilder} aria-expanded={topComboOpen} className="group relative flex min-h-[112px] w-full items-center overflow-hidden rounded-[1.25rem] border border-[#ef7d18]/55 bg-gradient-to-r from-[#17130d] via-[#19160f] to-[#10150d] text-left transition hover:border-[#ef7d18] sm:min-h-[150px] sm:rounded-[1.5rem]">
-          <div className="relative z-10 min-w-0 flex-1 p-3 pr-[6.4rem] sm:p-6 sm:pr-44">
+          <div className="relative z-10 min-w-0 flex-1 p-3 pr-[6rem] sm:p-6 sm:pr-44">
             <div className="text-[9px] font-black uppercase tracking-[.16em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
             <div className="mt-1 text-[20px] font-black leading-tight sm:text-3xl">Monte seu combo</div>
             <p className="mt-1.5 max-w-md text-[11px] leading-4 text-white/55 sm:mt-2 sm:text-sm sm:leading-5">Escolha seus pratos favoritos e economize no pedido.</p>
@@ -2859,7 +2859,7 @@ export default function Home() {
       </section>
 
 
-      <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
+      <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-14 md:px-8">
         <div className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-4 sm:rounded-[2rem] sm:p-7 md:p-10">
           <div className="max-w-3xl">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal Nutrifit</div>
