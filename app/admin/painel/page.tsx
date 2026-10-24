@@ -153,14 +153,18 @@ export default function PainelNutrifit() {
   const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const todayMeals = todayOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
   const ticket = todayOrders.length ? todayRevenue / todayOrders.length : 0;
+  // Pedidos registrados não equivalem automaticamente a dinheiro recebido.
+  const todayReceived = todayOrders
+    .filter(o => o.status === "pago_recebido")
+    .reduce((sum, o) => sum + Number(o.total || 0), 0);
+  // Considera somente despesas marcadas como pagas e cuja data de pagamento é hoje.
   const todayExpenses = finance
-    .filter(f => f.type === "despesa" && dayKey(new Date(f.created_at)) === today)
+    .filter(f => f.type === "despesa" && f.status === "pago" && f.paid_at && dayKey(new Date(f.paid_at)) === today)
     .reduce((sum, f) => sum + Number(f.amount || 0), 0);
-  const estimatedProfit = todayRevenue - todayExpenses;
+  const estimatedProfit = todayReceived - todayExpenses;
   const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
   const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
   const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
-  const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
   const clubMembers = customers.filter(c => c.nutrifit_club_member);
@@ -410,14 +414,14 @@ export default function PainelNutrifit() {
 <section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
           <div className="mb-4">
             <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Resultado do dia</div>
-            <div className="mt-1 text-sm text-white/40">Visão financeira baseada nas vendas dos pedidos e nas despesas lançadas no financeiro.</div>
+            <div className="mt-1 text-sm text-white/40">Separação entre valor de pedidos, recebimentos confirmados e despesas efetivamente pagas.</div>
           </div>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
-              ["Faturamento", money(todayRevenue)],
-              ["Despesas", money(todayExpenses)],
-              ["Lucro estimado", money(estimatedProfit)],
-              ["Margem", `${estimatedMargin.toFixed(1).replace(".", ",")}%`],
+              ["Pedidos registrados", money(todayRevenue)],
+              ["Recebido confirmado", money(todayReceived)],
+              ["Despesas pagas", money(todayExpenses)],
+              ["Saldo estimado", money(estimatedProfit)],
             ].map(([label, value]) => (
               <div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
                 <div className="text-xl font-black">{value}</div>
@@ -426,7 +430,7 @@ export default function PainelNutrifit() {
             ))}
           </div>
           <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-white/45">
-            <span className="font-black text-[#efb06e]">Importante:</span> o lucro é uma estimativa operacional. Ele considera somente as despesas registradas no financeiro do sistema; custos ainda não lançados não entram no cálculo.
+            <span className="font-black text-[#efb06e]">Importante:</span> “Pedidos registrados” soma os pedidos de hoje e não significa dinheiro recebido. “Recebido confirmado” considera apenas pedidos com status pago_recebido. “Despesas pagas” considera lançamentos com status pago e data de pagamento hoje. O saldo é uma estimativa parcial, não lucro contábil; custos não lançados e outras movimentações não entram no cálculo.
           </div>
         </section>
 
