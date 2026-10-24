@@ -1037,7 +1037,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 
       const officialLines = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
         `*${index + 1}. ${item.quantity}x ${item.name}*\\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
-      ).join("\n\n") : lines;
+      ).join("\n\n") : "";
       const officialSummary = [
         "🛒 *ITENS DO PEDIDO*",
         "",
