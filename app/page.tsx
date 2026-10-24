@@ -910,13 +910,9 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : [
             quantity >= DELIVERY_FREE_FROM ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais" : delivery?.fee === 0 ? "🚚 *Entrega grátis*" : `🚚 *Entrega ${money(delivery?.fee ?? 0)}*`,
-            `📍 Endereço: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
-            deliveryComplement.trim() ? `Complemento: ${deliveryComplement.trim()}` : "",
-            `Bairro: ${deliveryNeighborhood.trim()}`,
-            `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
+            delivery?.neighborhood ? `📍 Bairro: ${delivery.neighborhood}` : "",
             `CEP: ${cep}`,
-            deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
-          ].filter(Boolean).join("\n");
+          ].filter(Boolean).join("\\n");
 
     const message = [
       "🥗 *NUTRIFIT • NOVO PEDIDO*",
