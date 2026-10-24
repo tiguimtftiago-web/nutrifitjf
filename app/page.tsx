@@ -758,6 +758,13 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [cep, setCep] = useState("");
+  const [deliveryStreet, setDeliveryStreet] = useState("");
+  const [deliveryNumber, setDeliveryNumber] = useState("");
+  const [deliveryComplement, setDeliveryComplement] = useState("");
+  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("");
+  const [deliveryCity, setDeliveryCity] = useState("");
+  const [deliveryState, setDeliveryState] = useState("");
+  const [deliveryReference, setDeliveryReference] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [customerName, setCustomerName] = useState("");
@@ -831,6 +838,13 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     setStep(1);
     setSelected({});
     setCep("");
+    setDeliveryStreet("");
+    setDeliveryNumber("");
+    setDeliveryComplement("");
+    setDeliveryNeighborhood("");
+    setDeliveryCity("");
+    setDeliveryState("");
+    setDeliveryReference("");
     setDeliveryMode("delivery");
     setDelivery(null);
     setDeliveryStatus("idle");
@@ -875,6 +889,10 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         return;
       }
 
+      setDeliveryStreet(data.logradouro || "");
+      setDeliveryNeighborhood(data.bairro || "");
+      setDeliveryCity(data.localidade || "");
+      setDeliveryState(data.uf || "");
       const result = findDelivery(data.bairro);
       if (!result) {
         setDelivery(null);
@@ -910,8 +928,12 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
         : [
             quantity >= DELIVERY_FREE_FROM ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais" : delivery?.fee === 0 ? "🚚 *Entrega grátis*" : `🚚 *Entrega ${money(delivery?.fee ?? 0)}*`,
-            delivery?.neighborhood ? `📍 Bairro: ${delivery.neighborhood}` : "",
+            `📍 Endereço: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
+            deliveryComplement.trim() ? `Complemento: ${deliveryComplement.trim()}` : "",
+            `Bairro: ${deliveryNeighborhood.trim()}`,
+            `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
             `CEP: ${cep}`,
+            deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
           ].filter(Boolean).join("\\n");
 
     const message = [
@@ -1013,7 +1035,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     }
   };
 
-  const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
+  const deliveryReady = deliveryMode === "pickup" || (Boolean(delivery) && Boolean(deliveryStreet.trim() && deliveryNumber.trim() && deliveryNeighborhood.trim() && deliveryCity.trim() && deliveryState.trim()));
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
   const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
@@ -1309,6 +1331,34 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
               ) : deliveryStatus === "error" ? (
                 <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar a área de entrega. Confira o CEP ou fale com a Nutrifit.</div>
               ) : null}
+              {delivery && (
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                  <div className="mb-3 font-black text-[#cbd99a]">📍 Confirme o endereço de entrega</div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-xs text-white/60">Rua / avenida
+                      <input value={deliveryStreet} onChange={(e) => setDeliveryStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60">Número
+                      <input value={deliveryNumber} onChange={(e) => setDeliveryNumber(e.target.value)} autoComplete="address-line2" placeholder="Número" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60">Complemento (opcional)
+                      <input value={deliveryComplement} onChange={(e) => setDeliveryComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60">Bairro
+                      <input value={deliveryNeighborhood} onChange={(e) => setDeliveryNeighborhood(e.target.value)} autoComplete="address-level3" placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60">Cidade
+                      <input value={deliveryCity} onChange={(e) => setDeliveryCity(e.target.value)} autoComplete="address-level2" placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60">UF
+                      <input value={deliveryState} onChange={(e) => setDeliveryState(e.target.value.toUpperCase().slice(0, 2))} autoComplete="address-level1" placeholder="MG" maxLength={2} className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                    <label className="text-xs text-white/60 sm:col-span-2">Ponto de referência (opcional)
+                      <input value={deliveryReference} onChange={(e) => setDeliveryReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                    </label>
+                  </div>
+                </div>
+              )}
             </>
           )}
 
