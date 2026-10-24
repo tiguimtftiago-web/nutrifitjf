@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Operations from "./operations";
+import SalesChart from "./sales-chart";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot
@@ -503,6 +504,8 @@ export default function AdminPage() {
                 </div>
               </div>
             </section>
+
+            <SalesChart orders={orders} />
 
             <section className="mt-6">
               <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Acesso rápido</div>
