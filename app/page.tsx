@@ -2324,6 +2324,17 @@ export default function Home() {
   </div>
 </section>
 
+      <section aria-label="Atendimento profissional Nutrifit" className="mobile-home-only border-b border-white/10 bg-[#10130d] sm:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Atendimento profissional</div>
+            <h2 className="mt-1 text-sm font-black leading-tight">Nutrição alinhada à sua rotina</h2>
+            <p className="mt-1 text-[11px] leading-4 text-white/55">Orientação e refeições planejadas para você.</p>
+          </div>
+          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." className="shrink-0 rounded-full bg-[#ef7d18] px-3 py-2.5 text-[10px] font-black text-black">Falar com a nutri <ArrowRight size={12} className="ml-1 inline" /></a>
+        </div>
+      </section>
+
       <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
           <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
@@ -2357,6 +2368,21 @@ export default function Home() {
             ))}
           </div>
           <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos_mobile")} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-xs font-black text-black sm:hidden">Ver cardápio completo <ArrowRight size={15} /></a>
+        </div>
+      </section>
+
+      <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
+          <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#a7b86a]/40 bg-[#a7b86a]/[.06] p-3">
+            <ClipboardCheck size={22} className="text-[#a7b86a]" />
+            <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Transforme suas orientações em refeições.</span></span>
+            <span className="text-[10px] font-black text-[#a7b86a]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
+          </a>
+          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#ef7d18]/45 bg-[#ef7d18]/[.04] p-3">
+            <Stethoscope size={22} className="text-[#ef7d18]" />
+            <span><span className="block text-xs font-black">Atendimento nutricional</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Fale com a nutricionista.</span></span>
+            <span className="text-[10px] font-black text-[#ef7d18]">Falar agora <ArrowRight size={12} className="ml-1 inline" /></span>
+          </a>
         </div>
       </section>
 
@@ -2445,7 +2471,7 @@ export default function Home() {
       </section>
 
       
-      <section id="plano-alimentar" aria-label="Plano alimentar Nutrifit" className="mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
+      <section id="plano-alimentar" aria-label="Plano alimentar Nutrifit" className="hidden sm:block mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
         <div className="rounded-[1.5rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] p-5 sm:p-6">
           <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
           <div className="mt-1 text-2xl font-black leading-tight sm:text-3xl">Seu plano alimentar pode virar refeições prontas.</div>
