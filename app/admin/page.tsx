@@ -305,6 +305,8 @@ export default function AdminPage() {
   }
 
   async function updateOrderStatus(order:Order,status:string){
+    // Evita repetir efeitos colaterais (ex.: automação de compra) ao selecionar o status já salvo.
+    if(order.status===status) return;
     if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal.")) return;
     setBusy(true); setError("");
     try{
