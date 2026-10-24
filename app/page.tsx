@@ -1054,7 +1054,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         "",
       ].join("\n");
       const officialMessage = message.replace(/🛒 \*ITENS DO PEDIDO\*[\s\S]*?(?=📍 \*ENTREGA\*)/, officialSummary);
-      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
       else window.location.href = finalUrl;
@@ -1986,7 +1986,7 @@ export default function Home() {
         "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
       ].join("\n");
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
       else window.location.href = finalUrl;
