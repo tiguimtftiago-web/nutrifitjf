@@ -893,10 +893,6 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       setDeliveryNeighborhood(data.bairro || "");
       setDeliveryCity(data.localidade || "");
       setDeliveryState(data.uf || "");
-      setOrderStreet(data.logradouro || "");
-      setOrderNeighborhood(data.bairro || "");
-      setOrderCity(data.localidade || "");
-      setOrderState(data.uf || "");
       const result = findDelivery(data.bairro);
       if (!result) {
         setDelivery(null);
@@ -1684,6 +1680,10 @@ export default function Home() {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
+      setOrderStreet(data.logradouro || "");
+      setOrderNeighborhood(data.bairro || "");
+      setOrderCity(data.localidade || "");
+      setOrderState(data.uf || "");
       const result = findDelivery(data.bairro);
       if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
       setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
