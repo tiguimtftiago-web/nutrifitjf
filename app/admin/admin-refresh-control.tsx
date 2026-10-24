@@ -48,8 +48,7 @@ export default function AdminRefreshControl() {
       disabled={refreshing}
       aria-label="Atualizar página administrativa"
       title="Atualizar página"
-      className="fixed z-[9999] bottom-5 right-4 md:bottom-6 md:right-6 flex items-center gap-2 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg ring-1 ring-black/10 transition hover:bg-orange-600 active:scale-95 disabled:opacity-70"
-      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      className="fixed z-[9999] bottom-[calc(11rem+env(safe-area-inset-bottom))] right-4 md:bottom-6 md:right-6 flex items-center gap-2 rounded-full bg-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg ring-1 ring-black/10 transition hover:bg-orange-600 active:scale-95 disabled:opacity-70"
     >
       <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
       <span>{refreshing ? "Atualizando..." : "Atualizar"}</span>
