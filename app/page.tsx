@@ -893,6 +893,10 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       setDeliveryNeighborhood(data.bairro || "");
       setDeliveryCity(data.localidade || "");
       setDeliveryState(data.uf || "");
+      setOrderStreet(data.logradouro || "");
+      setOrderNeighborhood(data.bairro || "");
+      setOrderCity(data.localidade || "");
+      setOrderState(data.uf || "");
       const result = findDelivery(data.bairro);
       if (!result) {
         setDelivery(null);
@@ -1645,6 +1649,13 @@ export default function Home() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [orderCep, setOrderCep] = useState("");
+  const [orderStreet, setOrderStreet] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [orderComplement, setOrderComplement] = useState("");
+  const [orderNeighborhood, setOrderNeighborhood] = useState("");
+  const [orderCity, setOrderCity] = useState("");
+  const [orderState, setOrderState] = useState("");
+  const [orderReference, setOrderReference] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderDelivery, setOrderDelivery] = useState<DeliveryResult | null>(null);
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -1662,7 +1673,7 @@ export default function Home() {
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
-  const orderDeliveryReady = Boolean(orderDelivery);
+  const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
   const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
@@ -1787,8 +1798,13 @@ export default function Home() {
     ctx.fillStyle = "#ef7d18";
     drawWrapped("ENTREGA", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
-    drawWrapped(orderDelivery ? "Bairro: " + orderDelivery.neighborhood : orderFreeDelivery ? "Frete grátis" : "Taxa/endereço a confirmar");
+    drawWrapped(orderDelivery ? (orderFreeDelivery ? "Frete grátis" : "Frete: " + money(orderDeliveryFee)) : "Taxa/endereço a confirmar");
+    if (orderStreet.trim()) drawWrapped("ENDEREÇO: " + orderStreet.trim() + ", nº " + orderNumber.trim(), "bold 27px Arial");
+    if (orderComplement.trim()) drawWrapped("Complemento: " + orderComplement.trim());
+    if (orderNeighborhood.trim()) drawWrapped("Bairro: " + orderNeighborhood.trim());
+    if (orderCity.trim() || orderState.trim()) drawWrapped("Cidade/UF: " + orderCity.trim() + "/" + orderState.trim());
     if (orderCep) drawWrapped("CEP: " + orderCep);
+    if (orderReference.trim()) drawWrapped("Referência: " + orderReference.trim());
     if (orderNotes.trim()) drawWrapped("Observações: " + orderNotes.trim());
     y += 12;
     ctx.fillStyle = "#a7b86a";
@@ -1859,6 +1875,12 @@ export default function Home() {
       "",
       "📍 *ENTREGA*",
       deliverySummary,
+      `📍 Endereço: ${orderStreet.trim()}, nº ${orderNumber.trim()}`,
+      ...(orderComplement.trim() ? [`Complemento: ${orderComplement.trim()}`] : []),
+      `Bairro: ${orderNeighborhood.trim()}`,
+      `Cidade/UF: ${orderCity.trim()}/${orderState.trim()}`,
+      `CEP: ${orderCep}`,
+      ...(orderReference.trim() ? [`Referência: ${orderReference.trim()}`] : []),
       ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
       "",
       "💳 *PAGAMENTO VIA PIX*",
@@ -1894,7 +1916,13 @@ export default function Home() {
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
           delivery_fee: orderDeliveryFee,
           cep: orderCep.replace(/\\D/g, "") || null,
-          neighborhood: orderDelivery?.neighborhood || null,
+          street: orderStreet.trim(),
+          address_number: orderNumber.trim(),
+          address_complement: orderComplement.trim() || null,
+          neighborhood: orderNeighborhood.trim() || orderDelivery?.neighborhood || null,
+          city: orderCity.trim(),
+          state: orderState.trim(),
+          address_reference: orderReference.trim() || null,
           notes: notesText || null,
           acquisition_source: acquisitionSource,
           acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
@@ -2912,12 +2940,39 @@ export default function Home() {
                     {!orderFreeDelivery && (
                       <>
                         <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
                         </div>
                         {orderDelivery && <div className="mt-3 text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
+                        {orderDelivery && (
+                          <div className="mt-4 grid gap-3 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.04] p-3 sm:grid-cols-2">
+                            <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#a7b86a]">Endereço completo para entrega</div>
+                            <label className="text-xs font-bold text-white/60">Rua / avenida
+                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60">Número
+                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60">Complemento (opcional)
+                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60">Bairro
+                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60">Cidade
+                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60">UF
+                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                            <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
+                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                            </label>
+                          </div>
+                        )}
+                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
                       </>
                     )}
