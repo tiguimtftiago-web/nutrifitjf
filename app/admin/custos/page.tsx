@@ -44,6 +44,8 @@ export default function CustomerCostsPage(){
   const [draft,setDraft]=useState<DraftItem>(blankItem);
   const [recordDraft,setRecordDraft]=useState({revenue:"",amount_paid:"",status:"em_apuracao",notes:""});
   const [profileDraft,setProfileDraft]=useState({usual_preferences:"",notes:""});
+  const [openSections,setOpenSections]=useState<Record<string,boolean>>({financeiro:true,historico:false,custos:false,perfil:false});
+  const toggleSection=(key:string)=>setOpenSections(prev=>({...prev,[key]:!prev[key]}));
 
   const load=useCallback(async(t=token)=>{
     if(!t)return;
@@ -202,10 +204,11 @@ export default function CustomerCostsPage(){
             <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-xs text-white/45">Saldo parcial</div><div className={"mt-2 text-2xl font-black "+(profit>=0?"text-[#a7b86a]":"text-red-300")}>{money(profit)}</div></div>
             <div className="rounded-2xl border border-white/10 bg-[#0d110b] p-4"><div className="text-xs text-white/45">Margem parcial</div><div className="mt-2 text-2xl font-black">{margin.toFixed(1).replace(".",",")}%</div><div className="mt-1 text-[10px] text-white/35">Sobre o valor do pedido</div></div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
-            <div className="mb-3 flex items-center gap-2"><TrendingDown size={18} className="text-[#a7b86a]"/><h2 className="text-lg font-black">Histórico e comparação deste cliente</h2></div>
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d110b]">
+            <button type="button" onClick={()=>toggleSection("historico")} aria-expanded={!!openSections.historico} className="flex w-full items-center justify-between gap-3 p-4 text-left sm:p-5"><span className="flex items-center gap-3"><span className="rounded-xl bg-[#a7b86a]/10 p-2 text-[#a7b86a]"><TrendingDown size={18}/></span><span><span className="block font-black">Histórico do cliente</span><span className="mt-1 block text-xs text-white/45">{customerHistory.length} pedido(s) para comparar</span></span></span><span className="text-xl text-white/50">{openSections.historico?"−":"+"}</span></button>
+            {openSections.historico&&<div className="border-t border-white/10 p-4 sm:p-5">
             <p className="mb-3 text-xs text-white/45">Compara os pedidos registrados do mesmo cliente. O saldo é parcial enquanto houver custos estimados ou despesas ainda não lançadas.</p>
-            <div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-xs"><thead className="text-white/45"><tr><th className="px-2 py-2">Data</th><th className="px-2 py-2">Pedido</th><th className="px-2 py-2">Receita</th><th className="px-2 py-2">Custos lançados</th><th className="px-2 py-2">Saldo parcial</th><th className="px-2 py-2">Margem parcial</th><th className="px-2 py-2">Apuração</th></tr></thead><tbody>{customerHistory.map(h=><tr key={h.id} className={"border-t border-white/10 "+(h.id===selectedId?"bg-white/[.04]":"")}><td className="px-2 py-3">{fmtDate(h.created_at)}</td><td className="px-2 py-3"><button onClick={()=>void chooseRecord(h)} className="font-bold text-[#ef7d18]">#{h.order_id.slice(0,8)}</button></td><td className="px-2 py-3">{money(h.revenue)}</td><td className="px-2 py-3">{money(h.costs)}</td><td className="px-2 py-3">{money(h.profit)}</td><td className="px-2 py-3">{h.margin.toFixed(1).replace(".",",")}%</td><td className="px-2 py-3">{h.estimated?"Tem estimativas":h.costs===0?"Sem custos lançados":"Custos lançados"}</td></tr>)}</tbody></table></div>
+            <div className="grid gap-2 sm:hidden">{customerHistory.map(h=><button key={h.id} onClick={()=>void chooseRecord(h)} className={"rounded-xl border p-3 text-left "+(h.id===selectedId?"border-[#ef7d18]/40 bg-[#ef7d18]/10":"border-white/10 bg-white/[.02]")}><div className="flex items-center justify-between gap-2"><span className="font-bold text-[#ef7d18]">#{h.order_id.slice(0,8)}</span><span className="text-xs text-white/45">{fmtDate(h.created_at)}</span></div><div className="mt-3 grid grid-cols-2 gap-3"><div><div className="text-[10px] text-white/40">Receita</div><div className="font-bold">{money(h.revenue)}</div></div><div><div className="text-[10px] text-white/40">Custos</div><div className="font-bold">{money(h.costs)}</div></div><div><div className="text-[10px] text-white/40">Saldo parcial</div><div className="font-bold">{money(h.profit)}</div></div><div><div className="text-[10px] text-white/40">Margem parcial</div><div className="font-bold">{h.margin.toFixed(1).replace(".",",")}%</div></div></div><div className="mt-2 text-[10px] text-white/40">{h.estimated?"Contém estimativas":h.costs===0?"Sem custos lançados":"Custos lançados"}</div></button>)}</div><div className="hidden overflow-x-auto sm:block"><table className="w-full min-w-[680px] text-left text-xs"><thead className="text-white/45"><tr><th className="px-2 py-2">Data</th><th className="px-2 py-2">Pedido</th><th className="px-2 py-2">Receita</th><th className="px-2 py-2">Custos lançados</th><th className="px-2 py-2">Saldo parcial</th><th className="px-2 py-2">Margem parcial</th><th className="px-2 py-2">Apuração</th></tr></thead><tbody>{customerHistory.map(h=><tr key={h.id} className={"border-t border-white/10 "+(h.id===selectedId?"bg-white/[.04]":"")}><td className="px-2 py-3">{fmtDate(h.created_at)}</td><td className="px-2 py-3"><button onClick={()=>void chooseRecord(h)} className="font-bold text-[#ef7d18]">#{h.order_id.slice(0,8)}</button></td><td className="px-2 py-3">{money(h.revenue)}</td><td className="px-2 py-3">{money(h.costs)}</td><td className="px-2 py-3">{money(h.profit)}</td><td className="px-2 py-3">{h.margin.toFixed(1).replace(".",",")}%</td><td className="px-2 py-3">{h.estimated?"Tem estimativas":h.costs===0?"Sem custos lançados":"Custos lançados"}</td></tr>)}</tbody></table></div>
           </div>
           <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2"><Receipt size={18} className="text-[#ef7d18]"/><h2 className="text-lg font-black">Resumo financeiro do pedido</h2></div>
@@ -216,9 +219,11 @@ export default function CustomerCostsPage(){
               <div className="flex items-end"><button onClick={()=>void saveRecord()} disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black disabled:opacity-50"><Save size={16}/>Salvar resumo e ficha</button></div>
             </div>
             <label className="mt-3 grid gap-1 text-xs text-white/55">Observações do pedido<textarea rows={2} value={recordDraft.notes} onChange={e=>setRecordDraft({...recordDraft,notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white"/></label>
+          </div>}
           </div>
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
-            <div className="mb-4 flex items-center gap-2"><Calculator size={18} className="text-[#a7b86a]"/><h2 className="text-lg font-black">Itens de custo</h2></div>
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d110b]">
+            <button type="button" onClick={()=>toggleSection("custos")} aria-expanded={!!openSections.custos} className="flex w-full items-center justify-between gap-3 p-4 text-left sm:p-5"><span className="flex items-center gap-3"><span className="rounded-xl bg-[#a7b86a]/10 p-2 text-[#a7b86a]"><Calculator size={18}/></span><span><span className="block font-black">Itens de custo</span><span className="mt-1 block text-xs text-white/45">{selectedItems.length} item(ns) · {money(costTotal)} registrados</span></span></span><span className="text-xl text-white/50">{openSections.custos?"−":"+"}</span></button>
+            {openSections.custos&&<div className="border-t border-white/10 p-4 sm:p-6">
             <div className="grid gap-3">{selectedItems.map(item=><div key={item.id} className="rounded-2xl border border-white/10 bg-white/[.02] p-3">
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-[1.3fr_.8fr_.55fr_.55fr_.65fr_auto]">
                 <label className="grid gap-1 text-[10px] text-white/45">Item<input value={item.item_name} onChange={e=>setItems(prev=>prev.map(x=>x.id===item.id?{...x,item_name:e.target.value}:x))} onBlur={()=>void updateItem(item,{item_name:items.find(x=>x.id===item.id)?.item_name||item.item_name})} className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs text-white"/></label>
@@ -244,13 +249,16 @@ export default function CustomerCostsPage(){
                 <div className="flex items-end"><button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black disabled:opacity-50"><Plus size={16}/>Adicionar item</button></div>
               </div>
             </form>
+          </div>}
           </div>
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
-            <div className="mb-3 flex items-center gap-2"><UserRound size={18} className="text-[#a7b86a]"/><h2 className="text-lg font-black">Ficha habitual do cliente</h2></div>
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d110b]">
+            <button type="button" onClick={()=>toggleSection("perfil")} aria-expanded={!!openSections.perfil} className="flex w-full items-center justify-between gap-3 p-4 text-left sm:p-5"><span className="flex items-center gap-3"><span className="rounded-xl bg-[#a7b86a]/10 p-2 text-[#a7b86a]"><UserRound size={18}/></span><span><span className="block font-black">Ficha habitual do cliente</span><span className="mt-1 block text-xs text-white/45">Preferências, porções e instruções</span></span></span><span className="text-xl text-white/50">{openSections.perfil?"−":"+"}</span></button>
+            {openSections.perfil&&<div className="border-t border-white/10 p-4 sm:p-6">
             <p className="mb-3 text-xs text-white/45">Guarde porções, cortes preferidos, acompanhamentos e instruções recorrentes. Esses dados servem de referência para novos pedidos, sem alterar pedidos anteriores.</p>
             <label className="grid gap-1 text-xs text-white/55">Preferências e porções (JSON)<textarea rows={5} value={profileDraft.usual_preferences} onChange={e=>setProfileDraft({...profileDraft,usual_preferences:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 font-mono text-xs text-white"/></label>
             <label className="mt-3 grid gap-1 text-xs text-white/55">Observações do cliente<textarea rows={2} value={profileDraft.notes} onChange={e=>setProfileDraft({...profileDraft,notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white"/></label>
             <button onClick={()=>void saveRecord()} disabled={busy} className="mt-3 flex items-center gap-2 rounded-full border border-[#a7b86a]/30 px-4 py-2.5 text-sm font-bold text-[#d9e5a5]"><Save size={15}/>Salvar ficha habitual</button>
+          </div>}
           </div>
         </section>}
       </div>
