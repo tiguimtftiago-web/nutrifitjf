@@ -765,7 +765,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
-  const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS">("SUCOS");
+  const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const price = option.line === "TRADICIONAL" && quantity >= 30
@@ -908,11 +908,15 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     const deliveryText =
       deliveryMode === "pickup"
         ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
-        : quantity >= DELIVERY_FREE_FROM
-          ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais"
-          : delivery?.fee === 0
-            ? `🚚 *Entrega grátis* — CEP ${cep}`
-            : `🚚 *Entrega ${money(delivery?.fee ?? 0)}* — CEP ${cep}`;
+        : [
+            quantity >= DELIVERY_FREE_FROM ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais" : delivery?.fee === 0 ? "🚚 *Entrega grátis*" : `🚚 *Entrega ${money(delivery?.fee ?? 0)}*`,
+            `📍 Endereço: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
+            deliveryComplement.trim() ? `Complemento: ${deliveryComplement.trim()}` : "",
+            `Bairro: ${deliveryNeighborhood.trim()}`,
+            `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
+            `CEP: ${cep}`,
+            deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
+          ].filter(Boolean).join("\n");
 
     const message = [
       "🥗 *NUTRIFIT • NOVO PEDIDO*",
@@ -1126,6 +1130,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             <div className="mt-1 text-sm text-white/45">Use + e − para escolher quantas unidades quer de cada prato.</div>
           </div>
 
+          {total !== quantity ? (
           <div className="grid gap-2.5 sm:grid-cols-2">
             {option.products.map((product) => (
               <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:p-3.5">
@@ -1145,15 +1150,16 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             ))}
           </div>
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-center">
-            {total === quantity ? (
-              <div className="font-black text-[#cbd99a]">✓ Combo completo. Agora complete seu pedido.</div>
-            ) : (
-              <div className="text-sm text-white/60">Faltam <strong className="text-white">{quantity - total}</strong> marmita(s) para completar seu combo.</div>
-            )}
           </div>
+          ) : (
+            <div className="rounded-2xl border border-[#a7b86a]/30 bg-[#171d10] p-4">
+              <div className="font-black text-[#cbd99a]">✓ {quantity} marmitas escolhidas</div>
+              <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
+              <button type="button" onClick={() => setSelected({})} className="mt-3 text-xs font-bold text-[#ef9b55] underline underline-offset-4">Alterar seleção</button>
+            </div>
+          )}
 
-          <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
+          <div className="sticky top-[138px] z-20 mt-4 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl
             <button type="button" onClick={() => setStep(1)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
             <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
@@ -1182,7 +1188,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
                 <button
                   key={category}
                   type="button"
-                  onClick={() => setComplementCategory(category)}
+                  onClick={() => setComplementCategory((current) => current === category ? null : category)}
                   className={`touch-manipulation rounded-2xl border p-3 text-left transition ${active ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}
                   aria-expanded={active}
                 >
@@ -1197,7 +1203,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
             })}
           </div>
 
-          {(() => {
+          {complementCategory && (() => {
             const category = complementCategory;
             const items = comboComplements.filter((item) => item.category === category);
             const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
