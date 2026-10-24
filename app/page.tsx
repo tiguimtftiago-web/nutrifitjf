@@ -1017,6 +1017,13 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           })),
           delivery_mode: deliveryMode,
           cep: cep.replace(/\D/g, ""),
+          street: deliveryMode === "delivery" ? deliveryStreet.trim() : null,
+          address_number: deliveryMode === "delivery" ? deliveryNumber.trim() : null,
+          address_complement: deliveryMode === "delivery" ? deliveryComplement.trim() || null : null,
+          neighborhood: deliveryMode === "delivery" ? deliveryNeighborhood.trim() : null,
+          city: deliveryMode === "delivery" ? deliveryCity.trim() : null,
+          state: deliveryMode === "delivery" ? deliveryState.trim() : null,
+          address_reference: deliveryMode === "delivery" ? deliveryReference.trim() || null : null,
           acquisition_source: acquisition.source || "site_combo_builder",
           acquisition_campaign: acquisition.campaign || null,
           acquisition_medium: acquisition.medium || null,
@@ -1028,8 +1035,27 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         throw new Error(typeof result.error === "string" ? result.error : "Não foi possível registrar o pedido.");
       }
 
-      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
-      const finalUrl = whatsappOrder(message + reference);
+      const officialLines = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
+        `*${index + 1}. ${item.quantity}x ${item.name}*\\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
+      ).join("\\n\\n") : lines;
+      const officialSummary = [
+        "🛒 *ITENS DO PEDIDO*",
+        "",
+        officialLines,
+        "",
+        "━━━━━━━━━━━━━━━━━━━━",
+        "💰 *VALORES CONFIRMADOS PELO SISTEMA*",
+        `Subtotal: *${money(Number(result.subtotal))}*`,
+        `🎁 Desconto: *-${money(Number(result.discount))}*`,
+        `🚚 Frete: *${money(Number(result.delivery_fee))}*`,
+        `💵 *TOTAL OFICIAL: ${money(Number(result.total))}*`,
+        "",
+        "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
+        "",
+      ].join("\\n");
+      const officialMessage = message.replace(/🛒 \\*ITENS DO PEDIDO\\*[\\s\\S]*?(?=📍 \\*ENTREGA\\*)/, officialSummary);
+      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
       else window.location.href = finalUrl;
       setPaymentStatus("idle");
@@ -1948,8 +1974,20 @@ export default function Home() {
 
       setOrderItems([]);
       setOrderOpen(false);
-      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
-      const finalUrl = whatsappOrder(message + reference);
+      const officialItems = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
+        `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
+      ).join("\\n") : "";
+      const officialBlock = [
+        "ITENS E VALORES CONFIRMADOS PELO SISTEMA",
+        officialItems,
+        `Subtotal oficial: ${money(Number(result.subtotal))}`,
+        `Frete oficial: ${money(Number(result.delivery_fee))}`,
+        `TOTAL OFICIAL: ${money(Number(result.total))}`,
+        "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
+      ].join("\\n");
+      const officialMessage = message.replace(/ITENS DO PEDIDO[\\s\\S]*?(?=ENDEREÇO \\/ RECEBIMENTO)/, officialBlock + "\\n\\n");
+      const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
       else window.location.href = finalUrl;
     } catch (error) {
