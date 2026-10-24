@@ -1726,6 +1726,102 @@ export default function Home() {
   };
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
+  const shareVisualOrder = async () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1400;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = "#080a08";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#a7b86a";
+    ctx.fillRect(0, 0, canvas.width, 18);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 54px Arial";
+    ctx.fillText("NUTRIFIT", 64, 100);
+    ctx.fillStyle = "#ef7d18";
+    ctx.fillRect(64, 125, 952, 4);
+    ctx.fillStyle = "#a7b86a";
+    ctx.font = "bold 34px Arial";
+    ctx.fillText("RESUMO DO PEDIDO", 64, 190);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "28px Arial";
+    let y = 250;
+    const maxWidth = 930;
+    const drawWrapped = (text: string, font = "28px Arial") => {
+      ctx!.font = font;
+      const words = text.split(" ");
+      let line = "";
+      for (const word of words) {
+        const test = line ? line + " " + word : word;
+        if (ctx!.measureText(test).width > maxWidth && line) {
+          ctx!.fillText(line, 64, y);
+          y += 40;
+          line = word;
+        } else line = test;
+      }
+      if (line) { ctx!.fillText(line, 64, y); y += 48; }
+    };
+    drawWrapped("CLIENTE: " + (customerName.trim() || "A informar"));
+    drawWrapped("WHATSAPP: " + (customerPhone.trim() || "A informar"));
+    y += 10;
+    ctx.fillStyle = "#ef7d18";
+    drawWrapped("ITENS DO PEDIDO", "bold 32px Arial");
+    ctx.fillStyle = "#ffffff";
+    orderItems.forEach((item) => {
+      drawWrapped(item.quantity + "x " + item.name, "bold 27px Arial");
+      drawWrapped(item.line + " • " + item.weight + " • " + money(item.price * item.quantity), "24px Arial");
+    });
+    y += 8;
+    ctx.fillStyle = "#a7b86a";
+    drawWrapped("RESUMO DOS VALORES", "bold 32px Arial");
+    ctx.fillStyle = "#ffffff";
+    drawWrapped("Subtotal: " + money(orderSubtotal));
+    drawWrapped(discountLabel + ": -" + money(orderDiscount));
+    drawWrapped("Frete: " + (orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)));
+    ctx.fillStyle = "#173d20";
+    ctx.fillRect(48, y - 4, 984, 90);
+    ctx.fillStyle = "#baf58b";
+    drawWrapped("TOTAL A PAGAR: " + money(orderGrandTotal), "bold 38px Arial");
+    y += 26;
+    ctx.fillStyle = "#ef7d18";
+    drawWrapped("ENTREGA", "bold 32px Arial");
+    ctx.fillStyle = "#ffffff";
+    drawWrapped(orderDelivery ? "Bairro: " + orderDelivery.neighborhood : orderFreeDelivery ? "Frete grátis" : "Taxa/endereço a confirmar");
+    if (orderCep) drawWrapped("CEP: " + orderCep);
+    if (orderNotes.trim()) drawWrapped("Observações: " + orderNotes.trim());
+    y += 12;
+    ctx.fillStyle = "#a7b86a";
+    drawWrapped("PAGAMENTO VIA PIX", "bold 30px Arial");
+    ctx.fillStyle = "#ffffff";
+    drawWrapped("Chave Pix: " + PIX_KEY, "26px Arial");
+    drawWrapped("Confira os dados antes de pagar.", "24px Arial");
+    ctx.fillStyle = "#ef7d18";
+    ctx.fillRect(64, 1325, 952, 3);
+    ctx.fillStyle = "#bdbdbd";
+    ctx.font = "22px Arial";
+    ctx.fillText("@nutrifit_jf • Juiz de Fora/MG", 64, 1365);
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "pedido-nutrifit.png", { type: "image/png" });
+      try {
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: "Resumo do pedido NutriFit", text: "Resumo visual do meu pedido NutriFit." });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "pedido-nutrifit.png";
+          a.click();
+          URL.revokeObjectURL(url);
+          window.alert("Imagem salva. Anexe o arquivo à conversa do WhatsApp para enviar o resumo visual.");
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") console.error("share order image", error);
+      }
+    }, "image/png");
+  };
+
   const sendFullOrder = async () => {
     if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
 
@@ -2859,6 +2955,7 @@ export default function Home() {
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-[#ef7d18]/50 bg-[#ef7d18]/10 px-5 py-3 font-bold text-[#ffd0a4] transition hover:bg-[#ef7d18]/20 disabled:opacity-30"><ShoppingBag size={17} /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
                   Finalizar no WhatsApp <ArrowRight size={18} />
                 </button>
