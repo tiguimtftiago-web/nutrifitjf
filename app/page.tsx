@@ -1037,7 +1037,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 
       const officialLines = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
         `*${index + 1}. ${item.quantity}x ${item.name}*\\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
-      ).join("\\n\\n") : lines;
+      ).join("\n\n") : lines;
       const officialSummary = [
         "🛒 *ITENS DO PEDIDO*",
         "",
@@ -1052,8 +1052,8 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         "",
         "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
         "",
-      ].join("\\n");
-      const officialMessage = message.replace(/🛒 \\*ITENS DO PEDIDO\\*[\\s\\S]*?(?=📍 \\*ENTREGA\\*)/, officialSummary);
+      ].join("\n");
+      const officialMessage = message.replace(/🛒 \*ITENS DO PEDIDO\*[\s\S]*?(?=📍 \*ENTREGA\*)/, officialSummary);
       const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
@@ -1976,7 +1976,7 @@ export default function Home() {
       setOrderOpen(false);
       const officialItems = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
         `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
-      ).join("\\n") : "";
+      ).join("\n") : "";
       const officialBlock = [
         "ITENS E VALORES CONFIRMADOS PELO SISTEMA",
         officialItems,
@@ -1984,8 +1984,8 @@ export default function Home() {
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
         `TOTAL OFICIAL: ${money(Number(result.total))}`,
         "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
-      ].join("\\n");
-      const officialMessage = message.replace(/ITENS DO PEDIDO[\\s\\S]*?(?=ENDEREÇO \\/ RECEBIMENTO)/, officialBlock + "\\n\\n");
+      ].join("\n");
+      const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
       const reference = result.order_id ? `\\n\\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
