@@ -1038,7 +1038,6 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       // Fail closed: nunca encaminhar um pedido sem registro oficial confirmado.
       if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
       setPaymentStatus("error");
-      setOrderCaptureError(true);
     }
   };
 
