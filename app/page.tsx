@@ -2324,14 +2324,39 @@ export default function Home() {
   </div>
 </section>
 
-      <section aria-label="Atendimento profissional Nutrifit" className="mobile-home-only border-b border-white/10 bg-[#10130d] sm:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
-          <div className="min-w-0">
-            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Atendimento profissional</div>
-            <h2 className="mt-1 text-sm font-black leading-tight">Nutrição alinhada à sua rotina</h2>
-            <p className="mt-1 text-[11px] leading-4 text-white/55">Orientação e refeições planejadas para você.</p>
+      <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
+          <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-xs">Explore a Nutrifit</div>
+              <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">Muito mais que marmitas</h2>
+              <p className="mt-1 text-xs text-white/50 sm:text-sm">Encontre refeições, sucos, saladas e lanches em um só lugar.</p>
+            </div>
+            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos")} className="hidden shrink-0 items-center gap-1 text-xs font-black text-[#ef7d18] sm:inline-flex">Ver cardápio <ArrowRight size={15} /></a>
           </div>
-          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." className="shrink-0 rounded-full bg-[#ef7d18] px-3 py-2.5 text-[10px] font-black text-black">Falar com a nutri <ArrowRight size={12} className="ml-1 inline" /></a>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+            {([
+              { title: "Marmitas", description: "Fit, Performance e Tradicional", image: "/images/page-4.jpg", href: "#cardapio", accent: "#a7b86a", source: "marmitas" },
+              { title: "Sucos naturais", description: "Naturais e funcionais", image: "/images/page-36.jpg", href: "#sucos", accent: "#ef7d18", source: "sucos" },
+              { title: "Saladas", description: "Opções frescas e completas", image: "/images/page-21.jpg", href: "#saladas", accent: "#a7b86a", source: "saladas" },
+              { title: "Sanduíches", description: "Lanches práticos para sua rotina", image: "/images/sanduiche-frango-nutrifit.jpg", href: "#extras", accent: "#ef7d18", source: "sanduiches" },
+            ]).map((category) => (
+              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:rounded-[1.35rem]">
+                <img src={category.image} alt={category.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/5" />
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                  <div className="flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-black leading-tight sm:text-lg">{category.title}</h3>
+                      <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs">{category.description}</p>
+                    </div>
+                    <span style={{ borderColor: category.accent, color: category.accent }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full border bg-black/40 text-base transition group-hover:bg-black/70 sm:h-9 sm:w-9">›</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos_mobile")} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-xs font-black text-black sm:hidden">Ver cardápio completo <ArrowRight size={15} /></a>
         </div>
       </section>
 
@@ -2367,42 +2392,6 @@ export default function Home() {
               </a>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
-          <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-xs">Explore a Nutrifit</div>
-              <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">Muito mais que marmitas</h2>
-              <p className="mt-1 text-xs text-white/50 sm:text-sm">Encontre refeições, sucos, saladas e lanches em um só lugar.</p>
-            </div>
-            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos")} className="hidden shrink-0 items-center gap-1 text-xs font-black text-[#ef7d18] sm:inline-flex">Ver cardápio <ArrowRight size={15} /></a>
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
-            {([
-              { title: "Marmitas", description: "Fit, Performance e Tradicional", image: "/images/page-4.jpg", href: "#cardapio", accent: "#a7b86a", source: "marmitas" },
-              { title: "Sucos naturais", description: "Naturais e funcionais", image: "/images/page-36.jpg", href: "#sucos", accent: "#ef7d18", source: "sucos" },
-              { title: "Saladas", description: "Opções frescas e completas", image: "/images/page-21.jpg", href: "#saladas", accent: "#a7b86a", source: "saladas" },
-              { title: "Sanduíches", description: "Lanches práticos para sua rotina", image: "/images/sanduiche-frango-nutrifit.jpg", href: "#extras", accent: "#ef7d18", source: "sanduiches" },
-            ]).map((category) => (
-              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:rounded-[1.35rem]">
-                <img src={category.image} alt={category.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/5" />
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <div className="flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black leading-tight sm:text-lg">{category.title}</h3>
-                      <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs">{category.description}</p>
-                    </div>
-                    <span style={{ borderColor: category.accent, color: category.accent }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full border bg-black/40 text-base transition group-hover:bg-black/70 sm:h-9 sm:w-9">›</span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-          <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos_mobile")} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-xs font-black text-black sm:hidden">Ver cardápio completo <ArrowRight size={15} /></a>
         </div>
       </section>
 
@@ -2506,6 +2495,17 @@ export default function Home() {
       </section>
 
       
+      <section aria-label="Atendimento profissional Nutrifit" className="mobile-home-only border-b border-white/10 bg-[#10130d] sm:hidden">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
+            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Atendimento profissional</div>
+            <h2 className="mt-1 text-sm font-black leading-tight">Nutrição alinhada à sua rotina</h2>
+            <p className="mt-1 text-[11px] leading-4 text-white/55">Orientação e refeições planejadas para você.</p>
+          </div>
+          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." className="shrink-0 rounded-full bg-[#ef7d18] px-3 py-2.5 text-[10px] font-black text-black">Falar com a nutri <ArrowRight size={12} className="ml-1 inline" /></a>
+        </div>
+      </section>
+
       <section id="plano-alimentar" aria-label="Plano alimentar Nutrifit" className="hidden sm:block mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
         <div className="rounded-[1.5rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] p-5 sm:p-6">
           <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
