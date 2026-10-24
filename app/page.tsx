@@ -2230,13 +2230,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-2 px-3 sm:h-[80px] sm:px-4 md:h-[82px] md:gap-5 md:px-7">
+        <div className="mx-auto flex h-[60px] max-w-7xl items-center gap-1.5 px-2.5 sm:h-[80px] sm:gap-2 sm:px-4 md:h-[82px] md:gap-5 md:px-7">
           <a href="#inicio" aria-label="Nutrifit — início" className="flex min-w-0 shrink-0 items-center gap-2.5">
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0b0d09] sm:h-10 sm:w-10">
-              <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
+              <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
             </span>
             <span className="leading-none">
-              <span className="text-[18px] font-black tracking-[-.04em] text-white sm:text-[22px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
+              <span className="text-[16px] font-black tracking-[-.04em] text-white sm:text-[22px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
             </span>
           </a>
 
@@ -2278,7 +2278,7 @@ export default function Home() {
         </div>
 
         {menuOpen && <div className="border-t border-white/10 bg-[#10130d] px-3 py-3 lg:hidden">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
             <a href="#cardapio" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">FIT 350 g</a>
             <a href="#performance" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERFORMANCE 450 g</a>
             <a href="#saladas" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SALADAS</a>
@@ -2334,14 +2334,14 @@ export default function Home() {
             </div>
             <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos")} className="hidden shrink-0 items-center gap-1 text-xs font-black text-[#ef7d18] sm:inline-flex">Ver cardápio <ArrowRight size={15} /></a>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:gap-3 lg:grid-cols-4">
             {([
               { title: "Marmitas", description: "Fit, Performance e Tradicional", image: "/images/page-4.jpg", href: "#cardapio", accent: "#a7b86a", source: "marmitas" },
               { title: "Sucos naturais", description: "Naturais e funcionais", image: "/images/page-36.jpg", href: "#sucos", accent: "#ef7d18", source: "sucos" },
               { title: "Saladas", description: "Opções frescas e completas", image: "/images/page-21.jpg", href: "#saladas", accent: "#a7b86a", source: "saladas" },
               { title: "Sanduíches", description: "Lanches práticos para sua rotina", image: "/images/sanduiche-frango-nutrifit.jpg", href: "#extras", accent: "#ef7d18", source: "sanduiches" },
             ]).map((category) => (
-              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:rounded-[1.35rem]">
+              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] w-[42%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:w-auto sm:shrink sm:rounded-[1.35rem]">
                 <img src={category.image} alt={category.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/5" />
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
