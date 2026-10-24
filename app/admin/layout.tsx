@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AdminRefreshControl from "./admin-refresh-control";
 
 export const metadata: Metadata = {
   title: "Nutrifit Admin",
@@ -15,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      {children}
+      <AdminRefreshControl />
+    </>
+  );
 }
