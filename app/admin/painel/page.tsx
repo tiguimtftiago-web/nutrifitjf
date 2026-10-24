@@ -100,6 +100,8 @@ export default function PainelNutrifit() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [finance, setFinance] = useState<Finance[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [inventoryPurchases, setInventoryPurchases] = useState<any[]>([]);
   const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
   const [copiedLink, setCopiedLink] = useState("");
   const [customerSearch, setCustomerSearch] = useState("");
@@ -111,17 +113,21 @@ export default function PainelNutrifit() {
   async function load(t: string) {
     try {
       setError("");
-      const [o, c, a, f, ae] = await Promise.all([
+      const [o, c, a, f, ae, inv, purchases] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,whatsapp,email,marketing_consent,marketing_consent_at,coupon_code,coupon_used,last_order_at,order_count,total_spend,birth_date,nutrifit_club_member,nutrifit_club_joined_at,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
         request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
         request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,page,metadata&order=created_at.desc&limit=1000`, t),
+        request(`${URL}/rest/v1/inventory_items?select=id,name,unit,current_quantity,minimum_quantity,average_cost,active&active=eq.true&limit=500`, t),
+        request(`${URL}/rest/v1/inventory_purchases?select=id,created_at,total_cost,status&order=created_at.desc&limit=200`, t),
       ]);
       setOrders(o || []);
       setCustomers(c || []);
       setAlerts(a || []);
       setFinance(f || []);
+      setInventoryItems(inv || []);
+      setInventoryPurchases(purchases || []);
       setAcquisitionEvents(ae || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível carregar o painel.");
@@ -151,6 +157,9 @@ export default function PainelNutrifit() {
     .filter(f => f.type === "despesa" && dayKey(new Date(f.created_at)) === today)
     .reduce((sum, f) => sum + Number(f.amount || 0), 0);
   const estimatedProfit = todayRevenue - todayExpenses;
+  const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
+  const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
+  const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
   const estimatedMargin = todayRevenue > 0 ? (estimatedProfit / todayRevenue) * 100 : 0;
   const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
   const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
@@ -452,7 +461,9 @@ export default function PainelNutrifit() {
           </div>
         </section>
 
-<section className="mt-5 grid gap-5 lg:grid-cols-2">
+<section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6"><div className="mb-5"><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Estoque e compras</div><div className="mt-1 text-sm text-white/40">Indicadores calculados a partir dos registros reais do sistema.</div></div><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[["Insumos ativos",String(inventoryItems.length)],["Itens no mínimo/abaixo",String(lowStockItems.length)],["Valor estimado em estoque",money(inventoryValue)],["Compras recebidas · 30 dias",money(purchaseSpend30Days)]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-lg font-black sm:text-xl">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}</div>{lowStockItems.length>0&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4"><div className="mb-3 text-sm font-black text-[#efb06e]">Itens para conferir</div><div className="flex flex-wrap gap-2">{lowStockItems.slice(0,8).map(item=><span key={item.id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#efb06e]">{item.name} · {Number(item.current_quantity||0).toLocaleString("pt-BR")} {item.unit}</span>)}</div></div>}<div className="mt-4 text-[11px] leading-relaxed text-white/30">Valor estimado: quantidade atual × custo médio cadastrado. Compras inclui apenas registros recebidos, excluindo rascunhos e cancelamentos.</div></section>
+
+        <section className="mt-5 grid gap-5 lg:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Alertas importantes</div><div className="mt-1 text-sm text-white/40">O que pode exigir ação hoje.</div></div><ChevronRight size={18} className="text-white/20"/></div>
             {alerts.length === 0 ? <div className="rounded-2xl bg-[#a7b86a]/10 p-4 text-sm font-bold text-[#d9e5a5]">Nenhum alerta de compra no momento.</div> :
