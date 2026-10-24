@@ -919,68 +919,69 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       .map((product, i) => {
         const qty = selected[product.name];
         const itemTotal = ((subtotal / quantity) + tilapiaSurchargePerUnit(product.name)) * qty;
-        return `*${i + 1}. ${qty}x ${product.name}*\n   ${product.line} • ${product.weight} • ${money(itemTotal)}${tilapiaSurchargePerUnit(product.name) ? ` (adicional de ${money(tilapiaSurchargePerUnit(product.name))}/un.)` : ""}`;
+        return `${i + 1}. ${qty}x ${product.name}\n   ${product.line} | ${product.weight} | ${money(itemTotal)}${tilapiaSurchargePerUnit(product.name) ? ` (adicional de ${money(tilapiaSurchargePerUnit(product.name))}/un.)` : ""}`;
       })
       .join("\n\n");
 
     const deliveryText =
       deliveryMode === "pickup"
         ? [
-            "🏪 *RETIRADA NA NUTRIFIT*",
+            "RETIRADA NA NUTRIFIT",
             "Rua Enéas Mascarenhas, nº 94/103",
             "Monte Castelo — Juiz de Fora/MG",
           ].join("\n")
         : [
-            "🚚 *ENTREGA EM DOMICÍLIO*",
-            `📍 *${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}*`,
-            deliveryComplement.trim() ? `🏢 Complemento: ${deliveryComplement.trim()}` : "",
-            `Bairro: ${deliveryNeighborhood.trim()}`,
-            `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
+            "ENTREGA EM DOMICÍLIO",
+            `ENDEREÇO: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
+            deliveryComplement.trim() ? `APTO / CASA / COMPLEMENTO: ${deliveryComplement.trim()}` : "",
+            `BAIRRO: ${deliveryNeighborhood.trim()}`,
+            `CIDADE/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
             `CEP: ${cep}`,
-            deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
+            deliveryReference.trim() ? `REFERÊNCIA: ${deliveryReference.trim()}` : "",
           ].filter(Boolean).join("\n");
 
     const message = [
-      "🥗 *NUTRIFIT | RESUMO DO PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━━━",
+      "NUTRIFIT | RESUMO DO PEDIDO",
+      "==============================",
       "",
-      "👤 *DADOS DO CLIENTE*",
+      "DADOS DO CLIENTE",
       `Nome: ${customerName.trim()}`,
       `WhatsApp: ${customerPhone.trim()}`,
       "",
-      "🍱 *ITENS DO PEDIDO*",
+      "ITENS DO PEDIDO",
       items,
       ...(complementItems.length ? [
         "",
-        "➕ *COMPLEMENTOS*",
+        "COMPLEMENTOS",
         ...complementItems.map((item) => {
           const qty = selectedComplements[item.name] || 0;
           const total = item.price === null ? "preço a confirmar" : money((item.price ?? 0) * qty);
-          return `• ${qty}x ${item.name} — ${total}`;
+          return `- ${qty}x ${item.name} | ${total}`;
         }),
       ] : []),
       "",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "💰 *RESUMO DOS VALORES*",
+      "------------------------------",
+      "RESUMO DOS VALORES",
       `Quantidade: ${quantity} marmitas`,
-      `Combo: ${money(subtotal)}`,
+      `Valor do combo: ${money(subtotal)}`,
       ...(premiumExtra > 0 ? [`Adicional de tilápia: ${money(premiumExtra)}`] : []),
       ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
       `Frete: ${money(deliveryFee)}`,
-      "━━━━━━━━━━━━━━━━━━━━",
-      `${hasPendingComplementPrice ? "🟠 *TOTAL PARCIAL — confirmar complementos*" : "🟢 *TOTAL A PAGAR*"}`,
-      `💵 *${money(grandTotal)}*`,
+      "------------------------------",
+      hasPendingComplementPrice ? "TOTAL PARCIAL (confirmar complementos)" : "TOTAL A PAGAR",
+      `R$ ${grandTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       "",
-      "━━━━━━━━━━━━━━━━━━━━",
-      "📍 *ENDEREÇO / RECEBIMENTO*",
+      "------------------------------",
+      "ENDEREÇO / RECEBIMENTO",
       deliveryText,
       "",
-      "💳 *PAGAMENTO VIA PIX*",
+      "PAGAMENTO VIA PIX",
       `Chave Pix: ${PIX_KEY}`,
-      "📲 Após o pagamento, envie o comprovante neste WhatsApp.",
+      "Após o pagamento, envie o comprovante neste WhatsApp.",
       "",
-      "✅ *Confira os itens, o valor e principalmente o endereço antes de pagar.*",
-      "Em caso de correção, avise a NutriFit por aqui.",
+      "IMPORTANTE",
+      "Confira os itens, o valor e principalmente o endereço antes de pagar.",
+      "Se precisar corrigir algum dado, avise a NutriFit por aqui.",
     ].join("\n");
 
     // Abre uma aba imediatamente para evitar bloqueio de pop-up durante a gravação.
