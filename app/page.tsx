@@ -1656,6 +1656,13 @@ export default function Home() {
   const [orderCity, setOrderCity] = useState("");
   const [orderState, setOrderState] = useState("");
   const [orderReference, setOrderReference] = useState("");
+  const [orderStreet, setOrderStreet] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [orderComplement, setOrderComplement] = useState("");
+  const [orderNeighborhood, setOrderNeighborhood] = useState("");
+  const [orderCity, setOrderCity] = useState("");
+  const [orderState, setOrderState] = useState("");
+  const [orderReference, setOrderReference] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderDelivery, setOrderDelivery] = useState<DeliveryResult | null>(null);
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
