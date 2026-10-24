@@ -758,6 +758,13 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [cep, setCep] = useState("");
+  const [deliveryStreet, setDeliveryStreet] = useState("");
+  const [deliveryNumber, setDeliveryNumber] = useState("");
+  const [deliveryComplement, setDeliveryComplement] = useState("");
+  const [deliveryNeighborhood, setDeliveryNeighborhood] = useState("");
+  const [deliveryCity, setDeliveryCity] = useState("");
+  const [deliveryState, setDeliveryState] = useState("");
+  const [deliveryReference, setDeliveryReference] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [customerName, setCustomerName] = useState("");
@@ -858,20 +865,25 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       return;
     }
 
-    if (quantity >= DELIVERY_FREE_FROM) {
-      setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: "" });
-      setDeliveryStatus("idle");
-      return;
-    }
-
     setDeliveryStatus("loading");
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
 
-      if (data.erro || !data.bairro) {
+      if (data.erro || !data.bairro || !data.logradouro || !data.localidade || !data.uf) {
         setDelivery(null);
         setDeliveryStatus("error");
+        return;
+      }
+
+      setDeliveryStreet(String(data.logradouro || ""));
+      setDeliveryNeighborhood(String(data.bairro || ""));
+      setDeliveryCity(String(data.localidade || ""));
+      setDeliveryState(String(data.uf || ""));
+
+      if (quantity >= DELIVERY_FREE_FROM) {
+        setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: String(data.bairro || "") });
+        setDeliveryStatus("idle");
         return;
       }
 
@@ -908,11 +920,15 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     const deliveryText =
       deliveryMode === "pickup"
         ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
-        : quantity >= DELIVERY_FREE_FROM
-          ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais"
-          : delivery?.fee === 0
-            ? `🚚 *Entrega grátis* — CEP ${cep}`
-            : `🚚 *Entrega ${money(delivery?.fee ?? 0)}* — CEP ${cep}`;
+        : [
+            quantity >= DELIVERY_FREE_FROM ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais" : delivery?.fee === 0 ? "🚚 *Entrega grátis*" : `🚚 *Entrega ${money(delivery?.fee ?? 0)}*`,
+            `📍 Endereço: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
+            deliveryComplement.trim() ? `Complemento: ${deliveryComplement.trim()}` : "",
+            `Bairro: ${deliveryNeighborhood.trim()}`,
+            `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
+            `CEP: ${cep}`,
+            deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
+          ].filter(Boolean).join("\n");
 
     const message = [
       "🥗 *NUTRIFIT • NOVO PEDIDO*",
@@ -987,6 +1003,15 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           })),
           delivery_mode: deliveryMode,
           cep: cep.replace(/\D/g, ""),
+          delivery_address: deliveryMode === "delivery" ? {
+            street: deliveryStreet.trim(),
+            number: deliveryNumber.trim(),
+            complement: deliveryComplement.trim() || null,
+            neighborhood: deliveryNeighborhood.trim(),
+            city: deliveryCity.trim(),
+            state: deliveryState.trim(),
+            reference: deliveryReference.trim() || null,
+          } : null,
           acquisition_source: acquisition.source || "site_combo_builder",
           acquisition_campaign: acquisition.campaign || null,
           acquisition_medium: acquisition.medium || null,
@@ -1013,7 +1038,8 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
     }
   };
 
-  const deliveryReady = deliveryMode === "pickup" || quantity >= DELIVERY_FREE_FROM || Boolean(delivery);
+  const deliveryAddressReady = deliveryMode === "pickup" || Boolean(deliveryStreet.trim() && deliveryNumber.trim() && deliveryNeighborhood.trim() && deliveryCity.trim() && deliveryState.trim());
+  const deliveryReady = deliveryMode === "pickup" || (Boolean(delivery) && deliveryAddressReady);
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
   const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
@@ -1291,11 +1317,36 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           ) : (
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
-                <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
-                  {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
+                <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); setDeliveryStreet(""); setDeliveryNumber(""); setDeliveryComplement(""); setDeliveryNeighborhood(""); setDeliveryCity(""); setDeliveryState(""); setDeliveryReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="CEP" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
+                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular frete e preencher endereço pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                  {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Buscando endereço...</> : "Buscar endereço"}
                 </button>
               </div>
+              {delivery && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label className="text-xs font-bold text-white/60">Rua / avenida *
+                    <input value={deliveryStreet} onChange={(e) => setDeliveryStreet(e.target.value)} autoComplete="address-line1" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60">Número *
+                    <input value={deliveryNumber} onChange={(e) => setDeliveryNumber(e.target.value)} autoComplete="address-line2" placeholder="Número" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60">Complemento
+                    <input value={deliveryComplement} onChange={(e) => setDeliveryComplement(e.target.value)} placeholder="Apartamento, bloco, casa..." className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60">Bairro *
+                    <input value={deliveryNeighborhood} onChange={(e) => setDeliveryNeighborhood(e.target.value)} autoComplete="address-level3" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60">Cidade *
+                    <input value={deliveryCity} onChange={(e) => setDeliveryCity(e.target.value)} autoComplete="address-level2" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60">Estado *
+                    <input value={deliveryState} onChange={(e) => setDeliveryState(e.target.value)} autoComplete="address-level1" maxLength={2} className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase text-white" />
+                  </label>
+                  <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
+                    <input value={deliveryReference} onChange={(e) => setDeliveryReference(e.target.value)} placeholder="Ex.: portão azul, perto de..." className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                  </label>
+                </div>
+              )}
               {quantity >= DELIVERY_FREE_FROM ? (
                 <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm">
                   <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
@@ -1584,6 +1635,13 @@ export default function Home() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [orderCep, setOrderCep] = useState("");
+  const [orderStreet, setOrderStreet] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [orderComplement, setOrderComplement] = useState("");
+  const [orderNeighborhood, setOrderNeighborhood] = useState("");
+  const [orderCity, setOrderCity] = useState("");
+  const [orderState, setOrderState] = useState("");
+  const [orderReference, setOrderReference] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [orderDelivery, setOrderDelivery] = useState<DeliveryResult | null>(null);
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -1601,7 +1659,8 @@ export default function Home() {
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
-  const orderDeliveryReady = Boolean(orderDelivery);
+  const orderAddressReady = Boolean(orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
+  const orderDeliveryReady = Boolean(orderDelivery && orderAddressReady);
   const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
@@ -1611,7 +1670,11 @@ export default function Home() {
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
-      if (data.erro || !data.bairro) throw new Error("CEP");
+      if (data.erro || !data.bairro || !data.logradouro || !data.localidade || !data.uf) throw new Error("CEP");
+      setOrderStreet(String(data.logradouro || ""));
+      setOrderNeighborhood(String(data.bairro || ""));
+      setOrderCity(String(data.localidade || ""));
+      setOrderState(String(data.uf || ""));
       const result = findDelivery(data.bairro);
       if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
       setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
@@ -1674,11 +1737,15 @@ export default function Home() {
     }).join("\n\n");
 
     const notesText = orderNotes.trim();
-    const deliverySummary = orderFreeDelivery
-      ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
-      : orderDelivery
-        ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
-        : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
+    const deliverySummary = [
+      orderFreeDelivery ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens` : `🚚 *${orderDelivery?.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery?.fee ?? 0)}*`,
+      `📍 Endereço: ${orderStreet.trim()}, nº ${orderNumber.trim()}`,
+      orderComplement.trim() ? `Complemento: ${orderComplement.trim()}` : "",
+      `Bairro: ${orderNeighborhood.trim()}`,
+      `Cidade/UF: ${orderCity.trim()}/${orderState.trim()}`,
+      `CEP: ${orderCep}`,
+      orderReference.trim() ? `Referência: ${orderReference.trim()}` : "",
+    ].filter(Boolean).join("\n");
 
     const message = [
       "🥗 *NUTRIFIT • NOVO PEDIDO*",
@@ -1736,8 +1803,17 @@ export default function Home() {
           coupon_code: appliedCoupon?.code || null,
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
           delivery_fee: orderDeliveryFee,
-          cep: orderCep.replace(/\\D/g, "") || null,
-          neighborhood: orderDelivery?.neighborhood || null,
+          cep: orderCep.replace(/\D/g, "") || null,
+          neighborhood: orderNeighborhood.trim() || orderDelivery?.neighborhood || null,
+          delivery_address: {
+            street: orderStreet.trim(),
+            number: orderNumber.trim(),
+            complement: orderComplement.trim() || null,
+            neighborhood: orderNeighborhood.trim(),
+            city: orderCity.trim(),
+            state: orderState.trim(),
+            reference: orderReference.trim() || null,
+          },
           notes: notesText || null,
           acquisition_source: acquisitionSource,
           acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
@@ -2752,18 +2828,41 @@ export default function Home() {
                       </div>
                       <Truck size={21} className="shrink-0 text-[#a7b86a]" />
                     </div>
-                    {!orderFreeDelivery && (
+                    <div className="mt-3 flex gap-2">
+                      <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="CEP" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                      <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
+                        {orderDeliveryStatus === "loading" ? "Buscando…" : "Buscar endereço"}
+                      </button>
+                    </div>
+                    {orderDelivery && (
                       <>
-                        <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
-                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
-                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
-                          </button>
+                        <div className="mt-3 text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <label className="text-xs font-bold text-white/60">Rua / avenida *
+                            <input value={orderStreet} onChange={(e) => setOrderStreet(e.target.value)} autoComplete="address-line1" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60">Número *
+                            <input value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="Número" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60">Complemento
+                            <input value={orderComplement} onChange={(e) => setOrderComplement(e.target.value)} placeholder="Apartamento, bloco, casa..." className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60">Bairro *
+                            <input value={orderNeighborhood} onChange={(e) => setOrderNeighborhood(e.target.value)} autoComplete="address-level3" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60">Cidade *
+                            <input value={orderCity} onChange={(e) => setOrderCity(e.target.value)} autoComplete="address-level2" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60">Estado *
+                            <input value={orderState} onChange={(e) => setOrderState(e.target.value)} maxLength={2} autoComplete="address-level1" className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase text-white" />
+                          </label>
+                          <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
+                            <input value={orderReference} onChange={(e) => setOrderReference(e.target.value)} placeholder="Ex.: portão azul, perto de..." className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white" />
+                          </label>
                         </div>
-                        {orderDelivery && <div className="mt-3 text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
-                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
                       </>
                     )}
+                    {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">Não conseguimos localizar o CEP ou calcular a entrega. Confira os dados ou fale com a NutriFit.</div>}
                     {orderFreeDelivery && <div className="mt-3 text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
