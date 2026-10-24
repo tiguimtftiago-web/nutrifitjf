@@ -925,27 +925,30 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 
     const deliveryText =
       deliveryMode === "pickup"
-        ? "🏪 Retirada na Nutrifit — Rua Enéas Mascarenhas, 94/103, Monte Castelo, Juiz de Fora/MG"
+        ? [
+            "🏪 *RETIRADA NA NUTRIFIT*",
+            "Rua Enéas Mascarenhas, nº 94/103",
+            "Monte Castelo — Juiz de Fora/MG",
+          ].join("\n")
         : [
-            quantity >= DELIVERY_FREE_FROM ? "🚚 *Entrega grátis* — combo com 20 marmitas ou mais" : delivery?.fee === 0 ? "🚚 *Entrega grátis*" : `🚚 *Entrega ${money(delivery?.fee ?? 0)}*`,
-            `📍 Endereço: ${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}`,
-            deliveryComplement.trim() ? `Complemento: ${deliveryComplement.trim()}` : "",
+            "🚚 *ENTREGA EM DOMICÍLIO*",
+            `📍 *${deliveryStreet.trim()}, nº ${deliveryNumber.trim()}*`,
+            deliveryComplement.trim() ? `🏢 Complemento: ${deliveryComplement.trim()}` : "",
             `Bairro: ${deliveryNeighborhood.trim()}`,
             `Cidade/UF: ${deliveryCity.trim()}/${deliveryState.trim()}`,
             `CEP: ${cep}`,
             deliveryReference.trim() ? `Referência: ${deliveryReference.trim()}` : "",
-          ].filter(Boolean).join("\\n");
+          ].filter(Boolean).join("\n");
 
     const message = [
-      "🥗 *NUTRIFIT • NOVO PEDIDO*",
+      "🥗 *NUTRIFIT | RESUMO DO PEDIDO*",
       "━━━━━━━━━━━━━━━━━━━━",
       "",
-      "👤 *CLIENTE*",
+      "👤 *DADOS DO CLIENTE*",
       `Nome: ${customerName.trim()}`,
       `WhatsApp: ${customerPhone.trim()}`,
       "",
-      "🛒 *ITENS DO PEDIDO*",
-      "",
+      "🍱 *ITENS DO PEDIDO*",
       items,
       ...(complementItems.length ? [
         "",
@@ -953,27 +956,31 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         ...complementItems.map((item) => {
           const qty = selectedComplements[item.name] || 0;
           const total = item.price === null ? "preço a confirmar" : money((item.price ?? 0) * qty);
-          return `• *${qty}x ${item.name}* — ${total}`;
+          return `• ${qty}x ${item.name} — ${total}`;
         }),
       ] : []),
       "",
       "━━━━━━━━━━━━━━━━━━━━",
-      "💰 *RESUMO DO PEDIDO*",
-      `🍱 Quantidade: *${quantity} marmitas*`,
-      `Preço-base do combo: *${money(subtotal)}*`,
-      ...(premiumExtra > 0 ? [`Adicional de tilápia premium: *${money(premiumExtra)}*`] : []),
-      `Subtotal do combo: *${money(comboTotal)}*`,
-      `🚚 Frete: *${money(deliveryFee)}*`,
-      `${hasPendingComplementPrice ? "🟠 TOTAL PARCIAL" : "🟢 TOTAL A PAGAR"}: *${money(grandTotal)}*`,
+      "💰 *RESUMO DOS VALORES*",
+      `Quantidade: ${quantity} marmitas`,
+      `Combo: ${money(subtotal)}`,
+      ...(premiumExtra > 0 ? [`Adicional de tilápia: ${money(premiumExtra)}`] : []),
+      ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
+      `Frete: ${money(deliveryFee)}`,
+      "━━━━━━━━━━━━━━━━━━━━",
+      `${hasPendingComplementPrice ? "🟠 *TOTAL PARCIAL — confirmar complementos*" : "🟢 *TOTAL A PAGAR*"}`,
+      `💵 *${money(grandTotal)}*`,
       "",
-      "📍 *RECEBIMENTO*",
+      "━━━━━━━━━━━━━━━━━━━━",
+      "📍 *ENDEREÇO / RECEBIMENTO*",
       deliveryText,
       "",
       "💳 *PAGAMENTO VIA PIX*",
       `Chave Pix: ${PIX_KEY}`,
-      "📲 Depois do pagamento, envie o comprovante por este WhatsApp.",
+      "📲 Após o pagamento, envie o comprovante neste WhatsApp.",
       "",
-      "✅ *Pedido conferido pelo cliente.*",
+      "✅ *Confira os itens, o valor e principalmente o endereço antes de pagar.*",
+      "Em caso de correção, avise a NutriFit por aqui.",
     ].join("\n");
 
     // Abre uma aba imediatamente para evitar bloqueio de pop-up durante a gravação.
