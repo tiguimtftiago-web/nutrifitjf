@@ -222,7 +222,6 @@ export default function CustomerCostsPage(){
             </div>
             <label className="mt-3 grid gap-1 text-xs text-white/55">Observações do pedido<textarea rows={2} value={recordDraft.notes} onChange={e=>setRecordDraft({...recordDraft,notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white"/></label>
             </div>}
-          </div>}
           </div>
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#0d110b]">
             <button type="button" onClick={()=>toggleSection("custos")} aria-expanded={!!openSections.custos} className="flex w-full items-center justify-between gap-3 p-4 text-left sm:p-5"><span className="flex items-center gap-3"><span className="rounded-xl bg-[#a7b86a]/10 p-2 text-[#a7b86a]"><Calculator size={18}/></span><span><span className="block font-black">Itens de custo</span><span className="mt-1 block text-xs text-white/45">{selectedItems.length} item(ns) · {money(costTotal)} registrados</span></span></span><span className="text-xl text-white/50">{openSections.custos?"−":"+"}</span></button>
