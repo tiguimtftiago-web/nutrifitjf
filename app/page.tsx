@@ -2651,9 +2651,9 @@ export default function Home() {
       </section>
 
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
-        <div className="mx-auto max-w-[1500px] px-3 py-4 sm:px-5 sm:py-6 lg:px-7">
+        <div className="mx-auto max-w-[1500px] px-2 py-3 sm:px-5 sm:py-6 lg:px-7">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
-          <div className="relative isolate min-h-[540px] overflow-hidden bg-black sm:min-h-[590px] lg:min-h-[720px]">
+          <div className="relative isolate min-h-[440px] overflow-hidden bg-black sm:min-h-[590px] lg:min-h-[720px]">
             <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute inset-0 -z-20 h-full w-full object-cover object-center brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
             <div className="absolute inset-0 -z-10 bg-black/15 lg:bg-black/35"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/90 via-black/55 to-black/5 lg:from-black/65 lg:via-black/15 lg:to-black/90"/>
@@ -2859,11 +2859,11 @@ export default function Home() {
       </section>
 
 
-      <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-5 py-14 md:px-8">
-        <div className="rounded-[2rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-7 md:p-10">
+      <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
+        <div className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-4 sm:rounded-[2rem] sm:p-7 md:p-10">
           <div className="max-w-3xl">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal Nutrifit</div>
-            <h2 className="mt-2 text-3xl font-black md:text-4xl">Organize suas refeições do mês</h2>
+            <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl md:text-4xl">Organize suas refeições do mês</h2>
             <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e monte os sabores dentro da mesma linha. O preço por marmita é o mesmo do combo de 20 — sem desconto adicional.</p>
           </div>
           <MonthlyPlanBuilder onAddPlan={addPlanToOrder} />
@@ -2871,20 +2871,20 @@ export default function Home() {
       </section>
 
       <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-5 sm:py-11 md:px-8">
+        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-11 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Por que pedir na Nutrifit?</h2>
             <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6 md:text-base">Tudo organizado para você escolher, pedir e receber sem complicação.</p>
           </div>
-          <div className="mt-6 grid gap-2.5 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-4 lg:grid-cols-4">
             {[
               ["🍱", "Porções padronizadas", "350 g • 450 g • 500 g."],
               ["🥗", "Tudo em um só lugar", "Marmitas, saladas e sucos."],
               ["🚚", "Entrega ou retirada", "Consulte pelo CEP."],
               ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
             ].map(([icon, title, text]) => (
-              <div key={title} className="flex min-h-[92px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3.5 sm:block sm:min-h-0 sm:rounded-3xl sm:p-6">
+              <div key={title} className="flex min-h-[96px] min-w-0 flex-col items-start gap-2 rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:min-h-0 sm:rounded-3xl sm:p-6">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#a7b86a]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
                 <div className="min-w-0">
                   <h3 className="text-xs font-black leading-tight sm:mt-4 sm:text-base">{title}</h3>
@@ -2897,7 +2897,7 @@ export default function Home() {
       </section>
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
-        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-5 sm:py-14 md:px-8">
+        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">É simples</div>
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Como pedir</h2>
