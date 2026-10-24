@@ -2335,6 +2335,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section aria-label="Marmitas em destaque" className="mobile-home-only border-b border-white/10 bg-[#080a07] px-3 py-4 sm:hidden">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Escolhas Nutrifit</div>
+              <h2 className="mt-1 text-lg font-black leading-tight">Destaques do cardápio</h2>
+              <p className="mt-1 text-[11px] text-white/50">Veja as opções e escolha a sua.</p>
+            </div>
+            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "destaques_mobile_ver_cardapio")} className="shrink-0 text-[10px] font-black text-[#ef7d18]">Ver todos <ArrowRight size={12} className="ml-1 inline" /></a>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {([
+              { name: "Patinho com Abóbora", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-4.jpg", source: "destaque_patinho_abobora" },
+              { name: "Frango Grelhado com Mix de Legumes", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-6.jpg", source: "destaque_frango_legumes" },
+              { name: "Tilápia Fit com Arroz e Legumes", weight: "FIT · 350 g", price: "R$ 27,90", image: "/images/tilapia-fit-350-web.jpg", source: "destaque_tilapia" },
+              { name: "Chicken Parmesão", weight: "PERFORMANCE · 450 g", price: "R$ 27,90", image: "/images/page-12.jpg", source: "destaque_chicken_parmesao" },
+            ]).map((item) => (
+              <a key={item.source} href="#cardapio" onClick={() => trackClick("homepage_featured_product_click", item.source)} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition active:scale-[.99]">
+                <div className="aspect-[4/3] overflow-hidden bg-black/40">
+                  <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                </div>
+                <div className="p-2.5">
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{item.weight}</div>
+                  <h3 className="mt-1 min-h-9 text-[11px] font-black leading-4">{item.name}</h3>
+                  <div className="mt-2 flex items-center justify-between gap-1">
+                    <span className="text-sm font-black text-[#ef7d18]">{item.price}</span>
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><ArrowRight size={14} /></span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
         <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
           <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
