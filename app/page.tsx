@@ -2903,41 +2903,41 @@ export default function Home() {
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Como pedir</h2>
             <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">Escolha, confirme e receba.</p>
           </div>
-          <div className="mt-6 grid gap-2.5 md:grid-cols-3 sm:mt-8 sm:gap-4">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-4">
             {[
-              ["01","Escolha","Veja o cardápio e escolha suas marmitas."],
-              ["02","Peça","Envie o pedido pelo WhatsApp."],
-              ["03","Receba","Combine entrega ou retirada após a confirmação."]
+              ["01","Escolha","Veja o cardápio."],
+              ["02","Peça","Pelo WhatsApp."],
+              ["03","Receba","Entrega ou retirada."]
             ].map(([number,title,text], index) => (
-              <div key={number} className="relative flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.03] p-4 sm:block sm:rounded-3xl sm:p-7">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-xs font-black text-[#ef7d18] sm:h-10 sm:w-10 sm:bg-[#ef7d18]/15">{number}</div>
-                <div className="min-w-0"><h3 className="text-base font-black sm:mt-4 sm:text-2xl">{title}</h3><p className="mt-1 text-xs leading-5 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
-                {index < 2 && <ArrowRight className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-white/15 md:block" size={18} />}
+              <div key={number} className="relative flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2.5 text-center sm:block sm:rounded-3xl sm:p-7 sm:text-left">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-[10px] font-black text-[#ef7d18] sm:h-10 sm:w-10 sm:text-xs">{number}</div>
+                <div className="min-w-0"><h3 className="text-[11px] font-black leading-tight sm:mt-4 sm:text-2xl">{title}</h3><p className="mt-1 text-[10px] leading-4 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
+                {index < 2 && <ArrowRight className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-white/15 md:block" size={18} />}
               </div>
             ))}
           </div>
 
-          <div className="mt-6 grid gap-3 sm:mt-8 sm:gap-5 md:grid-cols-2">
-            <div className="group relative overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#1c2414] to-[#11140e] p-4 transition hover:border-[#a7b86a]/50 sm:rounded-[1.75rem] sm:p-6">
-              <div className="flex items-start gap-3">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/10"><Truck className="text-[#b7c879]" size={21} /></div>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-5">
+            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#1c2414] to-[#11140e] p-3 transition hover:border-[#a7b86a]/50 sm:rounded-[1.75rem] sm:p-6">
+              <div className="flex h-full flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#a7b86a]/25 bg-[#a7b86a]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><Truck className="text-[#b7c879]" size={18} /></div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#b7c879]">Receba do seu jeito</div>
-                  <h2 className="mt-1 text-base font-black sm:text-xl">Entrega ou retirada</h2>
-                  <p className="mt-1.5 text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Consulte a entrega pelo WhatsApp ou retire diretamente na Nutrifit.</p>
-                  <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-[11px] font-black text-black transition hover:bg-[#c2d58a] sm:text-xs">Consultar entrega <ArrowRight size={14} /></a>
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#b7c879] sm:text-[9px] sm:tracking-[.18em]">Receba do seu jeito</div>
+                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Entrega ou retirada</h2>
+                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Consulte a entrega ou retire diretamente na Nutrifit.</p>
+                  <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2 text-[9px] font-black text-black transition hover:bg-[#c2d58a] sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Consultar entrega <ArrowRight size={12} /></a>
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-[#ef7d18]/20 bg-gradient-to-br from-[#21180f] to-[#12110d] p-4 transition hover:border-[#ef7d18]/45 sm:rounded-[1.75rem] sm:p-6">
-              <div className="flex items-start gap-3">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/10"><MessageCircle className="text-[#ef8a2c]" size={21} /></div>
+            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#ef7d18]/20 bg-gradient-to-br from-[#21180f] to-[#12110d] p-3 transition hover:border-[#ef7d18]/45 sm:rounded-[1.75rem] sm:p-6">
+              <div className="flex h-full flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><MessageCircle className="text-[#ef8a2c]" size={18} /></div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef8a2c]">Atendimento direto</div>
-                  <h2 className="mt-1 text-base font-black sm:text-xl">Pedido pelo WhatsApp</h2>
-                  <p className="mt-1.5 text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições, confira o pedido e combine a entrega ou retirada.</p>
-                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[.06] px-4 py-2.5 text-[11px] font-black transition hover:border-[#ef7d18]/50 hover:bg-white/10 sm:text-xs">Falar com a Nutrifit <MessageCircle size={14} /></a>
+                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef8a2c] sm:text-[9px] sm:tracking-[.18em]">Atendimento direto</div>
+                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Pedido pelo WhatsApp</h2>
+                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições e combine a entrega ou retirada.</p>
+                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#ef7d18]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Falar no WhatsApp <MessageCircle size={12} /></a>
                 </div>
               </div>
             </div>
