@@ -1035,11 +1035,10 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
       setPaymentStatus("idle");
     } catch (error) {
       console.error("combo order capture", error);
-      const warning = "\n\n⚠️ *Atenção:* o sistema não confirmou o registro automático. Confirme os itens e valores com a Nutrifit antes do pagamento.";
-      const fallbackUrl = whatsappOrder(message + warning);
-      if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = fallbackUrl;
-      else window.location.href = fallbackUrl;
+      // Fail closed: nunca encaminhar um pedido sem registro oficial confirmado.
+      if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
       setPaymentStatus("error");
+      setOrderCaptureError(true);
     }
   };
 
@@ -1956,11 +1955,9 @@ export default function Home() {
       else window.location.href = finalUrl;
     } catch (error) {
       console.error("order capture", error);
+      // Fail closed: não abrir WhatsApp nem permitir pagamento com pedido não registrado.
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
       setOrderCaptureError(true);
-      const warning = "\\n\\n⚠️ *Atenção:* o sistema não confirmou o registro automático. Confira os itens com a Nutrifit antes de pagar.";
-      const fallbackUrl = whatsappOrder(message + warning);
-      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = fallbackUrl;
-      else window.location.href = fallbackUrl;
     }
   };
   const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
