@@ -66,6 +66,8 @@ export default function AdminPage() {
   const [messages,setMessages] = useState<Message[]>([]);
   const [leads,setLeads] = useState<Lead[]>([]);
   const [selected,setSelected] = useState<Lead|null>(null);
+  const [showNewLead,setShowNewLead] = useState(false);
+  const [leadForm,setLeadForm] = useState({company:"",contact_name:"",whatsapp:"",email:"",notes:"",next_follow_up_at:""});
   const [search,setSearch] = useState("");
   const [error,setError] = useState("");
   const [busy,setBusy] = useState(false);
@@ -347,10 +349,35 @@ export default function AdminPage() {
     setBusy(true);
     try{
       await request(`${URL}/rest/v1/b2b_leads?id=eq.${selected.id}`,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({
-        status:selected.status,next_follow_up_at:selected.next_follow_up_at||null,proposal_value:selected.proposal_value||null,owner_notes:selected.owner_notes||null,last_contact_at:new Date().toISOString()
+        status:selected.status,next_follow_up_at:selected.next_follow_up_at||null,proposal_value:selected.proposal_value||null,owner_notes:selected.owner_notes||null
       })});
       await load();setSelected(null);
     }catch{setError("Não foi possível salvar o lead.");}
+    finally{setBusy(false);}
+  }
+
+  async function createLead(e:FormEvent){
+    e.preventDefault();
+    if(!leadForm.company.trim()){setError("Informe o nome da empresa.");return;}
+    setBusy(true);setError("");
+    try{
+      await request(`${URL}/rest/v1/b2b_leads`,token,{
+        method:"POST",
+        headers:{Prefer:"return=minimal"},
+        body:JSON.stringify({
+          company:leadForm.company.trim(),
+          contact_name:leadForm.contact_name.trim()||"Responsável a identificar",
+          whatsapp:leadForm.whatsapp.trim(),
+          email:leadForm.email.trim(),
+          notes:leadForm.notes.trim()||null,
+          status:"Novo lead",
+          next_follow_up_at:leadForm.next_follow_up_at?new Date(leadForm.next_follow_up_at+"T12:00:00").toISOString():null
+        })
+      });
+      setLeadForm({company:"",contact_name:"",whatsapp:"",email:"",notes:"",next_follow_up_at:""});
+      setShowNewLead(false);
+      await load();
+    }catch(e){console.error(e);setError("Não foi possível cadastrar o lead. Confira os campos e tente novamente.");}
     finally{setBusy(false);}
   }
 
@@ -625,9 +652,13 @@ export default function AdminPage() {
 
           {section==="b2b"&&(
             <Panel title="Leads B2B">
-              <div className="mb-4 flex justify-end">
-                <Search size={16} className="mr-2 mt-3 text-white/35"/>
-                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm text-white/50">{leads.length} empresa(s) cadastrada(s) · {leads.filter(l=>l.next_follow_up_at&&new Date(l.next_follow_up_at)<=new Date()).length} acompanhamento(s) vencido(s)</div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Search size={16} className="text-white/35"/>
+                  <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar empresa..." className="min-w-0 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none"/>
+                  <button onClick={()=>setShowNewLead(true)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">+ Novo lead</button>
+                </div>
               </div>
               <div className="grid gap-3 lg:hidden">
                 {filteredLeads.map(l=>(
@@ -658,6 +689,7 @@ export default function AdminPage() {
         </section>
       </div>
 
+      {showNewLead&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><form onSubmit={createLead} className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex items-start justify-between"><div><div className="text-xs text-[#a7b86a]">PROSPECÇÃO B2B</div><h2 className="mt-1 text-2xl font-black">Novo lead</h2><p className="mt-1 text-sm text-white/45">Cadastre a empresa e defina o próximo acompanhamento.</p></div><button type="button" onClick={()=>setShowNewLead(false)}><X/></button></div><div className="mt-5 grid gap-3"><label className="grid gap-1 text-sm font-bold">Empresa *<input required value={leadForm.company} onChange={e=>setLeadForm({...leadForm,company:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Responsável<input value={leadForm.contact_name} onChange={e=>setLeadForm({...leadForm,contact_name:e.target.value})} placeholder="Nome ou deixe em branco" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">E-mail<input type="email" value={leadForm.email} onChange={e=>setLeadForm({...leadForm,email:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Telefone / WhatsApp empresarial<input value={leadForm.whatsapp} onChange={e=>setLeadForm({...leadForm,whatsapp:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Próximo acompanhamento<input type="date" value={leadForm.next_follow_up_at} onChange={e=>setLeadForm({...leadForm,next_follow_up_at:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Observações<textarea rows={3} value={leadForm.notes} onChange={e=>setLeadForm({...leadForm,notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><button disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black disabled:opacity-50">{busy?"Cadastrando...":"Cadastrar empresa"}</button></div></form></div>}
       {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.split("").filter(ch=>ch>="0"&&ch<="9").join("")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
       <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-white/10 bg-[#10130d]/95 p-2 shadow-2xl backdrop-blur lg:hidden">
         <div className="grid grid-cols-4 gap-1">
