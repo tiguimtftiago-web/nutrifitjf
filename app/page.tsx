@@ -1535,6 +1535,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
   const [expanded, setExpanded] = useState(false);
   const visibleProducts = expanded ? products : products.slice(0, 3);
   const hiddenCount = Math.max(products.length - 3, 0);
+  const coverProduct = products[0];
 
   return (
     <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -1549,12 +1550,46 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      <button
+        type="button"
+        onClick={() => setExpanded((current) => !current)}
+        aria-expanded={expanded}
+        aria-controls={`nf-line-options-${id}`}
+        className="nf-line-banner group relative mt-4 flex min-h-[142px] w-full items-end overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
+      >
+        {coverProduct && !coverProduct.comingSoon ? (
+          coverProduct.crop ? (
+            <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${coverProduct.image})`, backgroundSize: "cover", backgroundPosition: coverProduct.crop }} />
+          ) : (
+            <img src={coverProduct.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" loading="lazy" />
+          )
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#a7b86a]" /></div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/10" />
+        <div className="relative z-10 flex w-full items-center gap-3 p-4">
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/60 bg-black/60 text-[#ef7d18] shadow-lg">
+            <ChefHat size={30} strokeWidth={1.8} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#c8dc73]">Conheça a linha</div>
+            <div className="mt-1 text-xl font-black leading-tight text-white">{title}</div>
+            <div className="mt-1 text-xs font-medium text-white/75">{subtitle}</div>
+          </div>
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black">
+            {expanded ? <ChevronUp size={22} strokeWidth={2.8} /> : <ArrowRight size={21} strokeWidth={2.8} />}
+          </div>
+        </div>
+      </button>
+
+      <div id={`nf-line-options-${id}`} className={expanded ? "block" : "hidden sm:block"}>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
             <ProductCard product={product} onAdd={onAdd} />
           </div>
         ))}
+        </div>
       </div>
       {expanded && id === "tradicional" && (
         <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09]">
@@ -1593,7 +1628,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           type="button"
           onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
+          className="mt-3 hidden w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:flex sm:mt-4 sm:py-4 sm:text-sm"
         >
           <span>{expanded ? "Mostrar menos" : "Ver todos os pratos da linha"}</span>
           <ArrowRight size={16} className={expanded ? "rotate-[-90deg]" : ""} />
@@ -2591,8 +2626,8 @@ export default function Home() {
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
 
       <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
         <div className="mb-4">
