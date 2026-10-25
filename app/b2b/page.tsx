@@ -66,7 +66,8 @@ export default function B2BPage() {
       if (!response.ok) throw new Error(`Falha ao registrar solicitação (HTTP ${response.status}).`);
       setSent(true);
       submissionIdRef.current = null;
-      form.reset();\n      formStartedAtRef.current = Date.now();
+      form.reset();
+      formStartedAtRef.current = Date.now();
     } catch (error) {
       console.error("Erro ao registrar solicitação B2B:", error);
       setSubmitError(true);
