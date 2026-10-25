@@ -14,7 +14,7 @@ const sections = [
     body: [
       "Controlador dos dados: Nutrifit",
       "CNPJ: 64.776.469/0001-08",
-      "Endereço: Rua Enéas Mascarenhas, nº 94, bairro Monte Castelo, Juiz de Fora/MG",
+      "Endereço: Rua Enéas Mascarenhas, nº 94/103, bairro Monte Castelo, Juiz de Fora/MG",
       "Site: www.nutrifitjf.com.br",
       "WhatsApp: (32) 99803-0038",
       "E-mail para assuntos de privacidade: NutriFit.cozinhajf@gmail.com",
