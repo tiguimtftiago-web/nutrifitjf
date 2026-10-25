@@ -2721,7 +2721,6 @@ export default function Home() {
             </div>
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-xl font-black text-black transition group-hover:translate-x-0.5">→</span>
           </button>
-        </div>
 
           {comboOpen && (
             <>
