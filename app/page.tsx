@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -597,6 +597,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<30 | 60>(30);
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [detailQuantity, setDetailQuantity] = useState(1);
   const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
   const option = monthlyPlanOptions[lineIndex];
@@ -751,11 +753,13 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   );
 }
 
-function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: number; autoScroll?: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
-  const [quantity, setQuantity] = useState<number>(5);
+  const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [detailQuantity, setDetailQuantity] = useState<number>(1);
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [cep, setCep] = useState("");
   const [deliveryStreet, setDeliveryStreet] = useState("");
@@ -770,7 +774,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(initialStep);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
@@ -1053,7 +1057,12 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
         "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
         "",
       ].join("\n");
-      const officialMessage = message.replace(/🛒 \*ITENS DO PEDIDO\*[\s\S]*?(?=📍 \*ENTREGA\*)/, officialSummary);
+      const itemsStart = message.indexOf("ITENS DO PEDIDO");
+      const addressStart = message.indexOf("ENDEREÇO / RECEBIMENTO");
+      if (itemsStart < 0 || addressStart < 0 || addressStart <= itemsStart) {
+        throw new Error("Não foi possível montar o resumo oficial do pedido.");
+      }
+      const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
       const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
@@ -1181,22 +1190,30 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
           </div>
 
           {total !== quantity ? (
-          <div className="grid gap-2.5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {option.products.map((product) => (
-              <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:p-3.5">
-                <div className="flex min-w-0 items-center gap-3">
-                  <img src={product.image} alt={product.name} className="h-14 w-14 shrink-0 rounded-xl object-cover sm:h-16 sm:w-16" style={product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? { objectPosition: "center 20%", transform: "scale(1.08)" } : undefined} loading="lazy" />
-                  <div className="min-w-0">
-                    <div className="break-words font-black text-sm leading-tight">{product.name}</div>
-                    <div className="mt-1 text-xs text-white/40">{product.weight} • {product.price}{tilapiaSurchargePerUnit(product.name) > 0 ? <span className="ml-1 font-black text-[#ef7d18]">+ R$ 6,00 no combo</span> : null}</div>
+              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#a7b86a]/45">
+                <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
+                  {product.crop ? (
+                    <div role="img" aria-label={product.name} className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
+                  ) : (
+                    <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06]" loading="lazy" />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent px-3.5 pb-3.5 pt-16">
+                    <div className="flex items-end gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
+                        <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
+                        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "FIT"} {product.weight}</span>
+                          <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+                        </div>
+                      </div>
+                      <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg"><Plus size={18} strokeWidth={3} /> Adicionar</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                  <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
-                  <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-                  <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
-                </div>
-              </div>
+              </button>
             ))}
           </div>
           ) : (
@@ -1204,6 +1221,32 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
               <div className="font-black text-[#cbd99a]">✓ {quantity} marmitas escolhidas</div>
               <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
               <button type="button" onClick={() => setSelected({})} className="mt-3 text-xs font-bold text-[#ef9b55] underline underline-offset-4">Alterar seleção</button>
+            </div>
+          )}
+          {detailProduct && total !== quantity && (
+            <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/85 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label={detailProduct.name}>
+              <div className="relative max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[1.6rem] border border-white/10 bg-[#080a07] sm:rounded-[1.6rem]">
+                <button type="button" onClick={() => setDetailProduct(null)} aria-label="Fechar detalhes do prato" className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-2xl text-white">×</button>
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
+                  {detailProduct.crop ? (
+                    <div role="img" aria-label={detailProduct.name} className="absolute inset-0 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${detailProduct.image})`, backgroundSize: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "center" : detailProduct.crop, backgroundRepeat: "no-repeat" }} />
+                  ) : (
+                    <img src={detailProduct.image} alt={detailProduct.name} className="absolute inset-0 h-full w-full object-cover" />
+                  )}
+                </div>
+                <div className="p-5">
+                  <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
+                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#a7b86a] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#ef7d18]">{detailProduct.price}</span></div>
+                  <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
+                  <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
+                    <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
+                    <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
+                    <button type="button" onClick={() => setDetailQuantity(v => Math.min(quantity-total,v+1))} disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#ef7d18] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
+                  </div>
+                  <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#ef7d18] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
+                  <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1465,7 +1508,34 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
-    <article className="group flex min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
+    <>
+    <article className="nf-mobile-meal group relative flex sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
+      <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
+        {product.comingSoon ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-4 text-center">
+            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Novidade</div><div className="mt-2 text-2xl font-black text-white">EM BREVE</div></div>
+          </div>
+        ) : product.crop ? (
+          <div aria-label={product.name} role="img" className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
+        ) : (
+          <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06]" loading="lazy" />
+        )}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent px-3.5 pb-3.5 pt-16">
+          <div className="flex items-end gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
+              <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
+                <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+              </div>
+            </div>
+            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </article>
+    <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.comingSoon ? (
           <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-5 text-center">
@@ -1501,32 +1571,118 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
       </div>
     </article>
+    </>
   );
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("combo");
+  const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
+  const isMealLine = id === "cardapio" || id === "performance" || id === "tradicional";
+  const comboLineIndex = id === "performance" ? 1 : id === "tradicional" ? 2 : 0;
+  const lineCombo = comboOptions[comboLineIndex];
   const visibleProducts = expanded ? products : products.slice(0, 3);
   const hiddenCount = Math.max(products.length - 3, 0);
+  const coverProduct = products[0];
 
   return (
     <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
-          <h2 className="mt-1.5 text-3xl font-black text-[#a7b86a] sm:text-4xl md:text-5xl">
-            {id === "cardapio" ? <>LINHA FIT • 350 G</> : title}
+          <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">
+            {id === "cardapio" ? <><span className="text-[#a7b86a]">LINHA FIT</span> <span className="text-[#a7b86a]">• 350 G</span></> : <span className="text-[#a7b86a]">{title}</span>}
           </h2>
           <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
         </div>
 
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      <button
+        type="button"
+        onClick={() => { setExpanded((current) => { const next = !current; if (next) { setPurchaseMode("combo"); setSelectedComboQuantity(null); } return next; }); }}
+        aria-expanded={expanded}
+        aria-controls={`nf-line-options-${id}`}
+        className="nf-line-banner group relative mt-4 flex min-h-[150px] w-full items-stretch overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
+      >
+        <div className="relative z-10 flex w-[58%] flex-col justify-center p-4 pr-2">
+          <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">{id === "cardapio" ? "MARMITAS" : id === "performance" ? "MARMITAS" : id === "tradicional" ? "MARMITAS" : eyebrow}</div>
+          <div className="mt-1 text-xl font-black leading-tight text-[#ef7d18]">{id === "cardapio" ? "FIT" : id === "performance" ? "PERFORMANCE" : id === "tradicional" ? "TRADICIONAL" : title.replace("Linha ", "")}</div>
+          <div className="mt-0.5 text-lg font-semibold leading-tight text-[#ef7d18]">{id === "cardapio" ? "350 g" : id === "performance" ? "450 g" : id === "tradicional" ? "500 g" : ""}</div>
+          <div className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/70">{id === "cardapio" ? "Leve, equilibrada e saborosa." : id === "performance" ? "Mais proteína para o seu resultado." : id === "tradicional" ? "O sabor de sempre, com mais equilíbrio." : subtitle}</div>
+        </div>
+        <div className="absolute inset-y-0 right-0 w-[53%]">
+          {coverProduct && !coverProduct.comingSoon ? (
+            coverProduct.crop ? (
+              <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${coverProduct.image})`, backgroundSize: "cover", backgroundPosition: coverProduct.crop }} />
+            ) : (
+              <img src={coverProduct.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" loading="lazy" />
+            )
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#a7b86a]" /></div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0d100c] via-[#0d100c]/25 to-transparent" />
+        </div>
+        <div className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#ef7d18] text-black shadow-lg">
+          {expanded ? <ChevronUp size={21} strokeWidth={2.8} /> : <ArrowRight size={21} strokeWidth={2.8} />}
+        </div>
+      </button>
+
+      {expanded && isMealLine && (
+        <div className="mt-4 space-y-3 sm:hidden">
+          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#11140e] p-1.5">
+            <button type="button" onClick={() => { setPurchaseMode("combo"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "combo" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+              <span className="block text-sm font-black">Montar combo</span>
+              <span className="mt-0.5 block text-[10px] font-medium">(com desconto)</span>
+            </button>
+            <button type="button" onClick={() => { setPurchaseMode("individual"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "individual" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+              <span className="block text-sm font-black">Compra individual</span>
+              <span className="mt-0.5 block text-[10px] font-medium">(sem desconto)</span>
+            </button>
+          </div>
+
+          {purchaseMode === "combo" && selectedComboQuantity === null && (
+            <div className="rounded-2xl border border-white/10 bg-[#0c0e0b] p-3">
+              <h3 className="text-base font-black">Escolha a quantidade do combo</h3>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {([5, 7, 10, 20] as const).map((quantity) => {
+                  const price = (lineCombo.prices as Record<number, string>)[quantity];
+                  const unitPrice = parseMoney(price) / quantity;
+                  return (
+                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#ef7d18]">
+                      <span className="block text-sm font-black">{quantity} marmitas</span>
+                      <span className="mt-1 block text-xl font-black text-[#c8dc36]">{price}</span>
+                      <span className="mt-0.5 block text-xs text-white/60">{money(unitPrice)} cada</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {purchaseMode === "combo" && selectedComboQuantity !== null && (
+            <div className="rounded-2xl border border-[#a7b86a]/25 bg-[#0c0e0b] p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo selecionado</div>
+                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {(lineCombo.prices as Record<number, string>)[selectedComboQuantity]}</div>
+                </div>
+                <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#ef7d18] underline underline-offset-4">Alterar</button>
+              </div>
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div id={`nf-line-options-${id}`} className={expanded && (!isMealLine || purchaseMode === "individual") ? "block" : "hidden sm:block"}>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
             <ProductCard product={product} onAdd={onAdd} />
           </div>
         ))}
+        </div>
       </div>
       {expanded && id === "tradicional" && (
         <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09]">
@@ -1565,7 +1721,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           type="button"
           onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
+          className="mt-3 hidden w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:flex sm:mt-4 sm:py-4 sm:text-sm"
         >
           <span>{expanded ? "Mostrar menos" : "Ver todos os pratos da linha"}</span>
           <ArrowRight size={16} className={expanded ? "rotate-[-90deg]" : ""} />
@@ -2324,77 +2480,6 @@ export default function Home() {
   </div>
 </section>
 
-      <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
-          <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-xs">Explore a Nutrifit</div>
-              <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">Muito mais que marmitas</h2>
-              <p className="mt-1 text-xs text-white/50 sm:text-sm">Encontre refeições, sucos, saladas e lanches em um só lugar.</p>
-            </div>
-            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos")} className="hidden shrink-0 items-center gap-1 text-xs font-black text-[#ef7d18] sm:inline-flex">Ver cardápio <ArrowRight size={15} /></a>
-          </div>
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:gap-3 lg:grid-cols-4">
-            {([
-              { title: "Marmitas", description: "Fit, Performance e Tradicional", image: "/images/page-4.jpg", href: "#cardapio", accent: "#a7b86a", source: "marmitas" },
-              { title: "Sucos naturais", description: "Naturais e funcionais", image: "/images/page-36.jpg", href: "#sucos", accent: "#ef7d18", source: "sucos" },
-              { title: "Saladas", description: "Opções frescas e completas", image: "/images/page-21.jpg", href: "#saladas", accent: "#a7b86a", source: "saladas" },
-              { title: "Sanduíches", description: "Lanches práticos para sua rotina", image: "/images/sanduiche-frango-nutrifit.jpg", href: "#extras", accent: "#ef7d18", source: "sanduiches" },
-            ]).map((category) => (
-              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] w-[42%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:w-auto sm:shrink sm:rounded-[1.35rem]">
-                <img src={category.image} alt={category.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/5" />
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <div className="flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black leading-tight sm:text-lg">{category.title}</h3>
-                      <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs">{category.description}</p>
-                    </div>
-                    <span style={{ borderColor: category.accent, color: category.accent }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full border bg-black/40 text-base transition group-hover:bg-black/70 sm:h-9 sm:w-9">›</span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-          <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos_mobile")} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-xs font-black text-black sm:hidden">Ver cardápio completo <ArrowRight size={15} /></a>
-        </div>
-      </section>
-
-      <section aria-label="Marmitas em destaque" className="mobile-home-only border-b border-white/10 bg-[#080a07] px-3 py-4 sm:hidden">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-3 flex items-end justify-between gap-3">
-            <div>
-              <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Escolhas Nutrifit</div>
-              <h2 className="mt-1 text-lg font-black leading-tight">Destaques do cardápio</h2>
-              <p className="mt-1 text-[11px] text-white/50">Veja as opções e escolha a sua.</p>
-            </div>
-            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "destaques_mobile_ver_cardapio")} className="shrink-0 text-[10px] font-black text-[#ef7d18]">Ver todos <ArrowRight size={12} className="ml-1 inline" /></a>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { name: "Patinho com Abóbora", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-4.jpg", source: "destaque_patinho_abobora" },
-              { name: "Frango Grelhado com Mix de Legumes", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-6.jpg", source: "destaque_frango_legumes" },
-              { name: "Tilápia Fit com Arroz e Legumes", weight: "FIT · 350 g", price: "R$ 27,90", image: "/images/tilapia-fit-350-web.jpg", source: "destaque_tilapia" },
-              { name: "Chicken Parmesão", weight: "PERFORMANCE · 450 g", price: "R$ 27,90", image: "/images/page-12.jpg", source: "destaque_chicken_parmesao" },
-            ]).map((item) => (
-              <a key={item.source} href="#cardapio" onClick={() => trackClick("homepage_featured_product_click", item.source)} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition active:scale-[.99]">
-                <div className="aspect-[4/3] overflow-hidden bg-black/40">
-                  <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                </div>
-                <div className="p-2.5">
-                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{item.weight}</div>
-                  <h3 className="mt-1 min-h-9 text-[11px] font-black leading-4">{item.name}</h3>
-                  <div className="mt-2 flex items-center justify-between gap-1">
-                    <span className="text-sm font-black text-[#ef7d18]">{item.price}</span>
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><ArrowRight size={14} /></span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
           <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#a7b86a]/40 bg-[#a7b86a]/[.06] p-3">
@@ -2417,239 +2502,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Escolha sua refeição" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-5 md:px-8">
-          <div className="text-center">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Escolha sua refeição</div>
-            <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Como você quer se alimentar hoje?</h2>
-            <p className="mt-1.5 text-sm text-white/45">Escolha uma linha e encontre sua refeição.</p>
-          </div>
-
-          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-            <a href="#cardapio" className="group rounded-[1.15rem] border border-[#a7b86a]/65 bg-[#a7b86a]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
-              <div className="relative min-h-[126px] pb-10 sm:min-h-[150px] sm:pb-12">
-                <div>
-                  <Apple size={34} strokeWidth={1.8} className="mb-2 text-[#a7b86a] sm:h-10 sm:w-10" />
-                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.18em]">Linha Fit</div>
-                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">FIT <span className="text-[#a7b86a]">350 g</span></div>
-                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Leve, equilibrada e saborosa.</div>
-                </div>
-                <span className="absolute bottom-0 right-0 grid h-7 w-7 place-items-center rounded-full border border-[#a7b86a]/70 text-sm text-[#a7b86a] sm:h-10 sm:w-10 sm:text-lg">→</span>
-              </div>
-            </a>
-
-            <a href="#performance" className="group rounded-[1.15rem] border border-white/15 bg-white/[.03] p-2.5 text-left transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40 sm:rounded-[1.4rem] sm:p-4 md:p-5">
-              <div className="relative min-h-[126px] pb-10 sm:min-h-[150px] sm:pb-12">
-                <div>
-                  <Dumbbell size={34} strokeWidth={1.8} className="mb-2 text-[#ef7d18] sm:h-10 sm:w-10" />
-                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Performance</div>
-                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">PERFORMANCE <span className="text-[#ef7d18]">450 g</span></div>
-                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Mais proteína para o seu dia.</div>
-                </div>
-                <span className="absolute bottom-0 right-0 grid h-7 w-7 place-items-center rounded-full border border-[#ef7d18]/70 text-sm text-[#ef7d18] sm:h-10 sm:w-10 sm:text-lg">→</span>
-              </div>
-            </a>
-
-            <a href="#tradicional" className="group rounded-[1.15rem] border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-2.5 text-left transition hover:-translate-y-0.5 hover:bg-[#ef7d18]/15 sm:rounded-[1.4rem] sm:p-4 md:p-5">
-              <div className="relative min-h-[126px] pb-10 sm:min-h-[150px] sm:pb-12">
-                <div>
-                  <ChefHat size={34} strokeWidth={1.8} className="mb-2 text-[#ef7d18] sm:h-10 sm:w-10" />
-                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef7d18] sm:text-[10px] sm:tracking-[.18em]">Linha Tradicional</div>
-                  <div className="mt-1 text-[15px] font-black leading-tight sm:text-xl">TRADICIONAL <span className="text-[#ef7d18]">500 g</span></div>
-                  <div className="mt-2 text-[9px] leading-3 text-white/50 sm:text-sm sm:leading-5">Refeições mais completas.</div>
-                </div>
-                <span className="absolute bottom-0 right-0 grid h-7 w-7 place-items-center rounded-full border border-[#ef7d18]/70 text-sm text-[#ef7d18] sm:h-10 sm:w-10 sm:text-lg">→</span>
-              </div>
-            </a>
-          </div>
-
-
-        </div>
-      </section>
-
-      <section aria-label="Monte seu combo" className="mx-auto max-w-7xl px-3 pb-2 pt-1 sm:px-5 sm:pb-4 md:px-8">
-        <button type="button" onClick={openTopComboBuilder} aria-expanded={topComboOpen} className="group relative flex min-h-[112px] w-full items-center overflow-hidden rounded-[1.25rem] border border-[#ef7d18]/55 bg-gradient-to-r from-[#17130d] via-[#19160f] to-[#10150d] text-left transition hover:border-[#ef7d18] sm:min-h-[150px] sm:rounded-[1.5rem]">
-          <div className="relative z-10 min-w-0 flex-1 p-3 pr-[6rem] sm:p-6 sm:pr-44">
-            <div className="text-[9px] font-black uppercase tracking-[.16em] text-[#a7b86a] sm:text-[10px] sm:tracking-[.2em]">Mais praticidade • mais economia</div>
-            <div className="mt-1 text-[20px] font-black leading-tight sm:text-3xl">Monte seu combo</div>
-            <p className="mt-1.5 max-w-md text-[11px] leading-4 text-white/55 sm:mt-2 sm:text-sm sm:leading-5">Escolha seus pratos favoritos e economize no pedido.</p>
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#ef7d18] px-3 py-1.5 text-[10px] font-black text-black sm:mt-3 sm:px-4 sm:py-2 sm:text-xs">ESCOLHER COMBO <span aria-hidden="true">→</span></span>
-          </div>
-          <div className="absolute right-2.5 top-1/2 h-[82px] w-[82px] -translate-y-1/2 overflow-hidden rounded-xl border border-white/10 bg-black sm:right-5 sm:h-[120px] sm:w-[150px] sm:rounded-[1.15rem]">
-            <img src="/images/page-6.jpg" alt="Marmita Nutrifit" loading="lazy" className="h-full w-full object-cover object-[78%_center] transition duration-300 group-hover:scale-[1.04]" />
-          </div>
-        </button>
-
-        {topComboOpen && (
-          <div className="mt-3 rounded-[1.25rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-4 sm:rounded-[1.5rem] sm:p-5">
-            <div className="mb-2 flex items-center justify-between gap-3 rounded-2xl border border-[#ef7d18] bg-[#ef7d18] p-3 sm:p-4">
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[.18em] text-white">Montar agora</div>
-                <div className="mt-1 text-sm font-black sm:text-base">Escolha suas marmitas sem sair daqui.</div>
-              </div>
-              <button type="button" onClick={() => setTopComboOpen(false)} className="shrink-0 rounded-full border border-white/40 px-3.5 py-2 text-[10px] font-black text-white transition hover:border-white hover:bg-white/10">Fechar</button>
-            </div>
-            <ComboBuilder initialLine={0} autoScroll={false} />
-          </div>
-        )}
-      </section>
-
-      
-      <section aria-label="Atendimento profissional Nutrifit" className="mobile-home-only border-b border-white/10 bg-[#10130d] sm:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
-          <div className="min-w-0">
-            <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Atendimento profissional</div>
-            <h2 className="mt-1 text-sm font-black leading-tight">Nutrição alinhada à sua rotina</h2>
-            <p className="mt-1 text-[11px] leading-4 text-white/55">Orientação e refeições planejadas para você.</p>
-          </div>
-          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." className="shrink-0 rounded-full bg-[#ef7d18] px-3 py-2.5 text-[10px] font-black text-black">Falar com a nutri <ArrowRight size={12} className="ml-1 inline" /></a>
-        </div>
-      </section>
-
-      <section id="plano-alimentar" aria-label="Plano alimentar Nutrifit" className="hidden sm:block mx-auto max-w-7xl px-4 pb-4 sm:px-5 md:px-8">
-        <div className="rounded-[1.5rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] p-5 sm:p-6">
-          <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-[10px]">Plano alimentar • Nutrifit</div>
-          <div className="mt-1 text-2xl font-black leading-tight sm:text-3xl">Seu plano alimentar pode virar refeições prontas.</div>
-          <p className="mt-2 max-w-3xl text-sm leading-5 text-white/50">Você já tem um plano feito pelo seu nutricionista? Traga as orientações para a Nutrifit e transforme seu planejamento em refeições prontas.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3">
-            <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#a7b86a]/40 bg-[#a7b86a]/5 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-[#a7b86a]/10 sm:min-h-28 sm:p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a] sm:text-[10px]">Seu plano alimentar</div>
-                  <ClipboardCheck size={25} strokeWidth={2} className="mt-1.5 text-[#a7b86a] sm:h-7 sm:w-7" />
-                </div>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#a7b86a] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
-              </div>
-              <div>
-                <div className="text-[11px] font-black leading-4 sm:text-sm">Tenho meu plano</div>
-                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Transforme suas orientações em refeições prontas.</div>
-                <div className="mt-2 space-y-0.5 text-[9px] font-bold leading-4 text-white/45 sm:text-[10px]">
-                  <div>✓ Envie seu plano</div>
-                  <div>✓ Nós seguimos suas orientações</div>
-                  <div>✓ Receba suas refeições prontas</div>
-                </div>
-              </div>
-            </a>
-            <a href={"https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional."} className="group flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/60 bg-gradient-to-br from-[#ef7d18]/12 via-[#ef7d18]/5 to-transparent p-3.5 text-left shadow-[inset_0_0_24px_rgba(239,125,24,0.05)] transition hover:-translate-y-0.5 hover:border-[#ef7d18] hover:bg-[#ef7d18]/15 sm:min-h-28 sm:p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Atendimento nutricional</div>
-                  <Stethoscope size={25} strokeWidth={2} className="mt-1.5 text-[#ef7d18] sm:h-7 sm:w-7" />
-                </div>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
-              </div>
-              <div>
-                <div className="text-[11px] font-black leading-4 sm:text-sm">Quero falar com a nutricionista Deuslene Costa</div>
-                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Orientação nutricional personalizada para seus objetivos.</div>
-              </div>
-            </a>
-            <a href="/b2b" className="group col-span-2 flex min-h-24 flex-col justify-between rounded-[1.15rem] border border-[#ef7d18]/55 bg-gradient-to-br from-[#17130d] via-[#11150d] to-[#0b0e09] p-3.5 text-left shadow-[inset_0_0_28px_rgba(239,125,24,0.06)] transition hover:-translate-y-0.5 hover:border-[#ef7d18] hover:bg-[#ef7d18]/10 md:col-span-1 sm:min-h-28 sm:p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[9px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-[10px]">Nutrifit para empresas</div>
-                  <Building2 size={25} strokeWidth={2} className="mt-1.5 text-[#ef7d18] sm:h-7 sm:w-7" />
-                </div>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] text-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9"><ArrowRight size={15} strokeWidth={2.5} /></span>
-              </div>
-              <div>
-                <div className="text-[11px] font-black leading-4 sm:text-sm">Alimentação de qualidade para sua equipe.</div>
-                <div className="mt-1 text-[10px] leading-4 text-white/50 sm:text-[11px]">Refeições para colaboradores, reuniões e eventos.</div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
-
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
-
-      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
-        <div className="mb-4">
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
-          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
-          <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
-        </div>
-
-        <div className="grid gap-2.5 md:grid-cols-2">
-          {([
-            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
-            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
-          ] as const).map(([category, icon, title, subtitle, accent]) => {
-            const items = comboComplements.filter((item) => item.category === category);
-            return (
-              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div
-                      className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
-                      style={{ backgroundColor: accent + "18", border: `1px solid ${accent}35` }}
-                    >
-                      {icon}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>
-                        {category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}
-                      </div>
-                      <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
-                      <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
-                    </div>
-                  </div>
-                  {category === "FRUTAS" && (
-                    <img
-                      src="/images/frutas-picadas-header.jpg"
-                      alt="Porção de frutas frescas picadas Nutrifit"
-                      className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
-                </summary>
-
-                <div className="border-t border-white/10">
-                  {category === "FRUTAS" && (
-                    <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
-                  )}
-                  {items.map((item) => (
-                    <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
-                      <div className="flex min-w-0 items-center gap-3">
-                        {item.image ? (
-                          <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
-                        ) : (
-                          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{item.emoji}</div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="break-words text-sm font-black">{item.name}</div>
-                          <div className="mt-0.5 truncate text-[11px] text-white/40">{item.description}</div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={`Adicionar ${item.name}`}
-                        onClick={() => addToOrder({
-                          name: item.name,
-                          line: category,
-                          weight: category === "FRUTAS" ? "200 g" : "100–120 g",
-                          price: money(item.price ?? 0),
-                          description: item.description,
-                          image: item.image || ""
-                        })}
-                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
-                      >
-                        {money(item.price ?? 0)}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            );
-          })}
-        </div>
-      </section>
-
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
         <div className="mx-auto max-w-[1500px] px-2 py-3 sm:px-5 sm:py-6 lg:px-7">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
@@ -2761,6 +2618,92 @@ export default function Home() {
       </div>
       </div>
       </section>
+
+      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
+        <div className="mb-4">
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
+          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
+          <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
+        </div>
+
+        <div className="grid gap-2.5 md:grid-cols-2">
+          {([
+            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
+            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
+          ] as const).map(([category, icon, title, subtitle, accent]) => {
+            const items = comboComplements.filter((item) => item.category === category);
+            return (
+              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
+                      style={{ backgroundColor: accent + "18", border: `1px solid ${accent}35` }}
+                    >
+                      {icon}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>
+                        {category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}
+                      </div>
+                      <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
+                      <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
+                    </div>
+                  </div>
+                  {category === "FRUTAS" && (
+                    <img
+                      src="/images/frutas-picadas-header.jpg"
+                      alt="Porção de frutas frescas picadas Nutrifit"
+                      className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
+                </summary>
+
+                <div className="border-t border-white/10">
+                  {category === "FRUTAS" && (
+                    <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
+                  )}
+                  {items.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {item.image ? (
+                          <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
+                        ) : (
+                          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{item.emoji}</div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="break-words text-sm font-black">{item.name}</div>
+                          <div className="mt-0.5 truncate text-[11px] text-white/40">{item.description}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`Adicionar ${item.name}`}
+                        onClick={() => addToOrder({
+                          name: item.name,
+                          line: category,
+                          weight: category === "FRUTAS" ? "200 g" : "100–120 g",
+                          price: money(item.price ?? 0),
+                          description: item.description,
+                          image: item.image || ""
+                        })}
+                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
+                      >
+                        {money(item.price ?? 0)}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      </section>
+
+
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 sm:py-8 md:px-8">
