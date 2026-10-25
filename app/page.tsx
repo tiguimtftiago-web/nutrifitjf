@@ -118,9 +118,9 @@ const salads: Product[] = [
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
 const traditional: Product[] = [
-  ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
+  ["Patinho Caseiro com Purê de Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
   ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado."],
-  ["Feijoada Fit","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
+  ["Feijoada Tradicional","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
   ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga."],
   ["Churrasco Fit Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
@@ -367,7 +367,7 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           <p className="mt-1 text-[11px] leading-4 text-white/80">{data?.profile || flavor.description}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
         </div>
-        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; validar a receita e a rotulagem com profissional responsável antes de divulgar como informação oficial.</p>
+        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Valores estimados com base em tabelas de composição de alimentos (TBCA/USP).</p>
       </div>
     </details>
   );
@@ -587,6 +587,8 @@ const comboOptions = [
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
 
+// TODO(comercial): revisar e aprovar preços reais de 30/60 unidades por linha; não anunciar economia enquanto não forem inferiores ao preço/unidade do combo de 20.
+// TODO(comercial): os valores atuais não garantem desconto por unidade frente ao combo de 20 em todas as linhas; aprovar nova tabela antes de divulgar economia.
 const monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
@@ -726,12 +728,12 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               <div className="text-lg font-black">{quantity} marmitas</div>
               <div className="mt-1 text-3xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
               <div className="mt-1 text-xs text-white/50">{money(unitPrice)} por marmita</div>
-              <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+              <div className="mt-1 text-sm font-bold text-[#a7b86a]">Consulte as condições de entrega</div>
             </div>
             <div className="space-y-1 text-xs text-white/60">
               <div>✓ Mais praticidade</div>
               <div>✓ Alimentação equilibrada</div>
-              <div>✓ Economia no mês</div>
+              <div>✓ Plano para sua rotina</div>
               <div>✓ Sabores variados</div>
             </div>
           </div>
@@ -1505,6 +1507,27 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   );
 }
 
+
+// TODO(nutricionista): preencher cada entrada com valores calculados por receita e por porção, após validação técnica.
+const nutritionByProduct: Record<string, { kcal: number | null; protein: number | null; carbs: number | null; fat: number | null }> = {};
+
+function NutritionDetails({ product }: { product: Product }) {
+  const nutrition = nutritionByProduct[product.name] || { kcal: null, protein: null, carbs: null, fat: null };
+  const value = (amount: number | null, unit: string) => amount === null ? "A preencher" : `${amount}${unit}`;
+  return (
+    <details className="mt-3 rounded-xl border border-[#a7b86a]/20 bg-white/[.025] px-3 py-2.5">
+      <summary className="cursor-pointer list-none text-xs font-bold text-[#cbd99a]">Informações nutricionais <span className="float-right text-white/40">＋</span></summary>
+      <p className="mt-2 text-[10px] leading-4 text-white/45">{product.weight} • porção de referência a confirmar.</p>
+      <dl className="mt-2 grid grid-cols-2 gap-2 text-xs">
+        <div><dt className="text-white/45">Calorias</dt><dd className="font-bold">{value(nutrition.kcal, " kcal")}</dd></div>
+        <div><dt className="text-white/45">Proteínas</dt><dd className="font-bold">{value(nutrition.protein, " g")}</dd></div>
+        <div><dt className="text-white/45">Carboidratos</dt><dd className="font-bold">{value(nutrition.carbs, " g")}</dd></div>
+        <div><dt className="text-white/45">Gorduras totais</dt><dd className="font-bold">{value(nutrition.fat, " g")}</dd></div>
+      </dl>
+    </details>
+  );
+}
+
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
@@ -1529,6 +1552,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                 <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
                 <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
               </div>
+              <NutritionDetails product={product} />
             </div>
             <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
@@ -1569,6 +1593,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
+        <NutritionDetails product={product} />
       </div>
     </article>
     </>
@@ -2502,7 +2527,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Ingredientes selecionados, preparo controlado e porções pensadas para ajudar no controle de calorias, sem abrir mão do sabor. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
@@ -3169,6 +3194,58 @@ export default function Home() {
       </a>
 
 
+
+      <section id="depoimentos" className="border-y border-white/10 bg-[#0d100c]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-12">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Experiências reais</p>
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-4xl">Quem escolhe a Nutrifit</h2>
+          <p className="mt-2 max-w-2xl text-sm text-white/55">Queremos compartilhar opiniões autênticas de quem já pediu.</p>
+          {/* TODO(marketing): substituir os espaços abaixo por avaliações autorizadas, nome e foto real de cada cliente. Não publicar depoimentos fictícios. */}
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <article key={item} className="rounded-2xl border border-dashed border-[#a7b86a]/30 bg-black/20 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white/5 text-white/30"><UserRound size={22} /></div>
+                  <div><p className="text-sm font-bold text-white/75">Avaliação de cliente</p><p className="text-xs text-white/35">TODO: nome autorizado</p></div>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-white/35">TODO: inserir comentário real do cliente, com autorização de publicação.</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section id="faq" className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-12">
+        <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Informações importantes</p>
+        <h2 className="mt-2 text-2xl font-black sm:text-4xl">Perguntas frequentes</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          {[
+            ["Qual é a validade das marmitas?", "TODO: confirmar validade por produto e método de conservação com a responsável técnica."],
+            ["Como conservar?", "TODO: informar temperatura de refrigeração e instruções oficiais do rótulo."],
+            ["Como aquecer?", "TODO: confirmar instruções de aquecimento compatíveis com a embalagem de cada produto."],
+            ["Posso congelar?", "TODO: confirmar quais produtos podem ser congelados e por quanto tempo."],
+            ["Quais são os alérgenos?", "TODO: informar alergênicos e risco de contaminação cruzada por receita, após revisão técnica."],
+            ["Quais formas de pagamento são aceitas?", "TODO: confirmar formas de pagamento aceitas atualmente antes de divulgar."],
+            ["A Nutrifit atende empresas?", "TODO: confirmar condições comerciais, pedido mínimo e canal para pedidos corporativos."]
+          ].map(([question, answer]) => (
+            <details key={question} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+              <summary className="cursor-pointer font-bold text-white">{question}</summary>
+              <p className="mt-3 text-sm leading-6 text-white/55">{answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section id="entrega" className="border-y border-white/10 bg-[#10130d]">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-5 md:grid-cols-2 md:items-center md:px-8 md:py-10">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Entrega em Juiz de Fora</p>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl">Consulte sua região</h2>
+            <p className="mt-2 text-sm leading-6 text-white/55">Informe o CEP no carrinho para consultar a cobertura e a taxa calculada pelo sistema antes de finalizar o pedido.</p>
+            {/* TODO(operacao): validar e publicar lista de bairros, taxas, prazo e horário de entrega. O cálculo operacional do carrinho permanece como fonte da taxa. */}
+            <p className="mt-3 text-xs text-white/35">Bairros, taxas e prazos dependem da validação operacional da Nutrifit.</p>
+          </div>
+          <a href="#combos" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">Consultar entrega no pedido <Truck size={17} /></a>
+        </div>
+      </section>
       <footer className="border-t border-white/10 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-9">
           <div className="grid gap-6 md:grid-cols-[1fr_auto_auto] md:items-center">
@@ -3189,6 +3266,9 @@ export default function Home() {
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
+              <a href="#depoimentos" className="transition hover:text-white">Depoimentos</a>
+              <a href="#faq" className="transition hover:text-white">Dúvidas frequentes</a>
+              <a href="#entrega" className="transition hover:text-white">Entrega</a>
             </nav>
             <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
               Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
