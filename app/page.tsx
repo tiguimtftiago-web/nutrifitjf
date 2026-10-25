@@ -597,6 +597,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<30 | 60>(30);
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [detailQuantity, setDetailQuantity] = useState(1);
   const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
   const option = monthlyPlanOptions[lineIndex];
@@ -1181,28 +1183,30 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
 
           {total !== quantity ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {option.products.map((product) => (
-              <article key={product.name} className="group relative min-w-0 overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#a7b86a]/45">
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
-                  <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06] transition duration-500 group-hover:scale-[1.03]" style={product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? { objectPosition: "center 20%" } : undefined} loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                    <h3 className="break-words text-sm font-black leading-tight text-white sm:text-base">{product.name}</h3>
-                    <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-white/75 sm:text-xs">{product.description}</p>
-                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                      <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2 py-1 text-[9px] font-black text-[#c8dc73]">{product.line} {product.weight}</span>
-                      <span className="text-base font-black leading-none text-[#ef7d18]">{product.price}</span>
-                    </div>
-                    {tilapiaSurchargePerUnit(product.name) > 0 && <div className="mt-1 text-[10px] font-black text-[#ffd0a4]">+ R$ 6,00 no combo</div>}
-                    <div className="mt-3 flex items-center justify-between gap-2 rounded-full border border-white/15 bg-black/60 p-1">
-                      <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 disabled:opacity-25"><Minus size={15} /></button>
-                      <span className="min-w-4 text-center font-black">{selected[product.name] || 0}</span>
-                      <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name} ao combo`} className="touch-manipulation grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black disabled:opacity-25"><Plus size={16} strokeWidth={3} /></button>
+              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#a7b86a]/45">
+                <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
+                  {product.crop ? (
+                    <div role="img" aria-label={product.name} className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
+                  ) : (
+                    <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06]" loading="lazy" />
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent px-3.5 pb-3.5 pt-16">
+                    <div className="flex items-end gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
+                        <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
+                        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "FIT"} {product.weight}</span>
+                          <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+                        </div>
+                      </div>
+                      <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg"><Plus size={18} strokeWidth={3} /> Adicionar</span>
                     </div>
                   </div>
                 </div>
-              </article>
+              </button>
             ))}
           </div>
           ) : (
@@ -1210,6 +1214,32 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               <div className="font-black text-[#cbd99a]">✓ {quantity} marmitas escolhidas</div>
               <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
               <button type="button" onClick={() => setSelected({})} className="mt-3 text-xs font-bold text-[#ef9b55] underline underline-offset-4">Alterar seleção</button>
+            </div>
+          )}
+          {detailProduct && total !== quantity && (
+            <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/85 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label={detailProduct.name}>
+              <div className="relative max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[1.6rem] border border-white/10 bg-[#080a07] sm:rounded-[1.6rem]">
+                <button type="button" onClick={() => setDetailProduct(null)} aria-label="Fechar detalhes do prato" className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-2xl text-white">×</button>
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
+                  {detailProduct.crop ? (
+                    <div role="img" aria-label={detailProduct.name} className="absolute inset-0 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${detailProduct.image})`, backgroundSize: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "center" : detailProduct.crop, backgroundRepeat: "no-repeat" }} />
+                  ) : (
+                    <img src={detailProduct.image} alt={detailProduct.name} className="absolute inset-0 h-full w-full object-cover" />
+                  )}
+                </div>
+                <div className="p-5">
+                  <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
+                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#a7b86a] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#ef7d18]">{detailProduct.price}</span></div>
+                  <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
+                  <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
+                    <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
+                    <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
+                    <button type="button" onClick={() => setDetailQuantity(v => Math.min(quantity-total,v+1))} disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#ef7d18] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
+                  </div>
+                  <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#ef7d18] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
+                  <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
+                </div>
+              </div>
             </div>
           )}
 
