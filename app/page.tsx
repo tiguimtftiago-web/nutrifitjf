@@ -2706,59 +2706,22 @@ export default function Home() {
 
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
-        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 sm:py-8 md:px-8">
-          <div className="overflow-hidden rounded-[1.65rem] border border-[#ef7d18]/40 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09] shadow-[0_18px_60px_rgba(0,0,0,.22)]">
-            <div className="border-b border-white/10 p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div className="min-w-0 max-w-3xl">
-                  <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Mais praticidade • mais economia</div>
-                  <h2 className="mt-1 text-2xl font-black sm:text-4xl">Monte seu combo</h2>
-                  <p className="mt-1.5 max-w-2xl text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">Escolha a linha e a quantidade. Depois, monte os sabores do seu jeito.</p>
-                </div>
-                <div className="flex w-fit shrink-0 items-center gap-1 rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-1.5 text-[10px] font-black text-[#cbd99a]">
-                  <span>5</span><span className="text-white/25">•</span><span>7</span><span className="text-white/25">•</span><span>10</span><span className="text-white/25">•</span><span>14</span><span className="text-white/25">•</span><span>20</span>
-                  <span className="ml-1 text-white/40">marmitas</span>
-                </div>
-              </div>
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-5 sm:py-5 md:px-8">
+          <button
+            type="button"
+            onClick={() => openComboBuilder()}
+            className="group flex w-full items-center justify-between gap-4 rounded-2xl border border-[#a7b86a]/35 bg-gradient-to-r from-[#171d10] to-[#0b0e09] p-4 text-left shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:border-[#a7b86a]/60 sm:p-5"
+            aria-label="Abrir montador de combos Nutrifit"
+          >
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Mais praticidade • mais economia</div>
+              <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">Monte seu combo</h2>
+              <p className="mt-1 text-xs leading-5 text-white/55 sm:text-sm">Escolha a linha, a quantidade e os sabores.</p>
+              <div className="mt-2 inline-flex rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/5 px-3 py-1 text-[10px] font-black text-[#cbd99a]">5 · 7 · 10 · 14 · 20 marmitas</div>
             </div>
-
-            <div className="p-4 sm:p-6 md:p-8">
-              <div className="mb-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white/40">1. Escolha sua linha</div>
-              <div className="grid gap-2 md:grid-cols-3">
-                {[
-                  ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
-                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
-                  ["TRADICIONAL","500 g","R$ 141,90","Sabor caseiro"],
-                ].map(([line,weight,price,description], index) => (
-                  <button
-                    key={line}
-                    type="button"
-                    onClick={() => openComboBuilder(line)}
-                    className={`group relative flex min-h-[82px] items-center gap-2.5 rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[96px] sm:p-4 md:min-h-[116px] ${
-                      index === 0 ? "border-[#a7b86a]/55 bg-[#a7b86a]/10" : index === 1 ? "border-white/12 bg-white/[.03]" : "border-[#ef7d18]/35 bg-[#ef7d18]/5"
-                    }`}
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className={`text-[9px] font-black uppercase tracking-[.18em] ${
-                        index === 2 ? "text-[#ef7d18]" : "text-[#a7b86a]"
-                      }`}>{line}</div>
-                      <div className="mt-1 text-[10px] font-semibold leading-3.5 text-white/65 sm:text-xs">{description}</div>
-                    </div>
-
-                    <div className="shrink-0 border-l border-white/10 pl-2.5 sm:pl-4">
-                      <div className="text-lg font-black leading-none sm:text-xl">{weight}</div>
-                      <div className="mt-1 whitespace-nowrap text-[9px] leading-3 text-white/40 sm:text-[10px]">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
-                    </div>
-
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9 ${
-                      index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
-                    }`}>→</span>
-                  </button>
-                ))}
-              </div>
-
-            </div>
-          </div>
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-xl font-black text-black transition group-hover:translate-x-0.5">→</span>
+          </button>
+        </div>
 
           {comboOpen && (
             <>
