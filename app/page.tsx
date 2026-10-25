@@ -771,6 +771,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
+  const orderSubmitLock = useRef(false);
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(initialStep);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
@@ -910,7 +911,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   };
 
   const sendOrder = async () => {
-    if (total !== quantity || !deliveryReady || !customerReady) return;
+    if (orderSubmitLock.current || total !== quantity || !deliveryReady || !customerReady) return;
+    orderSubmitLock.current = true;
     trackClick("combo_order_click", `${option.line}-${quantity}`);
 
     setPaymentStatus("loading");
@@ -1065,6 +1067,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       else window.location.href = finalUrl;
       setPaymentStatus("idle");
     } catch (error) {
+      orderSubmitLock.current = false;
       console.error("combo order capture", error);
       // Fail closed: nunca encaminhar um pedido sem registro oficial confirmado.
       if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
@@ -2184,6 +2187,8 @@ export default function Home() {
   };
   const [orderOpen, setOrderOpen] = useState(false);
   const [orderCaptureError, setOrderCaptureError] = useState(false);
+  const fullOrderSubmitLock = useRef(false);
+  const [fullOrderSubmitting, setFullOrderSubmitting] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
@@ -2397,7 +2402,9 @@ export default function Home() {
   };
 
   const sendFullOrder = async () => {
-    if (!orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+    if (fullOrderSubmitLock.current || !orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+    fullOrderSubmitLock.current = true;
+    setFullOrderSubmitting(true);
 
     const lines = orderItems.map((item, i) => {
       const itemSubtotal = item.price * item.quantity;
@@ -2524,6 +2531,8 @@ export default function Home() {
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
       else window.location.href = finalUrl;
     } catch (error) {
+      fullOrderSubmitLock.current = false;
+      setFullOrderSubmitting(false);
       console.error("order capture", error);
       // Fail closed: não abrir WhatsApp nem permitir pagamento com pedido não registrado.
       if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
@@ -3429,8 +3438,8 @@ export default function Home() {
                   <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
                 </div>
                 <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-[#ef7d18]/50 bg-[#ef7d18]/10 px-5 py-3 font-bold text-[#ffd0a4] transition hover:bg-[#ef7d18]/20 disabled:opacity-30"><ShoppingBag size={17} /> Compartilhar resumo visual</button>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
-                  Finalizar no WhatsApp <ArrowRight size={18} />
+                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
+                  {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
                 {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
