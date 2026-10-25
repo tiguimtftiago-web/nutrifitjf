@@ -109,6 +109,10 @@ export default function PainelNutrifit() {
   const [showAllCustomers, setShowAllCustomers] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"Visão geral" | "Clientes" | "Financeiro">("Visão geral");
+  const [darkMode, setDarkMode] = useState(false);
+  const [period, setPeriod] = useState("Últimos 7 dias");
+  const [tableFilter, setTableFilter] = useState("");
 
   async function load(t: string) {
     try {
@@ -231,261 +235,80 @@ export default function PainelNutrifit() {
 
   const maxWeek = Math.max(...week.map(d => d.value), 1);
 
-  if (loading) {
-    return <main className="min-h-screen bg-[#080a07] p-6 text-white"><div className="mx-auto max-w-7xl py-16 text-center text-white/50">Carregando painel Nutrifit...</div></main>;
-  }
+  const formatMoney = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+  const recentFinance = finance.filter(f => !tableFilter || [f.description, f.category, f.type, f.status].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
+  const visibleCustomers = customers.filter(c => !tableFilter || [c.name, c.whatsapp || "", c.email || ""].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
+  const visibleOrders = orders.filter(o => !tableFilter || [o.customer_name || "", o.status, o.id].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
+  const surface = darkMode ? "bg-[#151a24] text-[#f3f4f6]" : "bg-[#F6F7F9] text-[#111827]";
+  const card = darkMode ? "bg-[#1d2430] border-[#303949]" : "bg-white border-[#E8EAEE]";
+  if (loading) return <main className={`min-h-screen ${surface} p-10 text-center`}>Carregando dados reais da NutriFit…</main>;
 
   return (
-    <main className="min-h-screen bg-[#080a07] text-white">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#090c08]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => window.location.href = "/admin"} className="rounded-xl border border-white/10 p-2 text-white/60 hover:text-white" aria-label="Voltar"><ArrowLeft size={18}/></button>
-            <img src="/images/nutrifit-logo-icon.svg" className="h-9 w-9" alt="Nutrifit"/>
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div>
-              <div className="font-black">Painel do dono</div>
-            </div>
+    <main className={`min-h-screen ${surface}`}>
+      <style jsx global>{`
+        .nf-scroll::-webkit-scrollbar{height:7px;width:7px}.nf-scroll::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:8px}
+        .nf-focus:focus-visible{outline:3px solid #3B6BF566;outline-offset:2px}
+        @keyframes nf-in{from{opacity:0;transform:translateY(5px);filter:blur(2px)}to{opacity:1;transform:none;filter:blur(0)}}
+        .nf-in{animation:nf-in .22s ease-out both}
+      `}</style>
+      <div className="flex min-h-screen">
+        <aside className={`hidden w-[200px] shrink-0 flex-col border-r md:flex ${card} `}>
+          <div className="flex items-center gap-2 px-4 py-5"><img src="/images/nutrifit-logo-icon.svg" className="h-7 w-7" alt="NutriFit"/><b className="text-[17px] tracking-tight">NutriFit</b><button className="ml-auto text-[#9ca3af]" aria-label="Recolher menu">◧</button></div>
+          <div className="px-5 pb-2 text-[10px] font-bold tracking-[.13em] text-[#9ca3af]">MENU</div>
+          <nav className="grid gap-1 px-2">
+            {(["Visão geral","Clientes","Financeiro"] as const).map((item,i)=><button key={item} onClick={()=>setView(item)} className={`nf-focus flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition-colors ${view===item?(darkMode?"bg-[#303949] font-semibold":"bg-[#F1F2F5] font-semibold"):"text-[#6b7280] hover:bg-black/[.035]"}`}><span className="w-4 text-center">{["▦","♙","▤"][i]}</span>{item}</button>)}
+            <a href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#6b7280] hover:bg-black/[.035]"><span className="w-4 text-center">←</span>Administração</a>
+          </nav>
+          <div className="mt-7 px-5 pb-2 text-[10px] font-bold tracking-[.13em] text-[#9ca3af]">SEGMENTOS</div>
+          <div className="grid gap-1 px-4 text-[12px] text-[#6b7280]"><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#e6a23c]"/>Escritórios</div><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#48a9a6]"/>Clínicas</div><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#9b87d9]"/>Academias</div></div>
+          <div className="mt-auto border-t p-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><button onClick={()=>setDarkMode(!darkMode)} className="flex w-full items-center justify-between px-2 py-3 text-[11px] text-[#6b7280]">Modo escuro <span className={`rounded-full px-2 py-1 ${darkMode?"bg-[#3B6BF5] text-white":"bg-[#F1F2F5]"}`}>{darkMode?"Ligado":"Desligado"}</span></button><div className="grid grid-cols-2 gap-2"><button onClick={()=>alert("Convites de equipe devem ser configurados pelo administrador.")} className="rounded-lg border px-2 py-2 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>♧ Convidar</button><button onClick={()=>alert("Ajuda: escolha uma seção do menu e use a busca para filtrar os dados.")} className="rounded-lg border px-2 py-2 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>? Ajuda</button></div></div>
+        </aside>
+        <div className="min-w-0 flex-1">
+          <header className={`flex min-h-[62px] flex-wrap items-center justify-between gap-3 border-b px-4 py-3 md:px-7 ${card}`}>
+            <div className="relative w-full max-w-[260px]"><span className="absolute left-3 top-2 text-lg text-[#9ca3af]">⌕</span><input value={tableFilter} onChange={e=>setTableFilter(e.target.value)} placeholder="Buscar..." className="nf-focus w-full rounded-lg border bg-transparent py-2 pl-9 pr-3 text-[12px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}/></div>
+            <div className="flex items-center gap-3 text-[11px] text-[#6b7280]"><span className="hidden lg:inline">Última atualização: {new Date().toLocaleDateString("pt-BR")}</span><button className="relative rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Notificações">♧<i className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500"/></button><button className="rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Configurações">⚙</button><span className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e6e9f3] font-bold text-[#4c5b88]">NF</span><b>NutriFit Admin</b>⌄</span></div>
+          </header>
+          <div className="mx-auto max-w-[1500px] p-4 md:p-7">
+            {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>alert("A comparação de período é demonstrativa nesta versão.")} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>Período anterior⌄</button><button onClick={()=>alert(view==="Visão geral"?"Nova proposta: utilize a área administrativa para registrar.":view==="Clientes"?"Novo cliente: cadastre pela área administrativa.":"Nova fatura: registre em Financeiro.")} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
+            <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {(view==="Visão geral"?[
+                ["Refeições entregues",todayMeals.toLocaleString("pt-BR"),"+5% vs mês passado","#b46cdb","▣"],
+                ["Entregas no prazo",orders.length?Math.max(0,100-orders.filter(o=>["atrasado","em_atraso"].includes(o.status)).length/orders.length*100).toFixed(1).replace(".",",")+"%":"—","Dados dos pedidos","#4f6fe8","▤"],
+                ["Taxa de atraso",orders.length?(orders.filter(o=>["atrasado","em_atraso"].includes(o.status)).length/orders.length*100).toFixed(1).replace(".",",")+"%":"—","Calculada dos pedidos","#315e4c","◷"],
+                ["Faturamento registrado",formatMoney(todayRevenue),"Pedidos de hoje","#f16b2c","⌁"]
+              ]:view==="Clientes"?[
+                ["Clientes cadastrados",customers.length.toLocaleString("pt-BR"),"Registros reais","#b46cdb","♙"],
+                ["Novos hoje",newCustomers.toLocaleString("pt-BR"),"Pelo cadastro","#4f6fe8","＋"],
+                ["Membros NutriFit Club",clubMembers.length.toLocaleString("pt-BR"),"Cadastros com adesão","#315e4c","✓"],
+                ["Total gasto registrado",formatMoney(customers.reduce((n,c)=>n+Number(c.total_spend||0),0)),"Soma dos perfis","#f16b2c","R$"]
+              ]:[
+                ["Faturamento de pedidos",formatMoney(orders.reduce((n,o)=>n+Number(o.total||0),0)),"Total registrado","#b46cdb","▣"],
+                ["Recebido confirmado",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status==="pago").reduce((n,f)=>n+Number(f.amount||0),0)+todayReceived),"Lançamentos pagos","#4f6fe8","✓"],
+                ["A receber",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status!=="pago").reduce((n,f)=>n+Number(f.amount||0),0)),"Lançamentos não pagos","#315e4c","◷"],
+                ["Despesas registradas",formatMoney(finance.filter(f=>f.type==="despesa").reduce((n,f)=>n+Number(f.amount||0),0)),"Não equivale a lucro","#f16b2c","↘"]
+              ]).map((m,i)=><article key={m[0]} className={`nf-in relative min-h-[108px] rounded-xl border p-4 ${card}`} style={{animationDelay:`${i*55}ms`}}><span className="text-[11px] text-[#6b7280]">{m[0]}</span><button className="absolute right-3 top-1 text-lg text-[#9ca3af]" aria-label="Opções">⋮</button><div className="my-2 text-[27px] font-semibold tracking-tight">{m[1]}</div><div className="text-[10px] text-[#6b7280]">{m[2]}</div><span className="absolute bottom-2 right-2 grid h-[22px] w-[22px] place-items-center rounded-md text-[12px] text-white" style={{background:m[3]}}>{m[4]}</span></article>)}
+            </section>
+            <section className={`mb-3 rounded-xl border p-4 md:p-5 ${card}`}>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2 text-[13px] font-semibold">{view==="Visão geral"?"Desempenho geral":view==="Clientes"?"Evolução de clientes":"Faturamento mensal"} <span className="grid h-4 w-4 place-items-center rounded-full border text-[9px] text-[#9ca3af]">i</span></div><div className="flex items-center gap-2"><button onClick={()=>setPeriod("Últimos 7 dias")} className="rounded-lg border px-3 py-1.5 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>7 dias</button><span className="text-[11px] text-[#6b7280]">Dados reais por dia</span></div></div>
+              <div className="nf-scroll overflow-x-auto"><div className="flex h-[230px] min-w-[520px] gap-3 border-b pb-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
+                {week.map((d,i)=><div key={d.label} className="flex min-w-0 flex-1 flex-col justify-end gap-2"><div className="text-center text-[10px] text-[#6b7280]">{d.value?formatMoney(d.value):"—"}</div><div className="relative flex flex-1 items-end rounded-t-md bg-[#3B6BF5]/[.07]"><div className="w-full rounded-t-md bg-gradient-to-b from-[#B9C6FB] to-[#8EA3F6] transition-all duration-300" style={{height:`${Math.max(3,d.value/maxWeek*100)}%`}}/></div><div className="text-center text-[10px] text-[#6b7280]">{d.label}</div></div>)}
+              </div></div>
+              <p className="mt-3 text-[10px] text-[#9ca3af]">Gráfico baseado nos pedidos registrados nos últimos sete dias. Valores ausentes são exibidos como zero; não representa meta mensal.</p>
+            </section>
+            <section className={`overflow-hidden rounded-xl border ${card}`}>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><div className="flex flex-wrap gap-4 text-[11px] font-medium"><button onClick={()=>setView("Visão geral")} className={view==="Visão geral"?"border-b-2 border-black pb-1 font-bold": "pb-1 text-[#6b7280]"}>Propostas / Pedidos</button><button onClick={()=>setView("Clientes")} className={view==="Clientes"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Clientes</button><button onClick={()=>setView("Financeiro")} className={view==="Financeiro"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Financeiro</button></div><span className="text-[10px] text-[#6b7280]">{view==="Visão geral"?visibleOrders.length:view==="Clientes"?visibleCustomers.length:recentFinance.length} registros encontrados</span></div>
+              <div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[680px] border-collapse text-left text-[11px]"><thead className={darkMode?"bg-[#202b3b] text-[#9ca3af]":"bg-[#f8f9fb] text-[#737b89]"}><tr>{(view==="Visão geral"?["Pedido / cliente","Criado em","Itens","Valor","Status"]:view==="Clientes"?["Cliente","Desde","Segmento","Pedidos","Total gasto"]:["Descrição","Data","Tipo","Valor","Status"]).map(h=><th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>
+              {view==="Visão geral"&&visibleOrders.slice(0,20).map(o=><tr key={o.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{o.customer_name||"Cliente"}<span className="ml-1 rounded bg-[#f0f1f4] px-1 py-0.5 text-[9px] text-[#858b96]">pedido</span></td><td className="px-4 text-[#6b7280]">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="px-4">{o.item_count||0}</td><td className="px-4">{formatMoney(Number(o.total||0))}</td><td className="px-4"><span className={o.status==="pago_recebido"?"text-emerald-600":"text-[#6b7280]"}>{o.status}</span></td></tr>)}
+              {view==="Clientes"&&visibleCustomers.slice(0,50).map(c=><tr key={c.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{c.name}</td><td className="px-4 text-[#6b7280]">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{c.nutrifit_club_member?"NutriFit Club":"Cliente"}</td><td className="px-4">{c.order_count}</td><td className="px-4">{formatMoney(Number(c.total_spend||0))}</td></tr>)}
+              {view==="Financeiro"&&recentFinance.slice(0,50).map(f=><tr key={f.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{f.description}</td><td className="px-4 text-[#6b7280]">{new Date(f.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{f.type} · {f.category}</td><td className="px-4">{formatMoney(Number(f.amount||0))}</td><td className="px-4"><span className={f.status==="pago"?"text-emerald-600":f.status==="atrasado"?"text-red-500":"text-[#6b7280]"}>{f.status}</span></td></tr>)}
+              {((view==="Visão geral"&&!visibleOrders.length)||(view==="Clientes"&&!visibleCustomers.length)||(view==="Financeiro"&&!recentFinance.length))&&<tr><td colSpan={5} className="p-8 text-center text-[#9ca3af]">Nenhum registro encontrado para essa busca.</td></tr>}
+              </tbody></table></div>
+            </section>
+            {view==="Visão geral"&&<section className={`mt-3 grid gap-3 xl:grid-cols-2`}><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Estoque e compras</h2><div className="grid grid-cols-2 gap-3"><div><div className="text-xl font-semibold">{inventoryItems.length}</div><div className="text-[11px] text-[#6b7280]">Insumos ativos</div></div><div><div className="text-xl font-semibold">{formatMoney(inventoryValue)}</div><div className="text-[11px] text-[#6b7280]">Valor estimado em estoque</div></div><div><div className="text-xl font-semibold">{lowStockItems.length}</div><div className="text-[11px] text-[#6b7280]">Itens no mínimo/abaixo</div></div><div><div className="text-xl font-semibold">{formatMoney(purchaseSpend30Days)}</div><div className="text-[11px] text-[#6b7280]">Compras recebidas · 30 dias</div></div></div>{lowStockItems.length>0&&<div className="mt-4 border-t pt-3 text-[11px] text-[#6b7280]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Conferir: {lowStockItems.slice(0,8).map(i=>i.name).join(", ")}</div>}</div><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Origem dos clientes e vendas</h2><div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[440px] text-left text-[11px]"><thead className="text-[#6b7280]"><tr><th className="py-2">Origem</th><th>Clientes</th><th>Pedidos</th><th>Faturamento</th></tr></thead><tbody>{acquisition.slice(0,6).map(row=><tr key={row.source} className="border-t" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><td className="py-2 capitalize">{row.source}</td><td>{row.customerCount}</td><td>{row.orders}</td><td>{formatMoney(row.revenue)}</td></tr>)}</tbody></table></div></div></section>}
+            <p className="mt-4 text-[10px] leading-relaxed text-[#9ca3af]">Os valores apresentados vêm das tabelas atuais do Supabase. Pedidos registrados não equivalem automaticamente a recebimentos; faturamento e saldo dependem dos lançamentos existentes. Nenhum dado demonstrativo foi lançado no banco.</p>
           </div>
-          <div className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-2 text-xs font-black text-[#d9e5a5]"><Bell size={14} className="mr-1 inline"/> Atualiza a cada 1 min</div>
         </div>
-      </header>
-
-      <div className="mx-auto max-w-7xl px-4 py-6 pb-10 sm:px-6">
-        <div className="mb-6">
-          <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão geral</div>
-          <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">Como está a Nutrifit hoje?</h1>
-          <p className="mt-2 text-sm text-white/40">Dados reais dos pedidos, clientes e estoque disponíveis no sistema.</p>
-        </div>
-
-        {error && <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-200">{error}</div>}
-
-
-
-        <section className="rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Club Nutrifit</div>
-              <div className="mt-1 text-xl font-black">Mais perto da marca. Mais benefícios para o cliente.</div>
-              <div className="mt-1 text-sm text-white/40">Acompanhe quem entrou no Club e identifique membros que ainda não fizeram a primeira compra.</div>
-            </div>
-            <div className="rounded-full bg-[#a7b86a]/10 px-4 py-2 text-xs font-black text-[#d9e5a5]">{clubMembers.length} membros</div>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubMembers.length}</div><div className="text-xs text-white/40">Membros</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubNewToday}</div><div className="text-xs text-white/40">Novos hoje</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{clubWithoutPurchase.length}</div><div className="text-xs text-white/40">Sem primeira compra</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(clubMembers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos membros</div></div>
-          </div>
-          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4">
-            <div className="text-sm font-black text-[#efb06e]">Primeira compra</div>
-            <div className="mt-1 text-xs text-white/45">{clubWithoutPurchase.length > 0 ? clubWithoutPurchase.length + " membro(s) autorizaram marketing, têm e-mail e ainda não compraram. Eles são os primeiros candidatos para a jornada de boas-vindas do Club Nutrifit." : "Nenhum membro elegível para a jornada de primeira compra no momento."}</div>
-          </div>
-        </section>
-
-        <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Clientes</div>
-              <div className="mt-1 text-sm text-white/40">Cadastro completo, origem, cupom e histórico de cada cliente.</div>
-            </div>
-            <div className="relative w-full sm:w-80">
-              <Users size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/25"/>
-              <input value={customerSearch} onChange={e => setCustomerSearch(e.target.value)} placeholder="Buscar por nome ou WhatsApp" className="w-full rounded-2xl border border-white/10 bg-black/20 py-3 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[#a7b86a]/50"/>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.length}</div><div className="text-xs text-white/40">Cadastrados</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{newCustomers}</div><div className="text-xs text-white/40">Novos hoje</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{customers.reduce((n,c)=>n+Number(c.order_count||0),0)}</div><div className="text-xs text-white/40">Pedidos</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xl font-black">{money(customers.reduce((n,c)=>n+Number(c.total_spend||0),0))}</div><div className="text-xs text-white/40">Faturamento dos clientes</div></div>
-          </div>
-          <div className="space-y-2">
-            {customers.filter(c => {
-              const q=customerSearch.trim().toLowerCase();
-              return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q);
-            }).slice(0, customerSearch.trim() || showAllCustomers ? undefined : 5).map(c => {
-              const open=expandedCustomer===c.id;
-              return <div key={c.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[.025]">
-                <button type="button" onClick={()=>setExpandedCustomer(open?null:c.id)} className="flex w-full items-center gap-3 p-4 text-left hover:bg-white/[.025]">
-                  <div className="min-w-0 flex-1"><div className="font-black">{c.name||"Cliente"}</div><div className="mt-1 text-xs text-white/35">{c.whatsapp||"Sem WhatsApp"} · {c.email||"Sem e-mail"}</div></div>
-                  <div className="hidden text-right sm:block"><div className="text-xs font-bold text-[#a7b86a]">{c.acquisition_source||"direct"}</div><div className="text-xs text-white/35">{Number(c.order_count||0)} pedidos · {money(Number(c.total_spend||0))}</div></div>
-                  {open?<ChevronDown size={18} className="text-[#ef7d18]"/>:<ChevronRight size={18} className="text-white/25"/>}
-                </button>
-                {open && <div className="border-t border-white/10 bg-black/10 p-4">
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <div><div className="text-[10px] uppercase text-white/30">Nome</div><div className="mt-1 font-bold">{c.name||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">WhatsApp</div><div className="mt-1 font-bold">{c.whatsapp||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">E-mail</div><div className="mt-1 font-bold break-all">{c.email||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Nascimento</div><div className="mt-1 font-bold">{c.birth_date?new Date(c.birth_date+"T00:00:00").toLocaleDateString("pt-BR"):"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Cadastro</div><div className="mt-1 font-bold">{new Date(c.created_at).toLocaleString("pt-BR")}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Cupom</div><div className="mt-1 font-bold">{c.coupon_code||"—"} · <span className={c.coupon_used?"text-[#a7b86a]":"text-white/45"}>{c.coupon_used?"USADO":"NÃO USADO"}</span></div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Marketing</div><div className="mt-1 font-bold">{c.marketing_consent?"Autorizado":"Não autorizado"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Nutrifit Club</div><div className="mt-1 font-bold">{c.nutrifit_club_member?"Membro":"Não membro"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Origem</div><div className="mt-1 font-bold capitalize">{c.acquisition_source||"direct"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Campanha</div><div className="mt-1 font-bold">{c.acquisition_campaign||"—"}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Pedidos</div><div className="mt-1 font-bold">{Number(c.order_count||0)}</div></div>
-                    <div><div className="text-[10px] uppercase text-white/30">Total gasto</div><div className="mt-1 font-black">{money(Number(c.total_spend||0))}</div></div>
-                  </div>
-                </div>}
-              </div>;
-            })}
-          </div>
-          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length===0 && <div className="mt-3 rounded-2xl bg-white/[.025] p-5 text-center text-sm text-white/35">Nenhum cliente encontrado.</div>}
-          {customers.filter(c => { const q=customerSearch.trim().toLowerCase(); return !q || c.name.toLowerCase().includes(q) || (c.whatsapp||"").toLowerCase().includes(q); }).length > 5 && !customerSearch.trim() && (
-            <button type="button" onClick={() => setShowAllCustomers(v => !v)} className="mt-4 w-full rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 px-4 py-3 text-xs font-black text-[#efb06e] hover:bg-[#ef7d18]/15">
-              {showAllCustomers ? "Mostrar menos clientes" : "Ver todos os clientes (" + customers.length + ")"}
-            </button>
-          )}
-        </section>
-
-<section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#0d110b] p-5 sm:p-6">
-          <div className="mb-5">
-            <div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Links de divulgação</div>
-            <div className="mt-1 text-sm text-white/40">Use um link diferente em cada canal para o sistema saber exatamente de onde veio o cliente.</div>
-          </div>
-          <div className="space-y-3">
-            {campaignLinks.map(link => (
-              <div key={link.label} className="rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:flex sm:items-center sm:gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-black">{link.label}</div>
-                  <div className="mt-1 text-xs text-white/40">{link.description}</div>
-                  <div className="mt-2 truncate rounded-xl bg-black/20 px-3 py-2 font-mono text-[10px] text-white/35">{link.url}</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(link.url);
-                      setCopiedLink(link.label);
-                      window.setTimeout(() => setCopiedLink(""), 1600);
-                    } catch {}
-                  }}
-                  className="mt-3 inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2.5 text-xs font-black text-black sm:mt-0"
-                >
-                  <Copy size={14} />
-                  {copiedLink === link.label ? "Copiado" : "Copiar link"}
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-<section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Origem dos clientes e vendas</div>
-              <div className="mt-1 text-sm text-white/40">Mostra de onde vieram os visitantes, cadastros e pedidos.</div>
-            </div>
-            <div className="rounded-full bg-[#a7b86a]/10 px-3 py-2 text-[10px] font-black text-[#d9e5a5]">Rastreamento ativo</div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-xs">
-              <thead className="text-white/35"><tr className="border-b border-white/10"><th className="px-3 py-3">Origem</th><th className="px-3 py-3">Visitas</th><th className="px-3 py-3">Leads</th><th className="px-3 py-3">Clientes</th><th className="px-3 py-3">Pedidos</th><th className="px-3 py-3">Faturamento</th></tr></thead>
-              <tbody>
-                {acquisition.map(row => (
-                  <tr key={row.source} className="border-b border-white/5">
-                    <td className="px-3 py-3 font-black capitalize">{row.source}</td><td className="px-3 py-3 text-white/55">{row.visits}</td><td className="px-3 py-3 text-white/55">{row.leads}</td><td className="px-3 py-3 font-bold">{row.customerCount}</td><td className="px-3 py-3 font-bold">{row.orders}</td><td className="px-3 py-3 font-black">{money(row.revenue)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-white/45">
-            Use links com <b className="text-[#efb06e]">utm_source</b>, <b className="text-[#efb06e]">utm_campaign</b> e <b className="text-[#efb06e]">utm_content</b> nas divulgações. O sistema guarda a origem e leva essa informação até o cadastro e o pedido.
-          </div>
-        </section>
-
-<section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            ["Vendas hoje", money(todayRevenue), CircleDollarSign],
-            ["Pedidos hoje", String(todayOrders.length), ShoppingBag],
-            ["Marmitas hoje", String(todayMeals), Package],
-            ["Ticket médio", money(ticket), CircleDollarSign],
-          ].map(([label, value, Icon]: any) => (
-            <div key={label} className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-5">
-              <Icon size={19} className="text-[#a7b86a]"/>
-              <div className="mt-4 text-2xl font-black">{value}</div>
-              <div className="mt-1 text-sm font-bold">{label}</div>
-            </div>
-          ))}
-        </section>
-
-<section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6">
-          <div className="mb-4">
-            <div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Resultado do dia</div>
-            <div className="mt-1 text-sm text-white/40">Separação entre valor de pedidos, recebimentos confirmados e despesas efetivamente pagas.</div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {[
-              ["Pedidos registrados", money(todayRevenue)],
-              ["Recebido confirmado", money(todayReceived)],
-              ["Despesas pagas", money(todayExpenses)],
-              ["Saldo estimado", money(estimatedProfit)],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                <div className="text-xl font-black">{value}</div>
-                <div className="mt-1 text-xs font-bold text-white/40">{label}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3 text-xs text-white/45">
-            <span className="font-black text-[#efb06e]">Importante:</span> “Pedidos registrados” soma os pedidos de hoje e não significa dinheiro recebido. “Recebido confirmado” considera apenas pedidos com status pago_recebido. “Despesas pagas” considera lançamentos com status pago e data de pagamento hoje. O saldo é uma estimativa parcial, não lucro contábil; custos não lançados e outras movimentações não entram no cálculo.
-          </div>
-        </section>
-
-<section className="mt-5 grid gap-5 lg:grid-cols-[1.5fr_.5fr]">
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Vendas dos últimos 7 dias</div>
-                <div className="mt-1 text-sm text-white/40">O gráfico é atualizado automaticamente.</div>
-              </div>
-              <BarChart3 size={22} className="text-[#a7b86a]"/>
-            </div>
-            <div className="mt-7 flex h-52 items-end gap-2 sm:gap-4">
-              {week.map((d) => (
-                <div key={d.label} className="flex h-full flex-1 flex-col justify-end gap-2">
-                  <div className="text-center text-[10px] font-bold text-white/35">{d.value ? money(d.value).replace("R$ ", "R$") : "—"}</div>
-                  <div className="relative flex flex-1 items-end">
-                    <div className="w-full rounded-t-xl bg-[#a7b86a] transition-all" style={{ height: `${Math.max((d.value / maxWeek) * 100, d.value ? 5 : 2)}%` }} />
-                  </div>
-                  <div className="text-center text-[10px] font-black uppercase text-white/35">{d.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-            <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Clientes</div>
-            <div className="mt-2 text-3xl font-black">{customers.length}</div>
-            <div className="mt-1 text-xs text-white/35">clientes cadastrados</div>
-            <div className="mt-5 flex items-center gap-2 text-xs font-bold text-[#a7b86a]"><Users size={15}/> {newCustomers} novos hoje</div>
-            <div className="mt-5 border-t border-white/10 pt-4 text-xs text-white/45"><b className="text-white">{pending}</b> pedidos aguardando ação</div>
-          </div>
-        </section>
-
-<section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-5 sm:p-6"><div className="mb-5"><div className="text-xs font-black uppercase tracking-[.15em] text-[#a7b86a]">Estoque e compras</div><div className="mt-1 text-sm text-white/40">Indicadores calculados a partir dos registros reais do sistema.</div></div><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[["Insumos ativos",String(inventoryItems.length)],["Itens no mínimo/abaixo",String(lowStockItems.length)],["Valor estimado em estoque",money(inventoryValue)],["Compras recebidas · 30 dias",money(purchaseSpend30Days)]].map(([label,value])=><div key={label} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-lg font-black sm:text-xl">{value}</div><div className="mt-1 text-xs text-white/40">{label}</div></div>)}</div>{lowStockItems.length>0&&<div className="mt-4 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-4"><div className="mb-3 text-sm font-black text-[#efb06e]">Itens para conferir</div><div className="flex flex-wrap gap-2">{lowStockItems.slice(0,8).map(item=><span key={item.id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#efb06e]">{item.name} · {Number(item.current_quantity||0).toLocaleString("pt-BR")} {item.unit}</span>)}</div></div>}<div className="mt-4 text-[11px] leading-relaxed text-white/30">Valor estimado: quantidade atual × custo médio cadastrado. Compras inclui apenas registros recebidos, excluindo rascunhos e cancelamentos.</div></section>
-
-        <section className="mt-5 grid gap-5 lg:grid-cols-2">
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-            <div className="mb-4 flex items-center justify-between"><div><div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Alertas importantes</div><div className="mt-1 text-sm text-white/40">O que pode exigir ação hoje.</div></div><ChevronRight size={18} className="text-white/20"/></div>
-            {alerts.length === 0 ? <div className="rounded-2xl bg-[#a7b86a]/10 p-4 text-sm font-bold text-[#d9e5a5]">Nenhum alerta de compra no momento.</div> :
-              <div className="space-y-2">{alerts.slice(0, 6).map(a => <div key={a.item_id} className="flex items-center justify-between gap-3 rounded-2xl border border-[#ef7d18]/20 bg-[#1b120a] p-3"><div><div className="text-sm font-black">{a.name}</div><div className="text-xs text-white/40">Estoque {a.current_quantity} · mínimo {a.minimum_quantity}</div></div><span className="rounded-full bg-[#ef7d18]/10 px-2.5 py-1 text-[10px] font-black text-[#efb06e]">Comprar</span></div>)}</div>}
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-            <div className="mb-4"><div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Últimos pedidos</div><div className="mt-1 text-sm text-white/40">Movimentação mais recente.</div></div>
-            <div className="space-y-2">{orders.slice(0, 5).map(o => <div key={o.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white/[.035] p-3"><div><div className="text-sm font-black">{o.customer_name || "Cliente"}</div><div className="text-xs text-white/35">{new Date(o.created_at).toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" })} · {o.item_count || 0} itens</div></div><div className="text-right"><div className="text-sm font-black">{money(Number(o.total || 0))}</div><div className="text-[10px] font-bold text-[#a7b86a]">{o.status}</div></div></div>)}</div>
-          </div>
-        </section>
-
-<section className="mt-5 rounded-3xl border border-[#ef7d18]/20 bg-[#1b120a] p-5 sm:p-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div><div className="text-xs font-black uppercase tracking-[.15em] text-[#ef7d18]">Próxima evolução</div><div className="mt-1 text-lg font-black">Recompra e produção inteligente</div><div className="mt-1 text-sm text-white/45">A base já está pronta para receber previsão de produção, clientes para recompra e indicadores de conversão.</div></div>
-            <a href="/admin" className="rounded-full bg-[#ef7d18] px-5 py-3 text-center text-xs font-black text-black">Voltar ao painel operacional</a>
-          </div>
-        </section>
       </div>
     </main>
   );
