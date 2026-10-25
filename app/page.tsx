@@ -1233,13 +1233,6 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
                   <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#a7b86a] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#ef7d18]">{detailProduct.price}</span></div>
                   <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
-                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#a7b86a]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
-                    <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#d4e6a0]">Informação nutricional</h4><span className="rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-xs font-black text-[#d4e6a0]">{n.kcal} kcal</span></div>
-                    <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
-                    <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
-                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p></div>
-                    <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores nutricionais de referência Nutrifit por porção; podem variar conforme ingredientes e preparo.</p>
-                  </section>; })()}
                   <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
                     <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
                     <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
@@ -1247,6 +1240,14 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   </div>
                   <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#ef7d18] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
                   <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
+                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#a7b86a]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
+                    <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#d4e6a0]">Informação nutricional</h4><span className="rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-xs font-black text-[#d4e6a0]">{n.kcal} kcal</span></div>
+                    <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
+                    <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
+                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p></div>
+                    <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores nutricionais de referência Nutrifit por porção; podem variar conforme ingredientes e preparo.</p>
+                  </section>; })()}
+
                 </div>
               </div>
             </div>
