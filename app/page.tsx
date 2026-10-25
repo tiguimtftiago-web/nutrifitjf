@@ -1489,7 +1489,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] sm:text-lg">{product.name}</h3>
+          <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] text-[#ef7d18] sm:text-lg">{product.name}</h3>
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
         <p className="mt-1 min-h-[2.15rem] text-[10px] leading-[1.05rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
@@ -1513,8 +1513,8 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
-          <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">
-            {id === "cardapio" ? <><span className="text-[#a7b86a]">LINHA FIT</span> <span className="text-white">•</span> <span className="text-[#ef7d18]">350 G</span></> : title}
+          <h2 className="mt-1.5 text-3xl font-black text-[#a7b86a] sm:text-4xl md:text-5xl">
+            {id === "cardapio" ? <>LINHA FIT • 350 G</> : title}
           </h2>
           <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
         </div>
@@ -2684,7 +2684,7 @@ export default function Home() {
                 </aside>
                 <div className="hidden min-w-0 xl:block" aria-hidden="true"/>
                 <div className="min-w-0 self-center rounded-xl border border-white/10 bg-black/45 p-5 backdrop-blur-[2px]">
-                  <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Suco natural</p>
+                  <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Linha de sucos</p>
                   <h3 className="mt-1 text-3xl font-black uppercase leading-none text-[#ef7d18] drop-shadow sm:text-4xl lg:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                   <p className="mt-2 text-xs leading-5 text-white drop-shadow sm:text-sm">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
                   <div className="mt-3 rounded-xl border border-white/15 bg-black/45 p-3 backdrop-blur-sm">
