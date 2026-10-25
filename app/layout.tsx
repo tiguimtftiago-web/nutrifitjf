@@ -128,7 +128,7 @@ const menuStructuredData = {
   inLanguage: "pt-BR",
   hasMenuSection: [
     { "@type": "MenuSection", name: "Linha Fit • 350 g", hasMenuItem: [
-      { "@type": "MenuItem", name: "Marmita Fit 350 g", offers: { "@type": "Offer", price: "23.97", priceCurrency: "BRL", availability: "https://schema.org/InStock" }, nutrition: { "@type": "NutritionInformation", calories: "TODO: validar com nutricionista", proteinContent: "TODO: validar com nutricionista", carbohydrateContent: "TODO: validar com nutricionista", fatContent: "TODO: validar com nutricionista" } }
+      { "@type": "MenuItem", name: "Marmita Fit 350 g", offers: { "@type": "Offer", price: "23.97", priceCurrency: "BRL", availability: "https://schema.org/InStock" }, }
     ]},
     { "@type": "MenuSection", name: "Linha Performance • 450 g", hasMenuItem: [
       { "@type": "MenuItem", name: "Marmita Performance 450 g", offers: { "@type": "Offer", price: "27.90", priceCurrency: "BRL", availability: "https://schema.org/InStock" } }
