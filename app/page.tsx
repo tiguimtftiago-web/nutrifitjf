@@ -448,7 +448,7 @@ const comboComplements: ComplementOption[] = [
   { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
   { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
-  { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, emoji: "🥪" },
+  { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, image: "/images/804546E5-062D-4FAA-8114-94DF7B66A18D.png", emoji: "🥪" },
   { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, emoji: "🍊" },
   { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, emoji: "🥭" },
   { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, emoji: "🍍" },
