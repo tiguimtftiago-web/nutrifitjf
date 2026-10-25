@@ -118,9 +118,9 @@ const salads: Product[] = [
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
 const traditional: Product[] = [
-  ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
+  ["Patinho Caseiro com Purê de Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
   ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado."],
-  ["Feijoada Fit","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
+  ["Feijoada Tradicional","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
   ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga."],
   ["Churrasco Fit Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
@@ -367,7 +367,7 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           <p className="mt-1 text-[11px] leading-4 text-white/80">{data?.profile || flavor.description}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
         </div>
-        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; validar a receita e a rotulagem com profissional responsável antes de divulgar como informação oficial.</p>
+        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; Valores estimados com base em tabelas de composição de alimentos (TBCA/USP).</p>
       </div>
     </details>
   );
@@ -1505,6 +1505,25 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   );
 }
 
+
+function NutritionDetails({ product }: { product: Product }) {
+  // TODO(nutricionista): preencher e validar os valores por receita e por porção antes de publicar.
+  const nutrition = { kcal: null as number | null, protein: null as number | null, carbs: null as number | null, fat: null as number | null };
+  const value = (amount: number | null, unit: string) => amount === null ? "A preencher" : `${amount}${unit}`;
+  return (
+    <details className="mt-3 rounded-xl border border-[#a7b86a]/20 bg-white/[.025] px-3 py-2.5">
+      <summary className="cursor-pointer list-none text-xs font-bold text-[#cbd99a]">Informações nutricionais <span className="float-right text-white/40">＋</span></summary>
+      <p className="mt-2 text-[10px] leading-4 text-white/45">{product.weight} • porção de referência a confirmar.</p>
+      <dl className="mt-2 grid grid-cols-2 gap-2 text-xs">
+        <div><dt className="text-white/45">Calorias</dt><dd className="font-bold">{value(nutrition.kcal, " kcal")}</dd></div>
+        <div><dt className="text-white/45">Proteínas</dt><dd className="font-bold">{value(nutrition.protein, " g")}</dd></div>
+        <div><dt className="text-white/45">Carboidratos</dt><dd className="font-bold">{value(nutrition.carbs, " g")}</dd></div>
+        <div><dt className="text-white/45">Gorduras totais</dt><dd className="font-bold">{value(nutrition.fat, " g")}</dd></div>
+      </dl>
+    </details>
+  );
+}
+
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
@@ -1529,6 +1548,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                 <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
                 <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
               </div>
+              <NutritionDetails product={product} />
             </div>
             <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
@@ -1569,6 +1589,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
+        <NutritionDetails product={product} />
       </div>
     </article>
     </>
@@ -2502,7 +2523,7 @@ export default function Home() {
         </div>
       </section>
 
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Ingredientes selecionados, preparo controlado e porções pensadas para ajudar no controle de calorias, sem abrir mão do sabor. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
