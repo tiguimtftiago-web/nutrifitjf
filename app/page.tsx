@@ -367,7 +367,7 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           <p className="mt-1 text-[11px] leading-4 text-white/80">{data?.profile || flavor.description}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
         </div>
-        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; Valores estimados com base em tabelas de composição de alimentos (TBCA/USP).</p>
+        <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Valores estimados com base em tabelas de composição de alimentos (TBCA/USP).</p>
       </div>
     </details>
   );
@@ -1507,9 +1507,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 }
 
 
+// TODO(nutricionista): preencher cada entrada com valores calculados por receita e por porção, após validação técnica.
+const nutritionByProduct: Record<string, { kcal: number | null; protein: number | null; carbs: number | null; fat: number | null }> = {};
+
 function NutritionDetails({ product }: { product: Product }) {
-  // TODO(nutricionista): preencher e validar os valores por receita e por porção antes de publicar.
-  const nutrition = { kcal: null as number | null, protein: null as number | null, carbs: null as number | null, fat: null as number | null };
+  const nutrition = nutritionByProduct[product.name] || { kcal: null, protein: null, carbs: null, fat: null };
   const value = (amount: number | null, unit: string) => amount === null ? "A preencher" : `${amount}${unit}`;
   return (
     <details className="mt-3 rounded-xl border border-[#a7b86a]/20 bg-white/[.025] px-3 py-2.5">
@@ -3191,6 +3193,58 @@ export default function Home() {
       </a>
 
 
+
+      <section id="depoimentos" className="border-y border-white/10 bg-[#0d100c]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-12">
+          <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Experiências reais</p>
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-4xl">Quem escolhe a Nutrifit</h2>
+          <p className="mt-2 max-w-2xl text-sm text-white/55">Queremos compartilhar opiniões autênticas de quem já pediu.</p>
+          {/* TODO(marketing): substituir os espaços abaixo por avaliações autorizadas, nome e foto real de cada cliente. Não publicar depoimentos fictícios. */}
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[1, 2, 3].map((item) => (
+              <article key={item} className="rounded-2xl border border-dashed border-[#a7b86a]/30 bg-black/20 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white/5 text-white/30"><UserRound size={22} /></div>
+                  <div><p className="text-sm font-bold text-white/75">Avaliação de cliente</p><p className="text-xs text-white/35">TODO: nome autorizado</p></div>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-white/35">TODO: inserir comentário real do cliente, com autorização de publicação.</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section id="faq" className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-12">
+        <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Informações importantes</p>
+        <h2 className="mt-2 text-2xl font-black sm:text-4xl">Perguntas frequentes</h2>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          {[
+            ["Qual é a validade das marmitas?", "TODO: confirmar validade por produto e método de conservação com a responsável técnica."],
+            ["Como conservar?", "TODO: informar temperatura de refrigeração e instruções oficiais do rótulo."],
+            ["Como aquecer?", "TODO: confirmar instruções de aquecimento compatíveis com a embalagem de cada produto."],
+            ["Posso congelar?", "TODO: confirmar quais produtos podem ser congelados e por quanto tempo."],
+            ["Quais são os alérgenos?", "TODO: informar alergênicos e risco de contaminação cruzada por receita, após revisão técnica."],
+            ["Quais formas de pagamento são aceitas?", "TODO: confirmar formas de pagamento aceitas atualmente antes de divulgar."],
+            ["A Nutrifit atende empresas?", "TODO: confirmar condições comerciais, pedido mínimo e canal para pedidos corporativos."]
+          ].map(([question, answer]) => (
+            <details key={question} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+              <summary className="cursor-pointer font-bold text-white">{question}</summary>
+              <p className="mt-3 text-sm leading-6 text-white/55">{answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section id="entrega" className="border-y border-white/10 bg-[#10130d]">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-5 md:grid-cols-2 md:items-center md:px-8 md:py-10">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Entrega em Juiz de Fora</p>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl">Consulte sua região</h2>
+            <p className="mt-2 text-sm leading-6 text-white/55">Informe o CEP no carrinho para consultar a cobertura e a taxa calculada pelo sistema antes de finalizar o pedido.</p>
+            {/* TODO(operacao): validar e publicar lista de bairros, taxas, prazo e horário de entrega. O cálculo operacional do carrinho permanece como fonte da taxa. */}
+            <p className="mt-3 text-xs text-white/35">Bairros, taxas e prazos dependem da validação operacional da Nutrifit.</p>
+          </div>
+          <a href="#combos" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">Consultar entrega no pedido <Truck size={17} /></a>
+        </div>
+      </section>
       <footer className="border-t border-white/10 bg-black">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-9">
           <div className="grid gap-6 md:grid-cols-[1fr_auto_auto] md:items-center">
@@ -3211,6 +3265,9 @@ export default function Home() {
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
+              <a href="#depoimentos" className="transition hover:text-white">Depoimentos</a>
+              <a href="#faq" className="transition hover:text-white">Dúvidas frequentes</a>
+              <a href="#entrega" className="transition hover:text-white">Entrega</a>
             </nav>
             <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
               Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
