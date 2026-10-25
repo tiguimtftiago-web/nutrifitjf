@@ -1882,7 +1882,7 @@ const nutritionRows = (n: NutritionData) => [
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <>
-    <article className="nf-mobile-meal group relative flex sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
+    <article className="nf-mobile-meal group relative flex flex-col sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
       <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
         {product.comingSoon ? (
           <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-4 text-center">
