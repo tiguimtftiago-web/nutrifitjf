@@ -35,8 +35,6 @@ export default function B2BPage() {
   ];
   const selectedMenuSummary = menuDishes.filter(([name]) => (menuQuantities[name] || 0) > 0).map(([name]) => `${name}: ${menuQuantities[name]} por dia`).join("; ");
   const selectedMenuTotal = Object.values(menuQuantities).reduce((sum, qty) => sum + qty, 0);
-  const [wizardStep, setWizardStep] = useState(1);
-  const [reviewText, setReviewText] = useState<string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
