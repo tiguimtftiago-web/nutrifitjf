@@ -1,3 +1,4 @@
+// JSX syntax fix: remove duplicate closing section tag
 "use client";
 
 import { useRef, useState } from "react";
@@ -262,7 +263,7 @@ export default function B2BPage() {
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">Os valores e as condições comerciais são apresentados durante o atendimento, considerando o cardápio escolhido ou personalizado, o volume de refeições, a frequência e a logística de entrega. Converse com a Nutrifit para montarmos uma proposta adequada à sua equipe.</p>
               <a href="#solicitar-proposta" className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black transition hover:brightness-105">Solicitar proposta <ArrowRight size={16} /></a>
             </div>
-          </section></section>
+          </section>
 
           <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-5 sm:p-7">
             <div className="grid gap-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
