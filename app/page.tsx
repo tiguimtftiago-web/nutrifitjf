@@ -582,7 +582,7 @@ const itemLineLabel = (line: string) => {
 
 
 const comboOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 161,00", 10: "R$ 229,00", 14: "R$ 328,00", 20: "R$ 449,00" } },
+  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 161,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 449,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
@@ -1057,7 +1057,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
         "",
       ].join("\n");
-      const officialMessage = message.replace(/🛒 \*ITENS DO PEDIDO\*[\s\S]*?(?=📍 \*ENTREGA\*)/, officialSummary);
+      const itemsStart = message.indexOf("ITENS DO PEDIDO");
+      const addressStart = message.indexOf("ENDEREÇO / RECEBIMENTO");
+      if (itemsStart < 0 || addressStart < 0 || addressStart <= itemsStart) {
+        throw new Error("Não foi possível montar o resumo oficial do pedido.");
+      }
+      const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
       const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
