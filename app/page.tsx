@@ -3622,6 +3622,7 @@ export default function Home() {
               <a href="#entrega" className="transition hover:text-white">Entrega</a>
               <a href="#faq" className="transition hover:text-white">Dúvidas</a>
               <a href="#b2b" className="transition hover:text-white">Para empresas</a>
+              <a href="/privacidade" className="transition hover:text-white">Política de Privacidade</a>
             </nav>
             <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
               Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
