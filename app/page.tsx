@@ -1555,30 +1555,28 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
         onClick={() => setExpanded((current) => !current)}
         aria-expanded={expanded}
         aria-controls={`nf-line-options-${id}`}
-        className="nf-line-banner group relative mt-4 flex min-h-[142px] w-full items-end overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
+        className="nf-line-banner group relative mt-4 flex min-h-[150px] w-full items-stretch overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
       >
-        {coverProduct && !coverProduct.comingSoon ? (
-          coverProduct.crop ? (
-            <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${coverProduct.image})`, backgroundSize: "cover", backgroundPosition: coverProduct.crop }} />
+        <div className="relative z-10 flex w-[58%] flex-col justify-center p-4 pr-2">
+          <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">{id === "cardapio" ? "MARMITAS" : id === "performance" ? "MARMITAS" : id === "tradicional" ? "MARMITAS" : eyebrow}</div>
+          <div className="mt-1 text-xl font-black leading-tight text-white">{id === "cardapio" ? "FIT" : id === "performance" ? "PERFORMANCE" : id === "tradicional" ? "TRADICIONAL" : title.replace("Linha ", "")}</div>
+          <div className="mt-0.5 text-lg font-semibold leading-tight text-white/90">{id === "cardapio" ? "350 g" : id === "performance" ? "450 g" : id === "tradicional" ? "500 g" : ""}</div>
+          <div className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/70">{id === "cardapio" ? "Leve, equilibrada e saborosa." : id === "performance" ? "Mais proteína para o seu resultado." : id === "tradicional" ? "O sabor de sempre, com mais equilíbrio." : subtitle}</div>
+        </div>
+        <div className="absolute inset-y-0 right-0 w-[53%]">
+          {coverProduct && !coverProduct.comingSoon ? (
+            coverProduct.crop ? (
+              <div aria-hidden="true" className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${coverProduct.image})`, backgroundSize: "cover", backgroundPosition: coverProduct.crop }} />
+            ) : (
+              <img src={coverProduct.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" loading="lazy" />
+            )
           ) : (
-            <img src={coverProduct.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" loading="lazy" />
-          )
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#a7b86a]" /></div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/10" />
-        <div className="relative z-10 flex w-full items-center gap-3 p-4">
-          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-[#ef7d18]/60 bg-black/60 text-[#ef7d18] shadow-lg">
-            <ChefHat size={30} strokeWidth={1.8} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#c8dc73]">Conheça a linha</div>
-            <div className="mt-1 text-xl font-black leading-tight text-white">{title}</div>
-            <div className="mt-1 text-xs font-medium text-white/75">{subtitle}</div>
-          </div>
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black">
-            {expanded ? <ChevronUp size={22} strokeWidth={2.8} /> : <ArrowRight size={21} strokeWidth={2.8} />}
-          </div>
+            <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#a7b86a]" /></div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0d100c] via-[#0d100c]/25 to-transparent" />
+        </div>
+        <div className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#ef7d18] text-black shadow-lg">
+          {expanded ? <ChevronUp size={21} strokeWidth={2.8} /> : <ArrowRight size={21} strokeWidth={2.8} />}
         </div>
       </button>
 
@@ -2387,77 +2385,6 @@ export default function Home() {
   </div>
 </section>
 
-      <section aria-label="Conheça todos os produtos Nutrifit" className="border-b border-white/10 bg-[#0b0e09]">
-        <div className="mx-auto max-w-7xl px-3 py-5 sm:px-5 sm:py-7 md:px-8">
-          <div className="mb-3 flex items-end justify-between gap-3 sm:mb-4">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a] sm:text-xs">Explore a Nutrifit</div>
-              <h2 className="mt-1 text-xl font-black leading-tight sm:text-2xl">Muito mais que marmitas</h2>
-              <p className="mt-1 text-xs text-white/50 sm:text-sm">Encontre refeições, sucos, saladas e lanches em um só lugar.</p>
-            </div>
-            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos")} className="hidden shrink-0 items-center gap-1 text-xs font-black text-[#ef7d18] sm:inline-flex">Ver cardápio <ArrowRight size={15} /></a>
-          </div>
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:gap-3 lg:grid-cols-4">
-            {([
-              { title: "Marmitas", description: "Fit, Performance e Tradicional", image: "/images/page-4.jpg", href: "#cardapio", accent: "#a7b86a", source: "marmitas" },
-              { title: "Sucos naturais", description: "Naturais e funcionais", image: "/images/page-36.jpg", href: "#sucos", accent: "#ef7d18", source: "sucos" },
-              { title: "Saladas", description: "Opções frescas e completas", image: "/images/page-21.jpg", href: "#saladas", accent: "#a7b86a", source: "saladas" },
-              { title: "Sanduíches", description: "Lanches práticos para sua rotina", image: "/images/sanduiche-frango-nutrifit.jpg", href: "#extras", accent: "#ef7d18", source: "sanduiches" },
-            ]).map((category) => (
-              <a key={category.source} href={category.href} onClick={() => trackClick("homepage_category_click", category.source)} className="group relative min-h-[154px] w-[42%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition hover:-translate-y-0.5 hover:border-white/25 sm:min-h-[190px] sm:w-auto sm:shrink sm:rounded-[1.35rem]">
-                <img src={category.image} alt={category.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/5" />
-                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <div className="flex items-end justify-between gap-2">
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black leading-tight sm:text-lg">{category.title}</h3>
-                      <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs">{category.description}</p>
-                    </div>
-                    <span style={{ borderColor: category.accent, color: category.accent }} className="grid h-7 w-7 shrink-0 place-items-center rounded-full border bg-black/40 text-base transition group-hover:bg-black/70 sm:h-9 sm:w-9">›</span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-          <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "todos_produtos_mobile")} className="mt-3 flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-xs font-black text-black sm:hidden">Ver cardápio completo <ArrowRight size={15} /></a>
-        </div>
-      </section>
-
-      <section aria-label="Marmitas em destaque" className="mobile-home-only border-b border-white/10 bg-[#080a07] px-3 py-4 sm:hidden">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-3 flex items-end justify-between gap-3">
-            <div>
-              <div className="text-[9px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Escolhas Nutrifit</div>
-              <h2 className="mt-1 text-lg font-black leading-tight">Destaques do cardápio</h2>
-              <p className="mt-1 text-[11px] text-white/50">Veja as opções e escolha a sua.</p>
-            </div>
-            <a href="#cardapio" onClick={() => trackClick("homepage_category_click", "destaques_mobile_ver_cardapio")} className="shrink-0 text-[10px] font-black text-[#ef7d18]">Ver todos <ArrowRight size={12} className="ml-1 inline" /></a>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {([
-              { name: "Patinho com Abóbora", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-4.jpg", source: "destaque_patinho_abobora" },
-              { name: "Frango Grelhado com Mix de Legumes", weight: "FIT · 350 g", price: "R$ 23,97", image: "/images/page-6.jpg", source: "destaque_frango_legumes" },
-              { name: "Tilápia Fit com Arroz e Legumes", weight: "FIT · 350 g", price: "R$ 27,90", image: "/images/tilapia-fit-350-web.jpg", source: "destaque_tilapia" },
-              { name: "Chicken Parmesão", weight: "PERFORMANCE · 450 g", price: "R$ 27,90", image: "/images/page-12.jpg", source: "destaque_chicken_parmesao" },
-            ]).map((item) => (
-              <a key={item.source} href="#cardapio" onClick={() => trackClick("homepage_featured_product_click", item.source)} className="group overflow-hidden rounded-2xl border border-white/10 bg-[#11140e] transition active:scale-[.99]">
-                <div className="aspect-[4/3] overflow-hidden bg-black/40">
-                  <img src={item.image} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                </div>
-                <div className="p-2.5">
-                  <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#a7b86a]">{item.weight}</div>
-                  <h3 className="mt-1 min-h-9 text-[11px] font-black leading-4">{item.name}</h3>
-                  <div className="mt-2 flex items-center justify-between gap-1">
-                    <span className="text-sm font-black text-[#ef7d18]">{item.price}</span>
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><ArrowRight size={14} /></span>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
           <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#a7b86a]/40 bg-[#a7b86a]/[.06] p-3">
@@ -2628,91 +2555,6 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
-
-      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
-        <div className="mb-4">
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
-          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
-          <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
-        </div>
-
-        <div className="grid gap-2.5 md:grid-cols-2">
-          {([
-            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
-            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
-          ] as const).map(([category, icon, title, subtitle, accent]) => {
-            const items = comboComplements.filter((item) => item.category === category);
-            return (
-              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div
-                      className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
-                      style={{ backgroundColor: accent + "18", border: `1px solid ${accent}35` }}
-                    >
-                      {icon}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>
-                        {category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}
-                      </div>
-                      <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
-                      <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
-                    </div>
-                  </div>
-                  {category === "FRUTAS" && (
-                    <img
-                      src="/images/frutas-picadas-header.jpg"
-                      alt="Porção de frutas frescas picadas Nutrifit"
-                      className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
-                </summary>
-
-                <div className="border-t border-white/10">
-                  {category === "FRUTAS" && (
-                    <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
-                  )}
-                  {items.map((item) => (
-                    <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
-                      <div className="flex min-w-0 items-center gap-3">
-                        {item.image ? (
-                          <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
-                        ) : (
-                          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{item.emoji}</div>
-                        )}
-                        <div className="min-w-0">
-                          <div className="break-words text-sm font-black">{item.name}</div>
-                          <div className="mt-0.5 truncate text-[11px] text-white/40">{item.description}</div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={`Adicionar ${item.name}`}
-                        onClick={() => addToOrder({
-                          name: item.name,
-                          line: category,
-                          weight: category === "FRUTAS" ? "200 g" : "100–120 g",
-                          price: money(item.price ?? 0),
-                          description: item.description,
-                          image: item.image || ""
-                        })}
-                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
-                      >
-                        {money(item.price ?? 0)}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </details>
-            );
-          })}
-        </div>
-      </section>
-
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
         <div className="mx-auto max-w-[1500px] px-2 py-3 sm:px-5 sm:py-6 lg:px-7">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
@@ -2824,6 +2666,92 @@ export default function Home() {
       </div>
       </div>
       </section>
+
+      <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
+        <div className="mb-4">
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
+          <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
+          <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
+        </div>
+
+        <div className="grid gap-2.5 md:grid-cols-2">
+          {([
+            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
+            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
+          ] as const).map(([category, icon, title, subtitle, accent]) => {
+            const items = comboComplements.filter((item) => item.category === category);
+            return (
+              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl"
+                      style={{ backgroundColor: accent + "18", border: `1px solid ${accent}35` }}
+                    >
+                      {icon}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-black uppercase tracking-[.18em]" style={{ color: accent }}>
+                        {category === "SANDUÍCHES" ? "Prático e proteico" : "Frescas e prontas"}
+                      </div>
+                      <h3 className="mt-0.5 truncate text-lg font-black">{title}</h3>
+                      <p className="mt-0.5 text-[11px] text-white/40">{subtitle}</p>
+                    </div>
+                  </div>
+                  {category === "FRUTAS" && (
+                    <img
+                      src="/images/frutas-picadas-header.jpg"
+                      alt="Porção de frutas frescas picadas Nutrifit"
+                      className="h-16 w-20 shrink-0 rounded-xl object-contain object-center bg-black/20 ring-1 ring-white/10 sm:h-20 sm:w-28"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
+                </summary>
+
+                <div className="border-t border-white/10">
+                  {category === "FRUTAS" && (
+                    <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
+                  )}
+                  {items.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
+                      <div className="flex min-w-0 items-center gap-3">
+                        {item.image ? (
+                          <img src={item.image} alt="" className="h-12 w-12 shrink-0 rounded-xl object-cover" loading="lazy" />
+                        ) : (
+                          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white/5 text-2xl">{item.emoji}</div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="break-words text-sm font-black">{item.name}</div>
+                          <div className="mt-0.5 truncate text-[11px] text-white/40">{item.description}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`Adicionar ${item.name}`}
+                        onClick={() => addToOrder({
+                          name: item.name,
+                          line: category,
+                          weight: category === "FRUTAS" ? "200 g" : "100–120 g",
+                          price: money(item.price ?? 0),
+                          description: item.description,
+                          image: item.image || ""
+                        })}
+                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
+                      >
+                        {money(item.price ?? 0)}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
+      </section>
+
+
 
       <section id="combos" className="border-y border-white/10 bg-[#10130d]">
         <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 sm:py-8 md:px-8">
