@@ -38,7 +38,8 @@ export default function B2BPage() {
   const [submitError, setSubmitError] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState("");
   const submitLock = useRef(false);
-  const submissionIdRef = useRef<string | null>(null);\n  const formStartedAtRef = useRef(Date.now());
+  const submissionIdRef = useRef<string | null>(null);
+  const formStartedAtRef = useRef(Date.now());
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
