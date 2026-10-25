@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 const siteUrl = "https://www.nutrifitjf.com.br";
 const pageUrl = `${siteUrl}/b2b`;
 const description =
-  "Marmitas para empresas em Juiz de Fora: alimentação para equipes, escritórios, clínicas, academias e operações. Solicite uma proposta comercial à Nutrifit.";
+  "Marmitas para empresas em Juiz de Fora e alimentação corporativa com cardápio adaptável e entregas programadas. Solicite uma proposta.";
 
 export const metadata: Metadata = {
-  title: "Marmitas para Empresas em Juiz de Fora | Nutrifit Empresas",
+  title: "Marmitas para empresas em Juiz de Fora | Nutrifit",
   description,
   keywords: [
     "marmitas para empresas em Juiz de Fora",
