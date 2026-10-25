@@ -1466,28 +1466,30 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
     <>
-    <article className="nf-mobile-meal flex sm:hidden group min-w-0 h-full flex-row items-stretch overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition">
-      <div className="relative w-[42%] min-h-[148px] shrink-0 overflow-hidden bg-black">
+    <article className="nf-mobile-meal group relative flex sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
+      <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
         {product.comingSoon ? (
-          <div className="flex h-full min-h-[148px] w-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-3 text-center">
-            <div><div className="text-[9px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Novidade</div><div className="mt-2 text-lg font-black text-white">EM BREVE</div></div>
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-4 text-center">
+            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Novidade</div><div className="mt-2 text-2xl font-black text-white">EM BREVE</div></div>
           </div>
         ) : product.crop ? (
-          <div aria-label={product.name} role="img" className="h-full min-h-[148px] w-full bg-cover bg-no-repeat brightness-[1.1] contrast-[1.08] saturate-[1.08]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
+          <div aria-label={product.name} role="img" className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
         ) : (
-          <img src={product.image} alt={product.name} className="h-full min-h-[148px] w-full object-cover brightness-[1.1] contrast-[1.08] saturate-[1.08]" loading="lazy" />
+          <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06]" loading="lazy" />
         )}
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col items-center justify-center px-2.5 py-3 text-center">
-        <span className="text-[9px] font-black uppercase tracking-[.14em] text-[#a7b86a]">{product.line || "NUTRIFIT"} {product.weight ? `• ${product.weight}` : ""}</span>
-        <h3 className="mt-1.5 break-words text-[14px] font-black leading-tight text-white">{product.name}</h3>
-        <p className="mt-1.5 line-clamp-2 text-[10px] leading-[1.25] text-white/50">{product.description}</p>
-        <div className="mt-2.5 flex w-full items-center justify-center gap-2">
-          <span className="text-[16px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent px-3.5 pb-3.5 pt-16">
+          <div className="flex items-end gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
+              <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
+                <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+              </div>
+            </div>
+            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black shadow-lg active:scale-95"><Plus size={23} strokeWidth={3} /></button>
+          </div>
         </div>
-      </div>
-      <div className="flex w-10 shrink-0 items-center justify-center pr-2">
-        <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#ef7d18] text-black active:scale-95"><Plus size={19} strokeWidth={3} /></button>
       </div>
     </article>
     <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
@@ -1547,7 +1549,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
             <ProductCard product={product} onAdd={onAdd} />
