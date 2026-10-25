@@ -3542,7 +3542,7 @@ export default function Home() {
             <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight sm:text-4xl md:text-5xl">Alimentação prática para sua equipe.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Leve marmitas e opções práticas para a rotina da sua empresa. Conte para a gente o tamanho da equipe e a frequência desejada para avaliarmos uma proposta personalizada.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a href={whatsappOrder("Olá, Nutrifit! Tenho interesse em uma proposta para empresa. Gostaria de conversar sobre quantidade de refeições, frequência e condições comerciais.")} onClick={() => trackClick("b2b_whatsapp_click", "b2b_section")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Solicitar proposta B2B <MessageCircle size={17} /></a>
+              <a href="/b2b" onClick={() => trackClick("b2b_proposal_click", "b2b_section")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Solicitar proposta B2B <Building2 size={17} /></a>
               <a href="#como-pedir" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-white/85 transition hover:border-[#a7b86a]">Como funciona o pedido</a>
             </div>
           </div>
