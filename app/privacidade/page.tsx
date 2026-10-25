@@ -12,7 +12,7 @@ const sections = [
   {
     title: "1. Quem somos (controlador dos dados)",
     body: [
-      "Nome: Nutrifit — Elane Acácio da Silva",
+      "Controlador dos dados: Nutrifit",
       "CNPJ: 64.776.469/0001-08",
       "Endereço: Rua Enéas Mascarenhas, nº 94, bairro Monte Castelo, Juiz de Fora/MG",
       "Site: www.nutrifitjf.com.br",
@@ -47,7 +47,7 @@ const sections = [
       "Produzir, entregar e acompanhar pedidos: execução de contrato.",
       "Emitir nota fiscal, cobrar e manter registros fiscais: cumprimento de obrigação legal.",
       "Atender dúvidas, solicitações e reclamações: execução de contrato e legítimo interesse.",
-      "Atender restrições alimentares e alergias: tutela da saúde e garantia da segurança do titular.",
+      "Tratar dados sensíveis sobre alergias e restrições alimentares: consentimento específico e destacado, quando aplicável, limitado ao necessário para a segurança alimentar.",
       "Enviar novidades, cardápios e ofertas: consentimento ou legítimo interesse, com opção de cancelar a qualquer momento.",
       "Melhorar o site e a experiência de uso: legítimo interesse e, quando aplicável, consentimento.",
       "Defender direitos em processos judiciais ou administrativos: exercício regular de direitos.",
@@ -115,10 +115,10 @@ const sections = [
     ],
   },
   {
-    title: "12. Canal de contato e encarregado",
+    title: "12. Canal de contato sobre privacidade",
     body: [
       "Para dúvidas, solicitações ou reclamações sobre privacidade:",
-      "Responsável informado: Elane Acácio da Silva.",
+      "Canal de privacidade: atendimento Nutrifit.",
       "E-mail: NutriFit.cozinhajf@gmail.com",
       "WhatsApp: (32) 99803-0038",
       "Você também pode contatar a Autoridade Nacional de Proteção de Dados (ANPD) em www.gov.br/anpd.",
