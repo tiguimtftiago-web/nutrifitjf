@@ -449,13 +449,13 @@ const comboComplements: ComplementOption[] = [
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
   { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
   { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, image: "/images/804546E5-062D-4FAA-8114-94DF7B66A18D.png", emoji: "🥪" },
-  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, emoji: "🍊" },
-  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, emoji: "🥭" },
-  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, emoji: "🍍" },
-  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: 7.90, emoji: "🍉" },
-  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: 8.90, emoji: "🍈" },
-  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: 9.90, emoji: "🍓" },
-  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: 9.90, emoji: "🍇" },
+  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, image: "/images/mamao.jpg", emoji: "🍊" },
+  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, image: "/images/manga.jpg", emoji: "🥭" },
+  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, image: "/images/abacaxi.jpg", emoji: "🍍" },
+  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: 7.90, image: "/images/melancia.jpg", emoji: "🍉" },
+  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: 8.90, image: "/images/melao.jpg", emoji: "🍈" },
+  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: 9.90, image: "/images/morango.jpg", emoji: "🍓" },
+  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: 9.90, image: "/images/uva-verde.jpg", emoji: "🍇" },
 ];
 
 
