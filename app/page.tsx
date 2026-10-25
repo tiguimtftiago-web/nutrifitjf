@@ -587,6 +587,7 @@ const comboOptions = [
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
 
+// TODO(comercial): revisar e aprovar preços reais de 30/60 unidades por linha; não anunciar economia enquanto não forem inferiores ao preço/unidade do combo de 20.
 const monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
