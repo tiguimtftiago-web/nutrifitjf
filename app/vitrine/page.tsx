@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Info, ShoppingBag, X, Plus, Minus, Leaf, GlassWater, Salad, Utensils, ArrowUpRight } from "lucide-react";
+import { useRef, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight, Info, ShoppingBag, X, Plus, Minus, Leaf, GlassWater, Salad, Utensils, ArrowUpRight } from "lucide-react";
 
 type Product = {
   id: string;
