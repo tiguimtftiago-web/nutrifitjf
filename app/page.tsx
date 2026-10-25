@@ -2788,6 +2788,9 @@ export default function Home() {
             <a href="#combos" className="text-sm font-black text-white/85 hover:text-white">COMBOS</a>
             <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PERSONALIZE</a>
             <a href="#como-pedir" className="text-sm font-black text-white/85 hover:text-white">COMO COMPRAR</a>
+            <a href="#entrega" className="text-sm font-black text-white/85 hover:text-white">ENTREGA</a>
+            <a href="#faq" className="text-sm font-black text-white/85 hover:text-white">FAQ</a>
+            <a href="#b2b" className="text-sm font-black text-white/85 hover:text-white">EMPRESAS</a>
           </nav>
 
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
@@ -3531,6 +3534,51 @@ export default function Home() {
         </div>
       )}
 
+
+      <section id="b2b" className="border-t border-white/10 bg-[#0d100b]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 md:grid-cols-[1.05fr_.95fr] md:items-center md:px-8 md:py-20">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.22em] text-[#ef7d18]">Nutrifit para empresas</p>
+            <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight sm:text-4xl md:text-5xl">Alimentação prática para sua equipe.</h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Leve marmitas e opções práticas para a rotina da sua empresa. Conte para a gente o tamanho da equipe e a frequência desejada para avaliarmos uma proposta personalizada.</p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <a href={whatsappOrder("Olá, Nutrifit! Tenho interesse em uma proposta para empresa. Gostaria de conversar sobre quantidade de refeições, frequência e condições comerciais.")} onClick={() => trackClick("b2b_whatsapp_click", "b2b_section")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Solicitar proposta B2B <MessageCircle size={17} /></a>
+              <a href="#como-pedir" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-white/85 transition hover:border-[#a7b86a]">Como funciona o pedido</a>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/[.035] p-5"><ChefHat className="text-[#a7b86a]" size={23} /><h3 className="mt-3 font-black">Opções variadas</h3><p className="mt-2 text-sm leading-5 text-white/55">Consulte as linhas e os pratos disponíveis no cardápio.</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.035] p-5"><ClipboardCheck className="text-[#a7b86a]" size={23} /><h3 className="mt-3 font-black">Proposta sob consulta</h3><p className="mt-2 text-sm leading-5 text-white/55">Condições dependem de volume, frequência e logística.</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.035] p-5 sm:col-span-2"><MessageCircle className="text-[#ef7d18]" size={23} /><h3 className="mt-3 font-black">Atendimento comercial direto</h3><p className="mt-2 text-sm leading-5 text-white/55">Fale pelo WhatsApp e informe nome da empresa, cidade, quantidade estimada de refeições e quando pretende começar.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="entrega" className="border-t border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:px-8 md:py-16">
+          <div className="max-w-3xl"><p className="text-xs font-black uppercase tracking-[.22em] text-[#a7b86a]">Recebimento do pedido</p><h2 className="mt-2 text-3xl font-black sm:text-4xl">Entrega e retirada</h2><p className="mt-3 text-sm leading-6 text-white/60 sm:text-base">Confira as opções disponíveis para o seu endereço antes de concluir a compra.</p></div>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><MapPin className="text-[#ef7d18]" size={23} /><h3 className="mt-3 font-black">Entrega em domicílio</h3><p className="mt-2 text-sm leading-5 text-white/55">Informe o CEP e o endereço no pedido. Disponibilidade e eventual taxa devem ser confirmadas antes da finalização.</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><ClipboardCheck className="text-[#ef7d18]" size={23} /><h3 className="mt-3 font-black">Confira os dados</h3><p className="mt-2 text-sm leading-5 text-white/55">Revise telefone, endereço, número, bairro e complemento para facilitar a entrega.</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.03] p-5"><MessageCircle className="text-[#ef7d18]" size={23} /><h3 className="mt-3 font-black">Precisa confirmar?</h3><p className="mt-2 text-sm leading-5 text-white/55">Converse com a equipe pelo WhatsApp para verificar a cobertura e combinar os detalhes do recebimento.</p><a className="mt-4 inline-flex text-sm font-black text-[#a7b86a] hover:text-white" href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")}>Consultar entrega →</a></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="faq" className="border-t border-white/10 bg-[#0d100b]">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 md:px-8 md:py-16">
+          <p className="text-xs font-black uppercase tracking-[.22em] text-[#ef7d18]">Dúvidas frequentes</p><h2 className="mt-2 text-3xl font-black sm:text-4xl">Antes de fazer seu pedido</h2>
+          <div className="mt-7 divide-y divide-white/10 rounded-2xl border border-white/10 bg-black/20 px-5 sm:px-7">
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Como faço um pedido? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Escolha os pratos ou um combo no cardápio, siga as etapas de montagem e confira os dados antes de enviar o pedido.</p></details>
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Posso montar um combo com pratos diferentes? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Use a opção de montagem de combo disponível no site e selecione os pratos permitidos para a linha escolhida. As opções e quantidades são apresentadas durante a montagem.</p></details>
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Como sei se entregam no meu endereço? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Informe o CEP e os dados de entrega no pedido. Se a cobertura ou a taxa não ficar clara, confirme com a equipe pelo WhatsApp antes de finalizar.</p></details>
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Onde encontro as informações nutricionais? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Abra o prato para consultar a ficha nutricional quando disponível. Os valores apresentados são referências da Nutrifit por porção e podem variar conforme ingredientes e preparo.</p></details>
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Quero pedir para uma empresa. Como funciona? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Acesse a seção Nutrifit para empresas e solicite uma proposta pelo WhatsApp. Informe quantidade estimada, frequência e local de entrega para avaliação comercial.</p></details>
+            <details className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">Preciso de ajuda com meu pedido. Com quem falo? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-3 text-sm leading-6 text-white/60">Use o botão de WhatsApp no site e envie os detalhes do pedido para a equipe poder orientar você.</p></details>
+          </div>
+        </div>
+      </section>
+
       <a
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
@@ -3571,6 +3619,9 @@ export default function Home() {
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
+              <a href="#entrega" className="transition hover:text-white">Entrega</a>
+              <a href="#faq" className="transition hover:text-white">Dúvidas</a>
+              <a href="#b2b" className="transition hover:text-white">Para empresas</a>
             </nav>
             <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
               Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
