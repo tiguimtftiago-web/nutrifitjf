@@ -1505,6 +1505,78 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   );
 }
 
+const fitNutrition: Record<string,{kcal:number;protein:string;profile:string}> = {
+  "Patinho com Abóbora": {
+    "kcal": 430,
+    "protein": "56,6",
+    "profile": "Equilibrada"
+  },
+  "Patinho com Batata-Doce": {
+    "kcal": 470,
+    "protein": "55,1",
+    "profile": "Equilibrada"
+  },
+  "Patinho com Legumes na Manteiga": {
+    "kcal": 455,
+    "protein": "57,2",
+    "profile": "Equilibrada"
+  },
+  "Frango Grelhado com Mix de Legumes": {
+    "kcal": 300,
+    "protein": "51,6",
+    "profile": "Leve"
+  },
+  "Carne Acebolada com Legumes": {
+    "kcal": 385,
+    "protein": "51,4",
+    "profile": "Leve"
+  },
+  "Frango ao Molho de Ervas com Legumes": {
+    "kcal": 300,
+    "protein": "51,4",
+    "profile": "Leve"
+  },
+  "Lombo Suíno com Legumes Assados": {
+    "kcal": 395,
+    "protein": "50,1",
+    "profile": "Leve"
+  },
+  "Tilápia Fit com Arroz Branco e Legumes": {
+    "kcal": 355,
+    "protein": "43,3",
+    "profile": "Leve"
+  },
+  "Pernil Acebolado com Batata Inglesa": {
+    "kcal": 460,
+    "protein": "45,8",
+    "profile": "Equilibrada"
+  },
+  "Frango com Purê de Batata Inglesa": {
+    "kcal": 395,
+    "protein": "51,6",
+    "profile": "Leve"
+  },
+  "Frango ao Molho de Mostarda com Batata": {
+    "kcal": 335,
+    "protein": "50,3",
+    "profile": "Leve"
+  },
+  "Escondidinho de Patinho Fit": {
+    "kcal": 485,
+    "protein": "57,5",
+    "profile": "Equilibrada"
+  },
+  "Frango Empanado Assado com Arroz Integral": {
+    "kcal": 530,
+    "protein": "45,7",
+    "profile": "Mais energia"
+  },
+  "Pernil Desfiado ao Molho com Arroz Integral": {
+    "kcal": 575,
+    "protein": "48,4",
+    "profile": "Mais energia"
+  }
+};
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
   return (
@@ -1525,6 +1597,10 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             <div className="min-w-0 flex-1">
               <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
               <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
+                        {product.line === "FIT" && fitNutrition[product.name] && <div className="mt-2 rounded-xl border border-[#a7b86a]/30 bg-[#080a07]/95 p-2.5 text-left">
+                          <div className="flex flex-wrap items-center gap-1.5"><span className="rounded-full bg-[#a7b86a]/15 px-2 py-1 text-[10px] font-black text-[#d4e6a0]">{fitNutrition[product.name].kcal} kcal</span><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold text-white">{fitNutrition[product.name].protein} g proteína</span><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold text-white/75">{fitNutrition[product.name].profile}</span></div>
+                          <details className="mt-2 text-[11px] text-white/80"><summary className="cursor-pointer list-none font-bold text-[#c8dc73]">＋ Ver tabela nutricional</summary><div className="mt-2 border-t border-white/10 pt-2"><p className="font-bold text-white">Porção de 350 g</p><p className="flex justify-between gap-2 border-b border-white/5 py-1"><span>Valor energético</span><b>{fitNutrition[product.name].kcal} kcal</b></p><p className="flex justify-between gap-2 border-b border-white/5 py-1"><span>Proteínas</span><b>{fitNutrition[product.name].protein} g</b></p><p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores estimados por porção, baseados no documento nutricional da Nutrifit. Podem variar conforme ingredientes e preparo. Classificação: {fitNutrition[product.name].profile}. Consulte a equipe sobre ingredientes e alérgenos.</p></div></details>
+                        </div>
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
                 <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
@@ -1563,6 +1639,10 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
         <p className="mt-1 min-h-[2.15rem] text-[10px] leading-[1.05rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+                        {product.line === "FIT" && fitNutrition[product.name] && <div className="mt-2 rounded-xl border border-[#a7b86a]/30 bg-[#080a07]/95 p-2.5 text-left">
+                          <div className="flex flex-wrap items-center gap-1.5"><span className="rounded-full bg-[#a7b86a]/15 px-2 py-1 text-[10px] font-black text-[#d4e6a0]">{fitNutrition[product.name].kcal} kcal</span><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold text-white">{fitNutrition[product.name].protein} g proteína</span><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] font-bold text-white/75">{fitNutrition[product.name].profile}</span></div>
+                          <details className="mt-2 text-[11px] text-white/80"><summary className="cursor-pointer list-none font-bold text-[#c8dc73]">＋ Ver tabela nutricional</summary><div className="mt-2 border-t border-white/10 pt-2"><p className="font-bold text-white">Porção de 350 g</p><p className="flex justify-between gap-2 border-b border-white/5 py-1"><span>Valor energético</span><b>{fitNutrition[product.name].kcal} kcal</b></p><p className="flex justify-between gap-2 border-b border-white/5 py-1"><span>Proteínas</span><b>{fitNutrition[product.name].protein} g</b></p><p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores estimados por porção, baseados no documento nutricional da Nutrifit. Podem variar conforme ingredientes e preparo. Classificação: {fitNutrition[product.name].profile}. Consulte a equipe sobre ingredientes e alérgenos.</p></div></details>
+                        </div>
         <div className="mt-auto flex items-center gap-1.5 pt-2.5">
           <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#ef7d18] sm:text-xl">{product.price}</div>
           <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
