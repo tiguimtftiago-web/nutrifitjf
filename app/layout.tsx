@@ -73,7 +73,7 @@ export const viewport: Viewport = {
 
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "Restaurant",
+  "@type": ["Restaurant", "LocalBusiness"],
   "@id": siteUrl + "/#restaurant",
   name: "Nutrifit",
   url: siteUrl,
@@ -118,6 +118,37 @@ const structuredData = {
   },
 };
 
+
+const menuStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Menu",
+  "@id": siteUrl + "/#menu",
+  name: "Cardápio Nutrifit",
+  url: siteUrl + "/#cardapio",
+  inLanguage: "pt-BR",
+  hasMenuSection: [
+    { "@type": "MenuSection", name: "Linha Fit • 350 g", hasMenuItem: [
+      { "@type": "MenuItem", name: "Marmita Fit 350 g", offers: { "@type": "Offer", price: "23.97", priceCurrency: "BRL", availability: "https://schema.org/InStock" }, nutrition: { "@type": "NutritionInformation", calories: "TODO: validar com nutricionista", proteinContent: "TODO: validar com nutricionista", carbohydrateContent: "TODO: validar com nutricionista", fatContent: "TODO: validar com nutricionista" } }
+    ]},
+    { "@type": "MenuSection", name: "Linha Performance • 450 g", hasMenuItem: [
+      { "@type": "MenuItem", name: "Marmita Performance 450 g", offers: { "@type": "Offer", price: "27.90", priceCurrency: "BRL", availability: "https://schema.org/InStock" } }
+    ]},
+    { "@type": "MenuSection", name: "Linha Tradicional • 500 g", hasMenuItem: [
+      { "@type": "MenuItem", name: "Marmita Tradicional 500 g", offers: { "@type": "Offer", price: "26.90", priceCurrency: "BRL", availability: "https://schema.org/InStock" } }
+    ]}
+  ]
+};
+
+const productStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "Marmita Fit Nutrifit • 350 g",
+  brand: { "@type": "Brand", name: "Nutrifit" },
+  description: "Marmita Fit de 350 g. Consulte o cardápio para opções e ingredientes.",
+  offers: { "@type": "Offer", url: siteUrl + "/#cardapio", priceCurrency: "BRL", price: "23.97", availability: "https://schema.org/InStock" },
+  // TODO(nutricionista): adicionar NutritionInformation somente após validação dos valores por receita.
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -129,6 +160,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(menuStructuredData) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productStructuredData) }} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-40YWBD3WXW"
           strategy="afterInteractive"
