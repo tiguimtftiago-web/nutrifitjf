@@ -1047,11 +1047,10 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "━━━━━━━━━━━━━━━━━━━━",
         "💰 *VALORES CONFIRMADOS PELO SISTEMA*",
         `Subtotal: *${money(Number(result.subtotal))}*`,
-        `🎁 Desconto: *-${money(Number(result.discount))}*`,
+        `🎁 Desconto: *-${money(Number(result.discount ?? 0))}*`,
         `🚚 Frete: *${money(Number(result.delivery_fee))}*`,
         `💵 *TOTAL OFICIAL: ${money(Number(result.total))}*`,
         "",
-        "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
         "",
       ].join("\n");
       const itemsStart = message.indexOf("ITENS DO PEDIDO");
@@ -2518,7 +2517,6 @@ export default function Home() {
         `Subtotal oficial: ${money(Number(result.subtotal))}`,
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
         `TOTAL OFICIAL: ${money(Number(result.total))}`,
-        "O valor válido é o registrado no sistema NutriFit, não alterações manuais nesta mensagem.",
       ].join("\n");
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
       const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
