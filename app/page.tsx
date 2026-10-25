@@ -1487,7 +1487,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                 <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
               </div>
             </div>
-            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black shadow-lg active:scale-95"><Plus size={23} strokeWidth={3} /></button>
+            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
         </div>
       </div>
