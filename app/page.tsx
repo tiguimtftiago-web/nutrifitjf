@@ -1225,19 +1225,26 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           )}
           {detailProduct && total !== quantity && (
             <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/85 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label={detailProduct.name}>
-              <div className="relative max-h-[88dvh] w-full max-w-xl overflow-y-auto overscroll-contain rounded-t-[1.6rem] border border-white/10 bg-[#080a07] pb-[env(safe-area-inset-bottom)] sm:max-h-[90dvh] sm:rounded-[1.6rem]">
+              <div className="relative max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[1.6rem] border border-white/10 bg-[#080a07] sm:rounded-[1.6rem]">
                 <button type="button" onClick={() => setDetailProduct(null)} aria-label="Fechar detalhes do prato" className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-2xl text-white">×</button>
-                <div className="relative h-[34dvh] min-h-48 max-h-[360px] w-full overflow-hidden bg-black sm:h-auto sm:aspect-[4/3] sm:max-h-none">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
                   {detailProduct.crop ? (
                     <div role="img" aria-label={detailProduct.name} className="absolute inset-0 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${detailProduct.image})`, backgroundSize: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "center" : detailProduct.crop, backgroundRepeat: "no-repeat" }} />
                   ) : (
-                    <img src={detailProduct.image} alt={detailProduct.name} className="absolute inset-0 h-full w-full object-contain sm:object-cover" />
+                    <img src={detailProduct.image} alt={detailProduct.name} className="absolute inset-0 h-full w-full object-cover" />
                   )}
                 </div>
                 <div className="p-5">
                   <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
                   <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#a7b86a] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#ef7d18]">{detailProduct.price}</span></div>
                   <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
+                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#a7b86a]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
+                    <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#d4e6a0]">Informação nutricional</h4><span className="rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-xs font-black text-[#d4e6a0]">{n.kcal} kcal</span></div>
+                    <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
+                    <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
+                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p></div>
+                    <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores nutricionais de referência Nutrifit por porção; podem variar conforme ingredientes e preparo.</p>
+                  </section>; })()}
                   <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
                     <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
                     <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
