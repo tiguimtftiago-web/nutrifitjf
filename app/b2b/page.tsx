@@ -256,52 +256,24 @@ export default function B2BPage() {
           </div>
 
           <section id="precos-b2b" className="border-t border-white/10 p-5 sm:p-7">
-            <div className="overflow-hidden rounded-2xl border border-[#ef7d18]/25 bg-[#17130e] p-5 sm:p-7">
-              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Condições comerciais</span>
-                  <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Quanto maior o volume, melhor o preço.</h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">Preço-base de R$ 29,90 por refeição. Os descontos são calculados sobre o volume mensal contratado, com programação prévia dos pedidos.</p>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 md:min-w-48">
-                  <p className="text-xs font-bold text-white/45">Preço-base</p>
-                  <p className="mt-1 text-3xl font-black text-white">R$ 29,90</p>
-                  <p className="text-xs text-white/45">por marmita</p>
-                </div>
-              </div>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {[
-                  { volume: "1 a 19/mês", discount: "Sem desconto", price: "R$ 29,90", note: "Preço-base", featured: false },
-                  { volume: "20 a 49/mês", discount: "3% de desconto", price: "R$ 29,00", note: "Economia de R$ 0,90/un.", featured: false },
-                  { volume: "50 a 99/mês", discount: "5% de desconto", price: "R$ 28,41", note: "Economia de R$ 1,49/un.", featured: true },
-                  { volume: "100 ou mais/mês", discount: "8% de desconto", price: "R$ 27,51", note: "Economia de R$ 2,39/un.", featured: false },
-                ].map((tier) => (
-                  <article key={tier.volume} className={`rounded-xl border p-4 ${tier.featured ? "border-[#a7b86a]/60 bg-[#a7b86a]/10" : "border-white/10 bg-black/20"}`}>
-                    <p className="text-xs font-bold text-white/55">{tier.volume}</p>
-                    <p className={`mt-2 text-xs font-black uppercase tracking-wide ${tier.featured ? "text-[#c5d879]" : "text-[#ffab62]"}`}>{tier.discount}</p>
-                    <p className="mt-2 text-2xl font-black tracking-tight">{tier.price}</p>
-                    <p className="mt-1 text-xs text-white/45">por refeição</p>
-                    <p className="mt-3 border-t border-white/10 pt-3 text-xs text-white/60">{tier.note}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-4 flex flex-col gap-3 rounded-xl border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-3xl text-xs leading-5 text-white/50">Valores de referência sujeitos à confirmação de cardápio, quantidades, frequência e logística de entrega. A faixa será definida pelo total mensal contratado; a proposta final confirma as condições aplicáveis.</p>
-                <a href="#solicitar-proposta" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black transition hover:brightness-105">Solicitar orçamento <ArrowRight size={16} /></a>
-              </div>
+            <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#17130e] p-5 sm:p-7">
+              <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Proposta comercial personalizada</span>
+              <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Condições definidas para a realidade da sua empresa.</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/65">Os valores e as condições comerciais são apresentados durante o atendimento, considerando o cardápio escolhido ou personalizado, o volume de refeições, a frequência e a logística de entrega. Converse com a Nutrifit para montarmos uma proposta adequada à sua equipe.</p>
+              <a href="#solicitar-proposta" className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black transition hover:brightness-105">Solicitar proposta <ArrowRight size={16} /></a>
             </div>
-          </section>
+          </section></section>
 
           <section id="cardapio-empresarial" className="scroll-mt-8 border-t border-white/10 p-5 sm:p-7">
             <div className="grid gap-5 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7">
               <div>
                 <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Cardápio empresarial</span>
-                <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Refeições caseiras para sua equipe.</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Consulte os pratos e solicite uma proposta para sua equipe.</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Seis pratos iniciais para sua equipe.</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">Sua empresa pode começar com estas seis opções. Se preferir, montamos um cardápio personalizado para sua equipe, conforme as preferências, necessidades e rotina de fornecimento. Basta solicitar o atendimento comercial.</p>
               </div>
               <div className="flex flex-col gap-2 sm:min-w-52">
                 <button type="button" aria-expanded={menuExpanded} aria-controls="lista-pratos-empresariais" onClick={() => setMenuExpanded(value => !value)} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 text-sm font-black text-[#10130d] transition hover:brightness-105">
-                  {menuExpanded ? "Ocultar cardápio" : "Conhecer os 6 pratos"} <ArrowRight size={16} className={menuExpanded ? "rotate-90 transition-transform" : "transition-transform"} />
+                  {menuExpanded ? "Ocultar cardápio" : "Ver os 6 pratos iniciais"} <ArrowRight size={16} className={menuExpanded ? "rotate-90 transition-transform" : "transition-transform"} />
                 </button>
                 <a href="#solicitar-proposta" className="inline-flex items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 px-5 py-3 text-sm font-black text-[#ffab62] transition hover:bg-[#ef7d18]/10">Pedir orçamento <ArrowRight size={15} /></a>
               </div>
@@ -406,7 +378,7 @@ export default function B2BPage() {
                   <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">4</div><div><h3 className="font-black">Pedido e operação</h3><p className="text-xs text-white/40">Dados que a produção e a entrega precisam saber.</p></div></div>
                   <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="grid gap-2 text-sm font-bold">Tipo de refeição *<select required name="tipo_refeicao" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Almoço</option><option>Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Outro</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Cardápio desejado *<select required name="linha" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Cardápio empresarial — 6 pratos caseiros</option><option>Personalizado / conversar com a Nutrifit</option></select></label>
+                    <label className="grid gap-2 text-sm font-bold">Cardápio desejado *<select required name="linha" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Cardápio inicial — 6 pratos caseiros</option><option>Quero um cardápio personalizado para minha equipe</option></select></label>
                     <label className="grid gap-2 text-sm font-bold">Quantas refeições por dia? *<select aria-label="Refeições estimadas por dia" required name="refeicoes" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="" disabled>Selecione uma estimativa</option><option>Até 20 refeições/dia</option><option>21–50 refeições/dia</option><option>51–100 refeições/dia</option><option>101–200 refeições/dia</option><option>Mais de 200 refeições/dia</option><option>Ainda não sei</option></select></label>
                     <label className="grid gap-2 text-sm font-bold">Frequência *<select required name="frequencia" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option><option>Conforme demanda</option></select></label>
                   </div>
