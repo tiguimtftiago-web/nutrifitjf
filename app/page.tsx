@@ -3187,7 +3187,6 @@ export default function Home() {
               <a href="#saladas" className="transition hover:text-white">Saladas</a>
               <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
-              <a href="/sucos-interativo" className="transition hover:text-white">Sucos 3D interativo</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
             </nav>
