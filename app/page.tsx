@@ -3306,7 +3306,7 @@ export default function Home() {
                   <div>
                     <ShoppingCart size={42} className="mx-auto text-[#a7b86a]" />
                     <h3 className="mt-4 text-xl font-black">Seu carrinho está vazio</h3>
-                    <p className="mt-2 max-w-xs text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
+                    <p className="mt-2 max-w-xs text-base sm:text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
                     <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-label="Voltar ao cardápio" className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
                       Voltar ao cardápio
                     </button>
@@ -3341,10 +3341,10 @@ export default function Home() {
                   <div className="mt-6 grid gap-3">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seus dados</div>
                     <label className="text-xs font-bold text-white/55">Nome
-                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#a7b86a]" />
                     </label>
                     <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#a7b86a]" />
                     </label>
                   </div>
 
@@ -3352,42 +3352,42 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega</div>
-                        <div className="mt-1 text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div>
+                        <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#a7b86a]" />
                     </div>
                     {!orderFreeDelivery && (
                       <>
                         <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#a7b86a]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
                         </div>
-                        {orderDelivery && <div className="mt-3 text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
+                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
                         {orderDelivery && (
                           <div className="mt-4 grid gap-3 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.04] p-3 sm:grid-cols-2">
                             <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#a7b86a]">Endereço completo para entrega</div>
                             <label className="text-xs font-bold text-white/60">Rua / avenida
-                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Número
-                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Complemento (opcional)
-                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Bairro
-                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Cidade
-                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">UF
-                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                             <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
-                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
                             </label>
                           </div>
                         )}
@@ -3395,14 +3395,14 @@ export default function Home() {
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
                       </>
                     )}
-                    {orderFreeDelivery && <div className="mt-3 text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
+                    {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
                   <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Cupom de desconto</div>
                     <div className="mt-1 text-xs text-white/45">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
                     <div className="mt-3 flex gap-2">
-                      <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold outline-none focus:border-[#a7b86a] disabled:opacity-60" />
+                      <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm font-bold outline-none focus:border-[#a7b86a] disabled:opacity-60" />
                       {appliedCoupon ? (
                         <button type="button" onClick={removeCoupon} className="shrink-0 rounded-full border border-white/10 px-4 py-3 text-xs font-black">Remover</button>
                       ) : (
@@ -3415,7 +3415,7 @@ export default function Home() {
                   </div>
 
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
-                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-[#a7b86a]" />
+                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#a7b86a]" />
                   </label>
                 </>
               )}
@@ -3423,7 +3423,7 @@ export default function Home() {
 
             {orderItems.length > 0 && (
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/98 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:p-7">
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-base sm:text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
                   <span className="text-white/45">{discountLabel}</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
