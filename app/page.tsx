@@ -1181,22 +1181,28 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
 
           {total !== quantity ? (
-          <div className="grid gap-2.5 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4">
             {option.products.map((product) => (
-              <div key={product.name} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:p-3.5">
-                <div className="flex min-w-0 items-center gap-3">
-                  <img src={product.image} alt={product.name} className="h-14 w-14 shrink-0 rounded-xl object-cover sm:h-16 sm:w-16" style={product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? { objectPosition: "center 20%", transform: "scale(1.08)" } : undefined} loading="lazy" />
-                  <div className="min-w-0">
-                    <div className="break-words font-black text-sm leading-tight">{product.name}</div>
-                    <div className="mt-1 text-xs text-white/40">{product.weight} • {product.price}{tilapiaSurchargePerUnit(product.name) > 0 ? <span className="ml-1 font-black text-[#ef7d18]">+ R$ 6,00 no combo</span> : null}</div>
+              <article key={product.name} className="group relative min-w-0 overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#a7b86a]/45">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
+                  <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover brightness-[1.08] contrast-[1.06] saturate-[1.06] transition duration-500 group-hover:scale-[1.03]" style={product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? { objectPosition: "center 20%" } : undefined} loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                    <h3 className="break-words text-sm font-black leading-tight text-white sm:text-base">{product.name}</h3>
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-white/75 sm:text-xs">{product.description}</p>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2 py-1 text-[9px] font-black text-[#c8dc73]">{product.line} {product.weight}</span>
+                      <span className="text-base font-black leading-none text-[#ef7d18]">{product.price}</span>
+                    </div>
+                    {tilapiaSurchargePerUnit(product.name) > 0 && <div className="mt-1 text-[10px] font-black text-[#ffd0a4]">+ R$ 6,00 no combo</div>}
+                    <div className="mt-3 flex items-center justify-between gap-2 rounded-full border border-white/15 bg-black/60 p-1">
+                      <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 text-white/70 disabled:opacity-25"><Minus size={15} /></button>
+                      <span className="min-w-4 text-center font-black">{selected[product.name] || 0}</span>
+                      <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name} ao combo`} className="touch-manipulation grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black disabled:opacity-25"><Plus size={16} strokeWidth={3} /></button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                  <button type="button" onClick={() => removeProduct(product.name)} disabled={!selected[product.name]} aria-label={`Remover ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 disabled:opacity-25"><Minus size={15} /></button>
-                  <span className="w-5 text-center font-black">{selected[product.name] || 0}</span>
-                  <button type="button" onClick={() => addProduct(product.name)} disabled={total >= quantity} aria-label={`Adicionar ${product.name}`} className="touch-manipulation grid h-11 w-11 place-items-center rounded-full bg-[#a7b86a] text-black disabled:opacity-25"><Plus size={15} /></button>
-                </div>
-              </div>
+              </article>
             ))}
           </div>
           ) : (
