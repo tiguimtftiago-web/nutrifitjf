@@ -21,7 +21,7 @@ const SUPABASE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 
 export default function B2BPage() {
-  const [menuExpanded, setMenuExpanded] = useState(false);\n  const formRef = useRef<HTMLFormElement>(null);
+  const [menuExpanded, setMenuExpanded] = useState(false);
   const [menuQuantities, setMenuQuantities] = useState<Record<string, number>>({});
   const menuDishes: [string, string, string][] = [
     ["Bife acebolado", "Arroz, feijão e batata frita", "/images/bife-acebolado.jpg"],
