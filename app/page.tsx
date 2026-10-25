@@ -183,16 +183,12 @@ const juiceFlavors: Array<{ name: string; image: string; description: string; in
   { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Duas frutas cítricas em uma combinação de sabor intenso e fresco.", ingredients: ["Laranja", "Acerola", "Água"], highlights: ["Sabor cítrico", "Duas frutas", "Refrescante"], line: "SUCOS" },
 ];
 
-function getJuicePrice(flavorName: string, size: "300 ml" | "500 ml"): string {
-  const isPurple = flavorName.trim().toLowerCase() === "purple";
-  if (isPurple) return size === "500 ml" ? "R$ 14,90" : "R$ 10,90";
-  return size === "500 ml" ? "R$ 13,90" : "R$ 9,90";
+function getJuicePrice(_flavorName: string, size: "300 ml" | "500 ml"): string {
+  return size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
 }
 
-function getJuicePriceNumber(flavorName: string, size: "300 ml" | "500 ml"): number {
-  const isPurple = flavorName.trim().toLowerCase() === "purple";
-  if (isPurple) return size === "500 ml" ? 14.90 : 10.90;
-  return size === "500 ml" ? 13.90 : 9.90;
+function getJuicePriceNumber(_flavorName: string, size: "300 ml" | "500 ml"): number {
+  return size === "500 ml" ? 12.90 : 9.90;
 }
 
 const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
@@ -435,20 +431,20 @@ type ComplementOption = {
 };
 
 const comboComplements: ComplementOption[] = [
-  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-42.jpg", emoji: "🥤" },
-  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-43.jpg", emoji: "🥤" },
-  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 13.90, image: "/images/page-44.jpg", emoji: "🥤" },
-  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-36.jpg", emoji: "🥤" },
+  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
+  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
+  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
+  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-36.jpg", emoji: "🥤" },
   { name: "Energy — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-37.jpg", emoji: "🥤" },
+  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-37.jpg", emoji: "🥤" },
   { name: "Green — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-38.jpg", emoji: "🥤" },
+  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-38.jpg", emoji: "🥤" },
   { name: "Pink — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-39.jpg", emoji: "🥤" },
+  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-39.jpg", emoji: "🥤" },
   { name: "Sun — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 14.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 10.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 13.90, image: "/images/page-41.jpg", emoji: "🥤" },
+  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-40.jpg", emoji: "🥤" },
+  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-40.jpg", emoji: "🥤" },
+  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
   { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
