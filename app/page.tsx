@@ -1743,6 +1743,9 @@ export default function Home() {
   const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [cartHydrated, setCartHydrated] = useState(false);
+  const [floatingCartOffset, setFloatingCartOffset] = useState({ x: 0, y: 0 });
+  const [floatingCartDragging, setFloatingCartDragging] = useState(false);
+  const floatingCartPointer = useRef<{ id: number; startX: number; startY: number; originX: number; originY: number; moved: boolean } | null>(null);
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -3148,6 +3151,57 @@ export default function Home() {
           </section>
         </div>
       )}
+
+      <button
+        type="button"
+        aria-label={orderCount ? `Abrir carrinho com ${orderCount} itens, total de ${orderSubtotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}` : "Abrir carrinho"}
+        title="Arraste para reposicionar ou toque para abrir o carrinho"
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          floatingCartPointer.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, originX: floatingCartOffset.x, originY: floatingCartOffset.y, moved: false };
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerMove={(event) => {
+          const pointer = floatingCartPointer.current;
+          if (!pointer || pointer.id !== event.pointerId) return;
+          const dx = event.clientX - pointer.startX;
+          const dy = event.clientY - pointer.startY;
+          if (!pointer.moved && Math.hypot(dx, dy) > 7) {
+            pointer.moved = true;
+            setFloatingCartDragging(true);
+          }
+          if (pointer.moved) {
+            const maxX = Math.max(0, window.innerWidth / 2 - 42);
+            const maxY = Math.max(0, window.innerHeight / 2 - 70);
+            setFloatingCartOffset({
+              x: Math.min(maxX, Math.max(-maxX, pointer.originX + dx)),
+              y: Math.min(maxY, Math.max(-maxY, pointer.originY + dy)),
+            });
+          }
+        }}
+        onPointerUp={(event) => {
+          const pointer = floatingCartPointer.current;
+          if (!pointer || pointer.id !== event.pointerId) return;
+          if (!pointer.moved) setOrderOpen(true);
+          floatingCartPointer.current = null;
+          setFloatingCartDragging(false);
+        }}
+        onPointerCancel={() => {
+          floatingCartPointer.current = null;
+          setFloatingCartDragging(false);
+        }}
+        style={{ transform: `translate3d(${floatingCartOffset.x}px, ${floatingCartOffset.y}px, 0)`, touchAction: "none" }}
+        className={`fixed bottom-[5.5rem] right-3 z-[89] flex h-14 items-center gap-2 rounded-full border border-[#ef7d18]/70 bg-[#11150d] px-2 shadow-[0_0_0_1px_rgba(239,125,24,.12),0_10px_35px_rgba(0,0,0,.55)] transition-[box-shadow,background-color] duration-200 hover:shadow-[0_0_24px_rgba(239,125,24,.32)] active:scale-95 sm:bottom-24 sm:right-6 ${floatingCartDragging ? "cursor-grabbing scale-105 shadow-[0_0_28px_rgba(239,125,24,.4)]" : "cursor-grab"} motion-reduce:transition-none`}
+      >
+        <span className="relative grid h-10 w-10 place-items-center rounded-full bg-[#ef7d18] text-black">
+          <ShoppingBag size={20} strokeWidth={2.5} />
+          {orderCount > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full border-2 border-[#11150d] bg-[#a7b86a] px-1 text-[10px] font-black text-black">{orderCount > 99 ? "99+" : orderCount}</span>}
+        </span>
+        <span className="pr-2 text-left leading-tight">
+          <span className="block text-[11px] font-black text-white">{orderCount ? "Meu pedido" : "Monte seu pedido"}</span>
+          <span className="mt-0.5 block text-[10px] font-bold text-[#a7b86a]">{orderCount ? orderSubtotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "Toque para começar"}</span>
+        </span>
+      </button>
 
       <a
         href="/assistente"
