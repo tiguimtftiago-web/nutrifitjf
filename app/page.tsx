@@ -758,6 +758,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
   const [selected, setSelected] = useState<Record<string, number>>({});
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [detailQuantity, setDetailQuantity] = useState<number>(1);
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
   const [cep, setCep] = useState("");
   const [deliveryStreet, setDeliveryStreet] = useState("");
