@@ -1,7 +1,7 @@
 // JSX syntax fix: remove duplicate closing section tag
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import {
   ArrowLeft,
@@ -47,187 +47,32 @@ export default function B2BPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (wizardStep < 8) {
-      const form = formRef.current;
-      if (!form) return;
-      const card = form.querySelector<HTMLElement>(`[data-wizard-step="${wizardStep}"]`);
-      if (card) {
-        const required = Array.from(card.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>("[required]"));
-        for (const field of required) {
-          if (field.type === "checkbox" || field.type === "radio") continue;
-          if (!field.checkValidity()) { field.reportValidity(); return; }
-        }
-      }
-      if (wizardStep === 4 && !form.querySelector('input[name="dias"]:checked')) { alert("Selecione pelo menos um dia de fornecimento."); return; }
-      if (wizardStep === 7) {
-        const data = new FormData(form);
-        const fieldLabels: Record<string,string> = { empresa:"Nome fantasia", razao_social:"Razão social", cnpj:"CNPJ", segmento:"Segmento", inscricao_estadual:"Inscrição estadual", inscricao_municipal:"Inscrição municipal", funcionarios:"Número de funcionários", site:"Site", responsavel:"Responsável", cargo:"Cargo", telefone:"WhatsApp", telefone_alternativo:"Telefone alternativo", email:"E-mail comercial", aprovador:"Responsável pela aprovação", aprovador_whatsapp:"WhatsApp do aprovador", aprovador_email:"E-mail do aprovador", cep:"CEP de entrega", rua:"Rua", numero:"Número", complemento:"Complemento", bloco:"Bloco", andar:"Andar", sala:"Sala", galpao:"Galpão", bairro:"Bairro", cidade:"Cidade", estado:"Estado", referencia:"Ponto de referência", portaria:"Portaria/recepção", identificacao:"Exige identificação", recebedor:"Quem recebe", telefone_recebedor:"Telefone do recebimento", instrucoes_entrega:"Instruções de entrega", tipo_refeicao:"Tipo de refeição", linha:"Cardápio desejado", refeicoes:"Refeições por dia", frequencia:"Frequência", dias:"Dias de fornecimento", horario_entrega:"Horário de entrega", horario_limite:"Horário limite", horario_consumo:"Horário de consumo", intervalo:"Intervalo da equipe", entregas_dia:"Entregas por dia", modo_entrega:"Tipo de entrega", multiplos_enderecos:"Múltiplos endereços", outros_enderecos:"Outros endereços", preferencias_cardapio:"Preferências de cardápio", refeicoes_especiais:"Refeições especiais", restricoes:"Restrições alimentares", alergias:"Alergias", nota_fiscal:"Precisa de nota fiscal", email_nf:"E-mail da NF", financeiro_nome:"Responsável financeiro", financeiro_telefone:"Telefone financeiro", financeiro_email:"E-mail financeiro", forma_pagamento:"Forma de pagamento", prazo_pagamento:"Prazo de pagamento", pedido_compra:"Exige pedido de compra", processo_aprovacao:"Processo de aprovação", cobranca_mesmo_endereco:"Endereço de cobrança", cobranca_cep:"CEP de cobrança", cobranca_rua:"Rua de cobrança", cobranca_numero:"Número de cobrança", cobranca_complemento:"Complemento de cobrança", cobranca_bairro:"Bairro de cobrança", cobranca_cidade:"Cidade/UF de cobrança", data_inicio:"Início desejado", primeiro_pedido:"Data do primeiro pedido", observacoes:"Observações" };
-        const grouped = new Map<string,string[]>();
-        const sectionFor: Record<string,string> = { empresa:"1. Empresa", razao_social:"1. Empresa", cnpj:"1. Empresa", segmento:"1. Empresa", inscricao_estadual:"1. Empresa", inscricao_municipal:"1. Empresa", funcionarios:"1. Empresa", site:"1. Empresa", responsavel:"2. Contatos", cargo:"2. Contatos", telefone:"2. Contatos", telefone_alternativo:"2. Contatos", email:"2. Contatos", aprovador:"2. Contatos", aprovador_whatsapp:"2. Contatos", aprovador_email:"2. Contatos", cep:"3. Entrega", rua:"3. Entrega", numero:"3. Entrega", complemento:"3. Entrega", bloco:"3. Entrega", andar:"3. Entrega", sala:"3. Entrega", galpao:"3. Entrega", bairro:"3. Entrega", cidade:"3. Entrega", estado:"3. Entrega", referencia:"3. Entrega", portaria:"3. Entrega", identificacao:"3. Entrega", recebedor:"3. Entrega", telefone_recebedor:"3. Entrega", instrucoes_entrega:"3. Entrega", tipo_refeicao:"4. Operação", linha:"4. Operação", refeicoes:"4. Operação", frequencia:"4. Operação", dias:"4. Operação", horario_entrega:"4. Operação", horario_limite:"4. Operação", horario_consumo:"4. Operação", intervalo:"4. Operação", entregas_dia:"4. Operação", modo_entrega:"4. Operação", multiplos_enderecos:"4. Operação", outros_enderecos:"4. Operação", preferencias_cardapio:"5. Cardápio", refeicoes_especiais:"5. Cardápio", restricoes:"5. Cardápio", alergias:"5. Cardápio", nota_fiscal:"6. Financeiro", email_nf:"6. Financeiro", financeiro_nome:"6. Financeiro", financeiro_telefone:"6. Financeiro", financeiro_email:"6. Financeiro", forma_pagamento:"6. Financeiro", prazo_pagamento:"6. Financeiro", pedido_compra:"6. Financeiro", processo_aprovacao:"6. Financeiro", cobranca_mesmo_endereco:"6. Financeiro", cobranca_cep:"6. Financeiro", cobranca_rua:"6. Financeiro", cobranca_numero:"6. Financeiro", cobranca_complemento:"6. Financeiro", cobranca_bairro:"6. Financeiro", cobranca_cidade:"6. Financeiro", data_inicio:"7. Início", primeiro_pedido:"7. Início", observacoes:"7. Início" };
-        for (const [key,value] of data.entries()) { if (!String(value).trim() || key === "confirmacao_dados" || key === "consentimento") continue; const section = sectionFor[key] || "Outros"; const list = grouped.get(section) || []; list.push(`${fieldLabels[key] || key.replace(/_/g," ")}: ${String(value)}`); grouped.set(section,list); }
-        setReviewText(Array.from(grouped.entries()).flatMap(([section,lines]) => [`— ${section} —`, ...lines]));
-      }
-      setWizardStep(step => Math.min(8,step+1));
-      return;
-    }
-    if (!formRef.current?.querySelector<HTMLInputElement>('input[name="confirmacao_dados"]:checked')) { alert("Confirme que os dados informados estão corretos."); return; }
-    if (!formRef.current?.querySelector<HTMLInputElement>('input[name="consentimento"]:checked')) { alert("É necessário autorizar o uso dos dados para atendimento da solicitação."); return; }
-    if (submitLock.current || sent) return;
-    submitLock.current = true;
+    if (submitting || sent) return;
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    if (data.get("consentimento") !== "sim") return;
     setSubmitting(true);
-    let saveSucceeded = false;
-    const form = new FormData(event.currentTarget);
-
-    const value = (name: string, fallback = "Não informado") => {
-      const item = form.get(name);
-      const text = String(item ?? "").trim();
-      return text || fallback;
-    };
-
-    const yesNo = (name: string) => form.get(name) === "sim" ? "Sim" : "Não";
-    const selectedDays = form.getAll("dias").map(String);
-    if (!selectedDays.length) {
-      alert("Selecione pelo menos um dia de fornecimento.");
-      submitLock.current = false;
-      setSubmitting(false);
-      return;
-    }
-    const days = selectedDays.join(", ");
-    const message = [
-      "🟧 *NOVO LEAD B2B — NUTRIFIT*",
-      "",
-      "🏢 *1. DADOS DA EMPRESA*",
-      `Nome fantasia: ${value("empresa")}`,
-      `Razão social: ${value("razao_social")}`,
-      `CNPJ: ${value("cnpj")}`,
-      `Inscrição Estadual: ${value("inscricao_estadual")}`,
-      `Inscrição Municipal: ${value("inscricao_municipal")}`,
-      `Segmento: ${value("segmento")}`,
-      `Funcionários: ${value("funcionarios")}`,
-      `Site: ${value("site")}`,
-      "",
-      "👤 *2. RESPONSÁVEIS*",
-      `Responsável pelo atendimento: ${value("responsavel")}`,
-      `Cargo: ${value("cargo")}`,
-      `WhatsApp: ${value("telefone")}`,
-      `Telefone alternativo: ${value("telefone_alternativo")}`,
-      `E-mail: ${value("email")}`,
-      `Responsável pela aprovação: ${value("aprovador")}`,
-      `WhatsApp do aprovador: ${value("aprovador_whatsapp")}`,
-      `E-mail do aprovador: ${value("aprovador_email")}`,
-      "",
-      "📍 *3. ENDEREÇO DE ENTREGA*",
-      `CEP: ${value("cep")}`,
-      `Endereço: ${value("rua")}, nº ${value("numero")}`,
-      `Complemento: ${value("complemento")}`,
-      `Bloco: ${value("bloco")}`,
-      `Andar: ${value("andar")}`,
-      `Sala: ${value("sala")}`,
-      `Galpão: ${value("galpao")}`,
-      `Bairro: ${value("bairro")}`,
-      `Cidade/UF: ${value("cidade")}/${value("estado")}`,
-      `Referência: ${value("referencia")}`,
-      `Portaria/recepção: ${yesNo("portaria")}`,
-      `Exige identificação: ${yesNo("identificacao")}`,
-      `Quem recebe: ${value("recebedor")}`,
-      `Telefone do recebimento: ${value("telefone_recebedor")}`,
-      `Instruções de entrega: ${value("instrucoes_entrega")}`,
-      "",
-      "🍱 *4. PEDIDO E OPERAÇÃO*",
-      `Tipo de refeição: ${value("tipo_refeicao")}`,
-      `Linha: ${value("linha")}`,
-      `Refeições estimadas/dia: ${value("refeicoes")}`,
-      `Dias: ${days}`,
-      `Frequência: ${value("frequencia")}`,
-      `Horário de entrega: ${value("horario_entrega")}`,
-      `Horário limite: ${value("horario_limite")}`,
-      `Horário de consumo: ${value("horario_consumo")}`,
-      `Intervalo da equipe: ${value("intervalo")}`,
-      `Entregas por dia: ${value("entregas_dia")}`,
-      `Entrega: ${value("modo_entrega")}`,
-      `Mais de um endereço: ${yesNo("multiplos_enderecos")}`,
-      `Outros endereços: ${value("outros_enderecos")}`,
-      "",
-      "🥗 *5. CARDÁPIO E RESTRIÇÕES*",
-      `Preferências de cardápio: ${value("preferencias_cardapio")}`,
-      `Refeições especiais: ${value("refeicoes_especiais")}`,
-      `Restrições alimentares: ${value("restricoes")}`,
-      `Alergias informadas: ${value("alergias")}`,
-      "",
-      "💰 *6. FATURAMENTO E PAGAMENTO*",
-      `Nota fiscal: ${yesNo("nota_fiscal")}`,
-      `E-mail da NF: ${value("email_nf")}`,
-      `Financeiro: ${value("financeiro_nome")}`,
-      `Telefone financeiro: ${value("financeiro_telefone")}`,
-      `E-mail financeiro: ${value("financeiro_email")}`,
-      `Forma de pagamento: ${value("forma_pagamento")}`,
-      `Prazo: ${value("prazo_pagamento")}`,
-      `Exige pedido de compra: ${yesNo("pedido_compra")}`,
-      `Processo de aprovação: ${value("processo_aprovacao")}`,
-      `Endereço de cobrança: ${value("cobranca_mesmo_endereco") === "sim" ? "Mesmo da entrega" : "Diferente da entrega"}`,
-      `Endereço cobrança: ${value("cobranca_mesmo_endereco") === "sim" ? "Mesmo da entrega" : [value("cobranca_cep"), value("cobranca_rua"), value("cobranca_numero"), value("cobranca_complemento"), value("cobranca_bairro"), value("cobranca_cidade")].filter(v => v !== "Não informado").join(", ") || "Não informado"}`,
-      "",
-      "📅 *7. INÍCIO DO FORNECIMENTO*",
-      `Início desejado: ${value("data_inicio")}`,
-      `Primeiro pedido: ${value("primeiro_pedido")}`,
-      "",
-      "📝 *8. OBSERVAÇÕES*",
-      value("observacoes", "Nenhuma"),
-      "",
-      "━━━━━━━━━━━━━━━━━━",
-      "🟢 *LEAD RECEBIDO PELO SITE*",
-      "📍 Nutrifit Empresas",
-      "📋 Cadastro completo para proposta",
-    ].join("\n");
-
-    const makeSubmissionId = () => {
-      if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (char) => {
-        const random = Math.random() * 16 | 0;
-        const value = char === "x" ? random : (random & 0x3 | 0x8);
-        return value.toString(16);
-      });
-    };
-    const submissionId = submissionIdRef.current ?? makeSubmissionId();
-    submissionIdRef.current = submissionId;
-    const payload = {
-      submission_id: submissionId,
-      company: value("empresa", ""), trade_name: value("empresa", ""), legal_name: value("razao_social", ""), cnpj: value("cnpj", ""),
-      state_registration: value("inscricao_estadual", ""), municipal_registration: value("inscricao_municipal", ""), website: value("site", ""),
-      contact_name: value("responsavel", ""), contact_role: value("cargo", ""), whatsapp: value("telefone", ""), alternate_phone: value("telefone_alternativo", ""), email: value("email", ""),
-      approval_contact_name: value("aprovador", ""), approval_contact_whatsapp: value("aprovador_whatsapp", ""), approval_contact_email: value("aprovador_email", ""),
-      segment: value("segmento", ""), employees: value("funcionarios", ""),
-      cep: value("cep", ""), street: value("rua", ""), street_number: value("numero", ""), complement: value("complemento", ""), block: value("bloco", ""), floor: value("andar", ""), room: value("sala", ""), warehouse: value("galpao", ""), neighborhood: value("bairro", ""), city: value("cidade", ""), state: value("estado", ""), address_reference: value("referencia", ""),
-      has_reception: form.get("portaria") === "sim", requires_identification: form.get("identificacao") === "sim", receiver_name: value("recebedor", ""), receiver_phone: value("telefone_recebedor", ""), delivery_notes: value("instrucoes_entrega", ""),
-      meal_type: value("tipo_refeicao", ""), delivery_days: days, frequency: value("frequencia", ""), delivery_time: value("horario_entrega", ""), delivery_deadline: value("horario_limite", ""), consumption_time: value("horario_consumo", ""), employee_break_time: value("intervalo", ""), meal_line: value("linha", ""),
-      menu_preferences: value("preferencias_cardapio", ""), special_meals: value("refeicoes_especiais", ""), dietary_restrictions: value("restricoes", ""), allergies: value("alergias", ""), estimated_meals: value("refeicoes", ""),
-      billing_same_as_delivery: form.get("cobranca_mesmo_endereco") !== "nao", billing_cep: value("cobranca_cep", ""), billing_street: value("cobranca_rua", ""), billing_number: value("cobranca_numero", ""), billing_complement: value("cobranca_complemento", ""), billing_neighborhood: value("cobranca_bairro", ""), billing_city: value("cobranca_cidade", "").split("/")[0]?.trim() ?? "", billing_state: value("cobranca_cidade", "").split("/").slice(1).join("/").trim(),
-      invoice_required: form.get("nota_fiscal") === "sim", invoice_email: value("email_nf", ""), finance_contact_name: value("financeiro_nome", ""), finance_phone: value("financeiro_telefone", ""), finance_email: value("financeiro_email", ""), payment_method: value("forma_pagamento", ""), payment_terms: value("prazo_pagamento", ""), requires_purchase_order: form.get("pedido_compra") === "sim", approval_process: value("processo_aprovacao", ""),
-      delivery_mode: value("modo_entrega", ""), deliveries_per_day: value("entregas_dia", ""), multiple_delivery_addresses: form.get("multiplos_enderecos") === "sim", additional_delivery_addresses: value("outros_enderecos", ""),
-      start_date: value("data_inicio", "") || null, first_order_date: value("primeiro_pedido", "") || null, notes: value("observacoes", ""), data_confirmation: form.get("confirmacao_dados") === "sim", data_consent: form.get("consentimento") === "sim",
-    };
-
-    const waLink = whatsapp(message);
-    setWhatsappLink(waLink);
     setSubmitError(false);
+    const value = (name: string) => String(data.get(name) ?? "").trim();
+    const submissionId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const notes = value("observacoes");
+    const message = ["Olá! Quero solicitar uma proposta da Nutrifit Empresas.", `Empresa: ${value("empresa")}`, `Responsável: ${value("responsavel")}`, `WhatsApp: ${value("telefone")}`, `E-mail: ${value("email")}`, `Segmento: ${value("segmento")}`, `Refeições por dia: ${value("refeicoes")}`, `Dias de fornecimento: ${value("dias")}`, `Bairro de entrega: ${value("bairro")}`, `Observações: ${notes || "Não informadas"}`].join("\\n");
+    setWhatsappLink(whatsapp(message));
     try {
-      if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error("Supabase não configurado.");
       const response = await fetch(`${SUPABASE_URL}/rest/v1/b2b_leads`, {
         method: "POST",
         headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ submission_id: submissionId, company: value("empresa"), trade_name: value("empresa"), contact_name: value("responsavel"), whatsapp: value("telefone"), email: value("email"), segment: value("segmento"), estimated_meals: value("refeicoes"), delivery_days: value("dias"), neighborhood: value("bairro"), notes, data_consent: true, source: "site-b2b-proposta" }),
       });
-      // Só confirmar o cadastro quando a API confirmar uma resposta 2xx.
-      // Um HTTP 409, sozinho, não prova que este envio foi gravado corretamente.
-      if (!response.ok) throw new Error(`Falha ao registrar lead (HTTP ${response.status}).`);
+      if (!response.ok) throw new Error(`Falha ao registrar solicitação (HTTP ${response.status}).`);
       setSent(true);
-      saveSucceeded = true;
+      form.reset();
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao registrar solicitação B2B:", error);
       setSubmitError(true);
     } finally {
       setSubmitting(false);
-      if (!saveSucceeded) submitLock.current = false;
     }
   }
   return (
@@ -245,9 +90,9 @@ export default function B2BPage() {
             <div className="relative flex min-h-[390px] flex-col justify-between p-6 sm:p-9 lg:p-12">
               <div className="max-w-3xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#ef7d18]/25 bg-black/30 px-3.5 py-2 text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62] backdrop-blur"><Building2 size={14} /> Nutrifit para empresas</div>
-                <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[.98] tracking-[-.04em] sm:text-5xl lg:text-6xl">Alimentação de qualidade<span className="block text-[#ef7d18]">para sua equipe.</span></h1>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-white/60 sm:text-base">Refeições para equipes, com proposta ajustada à quantidade, aos dias de fornecimento e à logística da sua empresa. Conte sua necessidade e receba um atendimento alinhado à sua operação.</p>
-                <a aria-label="Solicitar proposta Nutrifit Empresas" href="#solicitar-proposta" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_35px_rgba(239,125,24,.22)] transition hover:-translate-y-0.5 hover:brightness-105">Solicitar proposta <ArrowRight size={17} /></a>
+                <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[.98] tracking-[-.04em] sm:text-5xl lg:text-6xl">Marmitas caseiras para sua equipe<span className="block text-[#ef7d18]">entregues no horário em Juiz de Fora.</span></h1>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/60 sm:text-base">Marmitas caseiras para empresas em Juiz de Fora, com cardápio adaptável, fornecimento planejado e condições comerciais de acordo com a sua operação.</p>
+                <a aria-label="Solicitar proposta Nutrifit Empresas" href="#solicitar-proposta" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black shadow-[0_12px_35px_rgba(239,125,24,.22)] transition hover:-translate-y-0.5 hover:brightness-105">Solicitar proposta gratuita <ArrowRight size={17} /></a>
               </div>
               <div className="mt-8 flex flex-wrap items-end justify-between gap-4">
                 <div className="rounded-2xl border border-white/10 bg-black/35 px-5 py-4 backdrop-blur-md"><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Nutrifit Empresas</div><div className="mt-1 text-sm font-bold text-white/75">Refeições para empresas</div></div>
@@ -310,156 +155,36 @@ export default function B2BPage() {
             <p className="mt-2 text-xs leading-5 text-white/35">Escolha a quantidade diária de cada prato. A seleção será incluída na proposta; disponibilidade e condições serão confirmadas pela Nutrifit.</p>
           </section>
 
-          <section id="solicitar-proposta" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10">
-            <div className="grid gap-8 lg:grid-cols-[1.2fr_.55fr]">
-              <form ref={formRef} noValidate onSubmit={submit} className="grid min-w-0 gap-5">
-                <div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit Empresas</span><h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">Solicite uma proposta</h2><p className="mt-1 text-sm leading-5 text-white/45">Preencha os dados necessários. No final, revise e envie.</p></div>
-                <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                  <div className="flex justify-between gap-3 text-sm"><strong>{wizardStep === 8 ? "Revisão final" : `Etapa ${wizardStep} de 8`}</strong><span className="text-white/45">{wizardStep === 8 ? "Pronto para conferir" : `${Math.round(wizardStep/7*100)}% do cadastro`}</span></div>
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#ef7d18] transition-all" style={{width: `${wizardStep === 8 ? 100 : wizardStep/7*100}%`}} /></div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold text-white/35"><span>Empresa</span><span>›</span><span>Contato</span><span>›</span><span>Entrega</span><span>›</span><span>Operação</span><span>›</span><span>Cardápio</span><span>›</span><span>Financeiro</span><span>›</span><span>Início</span><span>›</span><span className={wizardStep === 8 ? "text-[#a7b86a]" : ""}>Revisão</span></div>
-                </div>
-
-                <div data-wizard-step="1" hidden={wizardStep !== 1} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">1</div><div><h3 className="font-black">Dados da empresa</h3><p className="text-xs text-white/40">Identificação da empresa e estimativa de volume para direcionar a proposta.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">Nome fantasia *<input aria-label="Nome fantasia" required name="empresa" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome usado pela empresa" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Razão social *<input aria-label="Razão social" required name="razao_social" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Razão social completa" /></label>
-                    <label className="grid gap-2 text-sm font-bold">CNPJ *<input aria-label="CNPJ" required name="cnpj" inputMode="numeric" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="00.000.000/0000-00" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Segmento *<input aria-label="Segmento" required name="segmento" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: indústria, escritório, clínica" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Inscrição Estadual<input name="inscricao_estadual" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Se houver" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Inscrição Municipal<input name="inscricao_municipal" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Se houver" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Porte da empresa (funcionários) *<select aria-label="Número de funcionários" required name="funcionarios" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="" disabled>Selecione uma faixa</option><option>1–20 funcionários</option><option>21–50 funcionários</option><option>51–200 funcionários</option><option>201+ funcionários</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Site<input aria-label="Site da empresa" name="site" type="url" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="https://empresa.com.br" /></label>
-                  </div>
-                </div>
-
-                <div data-wizard-step="2" hidden={wizardStep !== 2} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">2</div><div><h3 className="font-black">Responsáveis</h3><p className="text-xs text-white/40">Contato operacional e pessoa que aprova a contratação.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">Responsável pelo atendimento *<input aria-label="Responsável pelo atendimento" required name="responsavel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome completo" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Cargo/Função<input name="cargo" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: RH, compras, administrativo" /></label>
-                    <label className="grid gap-2 text-sm font-bold">WhatsApp *<input aria-label="WhatsApp" required name="telefone" inputMode="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="(32) 99999-9999" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Telefone alternativo<input aria-label="Telefone alternativo" name="telefone_alternativo" inputMode="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Telefone fixo ou outro contato" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">E-mail comercial *<input aria-label="E-mail comercial" required type="email" name="email" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="contato@empresa.com.br" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Responsável pela aprovação<input name="aprovador" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome do aprovador" /></label>
-                    <label className="grid gap-2 text-sm font-bold">WhatsApp do aprovador<input aria-label="WhatsApp do aprovador" name="aprovador_whatsapp" inputMode="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="(32) 99999-9999" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">E-mail do aprovador<input aria-label="E-mail do aprovador" type="email" name="aprovador_email" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="aprovador@empresa.com.br" /></label>
-                  </div>
-                </div>
-
-                <div data-wizard-step="3" hidden={wizardStep !== 3} className="rounded-[1.5rem] border border-[#ef7d18]/20 bg-[#17120d] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef7d18]/10 text-[#ef7d18] font-black">3</div><div><h3 className="font-black">Endereço de entrega</h3><p className="text-xs text-white/40">A parte mais importante para a logística.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-6">
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">CEP *<input aria-label="CEP" required name="cep" inputMode="numeric" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="00000-000" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-4">Rua/Avenida *<input required name="rua" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome da rua ou avenida" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Número *<input required name="numero" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: 1500" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-4">Complemento<input name="complemento" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Prédio, portão ou referência interna" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Bloco<input aria-label="Bloco" name="bloco" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: B" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Andar<input aria-label="Andar" name="andar" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: 2º" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Sala<input aria-label="Sala" name="sala" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: 204" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Galpão<input aria-label="Galpão" name="galpao" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: Galpão 2" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Bairro *<input aria-label="Bairro" required name="bairro" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Bairro" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Cidade *<input aria-label="Cidade" required name="cidade" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Juiz de Fora" /></label>
-                    <label className="grid gap-2 text-sm font-bold">UF *<input aria-label="UF" required name="estado" maxLength={2} className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="MG" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-6">Ponto de referência *<input aria-label="Ponto de referência" required name="referencia" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Entrada pela portaria 2, ao lado de..." /></label>
-                  </div>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    <fieldset className="grid gap-2 text-sm font-bold"><legend>A empresa possui portaria/recepção?</legend><div className="flex gap-2">{["sim","nao"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Portaria/recepção: ${v === "sim" ? "Sim" : "Não"}`} name="portaria" value={v} defaultChecked={v==="sim"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
-                    <fieldset className="grid gap-2 text-sm font-bold"><legend>É necessário se identificar?</legend><div className="flex gap-2">{["sim","nao"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Identificação: ${v === "sim" ? "Sim" : "Não"}`} name="identificacao" value={v} defaultChecked={v==="sim"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
-                  </div>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">Quem recebe a entrega? *<input aria-label="Quem recebe a entrega" required name="recebedor" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome da pessoa ou setor" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Telefone do recebimento *<input aria-label="Telefone do recebimento" required name="telefone_recebedor" inputMode="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="(32) 99999-9999" /></label>
-                    <label className="grid gap-2 text-sm font-bold md:col-span-2">Instruções para o entregador<input aria-label="Instruções para o entregador" name="instrucoes_entrega" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Portaria, estacionamento, elevador, local de entrega etc." /></label>
-                  </div>
-                </div>
-
-                <div data-wizard-step="4" hidden={wizardStep !== 4} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">4</div><div><h3 className="font-black">Pedido e operação</h3><p className="text-xs text-white/40">Dados que a produção e a entrega precisam saber.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">Tipo de refeição *<select required name="tipo_refeicao" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Almoço</option><option>Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Outro</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Cardápio desejado *<select required name="linha" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Cardápio inicial — 6 pratos caseiros</option><option>Quero um cardápio personalizado para minha equipe</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Quantas refeições por dia? *<select aria-label="Refeições estimadas por dia" required name="refeicoes" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="" disabled>Selecione uma estimativa</option><option>Até 20 refeições/dia</option><option>21–50 refeições/dia</option><option>51–100 refeições/dia</option><option>101–200 refeições/dia</option><option>Mais de 200 refeições/dia</option><option>Ainda não sei</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Frequência *<select required name="frequencia" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option value="">Selecione</option><option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Mensal</option><option>Conforme demanda</option></select></label>
-                  </div>
-                  <fieldset className="mt-4 grid gap-2 text-sm font-bold"><legend>Dias de fornecimento *</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">{["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"].map(day => <label key={day} className="cursor-pointer"><input type="checkbox" aria-label={`Fornecimento: ${day}`} name="dias" value={day} className="peer sr-only" /><span className="flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-2 text-xs text-white/60 peer-checked:border-[#ef7d18] peer-checked:bg-[#ef7d18]/10 peer-checked:text-[#ffb56f]">{day}</span></label>)}</div></fieldset>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">Horário desejado para entrega *<input aria-label="Horário desejado para entrega" required type="time" name="horario_entrega" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Horário limite para receber *<input aria-label="Horário limite para receber" required type="time" name="horario_limite" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Horário de consumo<input aria-label="Horário de consumo" type="time" name="horario_consumo" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Intervalo da equipe<input aria-label="Intervalo da equipe" name="intervalo" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Ex.: 11h30 às 13h30" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Entregas por dia<select name="entregas_dia" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option>1</option><option>2</option><option>3</option><option>Mais de 3</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Tipo de entrega<select name="modo_entrega" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option>Entrega única</option><option>Recorrente</option><option>Mais de uma entrega por dia</option></select></label>
-                  </div>
-                  <fieldset className="mt-4 grid gap-2 text-sm font-bold"><legend>Há mais de um endereço de entrega?</legend><div className="flex gap-2">{["nao","sim"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Mais de um endereço: ${v === "sim" ? "Sim" : "Não"}`} name="multiplos_enderecos" value={v} defaultChecked={v==="nao"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#ef7d18] peer-checked:bg-[#ef7d18]/10">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
-                  <label className="mt-4 grid gap-2 text-sm font-bold">Outros endereços / distribuição por unidade<textarea name="outros_enderecos" rows={3} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Informe unidades, endereços e quantidade por local, se houver." /></label>
-                </div>
-
-                <div data-wizard-step="5" hidden={wizardStep !== 5} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">5</div><div><h3 className="font-black">Cardápio e restrições</h3><p className="text-xs text-white/40">Informações para montar a proposta e evitar incompatibilidades.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4">
-                    <label className="grid gap-2 text-sm font-bold">Preferências de cardápio<textarea name="preferencias_cardapio" rows={3} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Ex.: frango 50%, carne 30%, vegetariana 20%; pratos preferidos..." /></label>
-                    <label className="grid gap-2 text-sm font-bold">Quantidade de refeições especiais<textarea name="refeicoes_especiais" rows={2} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Ex.: 2 sem lactose, 1 vegetariana..." /></label>
-                    <label className="grid gap-2 text-sm font-bold">Restrições alimentares<textarea aria-label="Restrições alimentares" name="restricoes" rows={2} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Informe quantidades e quais restrições, se houver." /></label>
-                    <label className="grid gap-2 text-sm font-bold">Alergias alimentares<textarea aria-label="Alergias alimentares" name="alergias" rows={2} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Informe alergias e quantidade de pessoas, se houver." /></label>
-                  </div>
-                </div>
-
-                <div data-wizard-step="6" hidden={wizardStep !== 6} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#ef7d18]/10 text-[#ef7d18] font-black">6</div><div><h3 className="font-black">Faturamento e pagamento</h3><p className="text-xs text-white/40">Evita retrabalho no financeiro.</p></div></div>
-                  <fieldset className="grid gap-2 text-sm font-bold"><legend>A empresa precisa de nota fiscal?</legend><div className="flex gap-2">{["sim","nao"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Nota fiscal: ${v === "sim" ? "Sim" : "Não"}`} name="nota_fiscal" value={v} defaultChecked={v==="sim"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">E-mail para NF<input aria-label="E-mail para NF" type="email" name="email_nf" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="financeiro@empresa.com.br" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Responsável financeiro<input aria-label="Responsável financeiro" name="financeiro_nome" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Nome completo" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Telefone financeiro<input aria-label="Telefone financeiro" name="financeiro_telefone" inputMode="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="(32) 99999-9999" /></label>
-                    <label className="grid gap-2 text-sm font-bold">E-mail financeiro<input aria-label="E-mail financeiro" type="email" name="financeiro_email" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="financeiro@empresa.com.br" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Forma de pagamento<select name="forma_pagamento" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option>Pix</option><option>Cartão</option><option>Link de pagamento</option><option>Boleto</option><option>Faturamento empresarial</option></select></label>
-                    <label className="grid gap-2 text-sm font-bold">Prazo de pagamento<select name="prazo_pagamento" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]"><option>À vista</option><option>7 dias</option><option>15 dias</option><option>21 dias</option><option>30 dias</option><option>Outro</option></select></label>
-                  </div>
-                  <fieldset className="mt-4 grid gap-2 text-sm font-bold"><legend>A empresa exige pedido de compra (PO)?</legend><div className="flex gap-2">{["nao","sim"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Pedido de compra: ${v === "sim" ? "Sim" : "Não"}`} name="pedido_compra" value={v} defaultChecked={v==="nao"} className="peer sr-only" /><span className="inline-flex min-w-20 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Sim":"Não"}</span></label>)}</div></fieldset>
-                  <label className="mt-4 grid gap-2 text-sm font-bold">Processo de aprovação / observações do financeiro<textarea aria-label="Processo de aprovação e observações do financeiro" name="processo_aprovacao" rows={3} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Ex.: enviar orçamento para compras antes do primeiro pedido." /></label>
-                  <fieldset className="mt-4 grid gap-2 text-sm font-bold"><legend>Endereço de cobrança</legend><div className="flex gap-2">{["sim","nao"].map(v => <label key={v} className="cursor-pointer"><input type="radio" aria-label={`Endereço de cobrança: ${v === "sim" ? "Mesmo da entrega" : "Outro endereço"}`} name="cobranca_mesmo_endereco" value={v} defaultChecked={v==="sim"} className="peer sr-only" /><span className="inline-flex min-w-24 justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs peer-checked:border-[#a7b86a] peer-checked:bg-[#a7b86a]/15">{v==="sim"?"Mesmo da entrega":"Outro endereço"}</span></label>)}</div></fieldset>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-2 text-sm font-bold">CEP cobrança<input aria-label="CEP de cobrança" name="cobranca_cep" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="00000-000" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Rua cobrança<input aria-label="Rua de cobrança" name="cobranca_rua" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Número cobrança<input aria-label="Número de cobrança" name="cobranca_numero" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Complemento cobrança<input aria-label="Complemento de cobrança" name="cobranca_complemento" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Bairro cobrança<input aria-label="Bairro de cobrança" name="cobranca_bairro" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label>
-                    <label className="grid gap-2 text-sm font-bold">Cidade/UF cobrança<input aria-label="Cidade e UF de cobrança" name="cobranca_cidade" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" placeholder="Cidade/MG" /></label>
-                  </div>
-                </div>
-
-                <div data-wizard-step="7" hidden={wizardStep !== 7} className="rounded-[1.5rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
-                  <div className="mb-5 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a]/10 text-[#a7b86a] font-black">7</div><div><h3 className="font-black">Início do fornecimento</h3><p className="text-xs text-white/40">Para organizar produção e primeiro atendimento.</p></div></div>
-                  <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Data desejada para início *<input aria-label="Data desejada para início" required type="date" name="data_inicio" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label><label className="grid gap-2 text-sm font-bold">Data do primeiro pedido<input aria-label="Data do primeiro pedido" type="date" name="primeiro_pedido" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a]" /></label></div>
-                  <label className="mt-4 grid gap-2 text-sm font-bold">Observações gerais<textarea aria-label="Observações gerais" name="observacoes" rows={4} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-[#a7b86a] resize-none" placeholder="Tudo que a Nutrifit precisa saber para atender sem erro." /></label>
-                </div>
-
-                <div data-wizard-step="8" hidden={wizardStep !== 8} className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-[#171d10] p-5 sm:p-6">
-                  <h3 className="font-black">Confira tudo antes de enviar</h3><p className="mt-2 text-sm text-white/50">Revise os dados por seção. Se precisar corrigir algo, volte à etapa correspondente.</p><div className="mt-4 grid gap-2 rounded-xl border border-white/10 bg-black/20 p-4">{reviewText.map((line,index) => <p key={index} className={line.startsWith("— ") ? "mt-2 border-b border-white/10 pb-2 text-xs font-black uppercase tracking-wide text-[#a7b86a]" : "break-words text-sm text-white/75"}>{line}</p>)}</div><p className="mt-5 text-sm font-bold text-[#a7b86a]">Confirmação do cadastro</p>
-                  <div className="mt-4 grid gap-3 text-sm text-white/65">
-                    <label className="flex cursor-pointer gap-3"><input aria-label="Confirmo que os dados informados estão corretos" required type="checkbox" name="confirmacao_dados" value="sim" className="mt-1 accent-[#ef7d18]" />Confirmo que os dados da empresa, endereço, quantidade, horários e faturamento informados estão corretos.</label>
-                    <label className="flex cursor-pointer gap-3"><input aria-label="Autorizo o uso dos dados para atendimento, proposta, faturamento e entrega" required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]" />Autorizo a Nutrifit a utilizar os dados fornecidos para atendimento, proposta, faturamento e entrega do pedido.</label>
-                  </div>
-                  {sent && <div role="status" aria-live="polite" className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#11140e] p-4 text-sm text-white/70"><div className="flex items-center gap-2"><CheckCircle2 className="shrink-0 text-[#a7b86a]" size={19} /> Cadastro registrado no sistema.</div><a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a></div>}
-                  {submitError && <div role="alert" aria-live="assertive" className="mt-4 rounded-2xl border border-[#ef7d18]/40 bg-[#ef7d18]/10 p-4 text-sm text-white/80"><p className="font-bold text-[#ffb56f]">Não foi possível confirmar o salvamento do cadastro.</p><p className="mt-1">Para não perder sua solicitação, envie a ficha pelo WhatsApp. O cadastro pode não ter sido salvo no sistema.</p>{whatsappLink && <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-4 py-2 font-bold text-black"><MessageCircle size={16} /> Abrir WhatsApp com a ficha</a>}</div>}
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {wizardStep > 1 && <button type="button" onClick={() => setWizardStep(step => Math.max(1, step - 1))} className="inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-4 font-bold text-white/75"><ArrowLeft size={17} className="mr-2 inline" />Voltar</button>}
-                  {wizardStep < 8 && <button type="submit" className="inline-flex items-center justify-center rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black">{wizardStep === 7 ? "Revisar cadastro" : "Próxima etapa"} <ArrowRight size={17} className="ml-2 inline" /></button>}
-                  {wizardStep === 8 && <button type="submit" disabled={submitting} aria-busy={submitting} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 font-black text-black transition hover:-translate-y-0.5 hover:brightness-105 disabled:cursor-wait disabled:opacity-60"><MessageCircle size={18} />{submitting ? "Enviando cadastro..." : "Confirmar e enviar cadastro"}</button>}
-                </div>
-                {wizardStep === 8 && <p className="text-center text-xs leading-5 text-white/40">O cadastro só será enviado depois desta confirmação. O teste real de envio será feito separadamente.</p>}
-              </form>
-
-              <aside className="h-fit overflow-hidden rounded-[2rem] border border-[#ef7d18]/20 bg-[#171d10] lg:sticky lg:top-6">
-                <div className="relative isolate flex min-h-[190px] items-end overflow-hidden bg-[#10130d] sm:min-h-[220px]"><img src="/images/nutrifit-b2b-hero.jpg" alt="Marmita Nutrifit com refeição completa" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" /><div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,11,7,.92)_0%,rgba(8,11,7,.58)_52%,rgba(8,11,7,.12)_100%)]" /><div className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgba(8,11,7,.62),transparent_72%)]" /><div className="p-6 sm:p-7"><div className="text-[10px] font-black uppercase tracking-[.28em] text-[#c5d879]">Nutrifit Empresas</div><div className="mt-2 text-3xl font-black italic tracking-[-.05em] text-white sm:text-4xl">NUTRI<span className="text-[#ef7d18]">FIT</span></div><p className="mt-1 max-w-xs text-xs font-semibold uppercase tracking-[.12em] text-white/80 sm:text-sm">Alimentação que impulsiona resultados</p><div className="mt-3 h-1 w-24 rounded-full bg-[#ef7d18]" /></div></div>
-                <div className="p-6 md:p-7"><div className="flex items-center gap-3"><Handshake className="text-[#ef7d18]" size={22} /><h2 className="text-xl font-black">Cadastro Nutrifit Empresas</h2></div><p className="mt-4 text-sm leading-6 text-white/50">Quanto mais completo o cadastro, menos dúvidas ficam para orçamento, produção, entrega e faturamento.</p><div className="mt-6 grid gap-3">{["Empresa e responsáveis","Endereço completo de entrega","Quantidade e horários","Cardápio e restrições","Faturamento e pagamento","Início do fornecimento"].map(item => <div key={item} className="flex items-start gap-2 text-sm text-white/65"><Check size={16} className="mt-0.5 shrink-0 text-[#a7b86a]" />{item}</div>)}</div><a aria-label="Falar com a Nutrifit pelo WhatsApp" href="https://wa.me/5532998030038" target="_blank" rel="noreferrer" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-5 py-3.5 text-sm font-black text-[#d9e5a5] transition hover:bg-[#a7b86a]/15"><MessageCircle size={17} /> Falar com a Nutrifit</a></div>
-              </aside>
-            </div>
+          <section id="como-funciona" className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
+            <h2 className="text-2xl font-black sm:text-3xl">Como funciona</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">{[["01","Conte sua necessidade","Informe volume, dias de fornecimento e bairro. O formulário é rápido."],["02","Receba sua proposta","A Nutrifit avalia cardápio, quantidade e logística para apresentar as condições."],["03","Aprove e programe","Após o aceite, fazemos o cadastro completo e alinhamos a primeira entrega."]].map(([n,t,d]) => <article key={n} className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><span className="text-sm font-black text-[#ef7d18]">{n}</span><h3 className="mt-3 font-black">{t}</h3><p className="mt-2 text-sm leading-6 text-white/55">{d}</p></article>)}</div>
           </section>
+          <section id="precos-b2b" className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
+            <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Referência comercial</span><h2 className="mt-2 text-2xl font-black sm:text-3xl">Condições para o volume da sua operação.</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">Preencha os campos de preço e volume abaixo antes de publicar esta referência comercial.</p>
+            <div className="mt-5 grid gap-4 md:grid-cols-3">{[["Menor volume","A partir de R$ [VALOR]","[X a Y] refeições por dia"],["Volume intermediário","R$ [VALOR] por refeição","[X a Y] refeições por dia"],["Maior volume","Proposta personalizada","A partir de [X] refeições por dia"]].map(([t,p,d]) => <article key={t} className="rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5"><p className="text-xs font-bold uppercase tracking-wide text-[#a7b86a]">{t}</p><p className="mt-3 text-xl font-black">{p}</p><p className="mt-2 text-sm text-white/50">{d}</p></article>)}</div><p className="mt-4 text-xs leading-5 text-white/35">Valores entre colchetes são campos de preenchimento, não preços oficiais. O valor final depende de cardápio, volume e logística.</p><a href="#solicitar-proposta" className="mt-5 inline-flex rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black text-black">Receber proposta personalizada</a>
+          </section>
+          <section id="degustacao" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><div className="grid gap-5 rounded-2xl border border-[#ef7d18]/25 bg-[#17130e] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7"><div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Conheça antes de contratar</span><h2 className="mt-2 text-2xl font-black">Quer provar as refeições da Nutrifit?</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">Consulte a disponibilidade de degustação empresarial. Vamos alinhar pratos, quantidade de amostras, data e condições.</p></div><a href={whatsapp("Olá! Gostaria de consultar a disponibilidade de degustação empresarial da Nutrifit.")} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black text-black"><MessageCircle size={16}/> Consultar degustação</a></div></section>
+          <section id="confianca" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><h2 className="text-2xl font-black sm:text-3xl">Uma parceria começa com transparência.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-white/55">Fotos de pratos e produção, depoimentos e marcas de clientes devem ser reais e publicados com autorização.</p><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[["Prato caseiro","/images/bife-acebolado.jpg"],["Refeição empresarial","/images/carne-de-panela-com-batatas.jpg"],["Cardápio da equipe","/images/costelinha-suina-assada.jpg"]].map(([t,img])=><article key={t} className="overflow-hidden rounded-2xl border border-white/10"><img src={img} alt={t} loading="lazy" className="h-44 w-full object-cover"/><div className="p-4"><h3 className="font-black">{t}</h3><p className="mt-1 text-xs text-white/40">Confirmar fotografia real atual antes de divulgar.</p></div></article>)}</div><div className="mt-4 rounded-xl border border-white/10 p-4"><p className="text-sm italic text-white/70">“[Inserir depoimento real autorizado.]”</p><p className="mt-2 text-xs text-white/40">[Nome, cargo e empresa, mediante autorização.]</p></div></section>
+          <section id="faq" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><h2 className="text-2xl font-black sm:text-3xl">Perguntas frequentes</h2><div className="mt-5 grid gap-3 md:grid-cols-2">{[["Existe pedido mínimo?","O volume mínimo depende da operação e da logística. Informe a quantidade para avaliarmos a viabilidade."],["Qual é o prazo para começar?","O prazo será confirmado na proposta, conforme produção, cardápio e rota."],["Posso personalizar o cardápio?","Podemos avaliar preferências e ajustes conforme a capacidade de produção."],["A Nutrifit emite nota fiscal?","As condições fiscais e de faturamento serão confirmadas durante a negociação."],["Vocês atendem restrições alimentares?","Informe as necessidades. A equipe avaliará opções possíveis; não presumimos ausência de contaminação cruzada."],["Quais formas de pagamento são aceitas?","Forma e prazo são alinhados na proposta antes do início do fornecimento."],["Quais horários de entrega estão disponíveis?","Os horários dependem do bairro, volume, rota e capacidade operacional."],["Quais bairros são atendidos?","A disponibilidade depende do endereço e da rota. Informe o bairro para confirmarmos."]].map(([q,a])=><details key={q} className="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary className="cursor-pointer font-bold">{q}</summary><p className="mt-3 text-sm leading-6 text-white/55">{a}</p></details>)}</div></section>
+          <section id="solicitar-proposta" className="scroll-mt-8 border-t border-white/10 p-6 sm:p-8 lg:p-10"><div className="grid gap-8 lg:grid-cols-[1.2fr_.55fr]"><div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Atendimento comercial</span><h2 className="mt-2 text-2xl font-black sm:text-3xl">Solicite uma proposta para sua equipe</h2><p className="mt-2 text-sm leading-6 text-white/55">Preencha os dados iniciais. O cadastro fiscal e financeiro completo será solicitado somente após o aceite da proposta.</p>
+            {sent ? <div role="status" aria-live="polite" className="mt-6 rounded-2xl border border-[#a7b86a]/30 bg-[#171d10] p-5"><div className="flex items-center gap-2 font-black text-[#c5d879]"><CheckCircle2 size={20}/> Solicitação recebida!</div><p className="mt-3 text-sm leading-6 text-white/70">Obrigado por considerar a Nutrifit. Vamos analisar os dados e entrar em contato para preparar sua proposta.</p><a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black"><MessageCircle size={16}/> Continuar pelo WhatsApp</a></div> : <form onSubmit={submit} className="mt-5 grid gap-4 rounded-2xl border border-white/10 bg-white/[.025] p-5 sm:p-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-2 text-sm font-bold">Nome fantasia *<input required name="empresa" autoComplete="organization" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Nome da empresa"/></label>
+                <label className="grid gap-2 text-sm font-bold">Nome do responsável *<input required name="responsavel" autoComplete="name" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Seu nome"/></label>
+                <label className="grid gap-2 text-sm font-bold">WhatsApp *<input required name="telefone" type="tel" inputMode="tel" autoComplete="tel" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="(32) 99999-9999"/></label>
+                <label className="grid gap-2 text-sm font-bold">E-mail *<input required name="email" type="email" autoComplete="email" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="voce@empresa.com.br"/></label>
+                <label className="grid gap-2 text-sm font-bold">Segmento *<select required name="segmento" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]"><option value="" disabled>Selecione</option>{["Escritório","Clínica","Academia","Indústria","Comércio","Outro"].map(v=><option key={v}>{v}</option>)}</select></label>
+                <label className="grid gap-2 text-sm font-bold">Refeições por dia *<select required name="refeicoes" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]"><option value="" disabled>Selecione uma faixa</option>{["Até 10","11 a 30","31 a 50","51 a 100","Mais de 100","Ainda não definido"].map(v=><option key={v}>{v}</option>)}</select></label>
+                <label className="grid gap-2 text-sm font-bold">Dias de fornecimento *<select required name="dias" defaultValue="" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]"><option value="" disabled>Selecione</option>{["1 a 2 dias por semana","3 a 4 dias por semana","5 dias por semana","6 dias por semana","Todos os dias, incluindo fins de semana","A combinar"].map(v=><option key={v}>{v}</option>)}</select></label>
+                <label className="grid gap-2 text-sm font-bold">Bairro de entrega *<input required name="bairro" autoComplete="address-level3" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Bairro em Juiz de Fora"/></label>
+              </div>
+              <label className="grid gap-2 text-sm font-bold">Observações<textarea name="observacoes" rows={3} className="resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Horário desejado, preferências ou detalhes importantes (opcional)"/></label>
+              <label className="flex items-start gap-3 text-xs leading-5 text-white/55"><input required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]"/><span>Li a <a href="/politica-de-privacidade" className="underline text-[#c5d879]">Política de Privacidade</a> e estou ciente do tratamento dos dados informados para atendimento desta solicitação comercial.</span></label>
+              {submitError && <p role="alert" className="text-sm text-[#ffb56f]">Não conseguimos confirmar o envio. Tente novamente ou fale conosco pelo WhatsApp.</p>}
+              <button type="submit" disabled={submitting} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black disabled:opacity-60">{submitting ? "Enviando solicitação..." : "Solicitar proposta gratuita"} <ArrowRight size={17}/></button><p className="text-xs leading-5 text-white/35">O formulário inicial não pede dados fiscais ou financeiros. Esses dados serão solicitados após o aceite.</p>
+            </form>}</div>
+            <aside className="h-fit rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5 sm:p-6 lg:sticky lg:top-6"><div className="flex items-center gap-3"><MessageCircle className="text-[#a7b86a]" size={22}/><h3 className="text-lg font-black">Prefere conversar?</h3></div><p className="mt-3 text-sm leading-6 text-white/55">Fale diretamente com a Nutrifit para tirar dúvidas sobre volume, cardápio, entrega e degustação.</p><a href={whatsapp("Olá! Quero conversar sobre marmitas para empresas em Juiz de Fora e solicitar uma proposta de alimentação corporativa.")} target="_blank" rel="noreferrer" className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-5 py-3.5 text-sm font-black text-[#d9e5a5]"><MessageCircle size={17}/> Falar com a Nutrifit</a></aside>
+          </div></section>
           <footer className="border-t border-white/10 px-6 py-7 sm:px-10"><div className="flex flex-col gap-2 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between"><span className="font-bold">Nutrifit • Juiz de Fora/MG</span><span>Atendimento corporativo • Propostas sob consulta</span></div></footer>
         </section>
       </div>
