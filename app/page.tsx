@@ -588,7 +588,7 @@ const comboOptions = [
 ] as const;
 
 // TODO(comercial): revisar e aprovar preços reais de 30/60 unidades por linha; não anunciar economia enquanto não forem inferiores ao preço/unidade do combo de 20.
-const monthlyPlanOptions = [
+// TODO(comercial): os valores atuais não garantem desconto por unidade frente ao combo de 20 em todas as linhas; aprovar nova tabela antes de divulgar economia.\nconst monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 792,00", 60: "R$ 1.584,00" } },
@@ -727,12 +727,12 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               <div className="text-lg font-black">{quantity} marmitas</div>
               <div className="mt-1 text-3xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
               <div className="mt-1 text-xs text-white/50">{money(unitPrice)} por marmita</div>
-              <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+              <div className="mt-1 text-sm font-bold text-[#a7b86a]">Consulte as condições de entrega</div>
             </div>
             <div className="space-y-1 text-xs text-white/60">
               <div>✓ Mais praticidade</div>
               <div>✓ Alimentação equilibrada</div>
-              <div>✓ Economia no mês</div>
+              <div>✓ Plano para sua rotina</div>
               <div>✓ Sabores variados</div>
             </div>
           </div>
