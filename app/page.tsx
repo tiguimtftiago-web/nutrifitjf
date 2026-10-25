@@ -582,7 +582,7 @@ const itemLineLabel = (line: string) => {
 
 
 const comboOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
+  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 161,00", 10: "R$ 229,00", 14: "R$ 328,00", 20: "R$ 449,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
@@ -751,9 +751,9 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   );
 }
 
-function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: number; autoScroll?: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
-  const [quantity, setQuantity] = useState<number>(5);
+  const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
   const [selected, setSelected] = useState<Record<string, number>>({});
   const [deliveryMode, setDeliveryMode] = useState<"delivery" | "pickup">("delivery");
@@ -770,7 +770,7 @@ function ComboBuilder({ initialLine = 0, autoScroll = true }: { initialLine?: nu
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(initialStep);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
@@ -1533,6 +1533,11 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("combo");
+  const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
+  const isMealLine = id === "cardapio" || id === "performance" || id === "tradicional";
+  const comboLineIndex = id === "performance" ? 1 : id === "tradicional" ? 2 : 0;
+  const lineCombo = comboOptions[comboLineIndex];
   const visibleProducts = expanded ? products : products.slice(0, 3);
   const hiddenCount = Math.max(products.length - 3, 0);
   const coverProduct = products[0];
@@ -1552,7 +1557,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 
       <button
         type="button"
-        onClick={() => setExpanded((current) => !current)}
+        onClick={() => { setExpanded((current) => { const next = !current; if (next) { setPurchaseMode("combo"); setSelectedComboQuantity(null); } return next; }); }}
         aria-expanded={expanded}
         aria-controls={`nf-line-options-${id}`}
         className="nf-line-banner group relative mt-4 flex min-h-[150px] w-full items-stretch overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
@@ -1580,7 +1585,54 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
         </div>
       </button>
 
-      <div id={`nf-line-options-${id}`} className={expanded ? "block" : "hidden sm:block"}>
+      {expanded && isMealLine && (
+        <div className="mt-4 space-y-3 sm:hidden">
+          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#11140e] p-1.5">
+            <button type="button" onClick={() => { setPurchaseMode("combo"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "combo" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+              <span className="block text-sm font-black">Montar combo</span>
+              <span className="mt-0.5 block text-[10px] font-medium">(com desconto)</span>
+            </button>
+            <button type="button" onClick={() => { setPurchaseMode("individual"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "individual" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+              <span className="block text-sm font-black">Compra individual</span>
+              <span className="mt-0.5 block text-[10px] font-medium">(sem desconto)</span>
+            </button>
+          </div>
+
+          {purchaseMode === "combo" && selectedComboQuantity === null && (
+            <div className="rounded-2xl border border-white/10 bg-[#0c0e0b] p-3">
+              <h3 className="text-base font-black">Escolha a quantidade do combo</h3>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {([5, 7, 10, 20] as const).map((quantity) => {
+                  const price = (lineCombo.prices as Record<number, string>)[quantity];
+                  const unitPrice = parseMoney(price) / quantity;
+                  return (
+                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#ef7d18]">
+                      <span className="block text-sm font-black">{quantity} marmitas</span>
+                      <span className="mt-1 block text-xl font-black text-[#c8dc36]">{price}</span>
+                      <span className="mt-0.5 block text-xs text-white/60">{money(unitPrice)} cada</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {purchaseMode === "combo" && selectedComboQuantity !== null && (
+            <div className="rounded-2xl border border-[#a7b86a]/25 bg-[#0c0e0b] p-3">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo selecionado</div>
+                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {(lineCombo.prices as Record<number, string>)[selectedComboQuantity]}</div>
+                </div>
+                <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#ef7d18] underline underline-offset-4">Alterar</button>
+              </div>
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div id={`nf-line-options-${id}`} className={expanded && (!isMealLine || purchaseMode === "individual") ? "block" : "hidden sm:block"}>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
