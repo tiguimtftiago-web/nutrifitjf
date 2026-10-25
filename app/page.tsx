@@ -987,11 +987,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       "Se precisar corrigir algum dado, avise a NutriFit por aqui.",
     ].join("\n");
 
-    // Abre uma aba imediatamente para evitar bloqueio de pop-up durante a gravação.
-    const whatsappTab = window.open("about:blank", "_blank");
-    if (whatsappTab) {
-      try { whatsappTab.opener = null; } catch {}
-    }
+    // Evita a aba intermediária about:blank no Safari/iPhone.
+    // A navegação para o WhatsApp ocorre na mesma aba após confirmar o registro.
 
     try {
       const acquisition = getAcquisitionData();
@@ -1063,14 +1060,13 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
       const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
-      if (whatsappTab && !whatsappTab.closed) whatsappTab.location.href = finalUrl;
-      else window.location.href = finalUrl;
+      window.location.href = finalUrl;
       setPaymentStatus("idle");
     } catch (error) {
       orderSubmitLock.current = false;
       console.error("combo order capture", error);
       // Fail closed: nunca encaminhar um pedido sem registro oficial confirmado.
-      if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
+      // Não há aba intermediária para fechar; mantém o cliente no checkout em caso de erro.
       setPaymentStatus("error");
     }
   };
@@ -2457,11 +2453,8 @@ export default function Home() {
     const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
     trackClick("order_started", acquisitionSource);
 
-    // Abre uma aba imediatamente; a gravação é aguardada antes de limpar o carrinho.
-    const whatsappWindow = window.open("about:blank", "_blank");
-    if (whatsappWindow) {
-      try { whatsappWindow.opener = null; } catch {}
-    }
+    // Evita abrir about:blank no Safari/iPhone.
+    // Após confirmar o registro, redireciona esta mesma aba para o WhatsApp.
     const whatsappUrl = whatsappOrder(message);
     setOrderCaptureError(false);
 
@@ -2528,14 +2521,13 @@ export default function Home() {
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
       const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
-      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.location.href = finalUrl;
-      else window.location.href = finalUrl;
+      window.location.href = finalUrl;
     } catch (error) {
       fullOrderSubmitLock.current = false;
       setFullOrderSubmitting(false);
       console.error("order capture", error);
       // Fail closed: não abrir WhatsApp nem permitir pagamento com pedido não registrado.
-      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
+      // Mantém o cliente no checkout em caso de erro.
       setOrderCaptureError(true);
     }
   };
