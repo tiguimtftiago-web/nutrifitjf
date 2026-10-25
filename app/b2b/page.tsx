@@ -1,4 +1,3 @@
-// JSX syntax fix: remove duplicate closing section tag
 "use client";
 
 import { useRef, useState } from "react";
@@ -43,7 +42,8 @@ export default function B2BPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting || sent) return;
+    if (submitting || sent || submitLock.current) return;
+    submitLock.current = true;
     const form = event.currentTarget;
     if (!form.reportValidity()) return;
     const data = new FormData(form);
@@ -51,7 +51,8 @@ export default function B2BPage() {
     setSubmitting(true);
     setSubmitError(false);
     const value = (name: string) => String(data.get(name) ?? "").trim();
-    const submissionId = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const submissionId = submissionIdRef.current || (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `lead-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    submissionIdRef.current = submissionId;
     const notes = value("observacoes");
     const message = ["Olá! Quero solicitar uma proposta da Nutrifit Empresas.", `Empresa: ${value("empresa")}`, `Responsável: ${value("responsavel")}`, `WhatsApp: ${value("telefone")}`, `E-mail: ${value("email")}`, `Segmento: ${value("segmento")}`, `Refeições por dia: ${value("refeicoes")}`, `Dias de fornecimento: ${value("dias")}`, `Bairro de entrega: ${value("bairro")}`, `Observações: ${notes || "Não informadas"}`].join("\\n");
     setWhatsappLink(whatsapp(message));
@@ -63,12 +64,14 @@ export default function B2BPage() {
       });
       if (!response.ok) throw new Error(`Falha ao registrar solicitação (HTTP ${response.status}).`);
       setSent(true);
+      submissionIdRef.current = null;
       form.reset();
     } catch (error) {
       console.error("Erro ao registrar solicitação B2B:", error);
       setSubmitError(true);
     } finally {
       setSubmitting(false);
+      submitLock.current = false;
     }
   }
   return (
@@ -144,7 +147,7 @@ export default function B2BPage() {
               </div>
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/5 p-4">
                 <div><p className="text-sm font-black">Seleção diária: {selectedMenuTotal} refeições</p><p className="mt-1 text-xs text-white/50">Distribua as quantidades entre os pratos. O mínimo comercial é de 20 refeições por dia.</p></div>
-                <button type="button" onClick={() => { if (!selectedMenuTotal) { alert("Selecione a quantidade de pelo menos um prato."); return; } const field = formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="preferencias_cardapio"]'); if (field) { field.value = [selectedMenuSummary, field.value].filter(Boolean).join("\nObservações: "); field.dispatchEvent(new Event("input", { bubbles: true })); } document.getElementById("solicitar-proposta")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Usar seleção na proposta</button>
+                <button type="button" onClick={() => { if (!selectedMenuTotal) { alert("Selecione a quantidade de pelo menos um prato."); return; } const field = formRef.current?.querySelector<HTMLTextAreaElement>('textarea[name="observacoes"]'); if (field) { field.value = [selectedMenuSummary, field.value].filter(Boolean).join("\nObservações: "); field.dispatchEvent(new Event("input", { bubbles: true })); } document.getElementById("solicitar-proposta")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">Usar seleção na proposta</button>
               </div>
             </div>}
             <p className="mt-3 text-xs leading-5 text-white/35">Cardápio de referência. Disponibilidade, gramatura, acompanhamentos, valores e entrega são confirmados na proposta.</p>
@@ -155,10 +158,7 @@ export default function B2BPage() {
             <h2 className="text-2xl font-black sm:text-3xl">Como funciona</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-3">{[["01","Conte sua necessidade","Informe volume, dias de fornecimento e bairro. O formulário é rápido."],["02","Receba sua proposta","A Nutrifit avalia cardápio, quantidade e logística para apresentar as condições."],["03","Aprove e programe","Após o aceite, fazemos o cadastro completo e alinhamos a primeira entrega."]].map(([n,t,d]) => <article key={n} className="rounded-2xl border border-white/10 bg-white/[.025] p-5"><span className="text-sm font-black text-[#ef7d18]">{n}</span><h3 className="mt-3 font-black">{t}</h3><p className="mt-2 text-sm leading-6 text-white/55">{d}</p></article>)}</div>
           </section>
-          <section id="precos-b2b" className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
-            <span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Referência comercial</span><h2 className="mt-2 text-2xl font-black sm:text-3xl">Condições para o volume da sua operação.</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-white/55">Preencha os campos de preço e volume abaixo antes de publicar esta referência comercial.</p>
-            <div className="mt-5 grid gap-4 md:grid-cols-3">{[["Menor volume","A partir de R$ [VALOR]","[X a Y] refeições por dia"],["Volume intermediário","R$ [VALOR] por refeição","[X a Y] refeições por dia"],["Maior volume","Proposta personalizada","A partir de [X] refeições por dia"]].map(([t,p,d]) => <article key={t} className="rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-5"><p className="text-xs font-bold uppercase tracking-wide text-[#a7b86a]">{t}</p><p className="mt-3 text-xl font-black">{p}</p><p className="mt-2 text-sm text-white/50">{d}</p></article>)}</div><p className="mt-4 text-xs leading-5 text-white/35">Valores entre colchetes são campos de preenchimento, não preços oficiais. O valor final depende de cardápio, volume e logística.</p><a href="#solicitar-proposta" className="mt-5 inline-flex rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black text-black">Receber proposta personalizada</a>
-          </section>
+          
           <section id="degustacao" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><div className="grid gap-5 rounded-2xl border border-[#ef7d18]/25 bg-[#17130e] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-7"><div><span className="text-[10px] font-black uppercase tracking-[.2em] text-[#ffab62]">Conheça antes de contratar</span><h2 className="mt-2 text-2xl font-black">Quer provar as refeições da Nutrifit?</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">Consulte a disponibilidade de degustação empresarial. Vamos alinhar pratos, quantidade de amostras, data e condições.</p></div><a href={whatsapp("Olá! Gostaria de consultar a disponibilidade de degustação empresarial da Nutrifit.")} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 text-sm font-black text-black"><MessageCircle size={16}/> Consultar degustação</a></div></section>
           <section id="confianca" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><h2 className="text-2xl font-black sm:text-3xl">Uma parceria começa com transparência.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-white/55">Fotos de pratos e produção, depoimentos e marcas de clientes devem ser reais e publicados com autorização.</p><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{[["Prato caseiro","/images/bife-acebolado.jpg"],["Refeição empresarial","/images/carne-de-panela-com-batatas.jpg"],["Cardápio da equipe","/images/costelinha-suina-assada.jpg"]].map(([t,img])=><article key={t} className="overflow-hidden rounded-2xl border border-white/10"><img src={img} alt={t} loading="lazy" className="h-44 w-full object-cover"/><div className="p-4"><h3 className="font-black">{t}</h3><p className="mt-1 text-xs text-white/40">Confirmar fotografia real atual antes de divulgar.</p></div></article>)}</div><div className="mt-4 rounded-xl border border-white/10 p-4"><p className="text-sm italic text-white/70">“[Inserir depoimento real autorizado.]”</p><p className="mt-2 text-xs text-white/40">[Nome, cargo e empresa, mediante autorização.]</p></div></section>
           <section id="faq" className="border-t border-white/10 p-6 sm:p-8 lg:p-10"><h2 className="text-2xl font-black sm:text-3xl">Perguntas frequentes</h2><div className="mt-5 grid gap-3 md:grid-cols-2">{[["Existe pedido mínimo?","O volume mínimo depende da operação e da logística. Informe a quantidade para avaliarmos a viabilidade."],["Qual é o prazo para começar?","O prazo será confirmado na proposta, conforme produção, cardápio e rota."],["Posso personalizar o cardápio?","Podemos avaliar preferências e ajustes conforme a capacidade de produção."],["A Nutrifit emite nota fiscal?","As condições fiscais e de faturamento serão confirmadas durante a negociação."],["Vocês atendem restrições alimentares?","Informe as necessidades. A equipe avaliará opções possíveis; não presumimos ausência de contaminação cruzada."],["Quais formas de pagamento são aceitas?","Forma e prazo são alinhados na proposta antes do início do fornecimento."],["Quais horários de entrega estão disponíveis?","Os horários dependem do bairro, volume, rota e capacidade operacional."],["Quais bairros são atendidos?","A disponibilidade depende do endereço e da rota. Informe o bairro para confirmarmos."]].map(([q,a])=><details key={q} className="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary className="cursor-pointer font-bold">{q}</summary><p className="mt-3 text-sm leading-6 text-white/55">{a}</p></details>)}</div></section>
@@ -175,7 +175,7 @@ export default function B2BPage() {
                 <label className="grid gap-2 text-sm font-bold">Bairro de entrega *<input required name="bairro" autoComplete="address-level3" className="w-full min-w-0 rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Bairro em Juiz de Fora"/></label>
               </div>
               <label className="grid gap-2 text-sm font-bold">Observações<textarea name="observacoes" rows={3} className="resize-y rounded-xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-[#a7b86a]" placeholder="Horário desejado, preferências ou detalhes importantes (opcional)"/></label>
-              <label className="flex items-start gap-3 text-xs leading-5 text-white/55"><input required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]"/><span>Li a <a href="/politica-de-privacidade" className="underline text-[#c5d879]">Política de Privacidade</a> e estou ciente do tratamento dos dados informados para atendimento desta solicitação comercial.</span></label>
+              <label className="flex items-start gap-3 text-xs leading-5 text-white/55"><input required type="checkbox" name="consentimento" value="sim" className="mt-1 accent-[#ef7d18]"/><span>Li a <a href="/privacidade" className="underline text-[#c5d879]">Política de Privacidade</a> e estou ciente do tratamento dos dados informados para atendimento desta solicitação comercial.</span></label>
               {submitError && <p role="alert" className="text-sm text-[#ffb56f]">Não conseguimos confirmar o envio. Tente novamente ou fale conosco pelo WhatsApp.</p>}
               <button type="submit" disabled={submitting} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-4 text-sm font-black text-black disabled:opacity-60">{submitting ? "Enviando solicitação..." : "Solicitar proposta gratuita"} <ArrowRight size={17}/></button><p className="text-xs leading-5 text-white/35">O formulário inicial não pede dados fiscais ou financeiros. Esses dados serão solicitados após o aceite.</p>
             </form>}</div>
