@@ -175,10 +175,6 @@ export default function PainelNutrifit() {
   const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
   const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
-  // Pedidos registrados não equivalem automaticamente a dinheiro recebido.
-  const periodReceived = periodOrders
-    .filter(o => o.status === "pago_recebido")
-    .reduce((sum, o) => sum + Number(o.total || 0), 0);
   const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
   const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
   const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
