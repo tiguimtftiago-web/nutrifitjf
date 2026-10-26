@@ -45,15 +45,18 @@ function orderStatusStyle(status:string) {
     pago_recebido:"Pagamento recebido",
     em_preparo:"Em produção",
     saiu_entrega:"Saiu para entrega",
-    entregue:"Entregue",
+    entregue:"Pedido finalizado",
     cancelado:"Cancelado",
   };
   if(status === "cancelado") {
     return { card:"border-red-500/50 bg-red-500/[.06]", badge:"bg-red-500/15 text-red-300", label:labelByStatus[status] };
   }
+  if(status === "entregue") {
+    return { card:"border-[#ef7d18]/65 bg-[#ef7d18]/[.08]", badge:"bg-[#ef7d18]/20 text-[#ffb36b]", label:labelByStatus[status] };
+  }
   return {
-    card:"border-[#ef7d18]/65 bg-[#ef7d18]/[.08]",
-    badge:"bg-[#ef7d18]/20 text-[#ffb36b]",
+    card:"border-[#6eaa67]/65 bg-[#6eaa67]/[.08]",
+    badge:"bg-[#6eaa67]/20 text-[#b9e6b1]",
     label:labelByStatus[status] || status.replaceAll("_"," "),
   };
 }
