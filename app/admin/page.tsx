@@ -49,6 +49,10 @@ function parseOrderItems(value:unknown):OrderItemView[] {
   const parsed:OrderItemView[]=[];
   const add=(item:any)=>{
     if(!item || typeof item!=="object") return;
+    if(Array.isArray(item.items)){
+      item.items.forEach((child:any)=>add(child));
+      return;
+    }
     const name=String(item.name||item.product_name||item.title||item.description||"Item do pedido");
     const line=String(item.line||item.category||"");
     const weight=String(item.weight||item.size||item.description_weight||"");
@@ -60,7 +64,6 @@ function parseOrderItems(value:unknown):OrderItemView[] {
       existing.quantity+=quantity;
       if(existing.price!==price) existing.price=null;
     }else parsed.push({name,line,weight,price,quantity});
-    if(Array.isArray(item.items)) item.items.forEach(add);
   };
   data.forEach(add);
   return parsed;
