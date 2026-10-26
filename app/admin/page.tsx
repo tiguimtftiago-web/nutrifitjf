@@ -38,6 +38,19 @@ async function request(path:string, token:string, init:RequestInit={}) {
 
 const money = (v:number) => `R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
 
+function orderStatusStyle(status:string) {
+  switch(status) {
+    case "enviado_whatsapp": return { card:"border-[#ef7d18]/60 bg-[#ef7d18]/[.07]", badge:"bg-[#ef7d18]/20 text-[#ffb36b]", label:"Novo pedido" };
+    case "confirmado": return { card:"border-[#d6a43b]/55 bg-[#d6a43b]/[.06]", badge:"bg-[#d6a43b]/20 text-[#f2d28a]", label:"Confirmado" };
+    case "pago_recebido": return { card:"border-[#a7b86a]/60 bg-[#a7b86a]/[.07]", badge:"bg-[#a7b86a]/20 text-[#d9e5a5]", label:"Pagamento recebido" };
+    case "em_preparo": return { card:"border-[#6eaa67]/65 bg-[#6eaa67]/[.08]", badge:"bg-[#6eaa67]/20 text-[#b9e6b1]", label:"Em produção" };
+    case "saiu_entrega": return { card:"border-[#5b9de0]/65 bg-[#5b9de0]/[.08]", badge:"bg-[#5b9de0]/20 text-[#a8d2ff]", label:"Saiu para entrega" };
+    case "entregue": return { card:"border-white/15 bg-white/[.025]", badge:"bg-white/10 text-white/65", label:"Entregue" };
+    case "cancelado": return { card:"border-red-500/50 bg-red-500/[.06]", badge:"bg-red-500/15 text-red-300", label:"Cancelado" };
+    default: return { card:"border-white/10 bg-white/[.025]", badge:"bg-white/5 text-white/70", label:status.replaceAll("_"," ") };
+  }
+}
+
 type OrderItemView = { name:string; line:string; price:number|null; weight:string; quantity:number; };
 function parseOrderItems(value:unknown):OrderItemView[] {
   let data:any=value;
@@ -580,8 +593,8 @@ export default function AdminPage() {
               </div>
               <div className="grid gap-3 lg:hidden">
                 {visibleOrders.map(o=>(
-                  <button key={o.id} onClick={()=>setSelectedOrder(o)} className="w-full rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left">
-                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black">{o.status}</span></div>
+                  <button key={o.id} onClick={()=>setSelectedOrder(o)} className={`w-full rounded-2xl border-l-4 border-y border-r p-4 text-left transition ${orderStatusStyle(o.status).card} ${o.status==="enviado_whatsapp"?"border-l-[#ef7d18]":o.status==="confirmado"?"border-l-[#d6a43b]":o.status==="pago_recebido"||o.status==="em_preparo"?"border-l-[#a7b86a]":o.status==="saiu_entrega"?"border-l-[#5b9de0]":o.status==="cancelado"?"border-l-red-500":"border-l-white/20"}">
+                    <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${orderStatusStyle(o.status).badge}`}>{orderStatusStyle(o.status).label}</span></div>
                     <div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div>
                     <div className="mt-3 text-xs font-bold text-[#a7b86a]">Abrir pedido →</div>
                   </button>
@@ -590,7 +603,7 @@ export default function AdminPage() {
               <div className="hidden overflow-x-auto lg:block">
                 <table className="w-full min-w-[900px] text-left text-sm">
                   <thead><tr className="text-xs text-white/35"><th className="p-3">Data</th><th className="p-3">Cliente</th><th className="p-3">Itens</th><th className="p-3">Total</th><th className="p-3">Status</th><th className="p-3"/></tr></thead>
-                  <tbody>{visibleOrders.map(o=><tr key={o.id} className="border-t border-white/5"><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className="rounded-full bg-white/5 px-3 py-1 text-xs">{o.status}</span></td><td className="p-3 text-right"><button onClick={()=>{setSelectedOrder(o);setOrderRequirements([]);setOrderProductions([]);if(["confirmado","pago_recebido","em_preparo","saiu_entrega","entregue"].includes(o.status)){void loadOrderRequirements(o.id);void loadOrderProduction(o.id)}}} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
+                  <tbody>{visibleOrders.map(o=><tr key={o.id} className={`border-t border-white/5 transition ${o.status==="cancelado"?"bg-red-500/[.04]":o.status==="em_preparo"?"bg-[#6eaa67]/[.05]":o.status==="saiu_entrega"?"bg-[#5b9de0]/[.05]":o.status==="enviado_whatsapp"?"bg-[#ef7d18]/[.04]":""}`}><td className="p-3">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{o.customer_name||"—"}<div className="text-xs text-white/35">{o.whatsapp||""}</div></td><td className="p-3">{o.item_count}</td><td className="p-3 font-black text-[#ef7d18]">{money(o.total)}</td><td className="p-3"><span className={`rounded-full px-3 py-1 text-xs font-bold ${orderStatusStyle(o.status).badge}`}>{orderStatusStyle(o.status).label}</span></td><td className="p-3 text-right"><button onClick={()=>{setSelectedOrder(o);setOrderRequirements([]);setOrderProductions([]);if(["confirmado","pago_recebido","em_preparo","saiu_entrega","entregue"].includes(o.status)){void loadOrderRequirements(o.id);void loadOrderProduction(o.id)}}} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black">Abrir</button></td></tr>)}</tbody>
                 </table>
               </div>
             </Panel>
