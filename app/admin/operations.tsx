@@ -430,6 +430,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const inPeriod=(date:string)=>financePeriod==="all"||new Date(date)>=cutoff;
     const visibleFinance=finance.filter(x=>inPeriod(x.created_at)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
     const visiblePurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at)&&[x.invoice_number||"",x.notes||"",x.suppliers?.name||"",x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    const periodPurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at));
     const sum=(rows:Finance[],type:string)=>rows.filter(x=>x.type===type&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.amount||0),0);
     const revenue=sum(finance.filter(x=>inPeriod(x.created_at)), "receita");
     const expenses=sum(finance.filter(x=>inPeriod(x.created_at)), "despesa");
@@ -438,8 +439,8 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const paidOrderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status==="pago_recebido").reduce((v,x)=>v+Number(x.total||0),0);
     const confirmedReceipts=finance.filter(x=>inPeriod(x.created_at)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
     const paidExpenses=finance.filter(x=>inPeriod(x.created_at)&&x.type==="despesa"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
-    const purchasesTotal=visiblePurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
-    const purchaseCount=visiblePurchases.filter(x=>x.status==="recebida").length;
+    const purchasesTotal=periodPurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
+    const purchaseCount=periodPurchases.filter(x=>x.status==="recebida").length;
     const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
     const balance=revenue-expenses-fees+sum(finance.filter(x=>inPeriod(x.created_at)),"estorno");
     return <div className="space-y-5">
