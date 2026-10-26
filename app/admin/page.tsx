@@ -39,16 +39,23 @@ async function request(path:string, token:string, init:RequestInit={}) {
 const money = (v:number) => `R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
 
 function orderStatusStyle(status:string) {
-  switch(status) {
-    case "enviado_whatsapp": return { card:"border-[#ef7d18]/60 bg-[#ef7d18]/[.07]", badge:"bg-[#ef7d18]/20 text-[#ffb36b]", label:"Novo pedido" };
-    case "confirmado": return { card:"border-[#d6a43b]/55 bg-[#d6a43b]/[.06]", badge:"bg-[#d6a43b]/20 text-[#f2d28a]", label:"Confirmado" };
-    case "pago_recebido": return { card:"border-[#a7b86a]/60 bg-[#a7b86a]/[.07]", badge:"bg-[#a7b86a]/20 text-[#d9e5a5]", label:"Pagamento recebido" };
-    case "em_preparo": return { card:"border-[#6eaa67]/65 bg-[#6eaa67]/[.08]", badge:"bg-[#6eaa67]/20 text-[#b9e6b1]", label:"Em produção" };
-    case "saiu_entrega": return { card:"border-[#5b9de0]/65 bg-[#5b9de0]/[.08]", badge:"bg-[#5b9de0]/20 text-[#a8d2ff]", label:"Saiu para entrega" };
-    case "entregue": return { card:"border-white/15 bg-white/[.025]", badge:"bg-white/10 text-white/65", label:"Entregue" };
-    case "cancelado": return { card:"border-red-500/50 bg-red-500/[.06]", badge:"bg-red-500/15 text-red-300", label:"Cancelado" };
-    default: return { card:"border-white/10 bg-white/[.025]", badge:"bg-white/5 text-white/70", label:status.replaceAll("_"," ") };
+  const labelByStatus:Record<string,string> = {
+    enviado_whatsapp:"Pedido recebido",
+    confirmado:"Pedido confirmado",
+    pago_recebido:"Pagamento recebido",
+    em_preparo:"Em produção",
+    saiu_entrega:"Saiu para entrega",
+    entregue:"Entregue",
+    cancelado:"Cancelado",
+  };
+  if(status === "cancelado") {
+    return { card:"border-red-500/50 bg-red-500/[.06]", badge:"bg-red-500/15 text-red-300", label:labelByStatus[status] };
   }
+  return {
+    card:"border-[#ef7d18]/65 bg-[#ef7d18]/[.08]",
+    badge:"bg-[#ef7d18]/20 text-[#ffb36b]",
+    label:labelByStatus[status] || status.replaceAll("_"," "),
+  };
 }
 
 type OrderItemView = { name:string; line:string; price:number|null; weight:string; quantity:number; };
