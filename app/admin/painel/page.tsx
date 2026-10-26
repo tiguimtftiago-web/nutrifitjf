@@ -229,18 +229,24 @@ export default function PainelNutrifit() {
   }, [customers, orders, acquisitionEvents]);
 
   const week = useMemo(() => {
-    return Array.from({ length: 7 }, (_, index) => {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - (6 - index));
+    const start = new Date(periodStart);
+    const end = new Date(periodEnd);
+    const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+    return Array.from({ length: days }, (_, index) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + index);
       const key = dayKey(d);
-      const value = orders.filter(o => dayKey(new Date(o.created_at)) === key).reduce((sum, o) => sum + Number(o.total || 0), 0);
+      const value = orders
+        .filter(o => dayKey(new Date(o.created_at)) === key && !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase()))
+        .reduce((sum, o) => sum + Number(o.total || 0), 0);
       return {
-        label: d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", ""),
+        label: days <= 7
+          ? d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "")
+          : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", ""),
         value,
       };
     });
-  }, [orders]);
+  }, [orders, periodStart, periodEnd]);
 
   const maxWeek = Math.max(...week.map(d => d.value), 1);
 
@@ -299,11 +305,11 @@ export default function PainelNutrifit() {
               ]).map((m,i)=><article key={m[0]} className={`nf-in relative min-h-[108px] rounded-xl border p-4 ${card}`} style={{animationDelay:`${i*55}ms`}}><span className="text-[11px] text-[#6b7280]">{m[0]}</span><button className="absolute right-3 top-1 text-lg text-[#9ca3af]" aria-label="Opções">⋮</button><div className="my-2 text-[27px] font-semibold tracking-tight">{m[1]}</div><div className="text-[10px] text-[#6b7280]">{m[2]}</div><span className="absolute bottom-2 right-2 grid h-[22px] w-[22px] place-items-center rounded-md text-[12px] text-white" style={{background:m[3]}}>{m[4]}</span></article>)}
             </section>
             <section className={`mb-3 rounded-xl border p-4 md:p-5 ${card}`}>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2 text-[13px] font-semibold">{view==="Visão geral"?"Desempenho geral":view==="Clientes"?"Evolução de clientes":"Faturamento mensal"} <span className="grid h-4 w-4 place-items-center rounded-full border text-[9px] text-[#9ca3af]">i</span></div><div className="flex items-center gap-2"><button onClick={()=>setPeriod("Últimos 7 dias")} className="rounded-lg border px-3 py-1.5 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>7 dias</button><span className="text-[11px] text-[#6b7280]">Dados reais por dia</span></div></div>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2 text-[13px] font-semibold">{view==="Visão geral"?"Desempenho geral":view==="Clientes"?"Evolução de clientes":"Faturamento mensal"} <span className="grid h-4 w-4 place-items-center rounded-full border text-[9px] text-[#9ca3af]">i</span></div><div className="flex items-center gap-2"><button onClick={()=>setPeriod("Últimos 7 dias")} className="rounded-lg border px-3 py-1.5 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Período</button><span className="text-[11px] text-[#6b7280]">Dados reais do período selecionado</span></div></div>
               <div className="nf-scroll overflow-x-auto"><div className="flex h-[230px] min-w-[520px] gap-3 border-b pb-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
                 {week.map((d,i)=><div key={d.label} className="flex min-w-0 flex-1 flex-col justify-end gap-2"><div className="text-center text-[10px] text-[#6b7280]">{d.value?formatMoney(d.value):"—"}</div><div className="relative flex flex-1 items-end rounded-t-md bg-[#3B6BF5]/[.07]"><div className="w-full rounded-t-md bg-gradient-to-b from-[#B9C6FB] to-[#8EA3F6] transition-all duration-300" style={{height:`${Math.max(3,d.value/maxWeek*100)}%`}}/></div><div className="text-center text-[10px] text-[#6b7280]">{d.label}</div></div>)}
               </div></div>
-              <p className="mt-3 text-[10px] text-[#9ca3af]">Gráfico baseado nos pedidos registrados nos últimos sete dias. Valores ausentes são exibidos como zero; não representa meta mensal.</p>
+              <p className="mt-3 text-[10px] text-[#9ca3af]">Gráfico baseado no faturamento registrado em cada dia do período selecionado. Pedidos cancelados são excluídos; dias sem vendas aparecem como zero.</p>
             </section>
             <section className={`overflow-hidden rounded-xl border ${card}`}>
               <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><div className="flex flex-wrap gap-4 text-[11px] font-medium"><button onClick={()=>setView("Visão geral")} className={view==="Visão geral"?"border-b-2 border-black pb-1 font-bold": "pb-1 text-[#6b7280]"}>Propostas / Pedidos</button><button onClick={()=>setView("Clientes")} className={view==="Clientes"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Clientes</button><button onClick={()=>setView("Financeiro")} className={view==="Financeiro"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Financeiro</button></div><span className="text-[10px] text-[#6b7280]">{view==="Visão geral"?visibleOrders.length:view==="Clientes"?visibleCustomers.length:recentFinance.length} registros encontrados</span></div>
