@@ -153,19 +153,37 @@ export default function PainelNutrifit() {
   }, []);
 
   const today = dayKey(new Date());
-  const todayOrders = useMemo(() => orders.filter(o => dayKey(new Date(o.created_at)) === today), [orders, today]);
-  const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-  const todayMeals = todayOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
-  const ticket = todayOrders.length ? todayRevenue / todayOrders.length : 0;
+  const periodStart = useMemo(() => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    if (period === "Últimos 7 dias") start.setDate(start.getDate() - 6);
+    else if (period === "Este mês") start.setDate(1);
+    else if (period === "Últimos 30 dias") start.setDate(start.getDate() - 29);
+    return start;
+  }, [period]);
+  const periodEnd = useMemo(() => {
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    return end;
+  }, [today]);
+  const inSelectedPeriod = (value: string | null | undefined) => {
+    if (!value) return false;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) && date >= periodStart && date <= periodEnd;
+  };
+  const periodOrders = orders.filter(o => inSelectedPeriod(o.created_at));
+  const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
+  const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
   // Pedidos registrados não equivalem automaticamente a dinheiro recebido.
-  const todayReceived = todayOrders
+  const periodReceived = periodOrders
     .filter(o => o.status === "pago_recebido")
     .reduce((sum, o) => sum + Number(o.total || 0), 0);
-  // Considera somente despesas marcadas como pagas e cuja data de pagamento é hoje.
-  const todayExpenses = finance
-    .filter(f => f.type === "despesa" && f.status === "pago" && f.paid_at && dayKey(new Date(f.paid_at)) === today)
+  // Só soma despesas pagas dentro do período selecionado.
+  const periodExpenses = finance
+    .filter(f => f.type === "despesa" && f.status === "pago" && inSelectedPeriod(f.paid_at))
     .reduce((sum, f) => sum + Number(f.amount || 0), 0);
-  const estimatedProfit = todayReceived - todayExpenses;
+  const estimatedProfit = periodReceived - periodExpenses;
   const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
   const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
   const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
@@ -273,10 +291,10 @@ export default function PainelNutrifit() {
             <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>alert("A comparação de período é demonstrativa nesta versão.")} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>Período anterior⌄</button><button onClick={()=>alert(view==="Visão geral"?"Nova proposta: utilize a área administrativa para registrar.":view==="Clientes"?"Novo cliente: cadastre pela área administrativa.":"Nova fatura: registre em Financeiro.")} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
             <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(view==="Visão geral"?[
-                ["Refeições entregues",todayMeals.toLocaleString("pt-BR"),"+5% vs mês passado","#b46cdb","▣"],
-                ["Entregas no prazo",orders.length?Math.max(0,100-orders.filter(o=>["atrasado","em_atraso"].includes(o.status)).length/orders.length*100).toFixed(1).replace(".",",")+"%":"—","Dados dos pedidos","#4f6fe8","▤"],
-                ["Taxa de atraso",orders.length?(orders.filter(o=>["atrasado","em_atraso"].includes(o.status)).length/orders.length*100).toFixed(1).replace(".",",")+"%":"—","Calculada dos pedidos","#315e4c","◷"],
-                ["Faturamento registrado",formatMoney(todayRevenue),"Pedidos de hoje","#f16b2c","⌁"]
+                ["Refeições nos pedidos",periodMeals.toLocaleString("pt-BR"),period+" · dados registrados","#b46cdb","▣"],
+                ["Pedidos no período",periodOrders.length.toLocaleString("pt-BR"),period+" · registros encontrados","#4f6fe8","▤"],
+                ["Ticket médio",formatMoney(ticket),period+" · por pedido","#315e4c","◷"],
+                ["Faturamento registrado",formatMoney(periodRevenue),period+" · pedidos registrados","#f16b2c","⌁"]
               ]:view==="Clientes"?[
                 ["Clientes cadastrados",customers.length.toLocaleString("pt-BR"),"Registros reais","#b46cdb","♙"],
                 ["Novos hoje",newCustomers.toLocaleString("pt-BR"),"Pelo cadastro","#4f6fe8","＋"],
@@ -284,7 +302,7 @@ export default function PainelNutrifit() {
                 ["Total gasto registrado",formatMoney(customers.reduce((n,c)=>n+Number(c.total_spend||0),0)),"Soma dos perfis","#f16b2c","R$"]
               ]:[
                 ["Faturamento de pedidos",formatMoney(orders.reduce((n,o)=>n+Number(o.total||0),0)),"Total registrado","#b46cdb","▣"],
-                ["Recebido confirmado",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status==="pago").reduce((n,f)=>n+Number(f.amount||0),0)+todayReceived),"Lançamentos pagos","#4f6fe8","✓"],
+                ["Recebido confirmado",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status==="pago").reduce((n,f)=>n+Number(f.amount||0),0)+periodReceived),"Lançamentos pagos","#4f6fe8","✓"],
                 ["A receber",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status!=="pago").reduce((n,f)=>n+Number(f.amount||0),0)),"Lançamentos não pagos","#315e4c","◷"],
                 ["Despesas registradas",formatMoney(finance.filter(f=>f.type==="despesa").reduce((n,f)=>n+Number(f.amount||0),0)),"Não equivale a lucro","#f16b2c","↘"]
               ]).map((m,i)=><article key={m[0]} className={`nf-in relative min-h-[108px] rounded-xl border p-4 ${card}`} style={{animationDelay:`${i*55}ms`}}><span className="text-[11px] text-[#6b7280]">{m[0]}</span><button className="absolute right-3 top-1 text-lg text-[#9ca3af]" aria-label="Opções">⋮</button><div className="my-2 text-[27px] font-semibold tracking-tight">{m[1]}</div><div className="text-[10px] text-[#6b7280]">{m[2]}</div><span className="absolute bottom-2 right-2 grid h-[22px] w-[22px] place-items-center rounded-md text-[12px] text-white" style={{background:m[3]}}>{m[4]}</span></article>)}
