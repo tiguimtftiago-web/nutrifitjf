@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import TrackedLink from "../tracked-link";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
 
@@ -181,18 +182,22 @@ export default function LocalSeoPage() {
             pedido online.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link
+            <TrackedLink
               href="/#cardapio"
+              eventName="cardapio_click"
+              source="seo_landing_top"
               className="rounded-full bg-[#a7b86a] px-6 py-3 text-sm font-black text-black"
             >
               Ver cardápio
-            </Link>
-            <a
+            </TrackedLink>
+            <TrackedLink
               href="https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20conhecer%20as%20marmitas."
+              eventName="whatsapp_click"
+              source="seo_landing_top"
               className="rounded-full border border-[#ef7d18]/50 px-6 py-3 text-sm font-black text-[#ef7d18]"
             >
               Consultar pelo WhatsApp
-            </a>
+            </TrackedLink>
           </div>
         </div>
 
@@ -257,18 +262,22 @@ export default function LocalSeoPage() {
             de finalizar.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link
+            <TrackedLink
               href="/#combos"
+              eventName="combo_click"
+              source="seo_landing_combo"
               className="rounded-full border border-white/15 px-6 py-3 text-sm font-black"
             >
               Montar meu combo
-            </Link>
-            <Link
+            </TrackedLink>
+            <TrackedLink
               href="/b2b"
+              eventName="b2b_proposal_click"
+              source="seo_landing_b2b"
               className="rounded-full border border-white/15 px-6 py-3 text-sm font-black"
             >
               Marmitas para empresas
-            </Link>
+            </TrackedLink>
           </div>
         </section>
 
@@ -285,24 +294,30 @@ export default function LocalSeoPage() {
         </section>
 
         <div className="mt-10 flex flex-wrap gap-3">
-          <Link
+          <TrackedLink
             href="/#cardapio"
+            eventName="cardapio_click"
+            source="seo_landing_footer"
             className="rounded-full bg-[#a7b86a] px-6 py-3 text-sm font-black text-black"
           >
             Ver cardápio
-          </Link>
-          <Link
+          </TrackedLink>
+          <TrackedLink
             href="/#combos"
+            eventName="combo_click"
+            source="seo_landing_footer"
             className="rounded-full border border-white/15 px-6 py-3 text-sm font-black"
           >
             Montar meu combo
-          </Link>
-          <a
+          </TrackedLink>
+          <TrackedLink
             href="https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20conhecer%20as%20marmitas."
+            eventName="whatsapp_click"
+            source="seo_landing_footer"
             className="rounded-full border border-[#ef7d18]/50 px-6 py-3 text-sm font-black text-[#ef7d18]"
           >
             Pedir pelo WhatsApp
-          </a>
+          </TrackedLink>
         </div>
       </section>
     </main>
