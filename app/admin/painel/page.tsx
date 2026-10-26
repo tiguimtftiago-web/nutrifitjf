@@ -161,7 +161,7 @@ export default function PainelNutrifit() {
     else if (period === "Este mês") start.setDate(1);
     else if (period === "Últimos 30 dias") start.setDate(start.getDate() - 29);
     return start;
-  }, [period]);
+  }, [period, today]);
   const periodEnd = useMemo(() => {
     const end = new Date();
     end.setHours(23, 59, 59, 999);
