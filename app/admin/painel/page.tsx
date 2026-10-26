@@ -113,6 +113,7 @@ export default function PainelNutrifit() {
   const [darkMode, setDarkMode] = useState(false);
   const [period, setPeriod] = useState("Últimos 7 dias");
   const [tableFilter, setTableFilter] = useState("");
+  const [comparePrevious, setComparePrevious] = useState(false);
 
   async function load(t: string) {
     try {
@@ -175,6 +176,35 @@ export default function PainelNutrifit() {
   const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
   const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
+  const previousRange = useMemo(() => {
+    const start = new Date(periodStart);
+    const end = new Date(periodEnd);
+    if (period === "Este mês") {
+      const elapsedDays = end.getDate();
+      start.setMonth(start.getMonth() - 1);
+      const lastDayPreviousMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+      end.setTime(start.getTime());
+      end.setDate(Math.min(elapsedDays, lastDayPreviousMonth));
+      end.setHours(23, 59, 59, 999);
+    } else {
+      const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
+      end.setTime(start.getTime() - 1);
+      start.setTime(end.getTime());
+      start.setHours(0, 0, 0, 0);
+      start.setDate(start.getDate() - days + 1);
+    }
+    return { start, end };
+  }, [period, periodStart, periodEnd]);
+  const previousOrders = orders.filter(o => {
+    const created = new Date(o.created_at);
+    return !Number.isNaN(created.getTime()) && created >= previousRange.start && created <= previousRange.end &&
+      !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase());
+  });
+  const previousRevenue = previousOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const previousMeals = previousOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
+  const compareValue = (current: number, previous: number) => previous > 0
+    ? `${current >= previous ? "+" : ""}${((current - previous) / previous * 100).toFixed(1).replace(".", ",")}% vs período anterior`
+    : "Sem base no período anterior";
   const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
   const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
   const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
@@ -285,13 +315,13 @@ export default function PainelNutrifit() {
           </header>
           <div className="mx-auto max-w-[1500px] p-4 md:p-7">
             {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>alert("A comparação de período é demonstrativa nesta versão.")} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>Período anterior⌄</button><button onClick={()=>alert(view==="Visão geral"?"Nova proposta: utilize a área administrativa para registrar.":view==="Clientes"?"Novo cliente: cadastre pela área administrativa.":"Nova fatura: registre em Financeiro.")} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
+            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>setComparePrevious(v=>!v)} aria-pressed={comparePrevious} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>{comparePrevious?"Ocultar comparação":"Período anterior"}⌄</button><button onClick={()=>alert(view==="Visão geral"?"Nova proposta: utilize a área administrativa para registrar.":view==="Clientes"?"Novo cliente: cadastre pela área administrativa.":"Nova fatura: registre em Financeiro.")} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
             <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(view==="Visão geral"?[
-                ["Refeições nos pedidos",periodMeals.toLocaleString("pt-BR"),period+" · dados registrados","#b46cdb","▣"],
-                ["Pedidos no período",periodOrders.length.toLocaleString("pt-BR"),period+" · registros encontrados","#4f6fe8","▤"],
-                ["Ticket médio",formatMoney(ticket),period+" · por pedido","#315e4c","◷"],
-                ["Faturamento registrado",formatMoney(periodRevenue),period+" · pedidos registrados","#f16b2c","⌁"]
+                ["Refeições nos pedidos",periodMeals.toLocaleString("pt-BR"),comparePrevious?compareValue(periodMeals,previousMeals):period+" · dados registrados","#b46cdb","▣"],
+                ["Pedidos no período",periodOrders.length.toLocaleString("pt-BR"),comparePrevious?compareValue(periodOrders.length,previousOrders.length):period+" · registros encontrados","#4f6fe8","▤"],
+                ["Ticket médio",formatMoney(ticket),comparePrevious?compareValue(ticket,previousOrders.length?previousRevenue/previousOrders.length:0):period+" · por pedido","#315e4c","◷"],
+                ["Faturamento registrado",formatMoney(periodRevenue),comparePrevious?compareValue(periodRevenue,previousRevenue):period+" · pedidos registrados","#f16b2c","⌁"]
               ]:view==="Clientes"?[
                 ["Clientes cadastrados",customers.length.toLocaleString("pt-BR"),"Registros reais","#b46cdb","♙"],
                 ["Novos hoje",newCustomers.toLocaleString("pt-BR"),"Pelo cadastro","#4f6fe8","＋"],
