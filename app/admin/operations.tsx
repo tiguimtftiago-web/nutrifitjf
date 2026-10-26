@@ -430,12 +430,17 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const inPeriod=(date:string)=>financePeriod==="all"||new Date(date)>=cutoff;
     const visibleFinance=finance.filter(x=>inPeriod(x.created_at)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
     const visiblePurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at)&&[x.invoice_number||"",x.notes||"",x.suppliers?.name||"",x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    const periodPurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at));
     const sum=(rows:Finance[],type:string)=>rows.filter(x=>x.type===type&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.amount||0),0);
     const revenue=sum(finance.filter(x=>inPeriod(x.created_at)), "receita");
     const expenses=sum(finance.filter(x=>inPeriod(x.created_at)), "despesa");
     const fees=sum(finance.filter(x=>inPeriod(x.created_at)), "taxa");
-    const purchasesTotal=visiblePurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
-    const purchaseCount=visiblePurchases.filter(x=>x.status==="recebida").length;
+    const orderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.total||0),0);
+    const paidOrderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status==="pago_recebido").reduce((v,x)=>v+Number(x.total||0),0);
+    const confirmedReceipts=finance.filter(x=>inPeriod(x.created_at)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
+    const paidExpenses=finance.filter(x=>inPeriod(x.created_at)&&x.type==="despesa"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
+    const purchasesTotal=periodPurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
+    const purchaseCount=periodPurchases.filter(x=>x.status==="recebida").length;
     const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
     const balance=revenue-expenses-fees+sum(finance.filter(x=>inPeriod(x.created_at)),"estorno");
     return <div className="space-y-5">
@@ -445,12 +450,16 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <input value={financeSearch} onChange={e=>setFinanceSearch(e.target.value)} placeholder="Buscar descrição, fornecedor ou categoria..." className={input}/>
           <select value={financePeriod} onChange={e=>setFinancePeriod(e.target.value)} className={input+" sm:max-w-[220px]"}><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o histórico</option></select>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Receitas registradas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(revenue)}</div><div className="mt-2 text-xs text-white/40">No período selecionado</div></div>
-          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas lançadas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(expenses+fees)}</div><div className="mt-2 text-xs text-white/40">Lançamentos do financeiro</div></div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Valor dos pedidos não cancelados</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(orderTotal)}</div><div className="mt-2 text-xs text-white/40">Pedidos registrados, não dinheiro recebido</div></div>
+          <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Pedidos marcados como pagos</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(paidOrderTotal)}</div><div className="mt-2 text-xs text-white/50">Status pago/recebido no pedido</div></div>
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Recebimentos confirmados</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(confirmedReceipts)}</div><div className="mt-2 text-xs text-white/40">Lançamentos de receita com status pago</div></div>
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas pagas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(paidExpenses)}</div><div className="mt-2 text-xs text-white/40">Somente despesas com status pago</div></div>
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas e taxas lançadas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(expenses+fees)}</div><div className="mt-2 text-xs text-white/40">Todos os lançamentos não cancelados</div></div>
           <div className={"min-w-0 rounded-2xl border p-5 sm:p-6 "+(balance<0?"border-[#ef7d18]/30 bg-[#21170f]":"border-white/10 bg-[#151711]")}><div className="text-sm font-bold text-white/55">Resultado registrado</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(balance)}</div><div className="mt-2 text-xs text-white/40">Não equivale ao saldo bancário</div></div>
           <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Compras recebidas no estoque</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(purchasesTotal)}</div><div className="mt-2 text-xs text-white/50">{purchaseCount} compra(s) registrada(s) no período</div></div>
         </div>
+        <p className="text-xs leading-5 text-white/40">Os indicadores consideram até 200 pedidos, 500 lançamentos financeiros e 200 compras carregadas. “Pedidos marcados como pagos” e “Recebimentos confirmados” vêm de fontes diferentes e não devem ser somados; o valor de um pedido não comprova, por si só, o recebimento.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">Contas pendentes lançadas</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Baseado no status dos lançamentos financeiros</div></div>
           <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-sm font-bold text-[#f1b06e]">Conferência necessária</div><p className="mt-2 text-sm leading-6 text-white/70">Compras do estoque e despesas financeiras aparecem em listas separadas até serem conciliadas. Isso evita somar a mesma compra duas vezes. Confira os registros abaixo antes de fechar o caixa.</p></div>
