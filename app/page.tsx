@@ -17,9 +17,22 @@ const instagram = "https://www.instagram.com/nutrifit_jf/";
 const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
 const trackClick = (event: string, source: string) => {
   track(event, { source });
   if (typeof window !== "undefined" && event !== "site_visit") {
+    // Send the same acquisition event to GA4 so leads and order intent can be measured alongside traffic.
+    window.gtag?.("event", event, {
+      event_category: "engagement",
+      event_label: source,
+      source,
+      page_path: window.location.pathname,
+    });
     void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
       method: "POST",
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
