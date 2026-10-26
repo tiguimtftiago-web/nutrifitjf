@@ -651,10 +651,11 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         <span className="min-w-0 flex-1">
           <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal</span>
           <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • toque para {planOpen ? "fechar" : "montar seu plano"}</span>
+          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span>
         </span>
         <span className="shrink-0 text-right">
           <span className="block text-lg font-black text-[#ef7d18]">{money(totalPrice)}</span>
+          <span className="mt-0.5 block text-[10px] text-white/45">{money(unitPrice)} por marmita</span>
           <span className="mt-1 block text-xl leading-none text-[#a7b86a]">{planOpen ? "⌃" : "⌄"}</span>
         </span>
       </button>
@@ -3189,7 +3190,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal Nutrifit</div>
             <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl md:text-4xl">Organize suas refeições do mês</h2>
-            <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e monte os sabores dentro da mesma linha. O preço por marmita é o mesmo do combo de 20 — sem desconto adicional.</p>
+            <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e combine seus sabores favoritos dentro da mesma linha. Mais praticidade para planejar sua alimentação e manter sua rotina organizada.</p>
           </div>
           <MonthlyPlanBuilder onAddPlan={addPlanToOrder} />
         </div>
