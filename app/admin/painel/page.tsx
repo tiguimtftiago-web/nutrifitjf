@@ -171,7 +171,7 @@ export default function PainelNutrifit() {
     const date = new Date(value);
     return !Number.isNaN(date.getTime()) && date >= periodStart && date <= periodEnd;
   };
-  const periodOrders = orders.filter(o => inSelectedPeriod(o.created_at));
+  const periodOrders = orders.filter(o => inSelectedPeriod(o.created_at) && !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase()));
   const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
   const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
