@@ -102,53 +102,30 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   },[section]);
 
   async function createProductionPlan(order:CustomerOrder){
-    const orderItems=Array.isArray(order.items)?order.items:[];
-    const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const existing=production.filter(p=>p.order_id===order.id);
-    const planned=new Map<string,{recipe:Recipe;quantity:number;name:string}>();
-    const unmatched:string[]=[];
-    for(const item of orderItems){
-      const name=String(item.name||"").trim();
-      const weight=String(item.weight||"").trim();
-      const sameNameDifferentWeight=orderItems.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
-      const candidates=recipes.filter(r=>r.active);
-      const recipe=candidates.find(r=>norm(r.product_name||"")===norm(name+(sameNameDifferentWeight&&weight?" — "+weight:"")))||
-        candidates.find(r=>norm(r.name)===norm(name+(sameNameDifferentWeight&&weight?" — "+weight:"")))||
-        candidates.find(r=>norm(r.product_name||"")===norm(name))||
-        candidates.find(r=>norm(r.name)===norm(name));
-      if(!recipe){unmatched.push(name+(sameNameDifferentWeight&&weight?" ("+weight+")":"")||"Item sem nome");continue;}
-      const qty=Number(item.quantity||0);
-      if(!Number.isFinite(qty)||qty<=0){unmatched.push(name+" (quantidade inválida)");continue;}
-      const prior=planned.get(recipe.id);
-      if(prior)prior.quantity+=qty;
-      else planned.set(recipe.id,{recipe,quantity:qty,name});
-    }
-    for(const entry of planned.values()){
-      const already=existing.filter(p=>p.recipe_id===entry.recipe.id).reduce((n,p)=>n+Number(p.quantity||0),0);
-      entry.quantity=Math.max(0,entry.quantity-already);
-    }
-    const toCreate=[...planned.values()].filter(x=>x.quantity>0);
-    if(!toCreate.length){
-      setError(unmatched.length?"Não foi possível criar o plano. Cadastre/ative as fichas técnicas correspondentes a: "+[...new Set(unmatched)].join(", "):"Este pedido já possui registros de produção para os pratos identificados.");
-      return;
-    }
-    // Validar todas as fichas antes de gravar qualquer lote evita criação parcial por ficha incompleta.
-    const missingIngredients=toCreate.filter(entry=>!recipeItems.some(x=>x.recipe_id===entry.recipe.id)).map(entry=>entry.recipe.name);
-    if(missingIngredients.length){
-      setError("Plano não criado. Complete os insumos destas fichas técnicas primeiro: "+missingIngredients.join(", "));
+    // Evita novas tentativas automáticas sobre pedidos que já possuem lotes.
+    // A reconciliação de quantidades existentes deve ser manual antes de gerar novamente.
+    if(existing.length){
+      setError("Este pedido já possui registros de produção. Confira os lotes existentes antes de gerar novamente, para evitar duplicidade ou quantidades incorretas.");
       return;
     }
     setBusy(true);setError("");
     try{
-      for(const entry of toCreate){
-        await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:entry.recipe.id,quantity:entry.quantity,status:"planejada",order_id:order.id,notes:"Gerado a partir do pedido de "+(order.customer_name||"cliente")+" (#"+order.id.slice(0,8)+"). Conferir ficha técnica e insumos antes de iniciar."})});
+      const result=await req(URL+"/rest/v1/rpc/create_production_from_order",token,{
+        method:"POST",
+        body:JSON.stringify({p_order_id:order.id})
+      });
+      const count=Number(result||0);
+      if(count===0){
+        setError("Nenhum lote foi criado. Confira se o pedido está confirmado, pago ou em preparo e se todos os pratos possuem fichas técnicas ativas com insumos.");
+        return;
       }
       await load();
-      if(unmatched.length)setError("Plano criado para os pratos com ficha técnica ativa. Itens que precisam de ficha correspondente: "+[...new Set(unmatched)].join(", "));
+      setError("Plano de produção criado com validação transacional. Nenhum lote parcial será mantido se a validação do banco falhar.");
     }catch(e){
       let detail=e instanceof Error?e.message:"";
       try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}
-      setError("O plano pode ter sido criado parcialmente. Confira os registros do pedido antes de tentar novamente. "+(detail||"Falha ao criar o plano."));
+      setError("Não foi possível criar o plano. Confira as fichas técnicas e o status do pedido antes de tentar novamente. "+(detail||"Falha ao criar o plano."));
       await load(true);
     }finally{setBusy(false);}
   }
