@@ -5,7 +5,7 @@ const pageUrl = "https://www.nutrifitjf.com.br/marmitas-fit-juiz-de-fora";
 export const metadata: Metadata = {
   title: "Marmitas Fit em Juiz de Fora | Nutrifit",
   description:
-    "Marmitas fit, fitness e saudáveis da Nutrifit em Juiz de Fora. Conheça as linhas Fit 350 g, Performance 450 g e Tradicional 500 g, combos, saladas e sucos.",
+    "Peça marmitas fit em Juiz de Fora pela Nutrifit. Confira as linhas Fit 350 g, Performance 450 g e Tradicional 500 g, veja os pratos disponíveis, monte seu combo e consulte o cardápio online.",
   alternates: { canonical: pageUrl },
   robots: { index: true, follow: true },
   openGraph: {
