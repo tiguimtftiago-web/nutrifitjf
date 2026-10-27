@@ -605,7 +605,10 @@ export default function AdminPage() {
                 {visibleOrders.map(o=>(
                   <button key={o.id} onClick={()=>setSelectedOrder(o)} className={`w-full rounded-2xl border-l-4 border-y border-r p-4 text-left transition ${orderStatusStyle(o.status).card} ${o.status==="enviado_whatsapp"?"border-l-[#ef7d18]":o.status==="confirmado"?"border-l-[#d6a43b]":o.status==="pago_recebido"||o.status==="em_preparo"?"border-l-[#a7b86a]":o.status==="saiu_entrega"?"border-l-[#5b9de0]":o.status==="cancelado"?"border-l-red-500":"border-l-white/20"}">
                     <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${orderStatusStyle(o.status).badge}`}>{orderStatusStyle(o.status).label}</span></div>
-                    <div className="mt-4 flex items-end justify-between"><div className="text-xs text-white/45">{o.item_count} {o.item_count===1?"item":"itens"}</div><div className="text-lg font-black text-[#ef7d18]">{money(o.total)}</div></div>
+                    <div className="mt-4 flex items-end justify-between">
+                      <div className="text-xs text-white/45">{o.item_count} {o.item_count === 1 ? "item" : "itens"}</div>
+                      <div className="text-lg font-black text-[#ef7d18]">{money(Number(o.total || 0))}</div>
+                    </div>
                     <div className="mt-3 text-xs font-bold text-[#a7b86a]">Abrir pedido →</div>
                   </button>
                 ))}
