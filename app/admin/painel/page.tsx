@@ -114,6 +114,11 @@ export default function PainelNutrifit() {
   const [period, setPeriod] = useState("Últimos 7 dias");
   const [tableFilter, setTableFilter] = useState("");
   const [comparePrevious, setComparePrevious] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showNewRecord, setShowNewRecord] = useState(false);
 
   async function load(t: string) {
     try {
@@ -152,6 +157,16 @@ export default function PainelNutrifit() {
     const timer = window.setInterval(() => void load(saved), 60000);
     return () => window.clearInterval(timer);
   }, []);
+
+  async function refreshData() {
+    if (!token || refreshing) return;
+    setRefreshing(true);
+    try {
+      await load(token);
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   const today = dayKey(new Date());
   const periodStart = useMemo(() => {
@@ -311,11 +326,36 @@ export default function PainelNutrifit() {
         <div className="min-w-0 flex-1">
           <header className={`flex min-h-[62px] flex-wrap items-center justify-between gap-3 border-b px-4 py-3 md:px-7 ${card}`}>
             <div className="relative w-full max-w-[260px]"><span className="absolute left-3 top-2 text-lg text-[#9ca3af]">⌕</span><input value={tableFilter} onChange={e=>setTableFilter(e.target.value)} placeholder="Buscar..." className="nf-focus w-full rounded-lg border bg-transparent py-2 pl-9 pr-3 text-[12px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}/></div>
-            <div className="flex items-center gap-3 text-[11px] text-[#6b7280]"><span className="hidden lg:inline">Última atualização: {new Date().toLocaleDateString("pt-BR")}</span><button className="relative rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Notificações">♧<i className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500"/></button><button className="rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Configurações">⚙</button><span className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e6e9f3] font-bold text-[#4c5b88]">NF</span><b>NutriFit Admin</b>⌄</span></div>
+            <div className="flex items-center gap-3 text-[11px] text-[#6b7280]"><span className="hidden lg:inline">Última atualização: {new Date().toLocaleDateString("pt-BR")}</span><button onClick={() => setShowNotifications(v => !v)} className="relative rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Notificações" aria-expanded={showNotifications}>♧<i className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500"/></button><button onClick={() => setShowSettings(v => !v)} className="rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Configurações" aria-expanded={showSettings}>⚙</button><span className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e6e9f3] font-bold text-[#4c5b88]">NF</span><b>NutriFit Admin</b>⌄</span></div>
           </header>
-          <div className="mx-auto max-w-[1500px] p-4 md:p-7">
+          <div className="mx-auto max-w-[1500px] p-4 pb-24 md:p-7">
+            {(showNotifications || showSettings) && (
+              <section className={`mb-4 rounded-xl border p-4 ${card}`}>
+                {showNotifications && (
+                  <div>
+                    <h2 className="font-semibold">Notificações</h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">
+                      {alerts.length ? `${alerts.length} alertas de estoque para conferir.` : "Nenhum alerta de estoque retornado pelo sistema."}
+                    </p>
+                    {alerts.slice(0, 5).map(a => (
+                      <p key={a.item_id} className="mt-2 text-sm">{a.name}: {a.current_quantity} {a.status}</p>
+                    ))}
+                  </div>
+                )}
+                {showSettings && (
+                  <div className={showNotifications ? "mt-4 border-t pt-4" : ""} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
+                    <h2 className="font-semibold">Configurações do painel</h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">Preferências de visualização; não alteram dados operacionais.</p>
+                    <button onClick={() => setDarkMode(v => !v)} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
+                      Alternar modo {darkMode ? "claro" : "escuro"}
+                    </button>
+                  </div>
+                )}
+                <button onClick={() => { setShowNotifications(false); setShowSettings(false); }} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Fechar</button>
+              </section>
+            )}
             {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>setComparePrevious(v=>!v)} aria-pressed={comparePrevious} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>{comparePrevious?"Ocultar comparação":"Período anterior"}⌄</button><button onClick={()=>alert(view==="Visão geral"?"Nova proposta: utilize a área administrativa para registrar.":view==="Clientes"?"Novo cliente: cadastre pela área administrativa.":"Nova fatura: registre em Financeiro.")} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
+            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>setComparePrevious(v=>!v)} aria-pressed={comparePrevious} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>{comparePrevious?"Ocultar comparação":"Período anterior"}⌄</button><button onClick={() => setShowNewRecord(true)} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
             <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {(view==="Visão geral"?[
                 ["Refeições nos pedidos",periodMeals.toLocaleString("pt-BR"),comparePrevious?compareValue(periodMeals,previousMeals):period+" · dados registrados","#b46cdb","▣"],
@@ -344,13 +384,53 @@ export default function PainelNutrifit() {
             <section className={`overflow-hidden rounded-xl border ${card}`}>
               <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><div className="flex flex-wrap gap-4 text-[11px] font-medium"><button onClick={()=>setView("Visão geral")} className={view==="Visão geral"?"border-b-2 border-black pb-1 font-bold": "pb-1 text-[#6b7280]"}>Propostas / Pedidos</button><button onClick={()=>setView("Clientes")} className={view==="Clientes"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Clientes</button><button onClick={()=>setView("Financeiro")} className={view==="Financeiro"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Financeiro</button></div><span className="text-[10px] text-[#6b7280]">{view==="Visão geral"?visibleOrders.length:view==="Clientes"?visibleCustomers.length:recentFinance.length} registros encontrados</span></div>
               <div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[680px] border-collapse text-left text-[11px]"><thead className={darkMode?"bg-[#202b3b] text-[#9ca3af]":"bg-[#f8f9fb] text-[#737b89]"}><tr>{(view==="Visão geral"?["Pedido / cliente","Criado em","Itens","Valor","Status"]:view==="Clientes"?["Cliente","Desde","Segmento","Pedidos","Total gasto"]:["Descrição","Data","Tipo","Valor","Status"]).map(h=><th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>
-              {view==="Visão geral"&&visibleOrders.slice(0,20).map(o=><tr key={o.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{o.customer_name||"Cliente"}<span className="ml-1 rounded bg-[#f0f1f4] px-1 py-0.5 text-[9px] text-[#858b96]">pedido</span></td><td className="px-4 text-[#6b7280]">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="px-4">{o.item_count||0}</td><td className="px-4">{formatMoney(Number(o.total||0))}</td><td className="px-4"><span className={o.status==="pago_recebido"?"text-emerald-600":"text-[#6b7280]"}>{o.status}</span></td></tr>)}
+              {view==="Visão geral"&&visibleOrders.slice(0,20).map(o=><tr key={o.id} onClick={() => setSelectedOrder(o)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedOrder(o); } }} tabIndex={0} role="button" aria-label={`Abrir pedido de ${o.customer_name || "Cliente"}`} className="cursor-pointer border-t hover:bg-black/[.035] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-400" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{o.customer_name||"Cliente"}<span className="ml-1 rounded bg-[#f0f1f4] px-1 py-0.5 text-[9px] text-[#858b96]">pedido</span></td><td className="px-4 text-[#6b7280]">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="px-4">{o.item_count||0}</td><td className="px-4">{formatMoney(Number(o.total||0))}</td><td className="px-4"><span className={o.status==="pago_recebido"?"text-emerald-600":"text-[#6b7280]"}>{o.status}</span></td></tr>)}
               {view==="Clientes"&&visibleCustomers.slice(0,50).map(c=><tr key={c.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{c.name}</td><td className="px-4 text-[#6b7280]">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{c.nutrifit_club_member?"NutriFit Club":"Cliente"}</td><td className="px-4">{c.order_count}</td><td className="px-4">{formatMoney(Number(c.total_spend||0))}</td></tr>)}
               {view==="Financeiro"&&recentFinance.slice(0,50).map(f=><tr key={f.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{f.description}</td><td className="px-4 text-[#6b7280]">{new Date(f.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{f.type} · {f.category}</td><td className="px-4">{formatMoney(Number(f.amount||0))}</td><td className="px-4"><span className={f.status==="pago"?"text-emerald-600":f.status==="atrasado"?"text-red-500":"text-[#6b7280]"}>{f.status}</span></td></tr>)}
               {((view==="Visão geral"&&!visibleOrders.length)||(view==="Clientes"&&!visibleCustomers.length)||(view==="Financeiro"&&!recentFinance.length))&&<tr><td colSpan={5} className="p-8 text-center text-[#9ca3af]">Nenhum registro encontrado para essa busca.</td></tr>}
               </tbody></table></div>
             </section>
             {view==="Visão geral"&&<section className={`mt-3 grid gap-3 xl:grid-cols-2`}><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Estoque e compras</h2><div className="grid grid-cols-2 gap-3"><div><div className="text-xl font-semibold">{inventoryItems.length}</div><div className="text-[11px] text-[#6b7280]">Insumos ativos</div></div><div><div className="text-xl font-semibold">{formatMoney(inventoryValue)}</div><div className="text-[11px] text-[#6b7280]">Valor estimado em estoque</div></div><div><div className="text-xl font-semibold">{lowStockItems.length}</div><div className="text-[11px] text-[#6b7280]">Itens no mínimo/abaixo</div></div><div><div className="text-xl font-semibold">{formatMoney(purchaseSpend30Days)}</div><div className="text-[11px] text-[#6b7280]">Compras recebidas · 30 dias</div></div></div>{lowStockItems.length>0&&<div className="mt-4 border-t pt-3 text-[11px] text-[#6b7280]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Conferir: {lowStockItems.slice(0,8).map(i=>i.name).join(", ")}</div>}</div><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Origem dos clientes e vendas</h2><div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[440px] text-left text-[11px]"><thead className="text-[#6b7280]"><tr><th className="py-2">Origem</th><th>Clientes</th><th>Pedidos</th><th>Faturamento</th></tr></thead><tbody>{acquisition.slice(0,6).map(row=><tr key={row.source} className="border-t" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><td className="py-2 capitalize">{row.source}</td><td>{row.customerCount}</td><td>{row.orders}</td><td>{formatMoney(row.revenue)}</td></tr>)}</tbody></table></div></div></section>}
+            <div className="fixed bottom-4 right-4 z-40">
+              <button onClick={() => void refreshData()} disabled={refreshing} className="rounded-full bg-[#ff6b00] px-5 py-3 text-sm font-semibold text-white shadow-lg disabled:opacity-60" aria-label="Atualizar dados do painel">
+                {refreshing ? "Atualizando…" : "↻ Atualizar dados"}
+              </button>
+            </div>
+            {selectedOrder && (
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="order-detail-title">
+                <section className={`w-full max-w-lg rounded-2xl border p-5 shadow-xl ${card}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 id="order-detail-title" className="text-lg font-semibold">Detalhes do pedido</h2>
+                    <button onClick={() => setSelectedOrder(null)} className="rounded-lg border px-3 py-1.5" aria-label="Fechar detalhes do pedido">Fechar</button>
+                  </div>
+                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div><dt className="text-xs text-[#6b7280]">Cliente</dt><dd className="mt-1 font-medium">{selectedOrder.customer_name || "Cliente"}</dd></div>
+                    <div><dt className="text-xs text-[#6b7280]">Status</dt><dd className="mt-1 font-medium">{selectedOrder.status || "Não informado"}</dd></div>
+                    <div><dt className="text-xs text-[#6b7280]">Criado em</dt><dd className="mt-1">{new Date(selectedOrder.created_at).toLocaleString("pt-BR")}</dd></div>
+                    <div><dt className="text-xs text-[#6b7280]">Quantidade de itens</dt><dd className="mt-1">{selectedOrder.item_count ?? 0}</dd></div>
+                    <div className="col-span-2"><dt className="text-xs text-[#6b7280]">Total registrado no pedido</dt><dd className="mt-1 text-xl font-semibold">{formatMoney(Number(selectedOrder.total || 0))}</dd></div>
+                  </dl>
+                  <div className="mt-4">
+                    <h3 className="mb-2 text-sm font-semibold">Itens registrados</h3>
+                    <pre className="max-h-48 overflow-auto rounded-lg border p-3 text-xs" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>{JSON.stringify(selectedOrder.items ?? [], null, 2)}</pre>
+                  </div>
+                  <p className="mt-3 text-xs text-[#6b7280]">Consulta somente leitura. Para alterar um pedido, use o fluxo oficial da administração.</p>
+                </section>
+              </div>
+            )}
+            {showNewRecord && (
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="new-record-title">
+                <section className={`w-full max-w-md rounded-2xl border p-5 shadow-xl ${card}`}>
+                  <h2 id="new-record-title" className="text-lg font-semibold">Novo registro</h2>
+                  <p className="mt-2 text-sm text-[#6b7280]">{view === "Visão geral" ? "Proposta ou pedido" : view === "Clientes" ? "Cadastro de cliente" : "Lançamento financeiro"}</p>
+                  <p className="mt-3 text-sm">Este painel é de acompanhamento e não grava novos registros. Para preservar a integridade dos pedidos e do financeiro, use a área administrativa oficial.</p>
+                  <div className="mt-5 flex flex-wrap justify-end gap-2">
+                    <button onClick={() => setShowNewRecord(false)} className="rounded-lg border px-4 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Fechar</button>
+                    <a href="/admin" className="rounded-lg bg-[#ff6b00] px-4 py-2 text-sm font-semibold text-white">Abrir administração</a>
+                  </div>
+                </section>
+              </div>
+            )}
             <p className="mt-4 text-[10px] leading-relaxed text-[#9ca3af]">Os valores apresentados vêm das tabelas atuais do Supabase. Pedidos registrados não equivalem automaticamente a recebimentos; faturamento e saldo dependem dos lançamentos existentes. Nenhum dado demonstrativo foi lançado no banco.</p>
           </div>
         </div>
