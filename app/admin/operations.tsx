@@ -34,6 +34,18 @@ async function req(path:string, token:string, init:RequestInit={}) {
 const money=(v:number)=>"R$ "+Number(v||0).toFixed(2).replace(".",",");
 const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none";
 
+function inventoryImage(item:InventoryItem):string {
+  const n=(item.name+" "+item.category).toLocaleLowerCase("pt-BR");
+  if(n.includes("purê")||n.includes("pure")||n.includes("batata")) return "/images/frango-pure-batata-inglesa.webp";
+  if(n.includes("tilápia")||n.includes("tilapia")||n.includes("peixe")||n.includes("salmão")||n.includes("salmao")) return "/images/tilapia-fit-350-web.jpg";
+  if(n.includes("lombo")||n.includes("pernil")||n.includes("suíno")||n.includes("suino")||n.includes("porco")) return "/images/pernil-acebolado-batata-real.jpg";
+  if(n.includes("frango")||n.includes("galinha")||n.includes("peito")) return "/images/frango-ensopado.jpg";
+  if(n.includes("carne")||n.includes("patinho")||n.includes("acém")||n.includes("acem")||n.includes("moída")||n.includes("moida")||n.includes("bovina")||n.includes("boi")) return "/images/carne-de-panela-com-batatas.jpg";
+  if(n.includes("cenoura")||n.includes("beterraba")||n.includes("chuchu")||n.includes("brócolis")||n.includes("brocolis")||n.includes("couve")||n.includes("legume")||n.includes("verdura")) return "/images/frango-empanado-arroz-com-ervilha-e-cenoura.jpg";
+  if(n.includes("arroz")||n.includes("feijão")||n.includes("feijao")||n.includes("macarrão")||n.includes("macarrao")||n.includes("massa")) return "/images/pernil-desfiado-molho-arroz-integral-cenoura.jpg";
+  return "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png";
+}
+
 export default function Operations({section,token}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string}) {
   const [products,setProducts]=useState<Product[]>([]);
   const [finance,setFinance]=useState<Finance[]>([]);
@@ -523,15 +535,38 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div><div className="flex items-center gap-2 text-sm font-black">{title}<span className={"rounded-full px-2.5 py-1 text-[10px] font-black "+(accent==="green"?"bg-[#a7b86a]/15 text-[#c4d38c]":accent==="orange"?"bg-[#ef7d18]/15 text-[#f1b06e]":"bg-white/10 text-white/50")}>{items.length}</span></div><div className="mt-1 text-xs text-white/40">{subtitle}</div></div>
       </div>
-      {items.length===0?<div className="rounded-xl border border-white/5 bg-black/10 p-4 text-sm text-white/45">{emptyText}</div>:<>
-        <div className="hidden md:block"><Table><thead><tr><Th>Insumo</Th><Th>Categoria</Th><Th>Fornecedor</Th><Th>Atual</Th><Th>Mínimo</Th><Th>Custo</Th><Th>Situação</Th><Th>Ações</Th></tr></thead><tbody>{items.map(x=><tr key={x.id} className="border-t border-white/5"><Td><b>{x.name}</b><div className="text-xs text-white/35">{x.active?"Ativo":"Desativado"}</div></Td><Td>{x.category}</Td><Td>{x.supplier||"—"}</Td><Td>{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</Td><Td>{money(x.average_cost)}</Td><Td>{!x.active?<span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-black text-white/50">INATIVO</span>:Number(x.current_quantity)<=0?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">SEM ESTOQUE</span>:Number(x.current_quantity)<=Number(x.minimum_quantity)?<span className="inline-flex rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[11px] font-black text-[#f1b06e]">COMPRAR</span>:<span className="inline-flex rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[11px] font-black text-[#c4d38c]">OK</span>}</Td><Td><div className="flex flex-wrap gap-2 whitespace-nowrap"><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-full border border-[#ef7d18]/30 px-3 py-2 text-xs font-bold text-[#ef7d18]">Excluir</button></div></Td></tr>)}</tbody></Table></div>
-        <div className="space-y-2 md:hidden">{items.map(x=><div key={x.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-          <div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="truncate text-base font-black">{x.name}</div><div className="mt-1 text-xs text-white/45">{x.category} · {x.active?"Ativo":"Desativado"}{x.supplier?" · "+x.supplier:""}</div></div>
-          {!x.active?<span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-black text-white/50">INATIVO</span>:Number(x.current_quantity)<=0?<span className="shrink-0 rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[10px] font-black text-[#f1b06e]">SEM ESTOQUE</span>:Number(x.current_quantity)<=Number(x.minimum_quantity)?<span className="shrink-0 rounded-full bg-[#ef7d18]/15 px-2.5 py-1 text-[10px] font-black text-[#f1b06e]">COMPRAR</span>:<span className="shrink-0 rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[10px] font-black text-[#c4d38c]">OK</span>}</div>
-          <div className="mt-3 grid grid-cols-3 gap-2"><div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Atual</div><div className="mt-1 text-sm font-black">{Number(x.current_quantity).toLocaleString("pt-BR")} {x.unit}</div></div><div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Mínimo</div><div className="mt-1 text-sm font-black">{Number(x.minimum_quantity).toLocaleString("pt-BR")} {x.unit}</div></div><div className="rounded-xl bg-black/15 p-2.5"><div className="text-[10px] text-white/35">Custo médio</div><div className="mt-1 text-sm font-black">{money(x.average_cost)}</div></div></div>
-          <div className="mt-3 grid grid-cols-2 gap-2"><button onClick={()=>void toggleStockItem(x)} disabled={busy} className="rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button><button onClick={()=>void deleteStockItem(x)} disabled={busy} className="rounded-xl border border-[#ef7d18]/30 px-3 py-2.5 text-xs font-bold text-[#ef9b55]">Excluir</button></div>
-        </div>)}</div>
-      </>}
+      {items.length===0?<div className="rounded-xl border border-white/5 bg-black/10 p-4 text-sm text-white/45">{emptyText}</div>:<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map(x=>{
+        const qty=Number(x.current_quantity||0);
+        const isReady=qty>0;
+        const low=isReady&&qty<=Number(x.minimum_quantity||0);
+        const status=!x.active?"Desativado":qty<=0?"Sem estoque":low?"Estoque baixo":"Disponível para produção";
+        const statusClass=!x.active||qty<=0?"border-white/10 bg-white/5 text-white/50":low?"border-[#ef7d18]/30 bg-[#ef7d18]/10 text-[#f1b06e]":"border-[#a7b86a]/25 bg-[#a7b86a]/10 text-[#c4d38c]";
+        return <article key={x.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#10140d]">
+          <div className="relative h-36 overflow-hidden bg-[#20251a] sm:h-40">
+            <img src={inventoryImage(x)} alt={x.name} loading="lazy" className="h-full w-full object-cover"/>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e09]/90 via-transparent to-black/10"/>
+            <span className={"absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-black "+statusClass}>{status}</span>
+            <div className="absolute bottom-3 left-3 right-3">
+              <div className="text-[10px] font-bold uppercase tracking-[.14em] text-white/65">{x.category||"Estoque Nutrifit"}</div>
+              <h3 className="mt-1 text-lg font-black leading-tight text-white">{x.name}</h3>
+            </div>
+          </div>
+          <div className="p-3.5">
+            <div className="flex items-end justify-between gap-3 rounded-xl border border-white/5 bg-black/20 p-3">
+              <div><div className="text-[10px] font-bold uppercase tracking-wider text-white/40">Disponível</div><div className="mt-1 text-2xl font-black leading-none text-[#c4d38c]">{qty.toLocaleString("pt-BR")} <span className="text-sm font-bold text-white/60">{x.unit}</span></div></div>
+              <div className="text-right"><div className="text-[10px] text-white/40">Custo médio</div><div className="mt-1 text-sm font-black">{money(x.average_cost)}</div></div>
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="rounded-xl bg-white/[.035] p-2.5"><div className="text-[10px] text-white/40">Estoque mínimo</div><div className="mt-1 text-sm font-bold">{Number(x.minimum_quantity||0).toLocaleString("pt-BR")} {x.unit}</div></div>
+              <div className="rounded-xl bg-white/[.035] p-2.5"><div className="text-[10px] text-white/40">Fornecedor</div><div className="mt-1 truncate text-sm font-bold">{x.supplier||"Não informado"}</div></div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button onClick={()=>void toggleStockItem(x)} disabled={busy} className="flex-1 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold">{x.active?"Desativar":"Reativar"}</button>
+              <button onClick={()=>void deleteStockItem(x)} disabled={busy} className="flex-1 rounded-xl border border-[#ef7d18]/30 px-3 py-2.5 text-xs font-bold text-[#ef9b55]">Excluir</button>
+            </div>
+          </div>
+        </article>;
+      })}</div>}
     </div>;
     return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
