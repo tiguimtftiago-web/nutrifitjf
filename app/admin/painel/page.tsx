@@ -329,6 +329,31 @@ export default function PainelNutrifit() {
             <div className="flex items-center gap-3 text-[11px] text-[#6b7280]"><span className="hidden lg:inline">Última atualização: {new Date().toLocaleDateString("pt-BR")}</span><button onClick={() => setShowNotifications(v => !v)} className="relative rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Notificações" aria-expanded={showNotifications}>♧<i className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500"/></button><button onClick={() => setShowSettings(v => !v)} className="rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Configurações" aria-expanded={showSettings}>⚙</button><span className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e6e9f3] font-bold text-[#4c5b88]">NF</span><b>NutriFit Admin</b>⌄</span></div>
           </header>
           <div className="mx-auto max-w-[1500px] p-4 pb-24 md:p-7">
+            {(showNotifications || showSettings) && (
+              <section className={`mb-4 rounded-xl border p-4 ${card}`}>
+                {showNotifications && (
+                  <div>
+                    <h2 className="font-semibold">Notificações</h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">
+                      {alerts.length ? `${alerts.length} alertas de estoque para conferir.` : "Nenhum alerta de estoque retornado pelo sistema."}
+                    </p>
+                    {alerts.slice(0, 5).map(a => (
+                      <p key={a.item_id} className="mt-2 text-sm">{a.name}: {a.current_quantity} {a.status}</p>
+                    ))}
+                  </div>
+                )}
+                {showSettings && (
+                  <div className={showNotifications ? "mt-4 border-t pt-4" : ""} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
+                    <h2 className="font-semibold">Configurações do painel</h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">Preferências de visualização; não alteram dados operacionais.</p>
+                    <button onClick={() => setDarkMode(v => !v)} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
+                      Alternar modo {darkMode ? "claro" : "escuro"}
+                    </button>
+                  </div>
+                )}
+                <button onClick={() => { setShowNotifications(false); setShowSettings(false); }} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Fechar</button>
+              </section>
+            )}
             {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
             <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>setComparePrevious(v=>!v)} aria-pressed={comparePrevious} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>{comparePrevious?"Ocultar comparação":"Período anterior"}⌄</button><button onClick={() => setShowNewRecord(true)} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
             <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
