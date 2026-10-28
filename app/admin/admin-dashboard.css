@@ -1,0 +1,91 @@
+/* Nutrifit Command Center — camada visual; mantém consultas e ações existentes. */
+main:has(> header.sticky) {
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(167,184,106,.10), transparent 38rem),
+    radial-gradient(ellipse at 92% 14%, rgba(239,125,24,.07), transparent 32rem),
+    #080a07;
+}
+main:has(> header.sticky) header.sticky {
+  border-bottom-color: rgba(167,184,106,.18);
+  background: rgba(7,10,7,.88);
+  box-shadow: 0 10px 36px rgba(0,0,0,.24);
+}
+main:has(> header.sticky) header.sticky > div {
+  max-width: 1600px;
+}
+main:has(> header.sticky) section,
+main:has(> header.sticky) [class*="rounded-3xl"][class*="border"] {
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+main:has(> header.sticky) [class*="rounded-3xl"][class*="border-white/10"][class*="bg-[#0d110b]"] {
+  border-color: rgba(167,184,106,.16);
+  background: linear-gradient(145deg, rgba(20,25,17,.96), rgba(10,13,9,.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 12px 32px rgba(0,0,0,.14);
+}
+main:has(> header.sticky) button[class*="rounded-3xl"][class*="border"]:hover {
+  border-color: rgba(167,184,106,.42);
+  box-shadow: 0 10px 28px rgba(0,0,0,.22), 0 0 24px rgba(167,184,106,.045);
+}
+main:has(> header.sticky) input,
+main:has(> header.sticky) select,
+main:has(> header.sticky) textarea {
+  color-scheme: dark;
+  border-color: rgba(255,255,255,.12);
+  background-color: rgba(255,255,255,.045);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+main:has(> header.sticky) input:focus,
+main:has(> header.sticky) select:focus,
+main:has(> header.sticky) textarea:focus {
+  border-color: rgba(167,184,106,.68);
+  box-shadow: 0 0 0 3px rgba(167,184,106,.10);
+}
+main:has(> header.sticky) table thead {
+  background: rgba(167,184,106,.045);
+}
+main:has(> header.sticky) table tbody tr {
+  transition: background .15s ease;
+}
+main:has(> header.sticky) table tbody tr:hover {
+  background: rgba(167,184,106,.045);
+}
+main:has(> header.sticky) h1 {
+  text-wrap: balance;
+}
+main:has(> header.sticky) .nf-command-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+main:has(> header.sticky) .nf-command-eyebrow::before {
+  content: "";
+  width: .38rem;
+  height: .38rem;
+  border-radius: 999px;
+  background: #a7b86a;
+  box-shadow: 0 0 12px rgba(167,184,106,.75);
+}
+@media (min-width: 1024px) {
+  main:has(> header.sticky) > div.mx-auto {
+    max-width: 1600px;
+  }
+  main:has(> header.sticky) section .rounded-3xl {
+    backdrop-filter: blur(8px);
+  }
+}
+@media (max-width: 640px) {
+  main:has(> header.sticky) header.sticky > div {
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+  }
+  main:has(> header.sticky) h1 {
+    font-size: clamp(1.65rem, 7vw, 2.2rem);
+    line-height: 1.12;
+  }
+  main:has(> header.sticky) [class*="rounded-3xl"][class*="p-5"] {
+    border-radius: 1.15rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  main:has(> header.sticky) * { transition: none !important; }
+}
