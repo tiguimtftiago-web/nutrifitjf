@@ -45,8 +45,8 @@ export default function SalesChart({ orders }: { orders: Order[] }) {
   const count = chart.reduce((sum, day) => sum + day.count, 0);
   const statusGroups = useMemo(() => {
     const groups = [
-      { label: "Aguardando", match: (s: string) => ["pendente", "aguardando", "aguardando_pagamento", "pending"].includes(normalize(s)), color: "bg-[#ef7d18]", Icon: Clock3 },
-      { label: "Em andamento", match: (s: string) => ["preparando", "em preparo", "em_preparo", "confirmado", "pago", "em rota", "em_rota", "processing"].includes(normalize(s)), color: "bg-[#a7b86a]", Icon: ShoppingBag },
+      { label: "Aguardando", match: (s: string) => ["enviado_whatsapp", "novo", "confirmado", "pago_recebido", "pendente", "aguardando", "aguardando_pagamento", "pending"].includes(normalize(s)), color: "bg-[#ef7d18]", Icon: Clock3 },
+      { label: "Em andamento", match: (s: string) => ["em_preparo", "preparando", "em preparo", "saiu_entrega", "em rota", "em_rota", "processing"].includes(normalize(s)), color: "bg-[#a7b86a]", Icon: ShoppingBag },
       { label: "Concluídos", match: (s: string) => ["entregue", "concluido", "concluído", "finalizado", "completed", "delivered"].includes(normalize(s)), color: "bg-sky-400", Icon: CheckCircle2 },
       { label: "Cancelados", match: cancelled, color: "bg-rose-400", Icon: XCircle },
     ];
