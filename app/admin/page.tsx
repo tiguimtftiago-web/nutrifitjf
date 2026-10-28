@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import "./admin-dashboard.css";
 import Operations from "./operations";
 import SalesChart from "./sales-chart";
 import {
