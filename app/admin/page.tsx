@@ -532,7 +532,7 @@ export default function AdminPage() {
               <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Hoje</div>
               <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 {[
-                  {label:"Pedidos",value:todayOrders.length,sub:pendingOrders.length+" aguardando ação",Icon:ShoppingBag},
+                  {label:"Pedidos recebidos",value:todayOrders.length,sub:"inclui cancelados · "+pendingOrders.length+" aguardando ação",Icon:ShoppingBag},
                   {label:"Produção",value:prepOrders.length,sub:"em preparo",Icon:Factory},
                   {label:"Estoque",value:purchaseAlerts.length,sub:purchaseAlerts.length===1?"item para comprar":"itens para comprar",Icon:Package},
                   {label:"Entregas",value:deliveryOrders.length,sub:"em rota",Icon:Truck},
