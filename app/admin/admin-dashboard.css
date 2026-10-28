@@ -216,3 +216,51 @@ main:has(> header.sticky) .nf-command-eyebrow::before {
     padding: 1rem !important;
   }
 }
+
+
+/* Complemento: cobre também superfícies de modais e navegação que ainda usavam tons escuros. */
+main:has(> header.sticky) [class*="bg-[#10130d]"],
+main:has(> header.sticky) [class*="bg-[#11140e]"],
+main:has(> header.sticky) [class*="bg-[#151a11]"],
+main:has(> header.sticky) [class*="bg-[#1b120a]"],
+main:has(> header.sticky) [class*="bg-[#080a07]"] {
+  background-color: #ffffff !important;
+}
+main:has(> header.sticky) [class*="text-[#d9e5a5]"],
+main:has(> header.sticky) [class*="text-[#f4aa67]"],
+main:has(> header.sticky) [class*="text-[#a7b86a]"] {
+  color: #477b2b !important;
+}
+main:has(> header.sticky) nav.fixed {
+  border-color: #e0e7dc !important;
+  background: rgba(255,255,255,.96) !important;
+  box-shadow: 0 8px 28px rgba(27,43,22,.12) !important;
+}
+main:has(> header.sticky) nav.fixed button {
+  color: #626b5d;
+}
+main:has(> header.sticky) nav.fixed button[class*="bg-[#a7b86a]"] {
+  color: #182014 !important;
+  background: #6fbf2c !important;
+}
+main:has(> header.sticky) [class*="bg-white/5"],
+main:has(> header.sticky) [class*="bg-white/[.025]"],
+main:has(> header.sticky) [class*="bg-white/[.035]"] {
+  background: #f7f9f6 !important;
+}
+main:has(> header.sticky) [class*="text-white/"] {
+  color: #687064 !important;
+}
+main:has(> header.sticky) [class*="border-[#a7b86a]"] {
+  border-color: #d8e6cf !important;
+}
+main:has(> header.sticky) [class*="border-[#ef7d18]"] {
+  border-color: #f6d5b4 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]"] {
+  background: #f58a1f !important;
+  color: #171a16 !important;
+}
+main:has(> header.sticky) [class*="shadow-2xl"] {
+  box-shadow: 0 12px 36px rgba(25,39,20,.13) !important;
+}
