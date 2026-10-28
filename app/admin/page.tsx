@@ -431,7 +431,7 @@ export default function AdminPage() {
   const activeOrders=orders.filter(x=>!["entregue","cancelado"].includes(x.status)).length;
   const todayKey=new Date().toLocaleDateString("pt-BR");
   const todayOrders=orders.filter(x=>new Date(x.created_at).toLocaleDateString("pt-BR")===todayKey);
-  const todayRevenue=todayOrders.reduce((s,x)=>s+Number(x.total||0),0);
+  const todayRevenue=todayOrders.filter(x=>!["cancelado","cancelada","canceled","cancelled"].includes((x.status||"").trim().toLowerCase())).reduce((s,x)=>s+Number(x.total||0),0);
   const pendingOrders=orders.filter(x=>["enviado_whatsapp","novo","confirmado","pago_recebido"].includes(x.status));
   const prepOrders=orders.filter(x=>["em_preparo"].includes(x.status));
   const deliveryOrders=orders.filter(x=>x.status==="saiu_entrega");
