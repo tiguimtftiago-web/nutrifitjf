@@ -264,3 +264,25 @@ main:has(> header.sticky) button[class*="bg-[#ef7d18]"] {
 main:has(> header.sticky) [class*="shadow-2xl"] {
   box-shadow: 0 12px 36px rgba(25,39,20,.13) !important;
 }
+
+
+/* Ajuste de contraste por tema: cartões de pedidos não devem herdar o laranja sólido dos botões de ação. */
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] {
+  background: #fff7ed !important;
+  border-color: #f3c18f !important;
+  color: #20251e !important;
+  box-shadow: 0 3px 12px rgba(160, 84, 15, .06) !important;
+  transform: none !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-white/"] {
+  color: #6b6258 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="bg-[#ef7d18]/20"] {
+  background: #ffdfbd !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-[#ffb36b]"] {
+  color: #8f4300 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-[#ef7d18]"] {
+  color: #a94d00 !important;
+}
