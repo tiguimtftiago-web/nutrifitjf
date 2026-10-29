@@ -3700,41 +3700,17 @@ export default function Home() {
 
       <footer className="border-t border-white/10 bg-[#171719] text-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
-          <section className="mb-8" aria-labelledby="nutrifit-categories-heading">
-            <h2 id="nutrifit-categories-heading" className="mb-4 text-lg font-black sm:text-xl">Explore nosso cardápio</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              <a href="#cardapio" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png" alt="Marmita Fit de 350 g" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Fit 350 g</span>
-              </a>
-              <a href="#performance" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/strogonoff-frango-fit.webp" alt="Marmita da linha Performance" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Performance</span>
-              </a>
-              <a href="#tradicional" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/pernil-acebolado-batata-real.jpg" alt="Marmita tradicional" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Tradicional</span>
-              </a>
-              <a href="#saladas" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/nutrifit-pote-salada.svg" alt="Salada fresca no pote" loading="lazy" className="h-24 w-full bg-white/[.03] object-contain p-2 transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Saladas</span>
-              </a>
-              <a href="#sucos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/frutas-picadas-nutrifit.jpg" alt="Frutas frescas para acompanhar sucos" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Sucos e frutas</span>
-              </a>
-              <a href="#sucos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Sanduíche natural de frango" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Sanduíches</span>
-              </a>
-              <a href="#combos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/combo-fit.svg" alt="Combo de marmitas Fit" loading="lazy" className="h-24 w-full bg-white/[.03] object-contain p-2 transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Combos</span>
-              </a>
-              <a href="#b2b" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
-                <img src="/images/b2b-hero.webp" alt="Refeições Nutrifit para empresas" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
-                <span className="block px-3 py-2.5 text-sm font-bold">Para empresas</span>
-              </a>
+          <section className="mb-7" aria-labelledby="nutrifit-categories-heading">
+            <h2 id="nutrifit-categories-heading" className="mb-3 text-sm font-black uppercase tracking-[.16em] text-white/55">Explore nosso cardápio</h2>
+            <div className="flex flex-wrap gap-2.5">
+              <a href="#cardapio" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍱</span> Fit 350 g</a>
+              <a href="#performance" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥘</span> Performance</a>
+              <a href="#tradicional" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍛</span> Tradicional</a>
+              <a href="#saladas" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥗</span> Saladas</a>
+              <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🧃</span> Sucos</a>
+              <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
+              <a href="#combos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍽️</span> Combos</a>
+              <a href="#b2b" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🏢</span> Empresas</a>
             </div>
           </section>
           <div className="grid gap-7 md:grid-cols-[1.15fr_.85fr] md:gap-12">
@@ -3780,12 +3756,6 @@ export default function Home() {
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Visa"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Visa"><text x="4" y="23" fontSize="25" fontWeight="900" fontStyle="italic" fill="#1A1F71">VISA</text></svg></div>
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Mastercard"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Mastercard"><circle cx="29" cy="13" r="11" fill="#EB001B"/><circle cx="43" cy="13" r="11" fill="#F79E1B"/><path d="M36 4a11 11 0 0 1 0 18 11 11 0 0 1 0-18" fill="#FF5F00"/><text x="17" y="29" fontSize="6.5" fontWeight="700" fill="#222">mastercard</text></svg></div>
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Elo"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Elo"><text x="5" y="22" fontSize="23" fontWeight="900" fontStyle="italic" fill="#111">elo</text><circle cx="51" cy="7" r="3" fill="#F5C400"/><circle cx="57" cy="14" r="3" fill="#00A4E0"/><circle cx="50" cy="21" r="3" fill="#E53238"/></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="American Express"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="American Express"><rect x="1" y="2" width="72" height="26" rx="2" fill="#1677C8"/><text x="37" y="13" textAnchor="middle" fontSize="8" fontWeight="900" fill="white">AMERICAN</text><text x="37" y="22" textAnchor="middle" fontSize="9" fontWeight="900" fill="white">EXPRESS</text></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Hipercard"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Hipercard"><rect x="1" y="2" width="72" height="26" rx="3" fill="#B5121B"/><text x="37" y="19" textAnchor="middle" fontSize="11" fontWeight="700" fontStyle="italic" fill="white">Hipercard</text></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Ticket"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Ticket"><circle cx="37" cy="15" r="14" fill="#FF2418"/><text x="37" y="19" textAnchor="middle" fontSize="10" fontWeight="900" fill="#171719">ticket</text></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Alelo"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Alelo"><rect x="1" y="2" width="72" height="26" rx="13" fill="#00856A"/><text x="37" y="20" textAnchor="middle" fontSize="16" fontWeight="900" fill="white">alelo</text></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Sodexo"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Sodexo"><text x="3" y="21" fontSize="17" fontStyle="italic" fontWeight="700" fill="#263B9B">sodexo</text></svg></div>
-              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="VR"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="VR"><rect x="1" y="2" width="72" height="26" rx="3" fill="#00B83F"/><text x="37" y="21" textAnchor="middle" fontSize="19" fontWeight="900" fill="white">VR</text></svg></div>
             </div>
             <p className="mt-4 text-xs leading-5 text-white/45">As formas de pagamento disponíveis podem variar conforme o pedido. Confirme as opções aceitas antes de finalizar.</p>
           </section>
