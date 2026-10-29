@@ -36,6 +36,7 @@ const money = (value: number) => value.toLocaleString("pt-BR", { style: "currenc
 export default function MontarRefeicaoPage() {
   const [selection, setSelection] = useState(initial);
   const [showDetails, setShowDetails] = useState(true);
+  const [openGroups, setOpenGroups] = useState<Record<Group, boolean>>({ protein: true, carb: false, vegetable: false });
   const [showTestInfo, setShowTestInfo] = useState(false);
   const [saved, setSaved] = useState(false);
   const total = selection.protein.grams + selection.carb.grams + selection.vegetable.grams;
@@ -84,11 +85,11 @@ export default function MontarRefeicaoPage() {
             const current = selection[group];
             return (
               <section key={group} className="overflow-hidden rounded-3xl border border-white/10 bg-[#11140f]">
-                <div className="flex items-start justify-between gap-3 border-b border-white/[.07] px-4 py-4 sm:px-5"><div><h2 className="text-lg font-black">{label.title}</h2><p className="mt-1 text-xs text-white/45">{label.subtitle}</p></div><span className="rounded-full bg-white/[.06] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#b8c888]">{label.accent}</span></div>
-                <div className="grid gap-4 p-4 sm:grid-cols-[1fr_180px] sm:items-center sm:p-5">
+                <button type="button" aria-expanded={openGroups[group]} onClick={() => setOpenGroups((current) => ({ ...current, [group]: !current[group] }))} className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left transition hover:bg-white/[.025] sm:px-5"><div className="min-w-0"><h2 className="text-lg font-black">{label.title}</h2><p className="mt-1 text-xs text-white/45">{label.subtitle}</p>{!openGroups[group] && <p className="mt-2 truncate text-xs font-bold text-[#d5e5a7]">{ingredients[group].find((ingredient) => ingredient.id === current.id)?.name} · {current.grams} g</p>}</div><div className="flex shrink-0 items-center gap-2"><span className="hidden rounded-full bg-white/[.06] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-[#b8c888] sm:inline-flex">{label.accent}</span><ChevronDown size={18} className={"mt-1 text-white/50 transition-transform " + (openGroups[group] ? "rotate-180" : "")} /></div></button>
+                {openGroups[group] && <div className="grid gap-4 border-t border-white/[.07] p-4 sm:grid-cols-[1fr_180px] sm:items-center sm:p-5">
                   <label className="block"><span className="mb-2 block text-xs font-bold text-white/55">Ingrediente</span><span className="relative block"><select value={current.id} onChange={(event) => update(group, { id: event.target.value })} className="min-h-12 w-full appearance-none rounded-2xl border border-white/10 bg-[#090b08] px-4 pr-10 text-sm font-bold outline-none transition focus:border-[#a7b86a]">{ingredients[group].map((ingredient) => <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}</select><ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/45" /></span></label>
                   <div><span className="mb-2 block text-xs font-bold text-white/55">Quantidade</span><div className="flex min-h-12 items-center justify-between rounded-2xl border border-white/10 bg-[#090b08] p-1.5"><button type="button" aria-label={"Diminuir " + label.accent} onClick={() => adjust(group, -10)} disabled={current.grams <= 0} className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[.07] transition hover:bg-white/[.13] disabled:opacity-30"><Minus size={16} /></button><div className="text-center"><span className="text-lg font-black tabular-nums">{current.grams}</span><span className="ml-1 text-xs text-white/45">g</span></div><button type="button" aria-label={"Aumentar " + label.accent} onClick={() => adjust(group, 10)} disabled={current.grams >= 500} className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#a7b86a] text-black transition hover:bg-[#c1d48b] disabled:opacity-30"><Plus size={16} /></button></div><div className="mt-2 flex gap-2">{[50, 100, 150].map((amount) => <button key={amount} type="button" onClick={() => update(group, { grams: amount })} className={"flex-1 rounded-lg border px-2 py-1.5 text-[11px] font-bold transition " + (current.grams === amount ? "border-[#a7b86a] bg-[#a7b86a]/10 text-[#d5e5a7]" : "border-white/10 text-white/50 hover:text-white")}>{amount} g</button>)}</div></div>
-                </div>
+                </div>}
               </section>
             );
           })}
