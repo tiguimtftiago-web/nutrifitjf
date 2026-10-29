@@ -1139,15 +1139,35 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="mt-1 text-sm text-white/45">Depois você escolhe os sabores sem precisar voltar.</div>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
-            {comboOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`touch-manipulation relative z-10 rounded-2xl border px-3 py-3 text-left transition sm:p-4 ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
-                <div className="text-[11px] font-black tracking-wider text-[#a7b86a]">{item.line}</div>
-                <div className="mt-1 text-xs font-bold text-white/55">{item.weight}</div>
-                <div className="mt-2 text-xs font-black text-[#ef7d18]">{item.prices[5]} <span className="font-normal text-white/35">• 5 un.</span></div>
-              </button>
-            ))}
+          <div className="-mx-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0" aria-label="Escolha a linha de marmitas">
+            {comboOptions.map((item, index) => {
+              const image = index === 0
+                ? "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png"
+                : index === 1
+                  ? "/images/strogonoff-frango-fit.webp"
+                  : "/images/pernil-acebolado-batata-real.jpg";
+              const description = index === 0 ? "Leve e equilibrada" : index === 1 ? "Mais proteína e energia" : "Sabor caseiro";
+              return (
+                <button key={item.line} type="button" onClick={() => changeLine(index)} aria-pressed={lineIndex === index} className={`touch-manipulation relative z-10 w-[78%] min-w-0 shrink-0 snap-start overflow-hidden rounded-2xl border text-left transition sm:w-auto sm:shrink ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10 ring-1 ring-[#a7b86a]/35" : "border-white/10 bg-white/[.025]"}`}>
+                  <div className="relative h-32 overflow-hidden bg-[#171a14] sm:h-36">
+                    <img src={image} alt={`Marmitas da linha ${item.line.toLowerCase()}`} loading="lazy" className="h-full w-full object-cover" />
+                    <span className={`absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[10px] font-black tracking-wider ${index === 2 ? "bg-[#ef7d18] text-black" : "bg-[#a7b86a] text-black"}`}>{item.line}</span>
+                    {lineIndex === index && <span className="absolute right-2.5 top-2.5 grid h-7 w-7 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={15} strokeWidth={3}/></span>}
+                  </div>
+                  <div className="p-3.5 sm:p-4">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-xl font-black text-white">{item.weight}</span>
+                      <span className="text-[10px] font-semibold text-white/45">por unidade*</span>
+                    </div>
+                    <p className="mt-1 text-xs text-white/60">{description}</p>
+                    <div className="mt-3 text-sm font-black text-[#ef7d18]">A partir de {item.prices[5]}</div>
+                    <div className="mt-2 text-[10px] font-bold text-[#a7b86a]">{lineIndex === index ? "Linha selecionada ✓" : "Toque para selecionar →"}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
+          <p className="mt-1 text-[10px] leading-4 text-white/35 sm:hidden">Deslize para o lado para ver as três linhas.</p>
 
           <div className="mt-5">
             <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
