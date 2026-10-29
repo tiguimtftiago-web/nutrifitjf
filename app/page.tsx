@@ -72,14 +72,14 @@ type Product = {
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
 
 const fit: Product[] = [
-  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído acompanhado de abóbora cremosa."],
-  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia e bem preparada."],
-  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído acompanhado de legumes preparados na manteiga."],
-  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado acompanhado de mix de legumes, em uma refeição equilibrada e saborosa."],
-  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada acompanhada de legumes."],
-  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas acompanhado de legumes selecionados."],
-  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado acompanhado de legumes assados."],
-  ["Tilápia Fit com Arroz Branco e Legumes","FIT","350 g","R$ 27,90","Tilápia grelhada acompanhada de arroz branco, brócolis, couve-flor e cenoura."],
+  ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído temperado com abóbora cremosa. Legume informado no prato: abóbora."],
+  ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia. Acompanhamento vegetal informado: batata-doce."],
+  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído com legumes preparados na manteiga. A composição exata dos legumes precisa ser confirmada com a cozinha Nutrifit."],
+  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado com mix de legumes. Os vegetais específicos do mix devem ser confirmados com a cozinha Nutrifit antes de informar a lista definitiva."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada com legumes. A lista exata dos vegetais deste prato precisa ser confirmada com a cozinha Nutrifit."],
+  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas com legumes selecionados. A composição exata dos vegetais precisa ser confirmada com a cozinha Nutrifit."],
+  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado com legumes assados. Os vegetais específicos deste acompanhamento precisam ser confirmados com a cozinha Nutrifit."],
+  ["Tilápia Fit com Arroz Branco e Legumes","FIT","350 g","R$ 27,90","Tilápia grelhada com arroz branco e os seguintes legumes: brócolis, couve-flor e cenoura."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
   image: ["/images/page-4.jpg","/images/page-9.jpg","/images/page-10.jpg","/images/page-6.jpg","/images/page-5.jpg","/images/page-7.jpg","/images/page-8.jpg","/images/tilapia-fit-350-web.jpg"][i],
@@ -98,13 +98,13 @@ const fitComingSoon: Product[] = [
 fit.push(...fitComingSoon);
 
 const performance: Product[] = [
-  ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, molho de tomate artesanal, queijo parmesão, arroz integral e legumes."],
-  ["Tilápia Power","PERFORMANCE","450 g","R$ 32,90","Tilápia grelhada, arroz integral, batata-doce assada e legumes."],
-  ["Beef & Sweet Potato","PERFORMANCE","450 g","R$ 29,90","Carne bovina grelhada, batata-doce assada e arroz branco."],
-  ["Chicken Sweet Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, batata-doce assada e arroz branco."],
-  ["Chicken Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, purê de batata inglesa, brócolis, cenoura e couve-flor."],
-  ["Patinho Strong","PERFORMANCE","450 g","R$ 29,90","Patinho moído temperado, purê de abóbora e arroz branco."],
-  ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado, arroz branco e legumes salteados."],
+  ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com molho de tomate artesanal e parmesão, acompanhado de arroz integral e legumes. A lista exata dos legumes precisa ser confirmada com a cozinha."],
+  ["Tilápia Power","PERFORMANCE","450 g","R$ 32,90","Tilápia grelhada com arroz integral, batata-doce assada e legumes. Os vegetais específicos do mix precisam ser confirmados com a cozinha."],
+  ["Beef & Sweet Potato","PERFORMANCE","450 g","R$ 29,90","Carne bovina grelhada com batata-doce assada e arroz branco. Este prato não informa outros legumes na descrição atual."],
+  ["Chicken Sweet Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com batata-doce assada e arroz branco. Este prato não informa outros legumes na descrição atual."],
+  ["Chicken Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com purê de batata inglesa e três legumes identificados: brócolis, cenoura e couve-flor."],
+  ["Patinho Strong","PERFORMANCE","450 g","R$ 29,90","Patinho moído temperado com purê de abóbora e arroz branco. Legume informado no prato: abóbora."],
+  ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com arroz branco e legumes salteados. A composição exata dos vegetais precisa ser confirmada com a cozinha."],
   ["Beef Pasta","PERFORMANCE","450 g","R$ 29,90","Patinho em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[12,13,14,15,16,17,18,19][i]}.jpg`}));
 
@@ -119,16 +119,16 @@ const salads: Product[] = [
 
 const traditional: Product[] = [
   ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
-  ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado."],
+  ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado. A descrição atual não informa outros legumes."],
   ["Feijoada","TRADICIONAL","500 g","R$ 26,90","Feijão cremoso, calabresa, lombo suíno, arroz branco, couve e farofa crocante."],
-  ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga."],
+  ["Frango Cremoso","TRADICIONAL","500 g","R$ 26,90","Frango em molho cremoso especial, arroz branco soltinho e legumes na manteiga. A lista exata dos vegetais precisa ser confirmada com a cozinha."],
   ["Churrasco Mineiro","TRADICIONAL","500 g","R$ 29,90","Contra-filé grelhado, vinagrete fresco, arroz branco soltinho e farofa caseira."],
   ["Strogonoff Leve","TRADICIONAL","500 g","R$ 26,90","Arroz branco, strogonoff leve de frango, brócolis e batata palha."],
   ["Executivo Saudável","TRADICIONAL","500 g","R$ 26,90","Lombo suíno grelhado, macarrão alho e óleo, molho cremoso leve e brócolis."],
-  ["Carne de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco."],
-  ["Cupim com Mandioca","TRADICIONAL","500 g","R$ 29,90","Cupim macio ao molho, mandioca e arroz com brócolis."],
+  ["Carne de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco. Legumes identificados: batata e cenoura."],
+  ["Cupim com Mandioca","TRADICIONAL","500 g","R$ 29,90","Cupim macio ao molho, mandioca e arroz com brócolis. Vegetais identificados: mandioca e brócolis."],
   ["Panqueca de Frango ao Molho de Tomate","TRADICIONAL","500 g","R$ 27,00","Panquecas recheadas com frango desfiado, molho de tomate artesanal e ervas."],
-  ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel, acompanhada de arroz primavera."]
+  ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel e arroz primavera. Os legumes que compõem o arroz precisam ser confirmados com a cozinha."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:[
   "/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg","/images/page-31.jpg","/images/page-32.jpg","/images/page-33.jpg","/images/page-34.jpg",
   "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(1).jpeg?v=4",
