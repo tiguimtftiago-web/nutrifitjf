@@ -3380,7 +3380,7 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div>
+                        <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div><div className="mt-1 text-[11px] leading-5 text-white/40">Taxas por região: Zona 1 R$ 5 • Zona 2 R$ 7 • Zona 3 R$ 10 • Zona 4 R$ 13. Frete grátis a partir de 20 itens.</div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#a7b86a]" />
                     </div>
