@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 import "./globals.css";
+import ThemeToggle from "./components/ThemeToggle";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
 
@@ -124,6 +125,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
+        <ThemeToggle />
         {children}
         <script
           type="application/ld+json"
