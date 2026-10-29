@@ -651,7 +651,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         <span className="min-w-0 flex-1">
           <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal</span>
           <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span>
+          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#cbd99a]">Plano com 30 ou 60 refeições, preço por unidade já indicado. Consulte a economia comparando com a compra avulsa.</span>
         </span>
         <span className="shrink-0 text-right">
           <span className="block text-lg font-black text-[#ef7d18]">{money(totalPrice)}</span>
@@ -3693,7 +3693,7 @@ export default function Home() {
             <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
             <p className="font-semibold text-white/75">CNPJ: 64.776.469/0001-08</p>
             <p>Juiz de Fora/MG</p>
-            <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-2"><a href="/privacidade" className="hover:text-white">Política de Privacidade</a><a href="/privacidade" className="hover:text-white">Termos de Uso</a></div>
+            <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-2"><a href="/privacidade" className="hover:text-white">Política de Privacidade</a><a href="/termos" className="hover:text-white">Termos de Uso</a></div>
             <p className="mt-3">Escolha sua linha • monte seu pedido • receba com praticidade.</p>
           </div>
         </div>
