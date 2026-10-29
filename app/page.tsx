@@ -3202,44 +3202,6 @@ export default function Home() {
                 <ComboBuilder initialLine={comboLineIndex} />
               </div>
 
-              <div className="mt-8 rounded-[2rem] border border-[#a7b86a]/20 bg-[#171d10] p-5 md:p-7">
-                <div className="mb-5 flex flex-col justify-between gap-2 md:flex-row md:items-end">
-                  <div>
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Todos os tamanhos</div>
-                    <h3 className="mt-1 text-2xl font-black">Combos por linha</h3>
-                  </div>
-                  <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
-                </div>
-                <div className="space-y-6">
-                  {(["Fit 350 g", "Performance 450 g", "Tradicional 500 g"] as const).map((line) => {
-                    const lineCombos = combos.filter((combo) => combo[0] === line);
-                    if (!lineCombos.length) return null;
-                    return (
-                      <div key={line}>
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <h4 className="text-sm font-black text-white">{line}</h4>
-                          <span className="shrink-0 text-[10px] font-semibold text-white/40">Deslize para ver opções <span aria-hidden="true">→</span></span>
-                        </div>
-                        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-1 pb-3 [scrollbar-width:thin] [scrollbar-color:#a7b86a_transparent]">
-                          {lineCombos.map(([comboLine, quantity, price, average]) => (
-                            <a key={comboLine + quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${comboLine} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${comboLine}-${quantity}`)} className="w-[76vw] max-w-[260px] shrink-0 snap-start rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-[#a7b86a]/40 sm:w-[220px] sm:max-w-none sm:p-5">
-                              <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{comboLine}</div>
-                              <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
-                              <div className="mt-1 text-2xl font-black">{price}</div>
-                              <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
-                              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-3 py-2 text-xs font-black text-black">Escolher combo <span aria-hidden="true">→</span></div>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                {[[`Combos dentro da linha`,`Misture sabores sem sair da mesma linha.`],[`Praticidade`,`Organize várias refeições de uma vez.`],[`Atendimento direto`,`Faça seu pedido pelo WhatsApp.`]].map(([title,text]) => <div key={title} className="flex gap-3 rounded-2xl border border-white/10 p-5"><Check className="mt-0.5 shrink-0 text-[#a7b86a]" size={19} /><div><div className="font-black">{title}</div><div className="mt-1 text-sm text-white/45">{text}</div></div></div>)}
-              </div>
             </>
           )}
         </div>
