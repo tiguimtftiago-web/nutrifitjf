@@ -2885,6 +2885,33 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="montar-sua-marmita-destaque" className="border-y border-[#a7b86a]/20 bg-[#0b0e09]">
+        <div className="mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-10 md:px-8">
+          <div className="relative isolate overflow-hidden rounded-[1.75rem] border border-[#a7b86a]/35 bg-gradient-to-br from-[#1a2111] via-[#11150d] to-[#090b08] shadow-[0_18px_60px_rgba(0,0,0,.3)]">
+            <div className="absolute -right-12 -top-16 -z-10 h-56 w-56 rounded-full bg-[#ef7d18]/10 blur-3xl" aria-hidden="true" />
+            <div className="grid md:grid-cols-[1fr_.8fr] md:items-center">
+              <div className="p-5 sm:p-8 md:p-10">
+                <span className="inline-flex items-center gap-2 rounded-full border border-[#ef7d18]/35 bg-[#ef7d18]/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.18em] text-[#ff9a4b]"><ChefHat size={14} /> Você escolhe, a Nutrifit prepara</span>
+                <h2 className="mt-4 max-w-xl text-3xl font-black leading-tight tracking-tight sm:text-4xl md:text-5xl">Monte sua <span className="text-[#a7b86a]">marmita</span></h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-white/65 sm:text-base sm:leading-7">Escolha a proteína, o carboidrato e os legumes. Personalize as quantidades e acompanhe o peso da sua combinação.</p>
+                <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-bold text-white/65 sm:text-xs">
+                  <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">Proteína à sua escolha</span>
+                  <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">Acompanhamentos personalizados</span>
+                  <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-2">Gramatura acompanhada em tempo real</span>
+                </div>
+                <a href="/montar-refeicao" onClick={() => trackClick("custom_meal_builder_open", "homepage_feature_card")} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3.5 text-sm font-black text-black transition hover:brightness-110 active:scale-[.99] sm:w-auto sm:min-w-64">MONTAR MINHA MARMITA <ArrowRight size={17} /></a>
+                <p className="mt-3 text-[10px] leading-4 text-white/35">Personalização em fase de teste. O pedido final será confirmado após validação das regras de preço.</p>
+              </div>
+              <div className="relative min-h-56 overflow-hidden md:min-h-[370px]">
+                <img src="/images/page-4.jpg" alt="Marmita Nutrifit com frango e acompanhamentos" className="absolute inset-0 h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090b08]/80 via-transparent to-[#090b08]/10 md:bg-gradient-to-r md:from-[#11150d] md:via-[#11150d]/15 md:to-transparent" aria-hidden="true" />
+                <div className="absolute bottom-4 left-4 rounded-2xl border border-white/15 bg-black/65 px-4 py-3 backdrop-blur-sm sm:bottom-6 sm:left-6"><p className="text-[10px] font-black uppercase tracking-[.15em] text-[#c7d69a]">Linha FIT</p><p className="mt-1 text-lg font-black text-white">Base de 350 g</p><p className="text-xs text-white/60">Preço-base: R$ 23,97</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
