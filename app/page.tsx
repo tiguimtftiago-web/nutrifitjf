@@ -3681,11 +3681,17 @@ export default function Home() {
           </div>
           <section className="mt-8 border-t border-white/10 pt-6">
             <h2 className="flex items-center gap-3 text-lg font-black"><span className="text-2xl text-[#a7b86a]">▤</span> Formas de pagamento</h2>
-            <p className="mt-4 text-sm leading-6 text-white/50">As formas de pagamento disponíveis serão apresentadas ou confirmadas no fechamento do pedido.</p>
+            <div className="mt-5 flex flex-wrap items-center gap-3" aria-label="Formas de pagamento aceitas">
+              <span className="inline-flex h-12 min-w-[76px] items-center justify-center rounded-md bg-white px-4 text-xl font-black italic text-[#1434cb]">VISA</span>
+              <span className="inline-flex h-12 min-w-[104px] items-center justify-center gap-1 rounded-md bg-white px-3 text-xs font-black text-gray-800"><span className="h-5 w-5 rounded-full bg-[#eb001b]"></span><span class="-ml-2 h-5 w-5 rounded-full bg-[#f79e1b]/90"></span><span className="ml-1">mastercard</span></span>
+              <span className="inline-flex h-12 min-w-[76px] flex-col items-center justify-center rounded-md border border-white/20 bg-white px-3 text-[#111827]"><span className="text-[10px] font-black">PIX</span><span className="text-[8px]">instantâneo</span></span>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-white/50">Link de pagamento: consulte a disponibilidade pelo WhatsApp.</p>
           </section>
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/40">
             <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
-            <p>Nutrifit • Juiz de Fora/MG</p>
+            <p>CNPJ: 64.776.469/0001-08</p>
+            <p>Juiz de Fora/MG</p>
             <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
               <a href="/privacidade" className="hover:text-white">Política de Privacidade</a>
               <a href="/termos" className="hover:text-white">Termos de Uso</a>
