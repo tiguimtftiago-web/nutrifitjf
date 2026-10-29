@@ -1941,7 +1941,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] text-[#ef7d18] sm:text-lg">{product.name}</h3>
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
-        <p className="mt-1 min-h-[2.15rem] text-[10px] leading-[1.05rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <p className="mt-1 text-[11px] leading-5 text-white/75 sm:text-sm sm:leading-6">{product.description}</p>
                         <details className="mt-2 overflow-hidden rounded-xl border border-[#ef7d18]/30 text-left">
                           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#ef7d18] px-3 py-2.5 text-[11px] font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={16} className="shrink-0" /></summary>
                           <div className="bg-[#0d100c] p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
