@@ -2303,6 +2303,21 @@ export default function Home() {
     });
     setOrderOpen(true);
   };
+  const addComplementToOrder = (product: ComplementOption) => {
+    if (product.price === null) return;
+    const weight = product.name.includes("300 ml") ? "300 ml" : product.name.includes("500 ml") ? "500 ml" : product.category === "SANDUÍCHES" ? "1 un" : "porção";
+    setOrderItems((current) => {
+      const found = current.find((item) => item.name === product.name);
+      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...current, { name: product.name, line: product.category, weight, price: product.price as number, quantity: 1 }];
+    });
+    setOrderOpen(true);
+  };
+  const cartSuggestions = [
+    ...comboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
+    ...comboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
+    ...comboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
+  ].filter((item) => item.price !== null && !orderItems.some((ordered) => ordered.name === item.name));
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
   const shareVisualOrder = async () => {
@@ -3296,7 +3311,7 @@ export default function Home() {
       {orderOpen && (
         <div className="fixed inset-0 z-[100]">
           <button type="button" aria-label="Fechar carrinho" onClick={() => setOrderOpen(false)} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
-          <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
+          <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-[100dvh] w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-[#0b0e09]/95 px-4 py-3 backdrop-blur sm:px-7 sm:py-4">
               <div className="min-w-0">
                 <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Seu pedido</div>
@@ -3328,27 +3343,74 @@ export default function Home() {
                 <>
                   <div className="space-y-3">
                     {orderItems.map((item) => (
-                      <article key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="min-w-0">
-                            <h3 className="break-words font-black leading-tight">{item.name}</h3>
-                            <div className="mt-1 text-xs text-white/40">{item.line} • {item.weight} • {money(item.price)} cada</div>
+                      <article key={item.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3.5 sm:p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="grid h-[76px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-2xl">
+                            {(() => {
+                              const image = [...fit, ...performance, ...salads, ...traditional].find((product) => product.name === item.name)?.image || comboComplements.find((product) => product.name === item.name)?.image;
+                              return image ? <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{item.line === "SUCOS" ? "🥤" : item.line === "SANDUÍCHES" ? "🥪" : item.line === "FRUTAS" ? "🍓" : "🍱"}</span>;
+                            })()}
                           </div>
-                          <button type="button" onClick={() => removeOrderItem(item.name)} aria-label={`Remover ${item.name} do carrinho`} title="Remover do carrinho" className="shrink-0 rounded-full p-2 text-white/40 hover:bg-white/5 hover:text-white">
-                            <X size={16} />
-                          </button>
-                        </div>
-                        <div className="mt-4 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} title="Diminuir quantidade" className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={15} /></button>
-                            <span className="w-8 text-center font-black">{item.quantity}</span>
-                            <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} title="Aumentar quantidade" className="grid h-10 w-10 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <h3 className="break-words font-black leading-tight">{item.name}</h3>
+                                <div className="mt-1 text-xs text-white/40">{item.line} • {item.weight} • {money(item.price)} cada</div>
+                              </div>
+                              <button type="button" onClick={() => removeOrderItem(item.name)} aria-label={`Remover ${item.name} do carrinho`} title="Remover do carrinho" className="shrink-0 rounded-full p-2 text-white/40 hover:bg-white/5 hover:text-white">
+                                <X size={16} />
+                              </button>
+                            </div>
+                            <div className="mt-3 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} title="Diminuir quantidade" className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>
+                                <span className="w-6 text-center font-black">{item.quantity}</span>
+                                <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} title="Aumentar quantidade" className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={14} /></button>
+                              </div>
+                              <div className="text-base font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div>
+                            </div>
                           </div>
-                          <div className="text-lg font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div>
                         </div>
                       </article>
                     ))}
                   </div>
+
+                  {cartSuggestions.length > 0 && (
+                    <section className="mt-6" aria-label="Sugestões para completar o pedido">
+                      <div className="mb-3">
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Aproveite e adicione</div>
+                        <h3 className="mt-1 text-lg font-black">Complete seu pedido</h3>
+                        <p className="mt-1 text-xs leading-5 text-white/45">Sucos, sanduíches e frutas para acompanhar suas marmitas.</p>
+                      </div>
+                      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-7 sm:px-7">
+                        {cartSuggestions.map((suggestion) => (
+                          <article key={suggestion.name} className="w-[154px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[.035]">
+                            <div className="grid h-24 place-items-center overflow-hidden bg-white/5 text-3xl">
+                              {suggestion.image ? <img src={suggestion.image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{suggestion.emoji}</span>}
+                            </div>
+                            <div className="p-3">
+                              <h4 className="line-clamp-2 min-h-10 text-xs font-bold leading-5">{suggestion.name}</h4>
+                              <div className="mt-1 text-sm font-black text-[#a7b86a]">{money(suggestion.price as number)}</div>
+                              <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
+                                <Plus size={14} /> Adicionar
+                              </button>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  <section className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.055] p-4" aria-label="Progresso para frete grátis">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 text-sm font-black"><Truck size={18} className="text-[#a7b86a]" /> Frete grátis</div>
+                      <span className="text-xs font-black text-[#a7b86a]">{Math.min(100, Math.round((orderCount / DELIVERY_FREE_FROM) * 100))}%</span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div className="h-full rounded-full bg-[#a7b86a] transition-all duration-300" style={{ width: Math.min(100, (orderCount / DELIVERY_FREE_FROM) * 100) + "%" }} />
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-white/55">{orderFreeDelivery ? "Frete grátis aplicado automaticamente ao atingir 20 itens." : `Faltam ${DELIVERY_FREE_FROM - orderCount} ${DELIVERY_FREE_FROM - orderCount === 1 ? "item" : "itens"} para atingir o frete grátis.`}</p>
+                  </section>
 
                   <div className="mt-6 grid gap-3">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seus dados</div>
@@ -3434,15 +3496,20 @@ export default function Home() {
             </div>
 
             {orderItems.length > 0 && (
-              <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/98 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur sm:p-7">
-                <div className="grid grid-cols-2 gap-2 text-base sm:text-sm">
-                  <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
-                  <span className="text-white/45">{discountLabel}</span><strong className="text-right text-[#a7b86a]">-{money(orderDiscount)}</strong>
-                  <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
-                  <span className="border-t border-white/10 pt-2 font-black">Total</span><strong className="border-t border-white/10 pt-2 text-right text-xl text-[#ef7d18]">{money(orderGrandTotal)}</strong>
+              <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/[.98] px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,.35)] backdrop-blur sm:px-7 sm:pt-5 sm:pb-7">
+                <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-xs">
+                  <span className="text-white/55">{orderDiscount > 0 ? (couponDiscount > 0 ? "Cupom aplicado" : "Desconto Nutrifit") : "Descontos"}</span>
+                  <strong className={orderDiscount > 0 ? "text-[#a7b86a]" : "text-white/65"}>{orderDiscount > 0 ? "-" + money(orderDiscount) : appliedCoupon ? "Verifique o mínimo do cupom" : "Nenhum desconto aplicado"}</strong>
                 </div>
-                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-[#ef7d18]/50 bg-[#ef7d18]/10 px-5 py-3 font-bold text-[#ffd0a4] transition hover:bg-[#ef7d18]/20 disabled:opacity-30"><ShoppingBag size={17} /> Compartilhar resumo visual</button>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-3 flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-4 sm:py-4">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                  <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
+                  <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+                  <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#a7b86a] sm:text-3xl">{money(orderGrandTotal)}</strong>
+                </div>
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#ef7d18]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
+                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
                 {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
