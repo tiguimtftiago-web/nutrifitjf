@@ -3700,6 +3700,43 @@ export default function Home() {
 
       <footer className="border-t border-white/10 bg-[#171719] text-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <section className="mb-8" aria-labelledby="nutrifit-categories-heading">
+            <h2 id="nutrifit-categories-heading" className="mb-4 text-lg font-black sm:text-xl">Explore nosso cardápio</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              <a href="#cardapio" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png" alt="Marmita Fit de 350 g" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Fit 350 g</span>
+              </a>
+              <a href="#performance" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/strogonoff-frango-fit.webp" alt="Marmita da linha Performance" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Performance</span>
+              </a>
+              <a href="#tradicional" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/pernil-acebolado-batata-real.jpg" alt="Marmita tradicional" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Tradicional</span>
+              </a>
+              <a href="#saladas" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/nutrifit-pote-salada.svg" alt="Salada fresca no pote" loading="lazy" className="h-24 w-full bg-white/[.03] object-contain p-2 transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Saladas</span>
+              </a>
+              <a href="#sucos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/frutas-picadas-nutrifit.jpg" alt="Frutas frescas para acompanhar sucos" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Sucos e frutas</span>
+              </a>
+              <a href="#sucos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Sanduíche natural de frango" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Sanduíches</span>
+              </a>
+              <a href="#combos" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/combo-fit.svg" alt="Combo de marmitas Fit" loading="lazy" className="h-24 w-full bg-white/[.03] object-contain p-2 transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Combos</span>
+              </a>
+              <a href="#b2b" className="group overflow-hidden rounded-xl border border-white/10 bg-white/[.04] transition hover:border-[#a7b86a]/60">
+                <img src="/images/b2b-hero.webp" alt="Refeições Nutrifit para empresas" loading="lazy" className="h-24 w-full object-cover transition group-hover:scale-[1.02] sm:h-28"/>
+                <span className="block px-3 py-2.5 text-sm font-bold">Para empresas</span>
+              </a>
+            </div>
+          </section>
           <div className="grid gap-7 md:grid-cols-[1.15fr_.85fr] md:gap-12">
             <div>
               <a href="#" className="inline-flex items-center gap-3" aria-label="Nutrifit - início">
@@ -3754,7 +3791,7 @@ export default function Home() {
           </section>
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/55">
             <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
-            <p>CNPJ: 64.776.469/0001-08</p>
+            <p className="font-semibold text-white/75">CNPJ: 64.776.469/0001-08</p>
             <p>Juiz de Fora/MG</p>
             <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-2"><a href="/privacidade" className="hover:text-white">Política de Privacidade</a><a href="/privacidade" className="hover:text-white">Termos de Uso</a></div>
             <p className="mt-3">Escolha sua linha • monte seu pedido • receba com praticidade.</p>
