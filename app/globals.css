@@ -6,6 +6,35 @@ body { margin: 0; width: 100%; max-width: 100%; overflow-x: hidden; background: 
 * { box-sizing: border-box; }
 main { width: 100%; max-width: 100vw; overflow-x: clip; }
 
+/* Legibilidade global: reforça textos secundários nos dois temas sem alterar a paleta da marca. */
+body { font-weight: 500; }
+p, li, label, input, textarea, select, summary { font-weight: 500; }
+small, figcaption { font-weight: 500; }
+
+/* No tema escuro, textos auxiliares com opacidade muito baixa ficam mais claros. */
+html:not([data-theme="light"]) [class*="text-white/25"],
+html:not([data-theme="light"]) [class*="text-white/30"],
+html:not([data-theme="light"]) [class*="text-white/35"],
+html:not([data-theme="light"]) [class*="text-white/40"] { color: #b9bbb4 !important; }
+html:not([data-theme="light"]) [class*="text-white/45"],
+html:not([data-theme="light"]) [class*="text-white/50"] { color: #c9cbc5 !important; }
+html:not([data-theme="light"]) [class*="text-white/55"],
+html:not([data-theme="light"]) [class*="text-white/60"] { color: #d7d9d2 !important; }
+
+/* Tema claro: textos legíveis e com peso suficiente, inclusive em elementos secundários. */
+html[data-theme="light"] body { font-weight: 500; }
+html[data-theme="light"] p,
+html[data-theme="light"] li,
+html[data-theme="light"] label,
+html[data-theme="light"] small,
+html[data-theme="light"] figcaption,
+html[data-theme="light"] summary { font-weight: 500; }
+html[data-theme="light"] [class*="text-gray-"],
+html[data-theme="light"] [class*="text-zinc-"],
+html[data-theme="light"] [class*="text-neutral-"] { color: #343a2e !important; }
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder { color: #555d4d !important; opacity: 1; }
+
 /* Acabamento global */
 ::selection { background: #a7b86a; color: #080a07; }
 a, button { -webkit-tap-highlight-color: transparent; }
