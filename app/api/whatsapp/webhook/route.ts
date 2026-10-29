@@ -162,8 +162,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 });
   }
 
-  // Acknowledge valid webhooks without sending anything until the bot is explicitly enabled.
-  if (process.env.WHATSAPP_BOT_ENABLED !== "true") {
+  // Hard gate: this first implementation may send messages only from Vercel Preview.
+  // Acknowledge valid webhooks but do not send anything in production or while disabled.
+  if (process.env.VERCEL_ENV !== "preview" || process.env.WHATSAPP_BOT_ENABLED !== "true") {
     return NextResponse.json({ received: true, botEnabled: false });
   }
 
