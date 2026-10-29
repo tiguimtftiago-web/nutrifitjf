@@ -3219,6 +3219,9 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-white/50 sm:mt-6 sm:text-sm sm:leading-6">
+            Procurando <a href="/marmitas-fit-juiz-de-fora" className="font-bold text-[#d8e7a0] underline decoration-[#a7b86a]/50 underline-offset-4 transition hover:text-white">marmitas fitness em Juiz de Fora</a>? Conheça as linhas da Nutrifit, compare os tamanhos e confira as opções disponíveis antes de montar seu pedido.
+          </p>
         </div>
       </section>
 
@@ -3619,6 +3622,7 @@ export default function Home() {
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
               <a href="#entrega" className="transition hover:text-white">Entrega</a>
               <a href="#faq" className="transition hover:text-white">Dúvidas</a>
+              <a href="/marmitas-fit-juiz-de-fora" className="transition hover:text-white">Marmitas fitness em Juiz de Fora</a>
               <a href="#b2b" className="transition hover:text-white">Para empresas</a>
               <a href="/privacidade" className="transition hover:text-white">Política de Privacidade</a>
             </nav>
