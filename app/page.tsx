@@ -1946,16 +1946,17 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                         </details>
                         {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (() => {
                           const n = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : saladsNutrition[product.name];
-                          if (!n) return null;
                           return (
                             <details className="mt-2 overflow-hidden rounded-xl border border-[#a7b86a]/30 bg-[#080a07]/95 text-left">
                               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#a7b86a] px-3 py-2.5 text-[11px] font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>VER TABELA NUTRICIONAL</span><ChevronDown size={16} className="shrink-0" /></summary>
                               <div className="p-2.5 text-[11px] text-white/80">
-                                <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
-                                {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
-                                <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">{product.line === "SALADAS" ? "Distribuição calórica" : "Distribuição calórica estimada"}</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p></div>
-                                <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>
-                                <p className="mt-2 text-[10px] leading-relaxed text-white/55">{product.line === "SALADAS" ? "Tabela nutricional para a porção de 350 g. Confirme os ingredientes, molhos e alérgenos conforme a ficha técnica." : `Valores estimados por marmita de ${product.weight || (product.line === "FIT" ? "350 g" : "450 g")}; confirme a composição real e os alérgenos na ficha técnica.`}</p>
+                                {n ? <>
+                                  <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
+                                  {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
+                                  <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">{product.line === "SALADAS" ? "Distribuição calórica" : "Distribuição calórica estimada"}</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p></div>
+                                  <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>
+                                  <p className="mt-2 text-[10px] leading-relaxed text-white/55">{product.line === "SALADAS" ? "Tabela nutricional para a porção de 350 g. Confirme os ingredientes, molhos e alérgenos conforme a ficha técnica." : `Valores estimados por marmita de ${product.weight || (product.line === "FIT" ? "350 g" : "450 g")}; confirme a composição real e os alérgenos na ficha técnica.`}</p>
+                                </> : <p className="rounded-lg bg-white/[.04] p-3 text-[11px] leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para não divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
                               </div>
                             </details>
                           );
