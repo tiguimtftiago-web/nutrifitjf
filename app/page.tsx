@@ -3666,7 +3666,21 @@ export default function Home() {
               </details>
               <div className="rounded-xl border border-white/10 px-4 py-4">
                 <h3 className="font-black">Formas de pagamento</h3>
-                <div className="mt-3 flex items-center gap-3 text-sm text-white/70"><span className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-[#a7b86a] font-black">PIX</span><span>Consulte as opções disponíveis com a equipe antes de finalizar o pedido.</span></div>
+                <div className="mt-3 grid gap-4">
+                  <div>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-white/55">Transferência instantânea</p>
+                    <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-black text-white"><span className="grid h-7 w-7 place-items-center rounded-md bg-[#a7b86a] text-black">✳</span> Pix</div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-white/55">Débito e crédito</p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex h-10 min-w-[76px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 text-sm font-black italic text-[#1a1f71]" aria-label="Visa">VISA</span>
+                      <span className="inline-flex h-10 min-w-[76px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 text-sm font-black text-[#1765a8]" aria-label="Elo">elo</span>
+                      <span className="inline-flex h-10 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-2 text-xs font-black text-[#202020]" aria-label="Mastercard"><span className="mr-1 inline-block h-4 w-4 rounded-full bg-[#eb001b]"></span><span className="-ml-2 inline-block h-4 w-4 rounded-full bg-[#f79e1b]/90"></span><span className="ml-1">mastercard</span></span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-white/50">Aceitamos cartões de débito e crédito das bandeiras indicadas.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
