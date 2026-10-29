@@ -68,7 +68,7 @@ const ingredients: Record<Group, Ingredient[]> = {
 };;
 
 const basePrice = 23.97;
-const initial = { protein: { id: "frango", grams: 150 }, carb: { id: "arroz-integral", grams: 120 }, vegetable: { id: "brocolis", grams: 80 } };
+const initial = { protein: { id: "frango-peito", grams: 150 }, carb: { id: "arroz-integral", grams: 120 }, vegetable: { id: "brocolis", grams: 80 } };
 const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function MontarRefeicaoPage() {
