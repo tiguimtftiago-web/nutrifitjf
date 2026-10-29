@@ -5,6 +5,11 @@ import "./globals.css";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
 
+// OpenPanel remains disabled until explicitly enabled for a preview deployment.
+const openPanelClientId = process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID;
+const openPanelEnabled =
+  process.env.NEXT_PUBLIC_OPENPANEL_ENABLED === "true" && Boolean(openPanelClientId);
+
 export const metadata: Metadata = {
   title: "Nutrifit | Marmitas Fit em Juiz de Fora",
   applicationName: "Nutrifit",
@@ -140,6 +145,23 @@ export default function RootLayout({
           gtag('config', 'G-40YWBD3WXW');`
           }
         </Script>
+        {openPanelEnabled && openPanelClientId && (
+          <>
+            <Script id="openpanel-init" strategy="afterInteractive">
+              {`window.op=window.op||function(){var n=[];return new Proxy(function(){arguments.length&&n.push([].slice.call(arguments))},{get:function(t,r){return "q"===r?n:function(){n.push([r].concat([].slice.call(arguments)))}} ,has:function(t,r){return "q"===r}})}();
+              window.op('init', {
+                clientId: ${JSON.stringify(openPanelClientId)},
+                trackScreenViews: true,
+                trackOutgoingLinks: true,
+                trackAttributes: false
+              });`}
+            </Script>
+            <Script
+              src="https://openpanel.dev/op1.js"
+              strategy="afterInteractive"
+            />
+          </>
+        )}
         <Analytics />
       </body>
     </html>
