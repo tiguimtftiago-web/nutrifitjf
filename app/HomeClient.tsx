@@ -651,7 +651,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
         <span className="min-w-0 flex-1">
           <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal</span>
           <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#cbd99a]">Plano com 30 ou 60 refeições, preço por unidade já indicado. Consulte a economia comparando com a compra avulsa.</span>
+          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#cbd99a]">Pacote de 30 ou 60 refeições. O preço total e o valor por unidade ficam visíveis antes de adicionar ao pedido; não é uma cobrança recorrente automática.</span>
         </span>
         <span className="shrink-0 text-right">
           <span className="block text-lg font-black text-[#ef7d18]">{money(totalPrice)}</span>
