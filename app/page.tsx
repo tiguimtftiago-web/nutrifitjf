@@ -2619,7 +2619,7 @@ export default function Home() {
       setProfileEmail(saved.email || "");
       setProfileBirthDate(saved.birthDate || "");
       setProfileMarketing(Boolean(saved.marketing));
-      setClubDiscount(saved.couponUsed === false ? 5 : 0);
+      setClubDiscount(saved.couponUsed === false ? 10 : 0);
     } catch {}
     setProfileStatus("idle");
     setProfileOpen(true);
@@ -2742,7 +2742,7 @@ export default function Home() {
           nutrifitClub: true,
           couponUsed: false,
         }));
-        setClubDiscount(wasClubMember ? 0 : 5);
+        setClubDiscount(wasClubMember ? 0 : 10);
         setCustomerName(name);
         setCustomerPhone(phone);
 
@@ -2780,7 +2780,7 @@ export default function Home() {
         nutrifitClub: true,
         couponUsed: false,
       }));
-      setClubDiscount(5);
+      setClubDiscount(10);
       setCustomerName(name);
       setCustomerPhone(phone);
 
@@ -2950,8 +2950,8 @@ export default function Home() {
 
       <section aria-label="Benefício de cadastro" className="border-b border-[#ef7d18]/20 bg-[#15120d]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left md:px-8">
-          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Imagine ter suas refeições da semana já resolvidas. 💚</div><div className="text-[11px] text-white/45">Gostosas. Práticas. Do seu jeito. Você escolhe. A Nutrifit prepara.</div></div>
-          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Descobrir meu benefício <ArrowRight size={15} className="ml-2" /></button>
+          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Ganhe R$ 10 de desconto na sua primeira compra! 💚</div><div className="text-[11px] text-white/45">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</div></div>
+          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
         </div>
       </section>
 
@@ -3510,9 +3510,9 @@ export default function Home() {
             <div className="p-6 sm:p-7">
               <button type="button" onClick={dismissLeadPrompt} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Clube Nutrifit</div>
-              <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Imagine ter suas refeições da semana já resolvidas. 💚</h2>
-              <p className="mt-2 text-sm leading-6 text-white/50">Gostosas. Práticas. Do seu jeito. Você escolhe. A Nutrifit prepara.</p>
-              <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">🎁 Descobrir meu benefício <ArrowRight size={17} /></button>
+              <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 10 de desconto na sua primeira compra! 💚</h2>
+              <p className="mt-2 text-sm leading-6 text-white/50">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</p>
+              <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
               <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
           </section>
@@ -3531,7 +3531,7 @@ export default function Home() {
               <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
             <div className="max-h-[75vh] overflow-y-auto p-5 sm:p-6">
-              <p className="text-sm leading-6 text-white/50">Cadastre seus dados para agilizar seus próximos pedidos e participar do Clube Nutrifit.</p>
+              <p className="text-sm leading-6 text-white/50">Cadastre seus dados para participar do Clube Nutrifit e garantir R$ 10 de desconto na primeira compra.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
                   <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
@@ -3553,7 +3553,7 @@ export default function Home() {
 
               {profileStatus === "exists" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Este WhatsApp já está cadastrado no Clube Nutrifit.</div>}
               {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
-              {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm text-[#d8e7a0]">Cadastro concluído. Seu benefício de boas-vindas foi aplicado.</div>}
+              {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm text-[#d8e7a0]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
 
               <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">
                 {profileStatus === "saving" ? <><Loader2 size={17} className="animate-spin" /> Salvando...</> : "Salvar cadastro"}
