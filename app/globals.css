@@ -53,3 +53,23 @@ main[data-theme="light"] input::placeholder,
 main[data-theme="light"] textarea::placeholder { color: #69715e !important; }
 main[data-theme="light"] [class*="text-[#a7b86a]"] { color: #526b22 !important; }
 main[data-theme="light"] [class*="hover:text-white"]:hover { color: #20251b !important; }
+
+/* O carrossel principal mantém a fotografia e o contraste originais nos dois temas. */
+main[data-theme="light"] #inicio,
+main[data-theme="light"] #inicio > div {
+  background-color: #080a07 !important;
+}
+#inicio > div > div > img {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+#inicio > div > div > a {
+  background-image: linear-gradient(90deg, #000 0%, #000 28%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.22) 76%, transparent 100%);
+}
+main[data-theme="light"] #inicio [class*="text-white/"] {
+  color: rgba(255,255,255,.78) !important;
+}
+main[data-theme="light"] #inicio [class~="text-white"] {
+  color: #ffffff !important;
+}
