@@ -1895,8 +1895,6 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <div className="flex items-end gap-2">
             <div className="min-w-0 flex-1">
               <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
-              <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
-
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
                 <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
@@ -1905,6 +1903,10 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
         </div>
+      </div>
+      <div className="border-t border-white/10 bg-[#10130e] px-3.5 py-3">
+        <p className="text-xs leading-5 text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar os ingredientes deste prato."}</p>
+        <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-[#a7b86a]">Ingredientes e acompanhamentos descritos acima</p>
       </div>
       <details className="border-t border-[#ef7d18]/30 bg-[#0d100c] text-left">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#ef7d18] px-3.5 py-3 text-sm font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
@@ -1939,7 +1941,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] text-[#ef7d18] sm:text-lg">{product.name}</h3>
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
-        <p className="mt-1 min-h-[2.15rem] text-[10px] leading-[1.05rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
+        <p className="mt-1 min-h-[2.15rem] text-[10px] leading-[1.05rem] text-white/45 sm:min-h-[3rem] sm:text-xs sm:leading-5" style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.description}</p>
                         <details className="mt-2 overflow-hidden rounded-xl border border-[#ef7d18]/30 text-left">
                           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#ef7d18] px-3 py-2.5 text-[11px] font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={16} className="shrink-0" /></summary>
                           <div className="bg-[#0d100c] p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
