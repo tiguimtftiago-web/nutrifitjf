@@ -3632,22 +3632,22 @@ export default function Home() {
                 <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("instagram_click", "footer")} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm font-bold text-white/80 transition hover:border-[#a7b86a]"><span aria-hidden="true">◎</span> Instagram</a>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <details className="group rounded-xl border border-white/10 px-4" open>
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-black">Links rápidos <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary>
-                <nav className="grid gap-3 pb-4 text-sm text-white/65">
-                  <a href="#cardapio" className="hover:text-white">Cardápio Fit 350 g</a>
-                  <a href="#performance" className="hover:text-white">Linha Performance</a>
-                  <a href="#saladas" className="hover:text-white">Saladas</a>
-                  <a href="#tradicional" className="hover:text-white">Linha Tradicional</a>
-                  <a href="#sucos" className="hover:text-white">Sucos</a>
-                  <a href="#combos" className="hover:text-white">Combos</a>
-                  <a href="#como-pedir" className="hover:text-white">Como pedir</a>
-                  <a href="#entrega" className="hover:text-white">Entrega</a>
-                  <a href="#faq" className="hover:text-white">Dúvidas frequentes</a>
-                  <a href="#b2b" className="hover:text-white">Nutrifit para empresas</a>
+            <div className="grid content-start gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/10 p-3">
+                <h3 className="px-1 pb-2 text-xs font-black uppercase tracking-wide text-white/50">Links rápidos</h3>
+                <nav className="grid grid-cols-2 gap-2 text-sm">
+                  <a href="#cardapio" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Cardápio Fit</a>
+                  <a href="#performance" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Performance</a>
+                  <a href="#saladas" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Saladas</a>
+                  <a href="#tradicional" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Tradicional</a>
+                  <a href="#sucos" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Sucos</a>
+                  <a href="#combos" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Combos</a>
+                  <a href="#como-pedir" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Como pedir</a>
+                  <a href="#entrega" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Entrega</a>
+                  <a href="#faq" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Dúvidas</a>
+                  <a href="#b2b" className="rounded-lg border border-white/10 bg-white/[.04] px-3 py-2.5 font-semibold text-white/75 transition hover:border-[#a7b86a] hover:bg-white/[.08] hover:text-white">Empresas</a>
                 </nav>
-              </details>
+              </div>
               <details className="group rounded-xl border border-white/10 px-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-black">Contato <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary>
                 <div className="grid gap-3 pb-4 text-sm text-white/65">
