@@ -21,3 +21,28 @@ img { max-width: 100%; }
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Banner: preservar fotografia, fundo escuro e contraste do texto. */
+#inicio,
+#inicio > div {
+  background-color: #080a07 !important;
+}
+#inicio > div > div > img {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+#inicio > div > div > a {
+  background-image: linear-gradient(90deg, #000 0%, #000 28%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.22) 76%, transparent 100%);
+}
+
+/* Seção de sucos: manter a identidade escura sem alterar as fotografias. */
+#sucos {
+  background-color: #080a07 !important;
+  color: #fff;
+}
+#sucos img {
+  opacity: 1;
+  visibility: visible;
+}
