@@ -3619,6 +3619,7 @@ export default function Home() {
               <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
               <a href="#sucos" className="transition hover:text-white">Sucos</a>
               <a href="#combos" className="transition hover:text-white">Combos</a>
+              <a href="/montar-refeicao" className="transition hover:text-white">Personalize sua refeição</a>
               <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
               <a href="#entrega" className="transition hover:text-white">Entrega</a>
               <a href="#faq" className="transition hover:text-white">Dúvidas</a>
