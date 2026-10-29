@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Sun, Moon } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -2114,7 +2114,6 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
 }
 
 export default function Home() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [bannerIndex, setBannerIndex] = useState(0);
   const [juiceShowcaseIndex, setJuiceShowcaseIndex] = useState(0);
   const [selectedJuiceSize, setSelectedJuiceSize] = useState<"500 ml" | "300 ml">("500 ml");
@@ -2134,16 +2133,6 @@ export default function Home() {
     ] },
   ] as const;
 
-  useEffect(() => {
-    try {
-      const savedTheme = window.localStorage.getItem("nutrifit_theme");
-      if (savedTheme === "light" || savedTheme === "dark") setTheme(savedTheme);
-    } catch {}
-  }, []);
-
-  useEffect(() => {
-    try { window.localStorage.setItem("nutrifit_theme", theme); } catch {}
-  }, [theme]);
 
   useEffect(() => {
     try {
@@ -2776,7 +2765,7 @@ export default function Home() {
   };
 
   return (
-    <main data-theme={theme} className="min-h-screen bg-[#080a07] text-white">
+    <main data-theme="dark" className="min-h-screen bg-[#080a07] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050605]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[60px] max-w-7xl items-center gap-1.5 px-2.5 sm:h-[80px] sm:gap-2 sm:px-4 md:h-[82px] md:gap-5 md:px-7">
           <a href="#inicio" aria-label="Nutrifit — início" className="flex min-w-0 shrink-0 items-center gap-2.5">
@@ -2804,9 +2793,6 @@ export default function Home() {
           </nav>
 
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
-            <button type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"} className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/[.08] text-white transition hover:border-[#a7b86a] hover:bg-white/15 sm:h-11 sm:w-11" aria-pressed={theme === "light"}>
-              {theme === "dark" ? <Sun size={19} aria-hidden="true" /> : <Moon size={19} aria-hidden="true" />}
-            </button>
             <button type="button" onClick={() => setSearchOpen(true)} aria-label="O que você procura?" className="hidden h-12 w-[260px] items-center justify-between rounded-2xl border border-white/20 bg-white/[.08] px-5 text-left text-sm text-white/70 lg:flex xl:w-[340px]">
               <span>O que você procura?</span><Search size={24} />
             </button>
