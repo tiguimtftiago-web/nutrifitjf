@@ -72,7 +72,7 @@ export default function MontarRefeicaoPage() {
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-[1fr_340px]">
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 pb-28 sm:px-6 sm:pb-12 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
           {(Object.keys(selection) as Group[]).map((group) => {
             const labels: Record<Group, { title: string; subtitle: string; accent: string }> = {
@@ -95,7 +95,7 @@ export default function MontarRefeicaoPage() {
           <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-white/45 transition hover:text-white"><RotateCcw size={14} /> Restaurar combinação inicial</button>
         </div>
 
-        <aside className="h-fit rounded-3xl border border-[#a7b86a]/30 bg-[#11140f] p-5 sm:p-6 lg:sticky lg:top-5">
+        <aside id="montador-resumo" className="h-fit rounded-3xl border border-[#a7b86a]/30 bg-[#11140f] p-5 sm:p-6 lg:sticky lg:top-5">
           <div className="flex items-center gap-2"><Weight size={19} className="text-[#a7b86a]" /><h2 className="text-xl font-black">Sua refeição</h2></div>
           <div className="mt-5 flex items-end justify-between gap-3"><div><span className="text-3xl font-black tabular-nums">{total}</span><span className="ml-1 text-sm text-white/50">g</span></div><span className="text-xs font-bold text-white/45">Meta-base: 350 g</span></div>
           <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10"><div className={"h-full rounded-full transition-all " + (extra > 0 ? "bg-[#f29a38]" : "bg-[#a7b86a]")} style={{ width: progress + "%" }} /></div>
@@ -111,7 +111,7 @@ export default function MontarRefeicaoPage() {
         </aside>
       </section>
 
-      <footer className="border-t border-white/10 bg-black">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#a7b86a]/30 bg-[#080a07]/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.28)] backdrop-blur sm:hidden"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3"><div className="min-w-0"><p className="text-[10px] font-bold uppercase tracking-wider text-white/55">Sua marmita FIT</p><p className="text-lg font-black tabular-nums text-white">{total} g <span className="text-xs font-bold text-white/45">/ 350 g</span></p></div><button type="button" onClick={() => { setShowDetails(true); document.getElementById("montador-resumo")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="min-h-11 shrink-0 rounded-xl bg-[#a7b86a] px-4 text-xs font-black text-black transition active:scale-[.98]">{extra > 0 ? `${extra} g excedentes` : "Ver resumo"} <span aria-hidden="true">↓</span></button></div></div>\n\n      <footer className="border-t border-white/10 bg-black">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr] md:py-10">
           <div><div className="text-lg font-black tracking-tight">NUTRI<span className="text-[#a7b86a]">FIT</span></div><p className="mt-2 max-w-xs text-sm leading-6 text-white/45">Marmitas, saladas e sucos para facilitar sua rotina em Juiz de Fora.</p><div className="mt-4 flex gap-3"><a href="https://www.instagram.com/nutrifit_jf/" target="_blank" rel="noreferrer" aria-label="Instagram Nutrifit" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-white/70 hover:text-[#a7b86a]"><Camera size={18} /></a><a href="https://wa.me/5532998030038" target="_blank" rel="noreferrer" aria-label="WhatsApp Nutrifit" className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-white/70 hover:text-[#a7b86a]"><MessageCircle size={18} /></a></div></div>
           <div><h3 className="text-xs font-black uppercase tracking-[.16em] text-white/75">Acesso rápido</h3><nav className="mt-3 grid gap-2 text-sm text-white/45"><Link href="/" className="hover:text-white">Página inicial</Link><Link href="/#cardapio" className="hover:text-white">Cardápio</Link><Link href="/#combos" className="hover:text-white">Montar combo</Link><Link href="/assistente" className="hover:text-white">Assistente Nutrifit</Link><Link href="/privacidade" className="hover:text-white">Política de privacidade</Link></nav></div>
