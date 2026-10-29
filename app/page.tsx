@@ -3210,15 +3210,30 @@ export default function Home() {
                   </div>
                   <p className="text-sm text-white/45">Misture sabores dentro da mesma linha.</p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                  {combos.map(([line,quantity,price,average]) => (
-                    <a key={line+quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${line} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${line}-${quantity}`)} className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:-translate-y-0.5 hover:border-[#a7b86a]/40">
-                      <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{line}</div>
-                      <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
-                      <div className="mt-1 text-2xl font-black">{price}</div>
-                      <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
-                    </a>
-                  ))}
+                <div className="space-y-6">
+                  {(["Fit 350 g", "Performance 450 g", "Tradicional 500 g"] as const).map((line) => {
+                    const lineCombos = combos.filter((combo) => combo[0] === line);
+                    if (!lineCombos.length) return null;
+                    return (
+                      <div key={line}>
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <h4 className="text-sm font-black text-white">{line}</h4>
+                          <span className="shrink-0 text-[10px] font-semibold text-white/40">Deslize para ver opções <span aria-hidden="true">→</span></span>
+                        </div>
+                        <div className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-1 pb-3 [scrollbar-width:thin] [scrollbar-color:#a7b86a_transparent]">
+                          {lineCombos.map(([comboLine, quantity, price, average]) => (
+                            <a key={comboLine + quantity} href={whatsappOrder(`Olá, Nutrifit! Quero o combo ${comboLine} — ${quantity} — ${price}. Quero escolher os sabores deste combo.`)} onClick={() => trackClick("combo_direct_click", `${comboLine}-${quantity}`)} className="w-[76vw] max-w-[260px] shrink-0 snap-start rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-[#a7b86a]/40 sm:w-[220px] sm:max-w-none sm:p-5">
+                              <div className="text-[10px] font-black uppercase tracking-wider text-[#a7b86a]">{comboLine}</div>
+                              <div className="mt-2 text-sm font-bold text-white/55">{quantity}</div>
+                              <div className="mt-1 text-2xl font-black">{price}</div>
+                              <div className="mt-1 text-xs text-[#ef7d18]">{average}</div>
+                              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-3 py-2 text-xs font-black text-black">Escolher combo <span aria-hidden="true">→</span></div>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
