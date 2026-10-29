@@ -1950,7 +1950,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                           const n = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : saladsNutrition[product.name];
                           return (
                             <details className="mt-2 overflow-hidden rounded-xl border border-[#a7b86a]/30 bg-[#080a07]/95 text-left">
-                              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#a7b86a] px-3 py-2.5 text-[11px] font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>VER TABELA NUTRICIONAL</span><ChevronDown size={16} className="shrink-0" /></summary>
+                              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#a7b86a] px-3 py-2.5 text-[11px] font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>{product.line === "FIT" ? "TABELA NUTRICIONAL · 350 G" : "VER TABELA NUTRICIONAL"}</span><ChevronDown size={16} className="shrink-0" /></summary>
                               <div className="p-2.5 text-[11px] text-white/80">
                                 {n ? <>
                                   <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
