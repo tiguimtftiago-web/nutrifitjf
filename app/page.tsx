@@ -3177,35 +3177,36 @@ export default function Home() {
 
             <div className="p-4 sm:p-6 md:p-8">
               <div className="mb-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white/40">1. Escolha sua linha</div>
-              <div className="grid gap-2 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-3">
                 {[
-                  ["FIT","350 g","R$ 117,00","Leve e equilibrada"],
-                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia"],
-                  ["TRADICIONAL","500 g","R$ 141,90","Sabor caseiro"],
-                ].map(([line,weight,price,description], index) => (
+                  ["FIT","350 g","R$ 117,00","Leve e equilibrada","/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png","border-[#a7b86a]/45"],
+                  ["PERFORMANCE","450 g","R$ 139,90","Mais proteína e energia","/images/strogonoff-frango-fit.webp","border-white/15"],
+                  ["TRADICIONAL","500 g","R$ 141,90","Sabor caseiro","/images/pernil-acebolado-batata-real.jpg","border-[#ef7d18]/40"],
+                ].map(([line,weight,price,description,image,border], index) => (
                   <button
                     key={line}
                     type="button"
                     onClick={() => openComboBuilder(line)}
-                    className={`group relative flex min-h-[82px] items-center gap-2.5 rounded-[1.15rem] border p-3 text-left transition hover:-translate-y-0.5 sm:min-h-[96px] sm:p-4 md:min-h-[116px] ${
-                      index === 0 ? "border-[#a7b86a]/55 bg-[#a7b86a]/10" : index === 1 ? "border-white/12 bg-white/[.03]" : "border-[#ef7d18]/35 bg-[#ef7d18]/5"
-                    }`}
+                    className={`group relative min-w-0 w-full overflow-hidden rounded-2xl border text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ef7d18] ${border} ${index === 0 ? "bg-[#a7b86a]/[.06]" : index === 2 ? "bg-[#ef7d18]/[.04]" : "bg-white/[.025]"}`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className={`text-[9px] font-black uppercase tracking-[.18em] ${
-                        index === 2 ? "text-[#ef7d18]" : "text-[#a7b86a]"
-                      }`}>{line}</div>
-                      <div className="mt-1 text-[10px] font-semibold leading-3.5 text-white/65 sm:text-xs">{description}</div>
+                    <div className="relative h-44 overflow-hidden bg-[#171a14] sm:h-36">
+                      <img src={image} alt={`Sugestão de refeição da linha ${line.toLowerCase()}`} loading="lazy" decoding="async" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]" />
+                      <span className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider ${index === 2 ? "bg-[#ef7d18] text-black" : "bg-[#a7b86a] text-black"}`}>{line}</span>
                     </div>
-
-                    <div className="shrink-0 border-l border-white/10 pl-2.5 sm:pl-4">
-                      <div className="text-lg font-black leading-none sm:text-xl">{weight}</div>
-                      <div className="mt-1 whitespace-nowrap text-[9px] leading-3 text-white/40 sm:text-[10px]">A partir de <span className="font-black text-[#ef7d18]">{price}</span></div>
+                    <div className="p-4">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="text-2xl font-black text-white">{weight}</span>
+                        <span className="text-[10px] font-semibold text-white/45">por marmita</span>
+                      </div>
+                      <p className="mt-1 text-sm text-white/65">{description}</p>
+                      <div className="mt-3 border-t border-white/10 pt-3">
+                        <div className="text-xs text-white/50">Combos a partir de</div>
+                        <div className="mt-0.5 text-xl font-black text-[#ef7d18]">{price}</div>
+                      </div>
+                      <div className={`mt-3 flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${index === 2 ? "bg-[#ef7d18] text-black" : "bg-[#a7b86a] text-black"}`}>
+                        Escolher esta linha <ArrowRight size={16}/>
+                      </div>
                     </div>
-
-                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-sm font-black transition group-hover:translate-x-0.5 sm:h-9 sm:w-9 ${
-                      index === 2 ? "border-[#ef7d18]/60 text-[#ef7d18]" : "border-[#a7b86a]/50 text-[#a7b86a]"
-                    }`}>→</span>
                   </button>
                 ))}
               </div>
