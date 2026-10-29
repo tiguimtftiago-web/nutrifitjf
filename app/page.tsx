@@ -74,11 +74,11 @@ const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
 const fit: Product[] = [
   ["Patinho com Abóbora","FIT","350 g","R$ 23,97","Patinho moído temperado com abóbora cremosa. Legume informado no prato: abóbora."],
   ["Patinho com Batata-Doce","FIT","350 g","R$ 23,97","Patinho moído acompanhado de batata-doce macia. Acompanhamento vegetal informado: batata-doce."],
-  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído com legumes preparados na manteiga. A composição exata dos legumes precisa ser confirmada com a cozinha Nutrifit."],
-  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado com mix de legumes. Os vegetais específicos do mix devem ser confirmados com a cozinha Nutrifit antes de informar a lista definitiva."],
-  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada com legumes. A lista exata dos vegetais deste prato precisa ser confirmada com a cozinha Nutrifit."],
-  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas com legumes selecionados. A composição exata dos vegetais precisa ser confirmada com a cozinha Nutrifit."],
-  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado com legumes assados. Os vegetais específicos deste acompanhamento precisam ser confirmados com a cozinha Nutrifit."],
+  ["Patinho com Legumes na Manteiga","FIT","350 g","R$ 23,97","Patinho moído com legumes preparados na manteiga."],
+  ["Frango Grelhado com Mix de Legumes","FIT","350 g","R$ 23,97","Peito de frango grelhado com mix de legumes."],
+  ["Carne Acebolada com Legumes","FIT","350 g","R$ 23,97","Carne bovina acebolada com legumes."],
+  ["Frango ao Molho de Ervas com Legumes","FIT","350 g","R$ 23,97","Frango ao molho de ervas com legumes selecionados."],
+  ["Lombo Suíno com Legumes Assados","FIT","350 g","R$ 23,97","Lombo suíno grelhado com legumes assados."],
   ["Tilápia Fit com Arroz Branco e Legumes","FIT","350 g","R$ 27,90","Tilápia grelhada com arroz branco e os seguintes legumes: brócolis, couve-flor e cenoura."],
 ].map(([name,line,weight,price,description], i) => ({
   name,line,weight,price,description,
@@ -98,19 +98,19 @@ const fitComingSoon: Product[] = [
 fit.push(...fitComingSoon);
 
 const performance: Product[] = [
-  ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com molho de tomate artesanal e parmesão, acompanhado de arroz integral e legumes. A lista exata dos legumes precisa ser confirmada com a cozinha."],
-  ["Tilápia Power","PERFORMANCE","450 g","R$ 32,90","Tilápia grelhada com arroz integral, batata-doce assada e legumes. Os vegetais específicos do mix precisam ser confirmados com a cozinha."],
+  ["Chicken Parmesão","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com molho de tomate artesanal e parmesão, acompanhado de arroz integral e legumes."],
+  ["Tilápia Power","PERFORMANCE","450 g","R$ 32,90","Tilápia grelhada com arroz integral, batata-doce assada e legumes."],
   ["Beef & Sweet Potato","PERFORMANCE","450 g","R$ 29,90","Carne bovina grelhada com batata-doce assada e arroz branco. Este prato não informa outros legumes na descrição atual."],
   ["Chicken Sweet Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com batata-doce assada e arroz branco. Este prato não informa outros legumes na descrição atual."],
   ["Chicken Potato","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com purê de batata inglesa e três legumes identificados: brócolis, cenoura e couve-flor."],
   ["Patinho Strong","PERFORMANCE","450 g","R$ 29,90","Patinho moído temperado com purê de abóbora e arroz branco. Legume informado no prato: abóbora."],
-  ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com arroz branco e legumes salteados. A composição exata dos vegetais precisa ser confirmada com a cozinha."],
+  ["Chicken Rice","PERFORMANCE","450 g","R$ 27,90","Frango grelhado com arroz branco e legumes salteados."],
   ["Beef Pasta","PERFORMANCE","450 g","R$ 29,90","Patinho em tiras grelhadas, macarrão integral ao molho de tomate artesanal e brócolis."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[12,13,14,15,16,17,18,19][i]}.jpg`}));
 
 const salads: Product[] = [
   ["Mango Fresh","SALADAS","350 g","R$ 21,90","Mix de folhas, manga, tomate-cereja, pepino, castanhas, amêndoas, 100 g de frango e molho de maracujá."],
-  ["Green Power","SALADAS","350 g","R$ 21,90","Mix de folhas, frango grelhado, abacate, brócolis, ervilha, pepino, tomate-cereja e sementes."],
+  ["Green Power","SALADAS","350 g","R$ 21,90","Mix de folhas, frango grelhado, abacate, brócolis, milho, ervilha, pepino e tomate-cereja."],
   ["Tropical Chicken","SALADAS","350 g","R$ 21,90","Mix de alface, frango grelhado, abacaxi, milho, cenoura, repolho roxo, pepino e tomate-cereja."],
   ["Avocado Chicken","SALADAS","350 g","R$ 21,90","Mix de folhas, frango grelhado, abacate, tomate-cereja, pepino, cenoura, cebola roxa e molho."],
   ["Caesar Chicken","SALADAS","350 g","R$ 21,90","Mix de alface americana, frango grelhado, tomate-cereja, cenoura, croutons e queijo."],
@@ -128,7 +128,7 @@ const traditional: Product[] = [
   ["Carne de Panela com Batata e Cenoura","TRADICIONAL","500 g","R$ 29,90","Carne de panela cozida lentamente com batata e cenoura, acompanhada de arroz branco. Legumes identificados: batata e cenoura."],
   ["Cupim com Mandioca","TRADICIONAL","500 g","R$ 29,90","Cupim macio ao molho, mandioca e arroz com brócolis. Vegetais identificados: mandioca e brócolis."],
   ["Panqueca de Frango ao Molho de Tomate","TRADICIONAL","500 g","R$ 27,00","Panquecas recheadas com frango desfiado, molho de tomate artesanal e ervas."],
-  ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel e arroz primavera. Os legumes que compõem o arroz precisam ser confirmados com a cozinha."]
+  ["Sobrecoxa com Mostarda e Mel","TRADICIONAL","500 g","R$ 29,90","Sobrecoxa dourada com molho de mostarda e mel e arroz primavera."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:[
   "/images/page-28.jpg","/images/page-29.jpg","/images/page-30.jpg","/images/page-31.jpg","/images/page-32.jpg","/images/page-33.jpg","/images/page-34.jpg",
   "/images/WhatsApp%20Image%202026-09-24%20at%2022.03.02%20(1).jpeg?v=4",
@@ -1269,7 +1269,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                     <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#d4e6a0]">Informação nutricional</h4><span className="rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-xs font-black text-[#d4e6a0]">{n.kcal} kcal</span></div>
                     <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
                     <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
-                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p></div>
+                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p>{n.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p>}</div>
                     <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores nutricionais de referência Nutrifit por porção; podem variar conforme ingredientes e preparo.</p>
                   </section>; })()}
 
@@ -1887,7 +1887,7 @@ const performanceNutrition: Record<string, NutritionData> = {
 
 const saladsNutrition: Record<string, NutritionData> = {
   "Mango Fresh": { kcal: 330, protein: "36,0", carbs: "19,4", sugars: "13,7", fat: "11,9", sat: "2,3", fiber: "3,7", pctProtein: "44%", pctCarbs: "24%", pctFat: "33%", sodium: 381, cholesterol: 89, potassium: 846, calcium: 66, iron: "1,8", magnesium: 87, zinc: "1,7", vitaminA: 257, vitaminC: 35, b12: "0,3", profile: "Equilibrada", allergens: "Oleaginosas (castanhas e amêndoas)" },
-  "Green Power": { kcal: 355, protein: "38,8", carbs: "16,6", sugars: "4,1", fat: "14,7", sat: "2,4", fiber: "9,7", pctProtein: "44%", pctCarbs: "19%", pctFat: "37%", sodium: 301, cholesterol: 89, potassium: 1103, calcium: 100, iron: "2,8", magnesium: 108, zinc: "2,4", vitaminA: 259, vitaminC: 46, b12: "0,3", profile: "Equilibrada", allergens: "Sementes (confirmar tipos usados)" },
+  "Green Power": { kcal: 355, protein: "38,8", carbs: "16,6", sugars: "4,1", fat: "14,7", sat: "2,4", fiber: "9,7", pctProtein: "44%", pctCarbs: "19%", pctFat: "37%", sodium: 301, cholesterol: 89, potassium: 1103, calcium: 100, iron: "2,8", magnesium: 108, zinc: "2,4", vitaminA: 259, vitaminC: 46, b12: "0,3", profile: "Equilibrada", allergens: "" },
   "Tropical Chicken": { kcal: 255, protein: "35,3", carbs: "20,6", sugars: "9,6", fat: "3,3", sat: "0,9", fiber: "4,5", pctProtein: "56%", pctCarbs: "33%", pctFat: "12%", sodium: 311, cholesterol: 89, potassium: 879, calcium: 68, iron: "1,8", magnesium: 69, zinc: "1,4", vitaminA: 474, vitaminC: 53, b12: "0,3", profile: "Leve", allergens: "-" },
   "Avocado Chicken": { kcal: 310, protein: "34,9", carbs: "12,5", sugars: "4,0", fat: "13,5", sat: "2,3", fiber: "6,0", pctProtein: "45%", pctCarbs: "16%", pctFat: "39%", sodium: 417, cholesterol: 89, potassium: 955, calcium: 58, iron: "1,7", magnesium: 66, zinc: "1,6", vitaminA: 388, vitaminC: 20, b12: "0,3", profile: "Equilibrada", allergens: "Confirmar ingredientes do molho" },
   "Caesar Chicken": { kcal: 335, protein: "41,5", carbs: "22,8", sugars: "6,2", fat: "8,4", sat: "3,6", fiber: "3,8", pctProtein: "50%", pctCarbs: "27%", pctFat: "23%", sodium: 655, cholesterol: 102, potassium: 750, calcium: 223, iron: "1,9", magnesium: 60, zinc: "1,9", vitaminA: 305, vitaminC: 10, b12: "0,5", profile: "Equilibrada", allergens: "Glúten (croutons); leite (queijo); possível ovo" },
@@ -1940,7 +1940,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
               <p className="mb-2 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "FIT" || product.line === "SALADAS" ? "350 g" : "450 g")}</p>
               {nutritionRows(nutrition).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/10 py-2"><span>{label}</span><b className="text-right">{value}</b></p>)}
               <div className="mt-3 rounded-lg bg-white/[.04] p-3 text-xs"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
-              <p className="mt-2 text-xs"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>
+              {nutrition.allergens && <p className="mt-2 text-xs"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>}
               <p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores de referência cadastrados por porção; confirme a ficha técnica antes de usar como rotulagem oficial.</p>
             </> : <p className="rounded-lg bg-white/[.04] p-3 text-xs leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
           </div>
@@ -1990,7 +1990,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                                   <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
                                   {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
                                   <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">{product.line === "SALADAS" ? "Distribuição calórica" : "Distribuição calórica estimada"}</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p></div>
-                                  <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>
+                                  {n.allergens && <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>}
                                   <p className="mt-2 text-[10px] leading-relaxed text-white/55">{product.line === "SALADAS" ? "Tabela nutricional para a porção de 350 g. Confirme os ingredientes, molhos e alérgenos conforme a ficha técnica." : `Valores estimados por marmita de ${product.weight || (product.line === "FIT" ? "350 g" : "450 g")}; confirme a composição real e os alérgenos na ficha técnica.`}</p>
                                 </> : <p className="rounded-lg bg-white/[.04] p-3 text-[11px] leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para não divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
                               </div>
