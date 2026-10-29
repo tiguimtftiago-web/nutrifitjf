@@ -1904,14 +1904,24 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           </div>
         </div>
       </div>
-      <div className="border-t border-white/10 bg-[#10130e] px-3.5 py-3">
-        <p className="text-xs leading-5 text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar os ingredientes deste prato."}</p>
-        <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-[#a7b86a]">Ingredientes e acompanhamentos descritos acima</p>
-      </div>
       <details className="border-t border-[#ef7d18]/30 bg-[#0d100c] text-left">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#ef7d18] px-3.5 py-3 text-sm font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
         <div className="p-3 text-sm leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
       </details>
+      {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (
+        <details className="border-t border-[#a7b86a]/30 bg-[#080a07] text-left">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#a7b86a] px-3.5 py-3 text-sm font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>{product.line === "FIT" ? "TABELA NUTRICIONAL · 350 G" : "VER TABELA NUTRICIONAL"}</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
+          <div className="p-3 text-sm text-white/85">
+            {nutrition ? <>
+              <p className="mb-2 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "FIT" || product.line === "SALADAS" ? "350 g" : "450 g")}</p>
+              {nutritionRows(nutrition).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/10 py-2"><span>{label}</span><b className="text-right">{value}</b></p>)}
+              <div className="mt-3 rounded-lg bg-white/[.04] p-3 text-xs"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
+              <p className="mt-2 text-xs"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>
+              <p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores de referência cadastrados por porção; confirme a ficha técnica antes de usar como rotulagem oficial.</p>
+            </> : <p className="rounded-lg bg-white/[.04] p-3 text-xs leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
+          </div>
+        </details>
+      )}
       
     </article>
     <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
