@@ -3698,50 +3698,66 @@ export default function Home() {
       </a>
 
 
-      <footer className="border-t border-white/10 bg-black">
-        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-5 md:px-8 md:py-6">
-          <div className="grid gap-4 md:grid-cols-[1fr_auto_auto] md:items-center">
+      <footer className="border-t border-white/10 bg-[#171719] text-white">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <div className="grid gap-7 md:grid-cols-[1.15fr_.85fr] md:gap-12">
             <div>
-              <div className="flex items-center gap-2.5">
-                <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain" />
-                <div>
-                  <div className="text-base font-black tracking-tight">NUTRIFIT</div>
-                  <p className="mt-0.5 text-[10px] leading-4 text-white/40">Marmitas, saladas e sucos para sua rotina.</p>
-                </div>
+              <a href="#" className="inline-flex items-center gap-3" aria-label="Nutrifit - início">
+                <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-12 w-12 object-contain" />
+                <span>
+                  <span className="block text-2xl font-black tracking-tight">NUTRIFIT</span>
+                  <span className="block text-[10px] font-semibold uppercase tracking-[.22em] text-white/45">Marmitas, saladas e sucos</span>
+                </span>
+              </a>
+              <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Marmitas fitness saudáveis e saborosas para facilitar sua rotina em Juiz de Fora e região.</p>
+              <div className="mt-5 flex flex-wrap gap-3" aria-label="Redes sociais e contato">
+                <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_social")} aria-label="WhatsApp Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#a7b86a] hover:text-black"><MessageCircle size={21}/></a>
+                <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("social_click", "footer_instagram")} aria-label="Instagram Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#a7b86a] hover:text-black"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></a>
               </div>
             </div>
-            <nav className="grid grid-cols-2 gap-x-5 gap-y-2.5 text-[11px] font-bold text-white/55 sm:flex sm:flex-wrap sm:gap-5">
-              <a href="#cardapio" className="transition hover:text-white">Fit 350 g</a>
-              <a href="#performance" className="transition hover:text-white">Performance</a>
-              <a href="#saladas" className="transition hover:text-white">Saladas</a>
-              <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
-              <a href="#sucos" className="transition hover:text-white">Sucos</a>
-              <a href="#combos" className="transition hover:text-white">Combos</a>
-              <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
-              <a href="#entrega" className="transition hover:text-white">Entrega</a>
-              <a href="#faq" className="transition hover:text-white">Dúvidas</a>
-              <a href="/marmitas-fit-juiz-de-fora" className="transition hover:text-white">Marmitas fitness em Juiz de Fora</a>
-              <a href="#b2b" className="transition hover:text-white">Para empresas</a>
-              <a href="/privacidade" className="transition hover:text-white">Política de Privacidade</a>
-            </nav>
-            <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
-              Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
-            </a>
-          </div>
-          <div className="mt-5 border-t border-white/10 pt-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[11px] font-black uppercase tracking-[.16em] text-white/65">Formas de pagamento</p>
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Formas de pagamento aceitas">
-                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Pix"><svg width="54" height="22" viewBox="0 0 54 22" role="img" aria-label="Pix"><g fill="none" stroke="#32BCAD" strokeWidth="2.2"><path d="M8 2.5 13.5 8 8 13.5 2.5 8Z" transform="translate(0 3)"/><path d="M8 8 13.5 13.5 8 19 2.5 13.5Z" transform="translate(0 -3)"/></g><text x="18" y="15" fontSize="13" fontWeight="700" fill="#263238">Pix</text></svg></div>
-                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Visa"><svg width="58" height="22" viewBox="0 0 58 22" role="img" aria-label="Visa"><text x="2" y="17" fontSize="18" fontStyle="italic" fontWeight="900" letterSpacing="-1" fill="#1A1F71">VISA</text><path d="M3 20H40" stroke="#F7B600" strokeWidth="1.5"/></svg></div>
-                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Mastercard"><svg width="58" height="24" viewBox="0 0 58 24" role="img" aria-label="Mastercard"><circle cx="23" cy="12" r="9" fill="#EB001B"/><circle cx="35" cy="12" r="9" fill="#F79E1B"/><path d="M29 5.2a9 9 0 0 1 0 13.6 9 9 0 0 1 0-13.6Z" fill="#FF5F00"/><text x="1" y="23" fontSize="5.5" fontWeight="700" fill="#222">mastercard</text></svg></div>
-                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Elo"><svg width="48" height="22" viewBox="0 0 48 22" role="img" aria-label="Elo"><text x="1" y="16" fontSize="17" fontWeight="900" fontStyle="italic" fill="#111">elo</text><circle cx="37" cy="6" r="2.5" fill="#F5C400"/><circle cx="41" cy="11" r="2.5" fill="#00A4E0"/><circle cx="36" cy="16" r="2.5" fill="#E53238"/></svg></div>
-              </div>
+            <div className="divide-y divide-white/10 border-y border-white/10">
+              <details className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold">Links rápidos <ChevronDown size={19} className="text-white/55 transition group-open:rotate-180"/></summary>
+                <nav className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm text-white/65">
+                  <a href="#cardapio" className="hover:text-white">Fit 350 g</a><a href="#performance" className="hover:text-white">Performance</a>
+                  <a href="#saladas" className="hover:text-white">Saladas</a><a href="#tradicional" className="hover:text-white">Tradicional</a>
+                  <a href="#sucos" className="hover:text-white">Sucos</a><a href="#combos" className="hover:text-white">Combos</a>
+                  <a href="#como-pedir" className="hover:text-white">Como pedir</a><a href="#entrega" className="hover:text-white">Entrega</a>
+                  <a href="#faq" className="hover:text-white">Dúvidas frequentes</a><a href="#b2b" className="hover:text-white">Para empresas</a>
+                </nav>
+              </details>
+              <details className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold">Contato <ChevronDown size={19} className="text-white/55 transition group-open:rotate-180"/></summary>
+                <div className="mt-3 space-y-2 text-sm text-white/65"><a className="block hover:text-white" href={whatsapp}>WhatsApp: (32) 99803-0038</a><a className="block hover:text-white" href={instagram} target="_blank" rel="noreferrer">@nutrifit_jf no Instagram</a><span className="block">Juiz de Fora/MG</span></div>
+              </details>
+              <details className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-lg font-bold">Segurança e informações <ChevronDown size={19} className="text-white/55 transition group-open:rotate-180"/></summary>
+                <div className="mt-3 space-y-2 text-sm text-white/65"><a className="block hover:text-white" href="/privacidade">Política de Privacidade</a><a className="block hover:text-white" href="/privacidade">Tratamento de dados e privacidade</a><span className="block">CNPJ: 64.776.469/0001-08</span></div>
+              </details>
             </div>
           </div>
-          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-3 text-center text-[10px] text-white/55 sm:flex-row sm:items-center sm:justify-between sm:text-left">
-            <span>Nutrifit • Juiz de Fora/MG</span>
-            <span>Escolha sua linha • monte seu pedido • receba com praticidade.</span>
+          <section className="mt-8 border-t border-white/10 pt-6" aria-labelledby="nutrifit-payment-heading">
+            <div className="flex items-center gap-3"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#a7b86a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg><h2 id="nutrifit-payment-heading" className="text-lg font-black sm:text-xl">Formas de pagamento</h2></div>
+            <div className="mt-5 flex flex-wrap items-center gap-3" aria-label="Bandeiras e formas de pagamento">
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Pix"><svg viewBox="0 0 64 24" width="64" height="24" role="img" aria-label="Pix"><g fill="none" stroke="#32BCAD" strokeWidth="2.2"><path d="M9 1 16 8 9 15 2 8Z" transform="translate(0 3)"/><path d="M9 8 16 15 9 22 2 15Z" transform="translate(0 -3)"/></g><text x="22" y="17" fontSize="15" fontWeight="700" fill="#263238">Pix</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Visa"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Visa"><text x="4" y="23" fontSize="25" fontWeight="900" fontStyle="italic" fill="#1A1F71">VISA</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Mastercard"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Mastercard"><circle cx="29" cy="13" r="11" fill="#EB001B"/><circle cx="43" cy="13" r="11" fill="#F79E1B"/><path d="M36 4a11 11 0 0 1 0 18 11 11 0 0 1 0-18" fill="#FF5F00"/><text x="17" y="29" fontSize="6.5" fontWeight="700" fill="#222">mastercard</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Elo"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Elo"><text x="5" y="22" fontSize="23" fontWeight="900" fontStyle="italic" fill="#111">elo</text><circle cx="51" cy="7" r="3" fill="#F5C400"/><circle cx="57" cy="14" r="3" fill="#00A4E0"/><circle cx="50" cy="21" r="3" fill="#E53238"/></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="American Express"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="American Express"><rect x="1" y="2" width="72" height="26" rx="2" fill="#1677C8"/><text x="37" y="13" textAnchor="middle" fontSize="8" fontWeight="900" fill="white">AMERICAN</text><text x="37" y="22" textAnchor="middle" fontSize="9" fontWeight="900" fill="white">EXPRESS</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Hipercard"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Hipercard"><rect x="1" y="2" width="72" height="26" rx="3" fill="#B5121B"/><text x="37" y="19" textAnchor="middle" fontSize="11" fontWeight="700" fontStyle="italic" fill="white">Hipercard</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Ticket"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Ticket"><circle cx="37" cy="15" r="14" fill="#FF2418"/><text x="37" y="19" textAnchor="middle" fontSize="10" fontWeight="900" fill="#171719">ticket</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Alelo"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Alelo"><rect x="1" y="2" width="72" height="26" rx="13" fill="#00856A"/><text x="37" y="20" textAnchor="middle" fontSize="16" fontWeight="900" fill="white">alelo</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Sodexo"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="Sodexo"><text x="3" y="21" fontSize="17" fontStyle="italic" fontWeight="700" fill="#263B9B">sodexo</text></svg></div>
+              <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="VR"><svg viewBox="0 0 74 30" width="74" height="30" role="img" aria-label="VR"><rect x="1" y="2" width="72" height="26" rx="3" fill="#00B83F"/><text x="37" y="21" textAnchor="middle" fontSize="19" fontWeight="900" fill="white">VR</text></svg></div>
+            </div>
+            <p className="mt-4 text-xs leading-5 text-white/45">As formas de pagamento disponíveis podem variar conforme o pedido. Confirme as opções aceitas antes de finalizar.</p>
+          </section>
+          <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/55">
+            <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
+            <p>CNPJ: 64.776.469/0001-08</p>
+            <p>Juiz de Fora/MG</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-x-6 gap-y-2"><a href="/privacidade" className="hover:text-white">Política de Privacidade</a><a href="/privacidade" className="hover:text-white">Termos de Uso</a></div>
+            <p className="mt-3">Escolha sua linha • monte seu pedido • receba com praticidade.</p>
           </div>
         </div>
       </footer>
