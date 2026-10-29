@@ -3616,38 +3616,66 @@ export default function Home() {
 
 
       <footer className="border-t border-white/10 bg-black">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-9">
-          <div className="grid gap-6 md:grid-cols-[1fr_auto_auto] md:items-center">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-5 md:px-8 md:py-10">
+          <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] lg:grid-cols-[1.1fr_1.5fr]">
             <div>
-              <div className="flex items-center gap-2.5">
-                <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain" />
+              <div className="flex items-center gap-3">
+                <img src="/images/nutrifit-logo-icon.svg" alt="Logo Nutrifit" className="h-11 w-11 object-contain" />
                 <div>
-                  <div className="text-base font-black tracking-tight">NUTRIFIT</div>
-                  <p className="mt-0.5 text-[10px] leading-4 text-white/40">Marmitas, saladas e sucos para sua rotina.</p>
+                  <div className="text-lg font-black tracking-tight">NUTRIFIT</div>
+                  <p className="mt-0.5 text-xs leading-5 text-white/55">Marmitas, saladas e sucos para sua rotina.</p>
                 </div>
               </div>
+              <p className="mt-4 max-w-md text-sm leading-6 text-white/60">Alimentação prática para sua rotina em Juiz de Fora e região. Escolha seus pratos e fale com nossa equipe para tirar dúvidas sobre o pedido e a entrega.</p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} aria-label="Nutrifit no WhatsApp" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#a7b86a] px-4 py-2.5 text-sm font-black text-black"><MessageCircle size={17} /> WhatsApp</a>
+                <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("instagram_click", "footer")} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm font-bold text-white/80 transition hover:border-[#a7b86a]"><span aria-hidden="true">◎</span> Instagram</a>
+              </div>
             </div>
-            <nav className="grid grid-cols-2 gap-x-5 gap-y-2.5 text-[11px] font-bold text-white/55 sm:flex sm:flex-wrap sm:gap-5">
-              <a href="#cardapio" className="transition hover:text-white">Fit 350 g</a>
-              <a href="#performance" className="transition hover:text-white">Performance</a>
-              <a href="#saladas" className="transition hover:text-white">Saladas</a>
-              <a href="#tradicional" className="transition hover:text-white">Tradicional</a>
-              <a href="#sucos" className="transition hover:text-white">Sucos</a>
-              <a href="#combos" className="transition hover:text-white">Combos</a>
-              <a href="#como-pedir" className="transition hover:text-white">Como pedir</a>
-              <a href="#entrega" className="transition hover:text-white">Entrega</a>
-              <a href="#faq" className="transition hover:text-white">Dúvidas</a>
-              <a href="/marmitas-fit-juiz-de-fora" className="transition hover:text-white">Marmitas fitness em Juiz de Fora</a>
-              <a href="#b2b" className="transition hover:text-white">Para empresas</a>
-              <a href="/privacidade" className="transition hover:text-white">Política de Privacidade</a>
-            </nav>
-            <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer")} className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#a7b86a] px-5 py-3 text-xs font-black text-black shadow-lg">
-              Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
-            </a>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <details className="group rounded-xl border border-white/10 px-4" open>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-black">Links rápidos <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary>
+                <nav className="grid gap-3 pb-4 text-sm text-white/65">
+                  <a href="#cardapio" className="hover:text-white">Cardápio Fit 350 g</a>
+                  <a href="#performance" className="hover:text-white">Linha Performance</a>
+                  <a href="#saladas" className="hover:text-white">Saladas</a>
+                  <a href="#tradicional" className="hover:text-white">Linha Tradicional</a>
+                  <a href="#sucos" className="hover:text-white">Sucos</a>
+                  <a href="#combos" className="hover:text-white">Combos</a>
+                  <a href="#como-pedir" className="hover:text-white">Como pedir</a>
+                  <a href="#entrega" className="hover:text-white">Entrega</a>
+                  <a href="#faq" className="hover:text-white">Dúvidas frequentes</a>
+                  <a href="#b2b" className="hover:text-white">Nutrifit para empresas</a>
+                </nav>
+              </details>
+              <details className="group rounded-xl border border-white/10 px-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-black">Contato <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary>
+                <div className="grid gap-3 pb-4 text-sm text-white/65">
+                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_contact")} className="hover:text-white">Atendimento pelo WhatsApp</a>
+                  <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("instagram_click", "footer_contact")} className="hover:text-white">Instagram @nutrifit_jf</a>
+                  <a href="#entrega" className="hover:text-white">Área de entrega</a>
+                  <a href="#b2b" className="hover:text-white">Pedidos para empresas</a>
+                </div>
+              </details>
+              <details className="group rounded-xl border border-white/10 px-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 font-black">Segurança e privacidade <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary>
+                <div className="grid gap-3 pb-4 text-sm text-white/65">
+                  <a href="/privacidade" className="hover:text-white">Política de Privacidade</a>
+                  <p>Confira os dados do pedido antes de concluir e utilize os canais oficiais da Nutrifit para falar com a equipe.</p>
+                </div>
+              </details>
+              <div className="rounded-xl border border-white/10 px-4 py-4">
+                <h3 className="font-black">Formas de pagamento</h3>
+                <div className="mt-3 flex items-center gap-3 text-sm text-white/70"><span className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-[#a7b86a] font-black">PIX</span><span>Consulte as opções disponíveis com a equipe antes de finalizar o pedido.</span></div>
+              </div>
+            </div>
           </div>
-          <div className="mt-7 flex flex-col gap-2 border-t border-white/5 pt-4 text-center text-[10px] text-white/25 sm:flex-row sm:items-center sm:justify-between sm:text-left">
-            <span>Nutrifit • Juiz de Fora/MG</span>
-            <span>Escolha sua linha • monte seu pedido • receba com praticidade.</span>
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-5 text-center text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            <span>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados. • Juiz de Fora/MG</span>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 sm:justify-end">
+              <a href="/privacidade" className="hover:text-white">Política de Privacidade</a>
+              <a href="/termos" className="hover:text-white">Termos de uso</a>
+            </div>
           </div>
         </div>
       </footer>
