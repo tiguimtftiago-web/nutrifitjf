@@ -2011,8 +2011,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
   );
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("combo");
+  const [expanded, setExpanded] = useState(true);
+  const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
   const isMealLine = id === "cardapio" || id === "performance" || id === "tradicional";
   const comboLineIndex = id === "performance" ? 1 : id === "tradicional" ? 2 : 0;
@@ -2157,7 +2157,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           type="button"
           onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
-          className="mt-3 hidden w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:flex sm:mt-4 sm:py-4 sm:text-sm"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
         >
           <span>{expanded ? "Mostrar menos" : "Ver todos os pratos da linha"}</span>
           <ArrowRight size={16} className={expanded ? "rotate-[-90deg]" : ""} />
