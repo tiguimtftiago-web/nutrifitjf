@@ -23,40 +23,9 @@ img { max-width: 100%; }
 }
 
 
-/* Alternância de tema do visitante: estilos claros limitados à página principal. */
-main[data-theme="light"] {
-  background: #f6f7f2 !important;
-  color: #20251b !important;
-  color-scheme: light;
-}
-main[data-theme="light"] [class*="bg-[#080a07"],
-main[data-theme="light"] [class*="bg-[#080a07]"],
-main[data-theme="light"] [class*="bg-[#0b0d0a"],
-main[data-theme="light"] [class*="bg-[#0d100b"],
-main[data-theme="light"] [class*="bg-[#0d110c"],
-main[data-theme="light"] [class*="bg-[#10130d"],
-main[data-theme="light"] [class*="bg-[#11160e"],
-main[data-theme="light"] [class*="bg-[#050605"],
-main[data-theme="light"] [class*="bg-black"] {
-  background-color: #ffffff !important;
-}
-main[data-theme="light"] [class*="text-white/"] { color: #52594a !important; }
-main[data-theme="light"] [class~="text-white"] { color: #20251b !important; }
-main[data-theme="light"] [class*="border-white/"] { border-color: rgba(42, 51, 31, .16) !important; }
-main[data-theme="light"] [class*="bg-white/"] { background-color: rgba(32, 37, 27, .045) !important; }
-main[data-theme="light"] header { background-color: rgba(255, 255, 255, .96) !important; border-color: rgba(42, 51, 31, .14) !important; }
-main[data-theme="light"] footer { background-color: #eef0e8 !important; }
-main[data-theme="light"] input,
-main[data-theme="light"] textarea,
-main[data-theme="light"] select { color: #20251b !important; background-color: #ffffff !important; border-color: rgba(42, 51, 31, .25) !important; }
-main[data-theme="light"] input::placeholder,
-main[data-theme="light"] textarea::placeholder { color: #69715e !important; }
-main[data-theme="light"] [class*="text-[#a7b86a]"] { color: #526b22 !important; }
-main[data-theme="light"] [class*="hover:text-white"]:hover { color: #20251b !important; }
-
-/* O carrossel principal mantém a fotografia e o contraste originais nos dois temas. */
-main[data-theme="light"] #inicio,
-main[data-theme="light"] #inicio > div {
+/* Banner: preservar fotografia, fundo escuro e contraste do texto. */
+#inicio,
+#inicio > div {
   background-color: #080a07 !important;
 }
 #inicio > div > div > img {
@@ -67,9 +36,13 @@ main[data-theme="light"] #inicio > div {
 #inicio > div > div > a {
   background-image: linear-gradient(90deg, #000 0%, #000 28%, rgba(0,0,0,.78) 48%, rgba(0,0,0,.22) 76%, transparent 100%);
 }
-main[data-theme="light"] #inicio [class*="text-white/"] {
-  color: rgba(255,255,255,.78) !important;
+
+/* Seção de sucos: manter a identidade escura sem alterar as fotografias. */
+#sucos {
+  background-color: #080a07 !important;
+  color: #fff;
 }
-main[data-theme="light"] #inicio [class~="text-white"] {
-  color: #ffffff !important;
+#sucos img {
+  opacity: 1;
+  visibility: visible;
 }
