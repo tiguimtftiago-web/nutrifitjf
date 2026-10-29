@@ -1895,7 +1895,7 @@ const saladsNutrition: Record<string, NutritionData> = {
 };
 
 const nutritionRows = (n: NutritionData) => [
-  ["Proteínas",n.protein+" g"],["Carboidratos",n.carbs+" g"],["Açúcares totais",n.sugars+" g"],["Gorduras totais",n.fat+" g"],["Gorduras saturadas",n.sat+" g"],["Fibras alimentares",n.fiber+" g"],
+  ["Valor energético",n.kcal+" kcal"],["Proteínas",n.protein+" g"],["Carboidratos",n.carbs+" g"],["Açúcares totais",n.sugars+" g"],["Gorduras totais",n.fat+" g"],["Gorduras saturadas",n.sat+" g"],["Fibras alimentares",n.fiber+" g"],
   ["Sódio",n.sodium+" mg"],["Colesterol",n.cholesterol+" mg"],["Potássio",n.potassium+" mg"],["Cálcio",n.calcium+" mg"],["Ferro",n.iron+" mg"],["Magnésio",n.magnesium+" mg"],["Zinco",n.zinc+" mg"],["Vitamina A",n.vitaminA+" mcg RAE"],["Vitamina C",n.vitaminC+" mg"],["Vitamina B12",n.b12+" mcg"]
 ];
 
@@ -1928,6 +1928,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           </div>
         </div>
       </div>
+      {nutrition && <div className="grid grid-cols-4 gap-1 border-t border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#d8e7a0]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
       <details className="border-t border-[#ef7d18]/30 bg-[#0d100c] text-left">
         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#ef7d18] px-3.5 py-3 text-sm font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
         <div className="p-3 text-sm leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
@@ -1976,6 +1977,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
         <p className="mt-1 text-[11px] leading-5 text-white/75 sm:text-sm sm:leading-6">{product.description}</p>
+        {nutrition && <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl border border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#d8e7a0]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
                         <details className="mt-2 overflow-hidden rounded-xl border border-[#ef7d18]/30 text-left">
                           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#ef7d18] px-3 py-2.5 text-[11px] font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={16} className="shrink-0" /></summary>
                           <div className="bg-[#0d100c] p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
@@ -2854,10 +2856,8 @@ export default function Home() {
               </div>}
             </div>
             <a href="#combos" className="text-sm font-black text-white/85 hover:text-white">COMBOS</a>
-            <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PERSONALIZE</a>
-            <a href="#como-pedir" className="text-sm font-black text-white/85 hover:text-white">COMO COMPRAR</a>
-            <a href="#entrega" className="text-sm font-black text-white/85 hover:text-white">ENTREGA</a>
-            <a href="#faq" className="text-sm font-black text-white/85 hover:text-white">FAQ</a>
+            <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PLANOS</a>
+            <a href="#sanduiches" className="text-sm font-black text-white/85 hover:text-white">SANDUÍCHES</a>
             <a href="#b2b" className="text-sm font-black text-white/85 hover:text-white">EMPRESAS</a>
           </nav>
 
@@ -2866,18 +2866,13 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
 
-            <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="group grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
-              <UserRound size={24} strokeWidth={1.7} />
-              <span className="mt-0.5 text-[8px] font-black leading-none text-white/70 sm:text-[9px] lg:hidden">Minha conta</span>
-            </button>
+            <a href="#cardapio" className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-[#ef7d18] px-2.5 py-2 text-[10px] font-black text-black transition hover:brightness-110 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs">Fazer pedido <ArrowRight size={13} /></a>
 
-            <a href="#cardapio" className="hidden xl:inline-flex items-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black transition hover:scale-[1.02]">Fazer pedido <ArrowRight size={15} /></a>
-
-            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full">
-              <ShoppingCart size={24} strokeWidth={1.7} />
-              {orderCount > 0 && <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-[#ef7d18] px-1 text-[10px] font-black text-white">{orderCount}</span>}
-              <span className="mt-0.5 text-[8px] font-black leading-none text-white/70 sm:text-[9px] lg:hidden">Carrinho</span>
+            <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid h-9 w-8 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/10 sm:h-11 sm:w-11">
+              <ShoppingCart size={21} strokeWidth={1.7} />
+              {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#ef7d18] px-1 text-[9px] font-black text-white">{orderCount}</span>}
             </button>
+            <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-white/75 transition hover:bg-white/10 sm:h-11 sm:w-11"><UserRound size={20} strokeWidth={1.7} /></button>
 
             <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" aria-expanded={menuOpen} title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
               <span className="text-[25px] leading-[1]">☰</span>
@@ -2893,6 +2888,7 @@ export default function Home() {
             <a href="#saladas" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SALADAS</a>
             <a href="#tradicional" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">TRADICIONAL 500 g</a>
             <a href="#sucos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SUCOS</a>
+            <a href="#sanduiches" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">SANDUÍCHES</a>
             <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
             <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
             <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
@@ -2933,6 +2929,12 @@ export default function Home() {
   </div>
 </section>
 
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+
       <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
           <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#a7b86a]/40 bg-[#a7b86a]/[.06] p-3">
@@ -2954,12 +2956,6 @@ export default function Home() {
           <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
         </div>
       </section>
-
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
-
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
         <div className="mx-auto max-w-[1500px] px-2 py-3 sm:px-5 sm:py-6 lg:px-7">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
@@ -3086,7 +3082,7 @@ export default function Home() {
           ] as const).map(([category, icon, title, subtitle, accent]) => {
             const items = comboComplements.filter((item) => item.category === category);
             return (
-              <details key={category} className="group overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
+              <details id={category === "SANDUÍCHES" ? "sanduiches" : undefined} key={category} className="group scroll-mt-24 overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
                   <div className="flex min-w-0 items-center gap-3">
                     <div
@@ -3584,13 +3580,9 @@ export default function Home() {
       </section>
 
       <section id="entrega" className="border-t border-white/10 bg-[#080a07]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
-          <div className="max-w-3xl"><p className="text-xs font-black uppercase tracking-[.22em] text-[#a7b86a]">Recebimento do pedido</p><h2 className="mt-2 text-3xl font-black sm:text-4xl">Entrega e retirada</h2><p className="mt-3 text-sm leading-6 text-white/60 sm:text-base">Confira as opções disponíveis para o seu endereço antes de concluir a compra.</p></div>
-          <div className="mt-5 grid gap-2.5 md:grid-cols-3">
-            <div className="rounded-xl border border-white/10 bg-white/[.03] p-3.5"><MapPin className="text-[#ef7d18]" size={20} /><h3 className="mt-2 text-sm font-black">Entrega em domicílio</h3><p className="mt-1.5 text-xs leading-5 text-white/55">Informe o CEP e o endereço no pedido. Disponibilidade e eventual taxa devem ser confirmadas antes da finalização.</p></div>
-            <div className="rounded-xl border border-white/10 bg-white/[.03] p-3.5"><ClipboardCheck className="text-[#ef7d18]" size={20} /><h3 className="mt-2 text-sm font-black">Confira os dados</h3><p className="mt-1.5 text-xs leading-5 text-white/55">Revise telefone, endereço, número, bairro e complemento para facilitar a entrega.</p></div>
-            <div className="rounded-xl border border-white/10 bg-white/[.03] p-3.5"><MessageCircle className="text-[#ef7d18]" size={20} /><h3 className="mt-2 text-sm font-black">Precisa confirmar?</h3><p className="mt-1.5 text-xs leading-5 text-white/55">Converse com a equipe pelo WhatsApp para verificar a cobertura e combinar os detalhes do recebimento.</p><a className="mt-3 inline-flex text-xs font-black text-[#a7b86a] hover:text-white" href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")}>Consultar entrega →</a></div>
-          </div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8">
+          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega e retirada</p><p className="mt-1 text-sm text-white/65">Informe seu CEP no pedido para consultar a cobertura e eventual taxa de entrega.</p></div>
+          <a href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-black text-[#d8e7a0]">Consultar entrega <ArrowRight size={14}/></a>
         </div>
       </section>
 
@@ -3598,9 +3590,6 @@ export default function Home() {
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
           <p className="text-[11px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-xs sm:tracking-[.22em]">Dúvidas frequentes</p><h2 className="mt-2 max-w-full break-words text-2xl font-black leading-tight sm:text-4xl">Antes de fazer seu pedido</h2>
           <div className="mt-5 divide-y divide-white/10 rounded-xl border border-white/10 bg-black/20 px-4 sm:px-5">
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Como faço um pedido? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Escolha os pratos ou um combo no cardápio, siga as etapas de montagem e confira os dados antes de enviar o pedido.</p></details>
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Posso montar um combo com pratos diferentes? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Use a opção de montagem de combo disponível no site e selecione os pratos permitidos para a linha escolhida. As opções e quantidades são apresentadas durante a montagem.</p></details>
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Como sei se entregam no meu endereço? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Informe o CEP e os dados de entrega no pedido. Se a cobertura ou a taxa não ficar clara, confirme com a equipe pelo WhatsApp antes de finalizar.</p></details>
             <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Onde encontro as informações nutricionais? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Abra o prato para consultar a ficha nutricional quando disponível. Os valores apresentados são referências da Nutrifit por porção e podem variar conforme ingredientes e preparo.</p></details>
             <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Quero pedir para uma empresa. Como funciona? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Acesse a seção Nutrifit para empresas e solicite uma proposta pelo WhatsApp. Informe quantidade estimada, frequência e local de entrega para avaliação comercial.</p></details>
             <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Preciso de ajuda com meu pedido. Com quem falo? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Use o botão de WhatsApp no site e envie os detalhes do pedido para a equipe poder orientar você.</p></details>
@@ -3638,7 +3627,7 @@ export default function Home() {
               <a href="#tradicional" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍛</span> Tradicional</a>
               <a href="#saladas" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥗</span> Saladas</a>
               <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🧃</span> Sucos</a>
-              <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
+              <a href="#sanduiches" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
               <a href="#combos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍽️</span> Combos</a>
               <a href="#b2b" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🏢</span> Empresas</a>
             </div>
