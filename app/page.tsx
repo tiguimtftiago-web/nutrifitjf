@@ -3666,7 +3666,7 @@ export default function Home() {
 
       <section id="faq" className="border-t border-white/10 bg-[#0d100b]">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
-          <p className="text-[11px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-xs sm:tracking-[.22em]">Dúvidas frequentes</p><h2 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">Antes de fazer seu pedido</h2>
+          <p className="text-[11px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-xs sm:tracking-[.22em]">Dúvidas frequentes</p><h2 className="mt-2 max-w-full break-words text-2xl font-black leading-tight sm:text-4xl">Antes de fazer seu pedido</h2>
           <div className="mt-5 divide-y divide-white/10 rounded-xl border border-white/10 bg-black/20 px-4 sm:px-5">
             <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Como faço um pedido? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Escolha os pratos ou um combo no cardápio, siga as etapas de montagem e confira os dados antes de enviar o pedido.</p></details>
             <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Posso montar um combo com pratos diferentes? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Use a opção de montagem de combo disponível no site e selecione os pratos permitidos para a linha escolhida. As opções e quantidades são apresentadas durante a montagem.</p></details>
@@ -3728,7 +3728,17 @@ export default function Home() {
               Falar no WhatsApp <MessageCircle size={15} className="ml-2" />
             </a>
           </div>
-          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-3 text-center text-[10px] text-white/45 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[11px] font-black uppercase tracking-[.16em] text-white/65">Formas de pagamento</p>
+              <div className="flex flex-wrap gap-2" aria-label="Formas de pagamento aceitas">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3 py-1.5 text-[11px] font-bold text-[#d0dda0]"><span aria-hidden="true">✓</span> Pix</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-1.5 text-[11px] font-bold text-white/75"><span aria-hidden="true">✓</span> Dinheiro</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-1.5 text-[11px] font-bold text-white/75"><span aria-hidden="true">✓</span> Cartão</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-3 text-center text-[10px] text-white/55 sm:flex-row sm:items-center sm:justify-between sm:text-left">
             <span>Nutrifit • Juiz de Fora/MG</span>
             <span>Escolha sua linha • monte seu pedido • receba com praticidade.</span>
           </div>
