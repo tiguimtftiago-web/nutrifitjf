@@ -3731,10 +3731,11 @@ export default function Home() {
           <div className="mt-5 border-t border-white/10 pt-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-[11px] font-black uppercase tracking-[.16em] text-white/65">Formas de pagamento</p>
-              <div className="flex flex-wrap gap-2" aria-label="Formas de pagamento aceitas">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#a7b86a]/35 bg-[#a7b86a]/10 px-3 py-1.5 text-[11px] font-bold text-[#d0dda0]"><span aria-hidden="true">✓</span> Pix</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-1.5 text-[11px] font-bold text-white/75"><span aria-hidden="true">✓</span> Dinheiro</span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[.04] px-3 py-1.5 text-[11px] font-bold text-white/75"><span aria-hidden="true">✓</span> Cartão</span>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" aria-label="Formas de pagamento aceitas">
+                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Pix"><svg width="54" height="22" viewBox="0 0 54 22" role="img" aria-label="Pix"><g fill="none" stroke="#32BCAD" strokeWidth="2.2"><path d="M8 2.5 13.5 8 8 13.5 2.5 8Z" transform="translate(0 3)"/><path d="M8 8 13.5 13.5 8 19 2.5 13.5Z" transform="translate(0 -3)"/></g><text x="18" y="15" fontSize="13" fontWeight="700" fill="#263238">Pix</text></svg></div>
+                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Visa"><svg width="58" height="22" viewBox="0 0 58 22" role="img" aria-label="Visa"><text x="2" y="17" fontSize="18" fontStyle="italic" fontWeight="900" letterSpacing="-1" fill="#1A1F71">VISA</text><path d="M3 20H40" stroke="#F7B600" strokeWidth="1.5"/></svg></div>
+                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Mastercard"><svg width="58" height="24" viewBox="0 0 58 24" role="img" aria-label="Mastercard"><circle cx="23" cy="12" r="9" fill="#EB001B"/><circle cx="35" cy="12" r="9" fill="#F79E1B"/><path d="M29 5.2a9 9 0 0 1 0 13.6 9 9 0 0 1 0-13.6Z" fill="#FF5F00"/><text x="1" y="23" fontSize="5.5" fontWeight="700" fill="#222">mastercard</text></svg></div>
+                <div className="flex h-11 min-w-[92px] items-center justify-center rounded-lg border border-white/15 bg-white px-3 shadow-sm" aria-label="Elo"><svg width="48" height="22" viewBox="0 0 48 22" role="img" aria-label="Elo"><text x="1" y="16" fontSize="17" fontWeight="900" fontStyle="italic" fill="#111">elo</text><circle cx="37" cy="6" r="2.5" fill="#F5C400"/><circle cx="41" cy="11" r="2.5" fill="#00A4E0"/><circle cx="36" cy="16" r="2.5" fill="#E53238"/></svg></div>
               </div>
             </div>
           </div>
