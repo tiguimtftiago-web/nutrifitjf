@@ -707,9 +707,11 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               {option.products.map((product) => (
                 <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
                   <img src={product.image} alt={product.name} className={`h-16 w-16 shrink-0 rounded-xl sm:mb-2 sm:h-24 sm:w-full ${product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? "object-contain object-center" : "object-cover"}`} loading="eager" decoding="async" fetchPriority="high" />
-                  <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
-                  <div className="mt-2 text-xs text-white/40">{money(unitPrice)} cada</div>
-                  <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
+                  <div className="min-w-0 flex-1 sm:min-h-[3.5rem]">
+                    <div className="text-sm font-black leading-tight">{product.name}</div>
+                    <div className="mt-1.5 text-xs font-medium text-white/45">{money(unitPrice)} cada</div>
+                  </div>
+                  <div className="flex shrink-0 items-center justify-between gap-2 sm:mt-3">
                     <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
                     <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
                     <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
