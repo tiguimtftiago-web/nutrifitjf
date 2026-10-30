@@ -606,6 +606,40 @@ const comboOptions = [
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
 
+type CatalogComboPriceMap = Record<string, Record<number, number>>;
+
+function useCatalogComboPrices(): CatalogComboPriceMap {
+  const [prices, setPrices] = useState<CatalogComboPriceMap>({});
+  useEffect(() => {
+    let active = true;
+    const loadPrices = async () => {
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+        );
+        if (!response.ok) return;
+        const rows = await response.json();
+        const next: CatalogComboPriceMap = {};
+        for (const row of rows) {
+          const name = String(row.name ?? "").toUpperCase();
+          const quantity = Number(row.quantity);
+          const price = Number(row.price);
+          if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price < 0) continue;
+          next[name] ||= {};
+          next[name][quantity] = price;
+        }
+        if (active) setPrices(next);
+      } catch {
+        // Mantém os valores de contingência do cardápio se a consulta falhar.
+      }
+    };
+    void loadPrices();
+    return () => { active = false; };
+  }, []);
+  return prices;
+}
+
 const monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
@@ -620,9 +654,10 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [detailQuantity, setDetailQuantity] = useState(1);
   const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
+  const catalogComboPrices = useCatalogComboPrices();
   const option = monthlyPlanOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const totalPrice = parseMoney(option.prices[quantity]);
+  const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
   const unitPrice = totalPrice / quantity;
   const remaining = quantity - total;
 
@@ -799,10 +834,14 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
+  const catalogComboPrices = useCatalogComboPrices();
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const price = option.line === "TRADICIONAL" && quantity >= 30
-    ? money(792 + Math.max(0, quantity - 30) * 26.4)
-    : (option.prices as Record<number, string>)[quantity];
+  const catalogPrice = catalogComboPrices[option.line]?.[quantity];
+  const price = catalogPrice !== undefined
+    ? money(catalogPrice)
+    : option.line === "TRADICIONAL" && quantity >= 30
+      ? money(792 + Math.max(0, quantity - 30) * 26.4)
+      : (option.prices as Record<number, string>)[quantity];
   const subtotal = parseMoney(price);
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
   const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
