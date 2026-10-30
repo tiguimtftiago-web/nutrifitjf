@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 type ConsentChoice = "accepted" | "rejected" | null;
 
@@ -50,6 +51,7 @@ export default function AnalyticsConsent() {
     <>
       {choice === "accepted" && (
         <>
+          <Analytics />
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-40YWBD3WXW"
             strategy="afterInteractive"
@@ -72,7 +74,7 @@ export default function AnalyticsConsent() {
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-black text-[#d9e5b2]">Privacidade e cookies</h2>
               <p className="mt-1 text-xs leading-5 text-white/70">
-                Usamos armazenamento essencial para o funcionamento do site. Com sua autorização, o Google Analytics também mede visitas e uso das páginas para ajudar a melhorar a Nutrifit. Você pode recusar sem perder acesso à loja.
+                Usamos armazenamento essencial para o funcionamento do site. Com sua autorização, o Google Analytics e a Vercel Analytics também medem visitas e uso das páginas para ajudar a melhorar a Nutrifit. Você pode recusar sem perder acesso à loja.
               </p>
               <a href="/privacidade" className="mt-2 inline-block text-xs font-bold text-[#f47b0b] underline underline-offset-4">
                 Ler política de privacidade
