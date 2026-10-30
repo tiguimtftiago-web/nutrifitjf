@@ -1929,7 +1929,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
       </div>
       {nutrition && <div className="grid grid-cols-4 gap-1 border-t border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#b6d76a]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
-      <div className="grid grid-cols-2 gap-2.5 border-t border-white/10 bg-[#0d100c] p-2.5">
+      <div className="grid grid-cols-2 items-start gap-2.5 border-t border-white/10 bg-[#0d100c] p-2.5">
         <details className="min-w-0 overflow-hidden rounded-xl border border-[#86a51d]/80 bg-[#11150e] text-left">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#b6d76a] [&::-webkit-details-marker]:hidden"><Salad size={19} className="shrink-0"/><span>Ingredientes</span></summary>
           <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
@@ -1978,7 +1978,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
         <p className="mt-1 text-[11px] leading-5 text-white/75 sm:text-sm sm:leading-6">{product.description}</p>
         {nutrition && <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl border border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#b6d76a]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
-                        <div className="mt-2 grid grid-cols-2 gap-2">
+                        <div className="mt-2 grid grid-cols-2 items-start gap-2">
                           <details className="min-w-0 overflow-hidden rounded-xl border border-[#86a51d]/80 bg-[#11150e] text-left">
                             <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center gap-1.5 px-2 py-2.5 text-center text-[11px] font-black text-[#b6d76a] [&::-webkit-details-marker]:hidden"><Salad size={17}/><span>Ingredientes</span></summary>
                             <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
