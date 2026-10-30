@@ -2761,77 +2761,9 @@ export default function Home() {
       });
 
       if (response.status === 409) {
-        // Cliente já cadastrado: transformar o cadastro existente em Club sem duplicar o perfil.
-        const existingResponse = await fetch(
-          SUPABASE_URL + "/rest/v1/customer_profiles?select=id,nutrifit_club_member,nutrifit_club_joined_at,marketing_consent,email,name&whatsapp=eq." + encodeURIComponent(phone) + "&limit=1",
-          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
-        );
-        const existingProfiles = await existingResponse.json();
-        const existing = Array.isArray(existingProfiles) ? existingProfiles[0] : null;
-        if (!existingResponse.ok || !existing?.id) throw new Error("existing-profile");
-
-        const wasClubMember = existing.nutrifit_club_member === true;
-        const existingPatch = {
-          name,
-          email: email || existing.email || null,
-          birth_date: birthDate,
-          nutrifit_club_member: true,
-          nutrifit_club_joined_at: existing.nutrifit_club_joined_at || new Date().toISOString(),
-          marketing_consent: profileMarketing || existing.marketing_consent === true,
-          marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
-        };
-
-        const patchResponse = await fetch(
-          SUPABASE_URL + "/rest/v1/customer_profiles?id=eq." + encodeURIComponent(existing.id),
-          {
-            method: "PATCH",
-            headers: {
-              apikey: SUPABASE_PUBLISHABLE_KEY,
-              "Content-Type": "application/json",
-              Prefer: "return=minimal",
-            },
-            body: JSON.stringify(existingPatch),
-          },
-        );
-        if (!patchResponse.ok) throw new Error("existing-profile-update");
-
-        const effectiveEmail = String(existingPatch.email || "").trim().toLowerCase();
-        const effectiveMarketing = existingPatch.marketing_consent === true;
-
-        window.localStorage.setItem("nutrifit_profile", JSON.stringify({
-          name,
-          phone,
-          email: effectiveEmail,
-          birthDate,
-          marketing: effectiveMarketing,
-          nutrifitClub: true,
-          couponUsed: false,
-        }));
-        setClubDiscount(wasClubMember ? 0 : 10);
-        setCustomerName(name);
-        setCustomerPhone(phone);
-
-        // Só dispara a jornada para quem está entrando no Club agora.
-        if (!wasClubMember && effectiveEmail && effectiveMarketing) {
-          void fetch("/api/club-automation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            keepalive: true,
-            body: JSON.stringify({
-              email: effectiveEmail,
-              firstName: name.split(/\s+/)[0] || name,
-              whatsapp: phone,
-              clubMember: true,
-              marketingConsent: true,
-            }),
-          }).catch((error) => console.error("club automation trigger", error));
-        }
-
-        setProfileStatus("success");
-        const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
-        trackClick("profile_save", acquisitionSource);
-        trackClick("lead_captured", acquisitionSource);
-        window.setTimeout(() => setProfileOpen(false), 700);
+        // Não consultar nem alterar perfis existentes com a chave pública.
+        // A confirmação de posse do WhatsApp e a atualização segura ocorrem no webhook oficial.
+        setProfileStatus("exists");
         return;
       }
       if (!response.ok) throw new Error("signup");
@@ -3610,7 +3542,12 @@ export default function Home() {
                 </label>
               </div>
 
-              {profileStatus === "exists" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Este WhatsApp já está cadastrado no Clube Nutrifit.</div>}
+              {profileStatus === "exists" && (
+                <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
+                  Este WhatsApp já possui um cadastro na Nutrifit. Para confirmar que o número é seu e concluir a entrada no Clube sem duplicar dados, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.
+                  <a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a>
+                </div>
+              )}
               {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
               {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm text-[#b6d76a]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
 
