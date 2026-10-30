@@ -53,7 +53,7 @@ export default function MontadorClient() {
 
   const totals = useMemo(() => {
     const priceIndex = ingredients.reduce((sum, item) => sum + (amounts[item.id] || 0) / 100 * item.priceIndex, 0);
-    const price = Math.max(0, basePrice + priceIndex - baselineIndex);
+    const price = totalWeight === 0 ? 0 : Math.max(0, basePrice + priceIndex - baselineIndex);
     const kcal = ingredients.reduce((sum, item) => sum + (amounts[item.id] || 0) * item.kcal / 100, 0);
     const protein = ingredients.reduce((sum, item) => sum + (amounts[item.id] || 0) * item.protein / 100, 0);
     return { price, kcal: Math.round(kcal), protein: Math.round(protein * 10) / 10 };
