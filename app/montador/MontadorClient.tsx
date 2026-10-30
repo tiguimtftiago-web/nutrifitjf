@@ -152,7 +152,7 @@ export default function MontadorClient() {
                         const amount = amounts[item.id] || 0;
                         const foodScale = Math.min(1.35, Math.max(0.82, 0.82 + amount / 500));
                         return <div className={`tray-food ${visual.tone}`} key={item.id} title={`${item.name}: ${amount} g`} style={{ "--food-scale": foodScale, "--food-fill": `${Math.min(100, 38 + amount * 0.42)}%` } as React.CSSProperties}>
-                          <div className="food-photo"><img src={item.image} alt={item.name} loading="lazy" /></div>
+                          <div className={`food-mass food-${item.id}`} aria-label={item.name} />
                           <span className="food-name">{item.name}</span>
                           <strong>{amount} g</strong>
                         </div>;
