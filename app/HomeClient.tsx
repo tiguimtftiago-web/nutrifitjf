@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
@@ -2901,7 +2902,7 @@ export default function Home() {
   <div className="relative min-h-[400px] overflow-hidden sm:min-h-[430px] md:min-h-[500px]">
     {bannerSlides.map((slide, index) => (
       <div key={slide.source} className={`absolute inset-0 transition-opacity duration-700 ${index === bannerIndex ? "opacity-100" : "pointer-events-none opacity-0"}`} aria-hidden={index !== bannerIndex}>
-        <img src={slide.image} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: index === 0 ? "72% center" : index === 1 ? "58% center" : "45% center" }} fetchPriority={index === 0 ? "high" : "auto"} />
+        <Image src={slide.image} alt="" aria-hidden="true" fill sizes="100vw" quality={72} loading={index === bannerIndex ? "eager" : "lazy"} fetchPriority={index === bannerIndex ? "high" : "auto"} className="object-cover" style={{ objectPosition: index === 0 ? "72% center" : index === 1 ? "58% center" : "45% center" }} />
         <a
           href={slide.href}
           onClick={() => trackClick("banner_cta_click", slide.source)}
