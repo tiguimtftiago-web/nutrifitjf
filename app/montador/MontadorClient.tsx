@@ -150,8 +150,9 @@ export default function MontadorClient() {
                       {groupItems.length > 0 ? <div className="tray-foods">{groupItems.map(item => {
                         const visual = ingredientVisuals[item.id];
                         const amount = amounts[item.id] || 0;
-                        return <div className={`tray-food ${visual.tone}`} key={`${item.id}-${amount}`} title={`${item.name}: ${amount} g`}>
-                          <span className="food-emoji">{visual.emoji}</span>
+                        const foodScale = Math.min(1.35, Math.max(0.82, 0.82 + amount / 500));
+                        return <div className={`tray-food ${visual.tone}`} key={`${item.id}-${amount}`} title={`${item.name}: ${amount} g`} style={{ "--food-scale": foodScale } as React.CSSProperties}>
+                          <div className="food-photo"><img src={item.image} alt={item.name} loading="lazy" /></div>
                           <span className="food-name">{item.name}</span>
                           <strong>{amount} g</strong>
                         </div>;
