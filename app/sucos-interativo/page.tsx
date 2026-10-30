@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight, Leaf, MessageCircle, ShieldCheck, ShoppingCart } from "lucide-react";
+
+const JuiceBottle3D = dynamic(() => import("./JuiceBottle3D"), {
+  ssr: false,
+  loading: () => <div className="grid h-[320px] w-full place-items-center text-sm font-bold text-white/60 sm:h-[450px]">Preparando visualização 3D...</div>,
+});
 
 const juices = [
   { name: "Laranja", badge: "SUCO NATURAL", description: "Suco de laranja Nutrifit.", image: "/images/page-42.jpg", color: "#ef7d18" },
@@ -121,6 +128,7 @@ const sizes = [
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
+  const [show3D, setShow3D] = useState(false);
   const juice = juices[active];
   const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
   const orderText = encodeURIComponent(`Olá, Nutrifit! Quero pedir ${juice.name}, ${size}, por ${price}.`);
@@ -152,7 +160,16 @@ export default function SucosInterativosPage() {
             </aside>
 
             <div className="relative order-1 min-h-[470px] overflow-hidden bg-black sm:min-h-[560px] lg:order-2 lg:min-h-0">
-              <img key={juice.name} src={juice.image} alt={`Suco Nutrifit ${juice.name} com frutas`} className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300" />
+              {show3D ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,_rgba(167,184,106,0.16),_transparent_68%)]">
+                  <JuiceBottle3D key={juice.name} flavor={juice.name} color={juice.color} label={juice.badge} />
+                </div>
+              ) : (
+                <Image key={juice.name} src={juice.image} alt={`Suco Nutrifit ${juice.name} com frutas`} fill priority sizes="(max-width: 1024px) 100vw, 54vw" className="object-cover object-center transition-opacity duration-300" />
+              )}
+              <button type="button" onClick={() => setShow3D(value => !value)} aria-pressed={show3D} className="absolute right-4 top-4 z-10 rounded-full border border-[#ef7d18]/80 bg-black/75 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-white shadow-lg transition hover:bg-[#ef7d18]">
+                {show3D ? "Ver foto" : "Ver em 3D"}
+              </button>
               <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/30" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/10" />
               <div className="absolute left-4 top-4 rounded-full border border-[#a7b86a]/60 bg-black/60 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-[#d8e7a0] sm:left-6 sm:top-6">Nutrifit • Sucos</div>
@@ -189,7 +206,7 @@ export default function SucosInterativosPage() {
             <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4"><h3 className="text-base font-black sm:text-lg">Escolha seu sabor</h3><span className="text-xs font-bold text-white/45">{active + 1} / {juices.length}</span></div>
             <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:gap-3">
               {juices.map((item, index) => <button key={item.name} type="button" onClick={() => choose(index)} aria-pressed={active === index} className={`group w-[31%] shrink-0 snap-start overflow-hidden rounded-xl border text-left transition sm:w-[23.5%] md:w-[18.5%] lg:w-[13.8%] ${active === index ? "border-[#ef7d18] bg-[#ef7d18]/10 shadow-[0_0_18px_rgba(239,125,24,.18)]" : "border-white/10 bg-black hover:border-white/30"}`}>
-                <img src={item.image} alt={item.name} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]"/>
+                <Image src={item.image} alt={item.name} width={400} height={300} sizes="(max-width: 640px) 31vw, (max-width: 1024px) 23vw, 14vw" loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.02]"/>
                 <span className="block truncate px-1.5 py-2 text-center text-[10px] font-black sm:text-xs">{item.name === "Abacaxi com Hortelã" ? "Abacaxi" : item.name}</span>
               </button>)}
             </div>
