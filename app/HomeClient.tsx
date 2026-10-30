@@ -2942,7 +2942,7 @@ export default function Home() {
             <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Transforme suas orientações em refeições.</span></span>
             <span className="text-[10px] font-black text-[#86a51d]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
           </a>
-          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#f47b0b]/45 bg-[#f47b0b]/[.04] p-3">
+          <a href="https://wa.me/5532999925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#f47b0b]/45 bg-[#f47b0b]/[.04] p-3">
             <Stethoscope size={22} className="text-[#f47b0b]" />
             <span><span className="block text-xs font-black">Atendimento nutricional</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Fale com a nutricionista.</span></span>
             <span className="text-[10px] font-black text-[#f47b0b]">Falar agora <ArrowRight size={12} className="ml-1 inline" /></span>
