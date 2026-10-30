@@ -1014,7 +1014,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     // A navegação para o WhatsApp ocorre na mesma aba após confirmar o registro.
 
     try {
-      const acquisition = getAcquisitionData();
+      const acquisition = hasAnalyticsConsent()
+        ? getAcquisitionData()
+        : { source: "direct", campaign: "", medium: "", content: "" };
       const response = await fetch(SUPABASE_URL + "/functions/v1/create-combo-order", {
         method: "POST",
         headers: {
