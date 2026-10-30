@@ -8,8 +8,8 @@
   --nf-text: #f7f8f5;
   --nf-muted: #c0c2bb;
   --nf-border: rgba(255, 255, 255, .13);
-  --nf-olive: #a7b86a;
-  --nf-orange: #ef7d18;
+  --nf-olive: #86a51d;
+  --nf-orange: #f47b0b;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -81,10 +81,10 @@ img, picture {
   opacity: 1;
 }
 
-::selection { background: #a7b86a; color: #080a07; }
+::selection { background: #86a51d; color: #080a07; }
 a, button { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, summary:focus-visible {
-  outline: 2px solid #ef7d18;
+  outline: 2px solid #f47b0b;
   outline-offset: 3px;
 }
 
