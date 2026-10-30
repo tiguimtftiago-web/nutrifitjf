@@ -18,7 +18,28 @@ const instagram = "https://www.instagram.com/nutrifit_jf/";
 const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
+const ANALYTICS_CONSENT_KEY = "nutrifit_analytics_consent";
+
+const hasAnalyticsConsent = () => {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(ANALYTICS_CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
+};
+
+const getConsentedAcquisitionValue = (key: string) => {
+  if (!hasAnalyticsConsent()) return null;
+  try {
+    return window.localStorage.getItem(key) || null;
+  } catch {
+    return null;
+  }
+};
+
 const trackClick = (event: string, source: string) => {
+  if (!hasAnalyticsConsent()) return;
   track(event, { source });
   if (typeof window !== "undefined" && event !== "site_visit") {
     void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
@@ -30,9 +51,9 @@ const trackClick = (event: string, source: string) => {
         source,
         page: window.location.pathname,
         metadata: {
-          campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         },
       }),
     }).catch(() => {});
@@ -585,6 +606,40 @@ const comboOptions = [
   { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
 ] as const;
 
+type CatalogComboPriceMap = Record<string, Record<number, number>>;
+
+function useCatalogComboPrices(): CatalogComboPriceMap {
+  const [prices, setPrices] = useState<CatalogComboPriceMap>({});
+  useEffect(() => {
+    let active = true;
+    const loadPrices = async () => {
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+        );
+        if (!response.ok) return;
+        const rows = await response.json();
+        const next: CatalogComboPriceMap = {};
+        for (const row of rows) {
+          const name = String(row.name ?? "").toUpperCase();
+          const quantity = Number(row.quantity);
+          const price = Number(row.price);
+          if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price < 0) continue;
+          next[name] ||= {};
+          next[name][quantity] = price;
+        }
+        if (active) setPrices(next);
+      } catch {
+        // Mantém os valores de contingência do cardápio se a consulta falhar.
+      }
+    };
+    void loadPrices();
+    return () => { active = false; };
+  }, []);
+  return prices;
+}
+
 const monthlyPlanOptions = [
   { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
   { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
@@ -599,9 +654,10 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [detailQuantity, setDetailQuantity] = useState(1);
   const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
+  const catalogComboPrices = useCatalogComboPrices();
   const option = monthlyPlanOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const totalPrice = parseMoney(option.prices[quantity]);
+  const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
   const unitPrice = totalPrice / quantity;
   const remaining = quantity - total;
 
@@ -778,10 +834,14 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
+  const catalogComboPrices = useCatalogComboPrices();
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const price = option.line === "TRADICIONAL" && quantity >= 30
-    ? money(792 + Math.max(0, quantity - 30) * 26.4)
-    : (option.prices as Record<number, string>)[quantity];
+  const catalogPrice = catalogComboPrices[option.line]?.[quantity];
+  const price = catalogPrice !== undefined
+    ? money(catalogPrice)
+    : option.line === "TRADICIONAL" && quantity >= 30
+      ? money(792 + Math.max(0, quantity - 30) * 26.4)
+      : (option.prices as Record<number, string>)[quantity];
   const subtotal = parseMoney(price);
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
   const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
@@ -993,7 +1053,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     // A navegação para o WhatsApp ocorre na mesma aba após confirmar o registro.
 
     try {
-      const acquisition = getAcquisitionData();
+      const acquisition = hasAnalyticsConsent()
+        ? getAcquisitionData()
+        : { source: "direct", campaign: "", medium: "", content: "" };
       const response = await fetch(SUPABASE_URL + "/functions/v1/create-combo-order", {
         method: "POST",
         headers: {
@@ -2523,7 +2585,7 @@ export default function Home() {
       "",
       "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
-    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+    const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
     trackClick("order_started", acquisitionSource);
 
     // Evita abrir about:blank no Safari/iPhone.
@@ -2556,9 +2618,9 @@ export default function Home() {
           address_reference: orderReference.trim() || null,
           notes: notesText || null,
           acquisition_source: acquisitionSource,
-          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          acquisition_content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         }),
       });
       const result = await orderResponse.json().catch(() => ({}));
@@ -2634,27 +2696,29 @@ export default function Home() {
   };
 
   useEffect(() => {
-    try {
-      const acquisition = getAcquisitionData();
-      const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
-      if (!previousSource || acquisition.source !== "direct") {
-        window.localStorage.setItem("nutrifit_acquisition_source", acquisition.source);
-      }
-      if (acquisition.campaign) window.localStorage.setItem("nutrifit_acquisition_campaign", acquisition.campaign);
-      if (acquisition.medium) window.localStorage.setItem("nutrifit_acquisition_medium", acquisition.medium);
-      if (acquisition.content) window.localStorage.setItem("nutrifit_acquisition_content", acquisition.content);
-      void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
-        method: "POST",
-        headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
-        keepalive: true,
-        body: JSON.stringify({
-          event: "site_visit",
-          source: acquisition.source,
-          page: window.location.pathname,
-          metadata: { campaign: acquisition.campaign || null, medium: acquisition.medium || null, content: acquisition.content || null },
-        }),
-      }).catch(() => {});
-    } catch {}
+    if (hasAnalyticsConsent()) {
+      try {
+        const acquisition = getAcquisitionData();
+        const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
+        if (!previousSource || acquisition.source !== "direct") {
+          window.localStorage.setItem("nutrifit_acquisition_source", acquisition.source);
+        }
+        if (acquisition.campaign) window.localStorage.setItem("nutrifit_acquisition_campaign", acquisition.campaign);
+        if (acquisition.medium) window.localStorage.setItem("nutrifit_acquisition_medium", acquisition.medium);
+        if (acquisition.content) window.localStorage.setItem("nutrifit_acquisition_content", acquisition.content);
+        void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+          keepalive: true,
+          body: JSON.stringify({
+            event: "site_visit",
+            source: acquisition.source,
+            page: window.location.pathname,
+            metadata: { campaign: acquisition.campaign || null, medium: acquisition.medium || null, content: acquisition.content || null },
+          }),
+        }).catch(() => {});
+      } catch {}
+    }
     try {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
       const leadPromptSeen = window.sessionStorage.getItem("nutrifit_lead_prompt_seen") === "1";
@@ -2689,10 +2753,10 @@ export default function Home() {
           nutrifit_club_joined_at: new Date().toISOString(),
           marketing_consent: profileMarketing,
           marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
-          acquisition_source: window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource(),
-          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          acquisition_source: (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct")),
+          acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          acquisition_content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         }),
       });
 
@@ -2764,7 +2828,7 @@ export default function Home() {
         }
 
         setProfileStatus("success");
-        const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+        const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
         trackClick("profile_save", acquisitionSource);
         trackClick("lead_captured", acquisitionSource);
         window.setTimeout(() => setProfileOpen(false), 700);
@@ -2801,7 +2865,7 @@ export default function Home() {
       }
 
       setProfileStatus("success");
-      const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+      const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
       trackClick("profile_save", acquisitionSource);
       trackClick("lead_captured", acquisitionSource);
       window.setTimeout(() => setProfileOpen(false), 700);

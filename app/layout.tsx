@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
-import Script from "next/script";
+import AnalyticsConsent from "./components/AnalyticsConsent";
 import "./globals.css";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
@@ -129,18 +128,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-40YWBD3WXW"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
-          function gtag(){window.dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-40YWBD3WXW');`
-          }
-        </Script>
-        <Analytics />
+        <AnalyticsConsent />
       </body>
     </html>
   );
