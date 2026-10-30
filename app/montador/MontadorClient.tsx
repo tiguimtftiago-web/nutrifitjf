@@ -40,6 +40,22 @@ const baselineIndex = ingredients.reduce((sum, item) => sum + (initialAmounts[it
 
 const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+const ingredientVisuals: Record<string, { emoji: string; tone: string }> = {
+  chicken: { emoji: "🍗", tone: "gold" },
+  beef: { emoji: "🥩", tone: "brown" },
+  pork: { emoji: "🍖", tone: "rose" },
+  fish: { emoji: "🐟", tone: "blue" },
+  rice: { emoji: "🍚", tone: "cream" },
+  sweetpotato: { emoji: "🍠", tone: "orange" },
+  potato: { emoji: "🥔", tone: "sand" },
+  pasta: { emoji: "🍝", tone: "tomato" },
+  broccoli: { emoji: "🥦", tone: "green" },
+  carrot: { emoji: "🥕", tone: "carrot" },
+  cauliflower: { emoji: "🥬", tone: "mint" },
+  zucchini: { emoji: "🥒", tone: "mint" },
+  pumpkin: { emoji: "🎃", tone: "orange" },
+};
+
 export default function MontadorClient() {
   const [amounts, setAmounts] = useState<Record<string, number>>(initialAmounts);
   const [preparations, setPreparations] = useState<Record<string, string>>({ chicken: "Grelhado", rice: "Tradicional", broccoli: "No vapor" });
@@ -117,6 +133,37 @@ export default function MontadorClient() {
             <div className="weight-track"><span style={{ width: `${Math.min(100, totalWeight / targetWeight * 100)}%` }} /></div>
             <div className="weight-foot"><span>{selectedCount} ingredientes selecionados</span><span>{Math.round(totalWeight / targetWeight * 100)}% preenchido</span></div>
           </div>
+
+          <section className="live-meal-card" aria-live="polite">
+            <div className="live-meal-heading">
+              <div><span className="muted-label">VISUALIZAÇÃO AO VIVO</span><h2>Sua marmitinha ganhando forma</h2><p>Cada escolha aparece aqui enquanto você monta.</p></div>
+              <span className="live-dot"><i /> AO VIVO</span>
+            </div>
+            <div className="meal-tray">
+              <div className="tray-rim">
+                <div className="tray-inner">
+                  {(["Proteína", "Carboidrato", "Legumes"] as Group[]).map(group => {
+                    const groupItems = ingredients.filter(item => item.group === group && (amounts[item.id] || 0) > 0);
+                    const groupClass = group === "Proteína" ? "protein" : group === "Carboidrato" ? "carb" : "veg";
+                    return <div className={`tray-compartment ${groupClass}`} key={group}>
+                      <span className="tray-label">{group}</span>
+                      {groupItems.length > 0 ? <div className="tray-foods">{groupItems.map(item => {
+                        const visual = ingredientVisuals[item.id];
+                        const amount = amounts[item.id] || 0;
+                        return <div className={`tray-food ${visual.tone}`} key={`${item.id}-${amount}`} title={`${item.name}: ${amount} g`}>
+                          <span className="food-emoji">{visual.emoji}</span>
+                          <span className="food-name">{item.name}</span>
+                          <strong>{amount} g</strong>
+                        </div>;
+                      })}</div> : <span className="tray-empty">Escolha {group.toLowerCase()}</span>}
+                    </div>;
+                  })}
+                </div>
+              </div>
+              <div className="tray-shadow" />
+            </div>
+            <div className="live-meal-caption"><span><strong>{selectedCount}</strong> itens na marmita</span><span><strong>{totalWeight} g</strong> de {targetWeight} g</span></div>
+          </section>
 
           <div className="group-tabs" role="tablist" aria-label="Categorias de ingredientes">
             {(["Proteína", "Carboidrato", "Legumes"] as Group[]).map(group => <button key={group} className={activeGroup === group ? "group-tab active" : "group-tab"} onClick={() => setActiveGroup(group)}>{group}</button>)}
