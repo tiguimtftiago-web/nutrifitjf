@@ -3250,6 +3250,7 @@ export default function Home() {
               Explorar cardápio <ArrowRight size={16} />
             </a>
           </div>
+          <a href="/combo-mounjaro" className="group relative mt-5 block overflow-hidden rounded-[1.5rem] border border-[#86a51d]/40 bg-[radial-gradient(ellipse_at_top_right,rgba(134,165,29,.2),transparent_55%),linear-gradient(115deg,#151b0e,#0d100b)] p-4 transition hover:border-[#f47b0b]/60 sm:mt-6 sm:rounded-[2rem] sm:p-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><span className="inline-flex rounded-full border border-[#86a51d]/35 bg-[#86a51d]/10 px-3 py-1 text-[9px] font-black uppercase tracking-[.18em] text-[#b6d76a]">Nova linha especial • até 250 g</span><h2 className="mt-2 text-2xl font-black sm:text-3xl">Combo Mounjaro</h2><p className="mt-1 max-w-2xl text-xs leading-5 text-white/60 sm:text-sm">Escolha entre 10 receitas e monte seu próprio combo, com ingredientes e informações de cada prato.</p></div><span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3 text-sm font-black text-black transition group-hover:brightness-110">Montar meu combo <ArrowRight size={17}/></span></div></a>
         </div>
       </section>
     
