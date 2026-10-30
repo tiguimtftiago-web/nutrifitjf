@@ -2009,7 +2009,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
   );
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
   const isMealLine = id === "cardapio" || id === "performance" || id === "tradicional";
