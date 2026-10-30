@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
-type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; active:boolean; sku:string|null; };
+type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; active:boolean; sku:string|null; description:string|null; image_url:string|null; };
 type ComboPrice = { id:string; name:string; quantity:number; price:number; active:boolean; notes:string|null; };
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; };
@@ -81,7 +81,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
-  const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:""});
+  const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});
   const [editingProduct,setEditingProduct]=useState<Product|null>(null);
   const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});
   const [coupon,setCoupon]=useState({code:"",description:"",discount_type:"percent",discount_value:"",minimum_order_value:"0"});
@@ -90,7 +90,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     if(!background){setBusy(true);setError("");}
     try{
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
-        req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku&order=sort_order.asc,name.asc&limit=500",token),
+        req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
@@ -328,17 +328,17 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     if(!product.name.trim()||!product.price)return;
     setBusy(true);
     try{
-      await req(URL+"/rest/v1/catalog_products",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price)})});
-      setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:""});await load();
+      await req(URL+"/rest/v1/catalog_products",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price),description:product.description.trim()||null,image_url:product.image_url.trim()||null,sku:product.sku.trim()||null})});
+      setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});await load();
     }catch{setError("Não foi possível cadastrar o produto.");}finally{setBusy(false);}
   }
   function startProductEdit(p:Product){
     setEditingProduct(p);
-    setProduct({name:p.name,category:p.category,line:p.line||"",size_grams:p.size_grams?String(p.size_grams):"",price:String(p.price)});
+    setProduct({name:p.name,category:p.category,line:p.line||"",size_grams:p.size_grams?String(p.size_grams):"",price:String(p.price),description:p.description||"",image_url:p.image_url||"",sku:p.sku||""});
   }
   function cancelProductEdit(){
     setEditingProduct(null);
-    setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:""});
+    setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});
   }
   async function saveProduct(){
     if(!editingProduct||!product.name.trim()||!product.price)return;
@@ -433,12 +433,15 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   if(section==="produtos")return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Produtos / Cardápio">
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <input value={product.name} onChange={e=>setProduct({...product,name:e.target.value})} placeholder="Nome do produto" className={input}/>
       <input value={product.category} onChange={e=>setProduct({...product,category:e.target.value})} placeholder="Categoria" className={input}/>
       <input value={product.line} onChange={e=>setProduct({...product,line:e.target.value})} placeholder="Linha" className={input}/>
-      <input value={product.size_grams} onChange={e=>setProduct({...product,size_grams:e.target.value})} placeholder="Gramas" className={input}/>
+      <input value={product.size_grams} onChange={e=>setProduct({...product,size_grams:e.target.value})} placeholder="Gramas / ml" className={input}/>
       <input type="number" step="0.01" value={product.price} onChange={e=>setProduct({...product,price:e.target.value})} placeholder="Preço" className={input}/>
+      <input value={product.sku} onChange={e=>setProduct({...product,sku:e.target.value})} placeholder="SKU (opcional)" className={input}/>
+      <input value={product.image_url} onChange={e=>setProduct({...product,image_url:e.target.value})} placeholder="Caminho da imagem (ex.: /images/prato.jpg)" className={input}/>
+      <textarea value={product.description} onChange={e=>setProduct({...product,description:e.target.value})} placeholder="Descrição exibida no cardápio" rows={2} className={input+" sm:col-span-2"}/>
     </div>
     <div className="mt-3 flex flex-wrap gap-2">
       <button onClick={()=>void (editingProduct?saveProduct():addProduct())} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">{editingProduct?"Salvar alterações":"Cadastrar produto"}</button>
