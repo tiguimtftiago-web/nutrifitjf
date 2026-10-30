@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -313,42 +313,42 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
   ];
   const fmt = (n: number) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   return (
-    <details className={`group rounded-xl border border-[#a7b86a]/25 bg-black/55 ${compact ? "mt-2" : "mt-3"}`}>
+    <details className={`group rounded-xl border border-[#86a51d]/25 bg-black/55 ${compact ? "mt-2" : "mt-3"}`}>
       <summary className={`flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[.04] ${compact ? "text-[10px]" : "text-xs"}`}>
         <span className="min-w-0">
           <span className="block font-black text-white">Ingredientes e perfil nutricional</span>
-          <span className="mt-0.5 block text-[10px] font-medium text-[#a7b86a]">Receita-base de {flavor.name}</span>
+          <span className="mt-0.5 block text-[10px] font-medium text-[#86a51d]">Receita-base de {flavor.name}</span>
         </span>
-        <span className="shrink-0 text-lg font-bold text-[#ef7d18] transition group-open:rotate-180">⌄</span>
+        <span className="shrink-0 text-lg font-bold text-[#f47b0b] transition group-open:rotate-180">⌄</span>
       </summary>
-      <div className="max-h-[46vh] touch-pan-y space-y-3 overflow-y-auto overscroll-contain border-t border-white/10 px-3 py-3 [scrollbar-color:#a7b86a_#111] [scrollbar-width:thin]">
+      <div className="max-h-[46vh] touch-pan-y space-y-3 overflow-y-auto overscroll-contain border-t border-white/10 px-3 py-3 [scrollbar-color:#86a51d_#111] [scrollbar-width:thin]">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#f47b0b]">Estimativa nutricional preliminar</p>
           <p className="mt-1 text-[10px] leading-4 text-white/65">Valores estimados a partir de composição média dos ingredientes da receita-base, por rendimento de 500 ml, sem açúcar adicionado e assumindo que a polpa não é coada. Não são laudo laboratorial nem tabela nutricional legal validada.</p>
           <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
             <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
             {nutrients.map((nutrient,index)=>(
               <div key={nutrient.label} className={`grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
                 <span className="text-white/85">{nutrient.label}</span>
-                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value*0.6)} {nutrient.unit}</span>
-                <span className="text-right font-bold text-[#a7b86a]">{fmt(nutrient.value)} {nutrient.unit}</span>
+                <span className="text-right font-bold text-[#86a51d]">{fmt(nutrient.value*0.6)} {nutrient.unit}</span>
+                <span className="text-right font-bold text-[#86a51d]">{fmt(nutrient.value)} {nutrient.unit}</span>
               </div>
             ))}
           </div>
           <p className="mt-2 text-[10px] leading-4 text-white/60">{data?.waterNote || "Formulação-base a validar."} Açúcares totais, sódio, micronutrientes e valores finais devem ser confirmados com a receita efetivamente produzida antes de uso em rotulagem oficial.</p>
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Ingredientes por receita-base de 500 ml</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#86a51d]">Ingredientes por receita-base de 500 ml</p>
           <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
             {(data?.recipe || flavor.ingredients.map(ingredient => ({ingredient,quantity:"Quantidade a confirmar"}))).map((line,index)=>(
               <div key={line.ingredient} className={`grid grid-cols-[1fr_auto] gap-3 px-2.5 py-2 text-[10px] ${index % 2 === 0 ? "bg-white/[.04]" : "bg-transparent"}`}>
-                <span className="text-white/85">{line.ingredient}</span><span className="text-right font-bold text-[#a7b86a]">{line.quantity}</span>
+                <span className="text-white/85">{line.ingredient}</span><span className="text-right font-bold text-[#86a51d]">{line.quantity}</span>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#a7b86a]">Características dos ingredientes</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#86a51d]">Características dos ingredientes</p>
           <div className="mt-2 divide-y divide-white/10">
             {flavor.ingredients.map((ingredient) => (
               <div key={ingredient} className="grid grid-cols-[minmax(84px,.7fr)_1.3fr] gap-3 py-2 text-[11px] leading-4">
@@ -359,9 +359,9 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Perfil do sabor</p>
+          <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#f47b0b]">Perfil do sabor</p>
           <p className="mt-1 text-[11px] leading-4 text-white/80">{data?.profile || flavor.description}</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
+          <div className="mt-2 flex flex-wrap gap-1.5">{(data?.highlights || flavor.highlights).map(highlight=><span key={highlight} className="rounded-full border border-[#86a51d]/30 bg-[#86a51d]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}</div>
         </div>
         <p className="text-[10px] leading-4 text-white/50">Estas informações descrevem ingredientes e composição alimentar; não prometem prevenção, tratamento ou cura de doenças. Os dados variam conforme a matéria-prima e o preparo. Fonte de referência para estimativas: TBCA/USP; validar a receita e a rotulagem com profissional responsável antes de divulgar como informação oficial.</p>
       </div>
@@ -406,14 +406,14 @@ function JuiceFlavorCard({
               type="button"
               aria-pressed={size === option.value}
               onClick={() => setSize(option.value)}
-              className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#ef7d18] bg-[#ef7d18]/15" : "border-white/10 bg-white/[.03]"}`}
+              className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
             >
               <span className="block text-sm font-black">{option.value}</span>
-              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#ef7d18]" : "text-white/70"}`}>{option.price}</span>
+              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#f47b0b]" : "text-white/70"}`}>{option.price}</span>
             </button>
           ))}
         </div>
-        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black transition hover:bg-orange-400">
+        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400">
           Adicionar {size} ao carrinho
         </button>
       </div>
@@ -645,61 +645,61 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   };
 
   return (
-    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#a7b86a]/25 bg-[#0d110c]">
+    <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#86a51d]/25 bg-[#0d110c]">
       <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[.025] sm:p-5">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#ef7d18]/12 text-lg">📦</span>
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f47b0b]/12 text-lg">📦</span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal</span>
+          <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
           <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#cbd99a]">Pacote de 30 ou 60 refeições. O preço total e o valor por unidade ficam visíveis antes de adicionar ao pedido; não é uma cobrança recorrente automática.</span>
+          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#b6d76a]">Pacote de 30 ou 60 refeições. O preço total e o valor por unidade ficam visíveis antes de adicionar ao pedido; não é uma cobrança recorrente automática.</span>
         </span>
         <span className="shrink-0 text-right">
-          <span className="block text-lg font-black text-[#ef7d18]">{money(totalPrice)}</span>
+          <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
           <span className="mt-0.5 block text-[10px] text-white/45">{money(unitPrice)} por marmita</span>
-          <span className="mt-1 block text-xl leading-none text-[#a7b86a]">{planOpen ? "⌃" : "⌄"}</span>
+          <span className="mt-1 block text-xl leading-none text-[#86a51d]">{planOpen ? "⌃" : "⌄"}</span>
         </span>
       </button>
 
       {planOpen && (
         <div className="border-t border-white/10 p-4 sm:p-6">
           <div className="mb-5 rounded-2xl border border-white/10 bg-white/[.02] p-4">
-            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu plano</div>
+            <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#86a51d]">Seu plano</div>
             <div className="mt-1 flex items-end justify-between gap-3">
               <div>
                 <div className="text-base font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div>
                 <div className="mt-1 text-xs text-white/45">{money(unitPrice)} por marmita</div>
               </div>
-              <div className="text-right text-lg font-black text-[#ef7d18]">{money(totalPrice)}</div>
+              <div className="text-right text-lg font-black text-[#f47b0b]">{money(totalPrice)}</div>
             </div>
           </div>
 
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Quantidade</div>
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#86a51d]">Quantidade</div>
           <div className="mt-3 grid grid-cols-2 gap-2.5">
             {[30, 60].map((value) => (
-              <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-2xl border px-4 py-3 text-left transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a]/15" : "border-white/10 bg-white/[.025]"}`}>
-                <span className={`block text-base font-black ${quantity === value ? "text-[#cbd99a]" : "text-white/75"}`}>{value} marmitas</span>
+              <button key={value} type="button" onClick={() => changeQuantity(value as 30 | 60)} className={`rounded-2xl border px-4 py-3 text-left transition ${quantity === value ? "border-[#86a51d] bg-[#86a51d]/15" : "border-white/10 bg-white/[.025]"}`}>
+                <span className={`block text-base font-black ${quantity === value ? "text-[#b6d76a]" : "text-white/75"}`}>{value} marmitas</span>
                 <span className="mt-1 block text-xs text-white/45">{value === 30 ? "1 refeição/dia" : "almoço + jantar"}</span>
               </button>
             ))}
           </div>
 
-          <div className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Linha</div>
+          <div className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#86a51d]">Linha</div>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {monthlyPlanOptions.map((item, index) => (
-              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-2xl border px-2 py-3 text-center transition ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/15 text-[#cbd99a]" : "border-white/10 bg-white/[.025] text-white/65"}`}>
+              <button key={item.line} type="button" onClick={() => changeLine(index)} className={`min-w-0 rounded-2xl border px-2 py-3 text-center transition ${lineIndex === index ? "border-[#86a51d] bg-[#86a51d]/15 text-[#b6d76a]" : "border-white/10 bg-white/[.025] text-white/65"}`}>
                 <span className="block whitespace-nowrap text-[10px] font-black sm:text-xs">{item.line}</span>
                 <span className="mt-1 block text-[10px] text-white/40">{item.weight}</span>
               </button>
             ))}
           </div>
 
-          <button type="button" onClick={() => setFlavorsOpen((open) => !open)} aria-expanded={flavorsOpen} className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#a7b86a]/35 bg-[#11160e] p-4 text-left transition hover:border-[#a7b86a]/60">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-lg">🍱</span>
+          <button type="button" onClick={() => setFlavorsOpen((open) => !open)} aria-expanded={flavorsOpen} className="mt-5 flex w-full items-center gap-3 rounded-2xl border border-[#86a51d]/35 bg-[#11160e] p-4 text-left transition hover:border-[#86a51d]/60">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#f47b0b]/15 text-lg">🍱</span>
             <span className="min-w-0 flex-1">
               <span className="block text-base font-black">Escolher meus sabores</span>
               <span className="mt-1 block text-xs text-white/45">{flavorsOpen ? "Escolha quantas unidades quiser de cada sabor." : `Selecione as ${quantity} marmitas do seu plano.`}</span>
             </span>
-            <span className="text-2xl text-[#ef7d18]">{flavorsOpen ? "⌃" : "›"}</span>
+            <span className="text-2xl text-[#f47b0b]">{flavorsOpen ? "⌃" : "›"}</span>
           </button>
 
           {flavorsOpen && (
@@ -712,7 +712,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
                   <div className="mt-2 flex items-center justify-between gap-2 sm:mt-3">
                     <button type="button" onClick={() => removeProduct(product.name)} className="rounded-full border border-white/15 p-2 text-white/70 disabled:opacity-30" disabled={!selected[product.name]} aria-label={`Remover ${product.name}`}><Minus size={14} /></button>
                     <span className="min-w-5 text-center font-black">{selected[product.name] || 0}</span>
-                    <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#a7b86a] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
+                    <button type="button" onClick={() => addProduct(product.name)} className="rounded-full bg-[#86a51d] p-2 text-black disabled:opacity-30" disabled={total >= quantity} aria-label={`Adicionar ${product.name}`}><Plus size={14} /></button>
                   </div>
                 </div>
               ))}
@@ -722,9 +722,9 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
           <div className="mt-6 grid gap-5 border-t border-white/10 pt-5 sm:grid-cols-[1fr_auto] sm:items-center">
             <div>
               <div className="text-lg font-black">{quantity} marmitas</div>
-              <div className="mt-1 text-3xl font-black tracking-tight text-[#ef7d18]">{money(totalPrice)}</div>
+              <div className="mt-1 text-3xl font-black tracking-tight text-[#f47b0b]">{money(totalPrice)}</div>
               <div className="mt-1 text-xs text-white/50">{money(unitPrice)} por marmita</div>
-              <div className="mt-1 text-sm font-bold text-[#a7b86a]">✓ Frete grátis</div>
+              <div className="mt-1 text-sm font-bold text-[#86a51d]">✓ Frete grátis</div>
             </div>
             <div className="space-y-1 text-xs text-white/60">
               <div>✓ Mais praticidade</div>
@@ -738,7 +738,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
             <div className="mb-2 flex items-center justify-between text-xs text-white/45">
               <span>{total}/{quantity} selecionadas</span>
               {remaining > 0 && <span>Faltam {remaining}</span>}
-              {remaining === 0 && <span className="text-[#a7b86a]">Plano completo ✓</span>}
+              {remaining === 0 && <span className="text-[#86a51d]">Plano completo ✓</span>}
             </div>
             <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
               Adicionar plano ao pedido <ShoppingBag size={18} />
@@ -1088,10 +1088,10 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   }, [step, autoScroll]);
 
   return (
-    <div ref={comboRootRef} className="mt-4 rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#0b0e09] p-3 sm:mt-8 sm:rounded-[2rem] sm:p-4 md:p-8">
+    <div ref={comboRootRef} className="mt-4 rounded-[1.5rem] border border-[#86a51d]/30 bg-[#0b0e09] p-3 sm:mt-8 sm:rounded-[2rem] sm:p-4 md:p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Montador Nutrifit</div>
+          <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Montador Nutrifit</div>
           <h3 className="mt-1 text-xl font-black leading-tight sm:mt-1.5 sm:text-2xl md:text-4xl">Monte seu combo</h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-white/50 sm:mt-1.5 sm:text-sm sm:leading-6">Você só precisa seguir os 5 passos. No celular, avance quando terminar cada etapa.</p>
         </div>
@@ -1106,29 +1106,29 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             const active = step === n;
             return (
               <button key={number} type="button" onClick={() => n <= step && setStep(n)} className="min-w-0 text-center" disabled={n > step}>
-                <div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${done || active ? "bg-[#a7b86a] text-black" : "bg-white/10 text-white/35"}`}>
+                <div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${done || active ? "bg-[#86a51d] text-black" : "bg-white/10 text-white/35"}`}>
                   {done ? <Check size={14} strokeWidth={3} /> : number}
                 </div>
-                <div className={`mt-1 truncate text-[9px] font-black uppercase tracking-wider sm:text-[10px] ${active ? "text-white" : done ? "text-[#cbd99a]" : "text-white/35"}`}>{label}</div>
+                <div className={`mt-1 truncate text-[9px] font-black uppercase tracking-wider sm:text-[10px] ${active ? "text-white" : done ? "text-[#b6d76a]" : "text-white/35"}`}>{label}</div>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="mt-3 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-3 sm:mt-5 sm:p-4">
+      <div className="mt-3 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-3 sm:mt-5 sm:p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#a7b86a]">Seu combo</div>
+            <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d]">Seu combo</div>
             <div className="mt-1 text-lg font-black">{total}/{quantity} marmitas</div>
           </div>
           <div className="text-right">
             <div className="text-xs text-white/45">{total === quantity ? "Combo completo ✓" : `Faltam ${quantity - total}`}</div>
-            <div className="mt-1 text-lg font-black text-[#ef7d18]">{money(grandTotal)}</div>
+            <div className="mt-1 text-lg font-black text-[#f47b0b]">{money(grandTotal)}</div>
           </div>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-[#a7b86a] transition-all" style={{ width: `${Math.min((total / quantity) * 100, 100)}%` }} />
+          <div className="h-full rounded-full bg-[#86a51d] transition-all" style={{ width: `${Math.min((total / quantity) * 100, 100)}%` }} />
         </div>
       </div>
 
@@ -1148,11 +1148,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   : "/images/pernil-acebolado-batata-real.jpg";
               const description = index === 0 ? "Leve e equilibrada" : index === 1 ? "Mais proteína e energia" : "Sabor caseiro";
               return (
-                <button key={item.line} type="button" onClick={() => changeLine(index)} aria-pressed={lineIndex === index} className={`touch-manipulation relative z-10 w-full min-w-0 overflow-hidden rounded-2xl border text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ef7d18] ${lineIndex === index ? "border-[#a7b86a] bg-[#a7b86a]/10 ring-1 ring-[#a7b86a]/35" : "border-white/10 bg-white/[.025]"}`}>
+                <button key={item.line} type="button" onClick={() => changeLine(index)} aria-pressed={lineIndex === index} className={`touch-manipulation relative z-10 w-full min-w-0 overflow-hidden rounded-2xl border text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f47b0b] ${lineIndex === index ? "border-[#86a51d] bg-[#86a51d]/10 ring-1 ring-[#86a51d]/35" : "border-white/10 bg-white/[.025]"}`}>
                   <div className="relative h-44 overflow-hidden bg-[#171a14] sm:h-36">
                     <img src={image} alt={`Sugestão de refeição da linha ${item.line.toLowerCase()}`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-                    <span className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider ${index === 2 ? "bg-[#ef7d18] text-black" : "bg-[#a7b86a] text-black"}`}>{item.line}</span>
-                    {lineIndex === index && <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-[#a7b86a] text-black"><Check size={16} strokeWidth={3}/></span>}
+                    <span className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider ${index === 2 ? "bg-[#f47b0b] text-black" : "bg-[#86a51d] text-black"}`}>{item.line}</span>
+                    {lineIndex === index && <span className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-[#86a51d] text-black"><Check size={16} strokeWidth={3}/></span>}
                   </div>
                   <div className="p-4">
                     <div className="flex items-baseline justify-between gap-2">
@@ -1162,9 +1162,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                     <p className="mt-1 text-sm text-white/65">{description}</p>
                     <div className="mt-3 border-t border-white/10 pt-3">
                       <div className="text-xs text-white/50">Combos a partir de</div>
-                      <div className="mt-0.5 text-xl font-black text-[#ef7d18]">{item.prices[5]}</div>
+                      <div className="mt-0.5 text-xl font-black text-[#f47b0b]">{item.prices[5]}</div>
                     </div>
-                    <div className={`mt-3 flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${lineIndex === index ? "bg-[#a7b86a] text-black" : "border border-white/15 text-white"}`}>
+                    <div className={`mt-3 flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${lineIndex === index ? "bg-[#86a51d] text-black" : "border border-white/15 text-white"}`}>
                       {lineIndex === index ? "Linha selecionada" : "Escolher esta linha"} <ArrowRight size={16}/>
                     </div>
                   </div>
@@ -1177,7 +1177,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
             <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:gap-2">
               {([...([5, 7, 10, 14, 20] as const), ...(option.line === "TRADICIONAL" ? [30] : [])]).map((value) => (
-                <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#a7b86a] bg-[#a7b86a] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
+                <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#86a51d] bg-[#86a51d] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
                   <span className="block text-base sm:text-sm">{value}</span>
                   <span className={`mt-0.5 block truncate text-[8px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
                 </button>
@@ -1187,15 +1187,15 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               <div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-3">
                 <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (R$ 26,40 por unidade adicional)
                   <div className="mt-2 flex gap-2">
-                    <input type="number" min={31} max={300} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#a7b86a]" />
-                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 300) changeQuantity(value); }} className="rounded-xl bg-[#a7b86a] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
+                    <input type="number" min={31} max={300} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#86a51d]" />
+                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 300) changeQuantity(value); }} className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
                   </div>
                 </label>
               </div>
             )}
           </div>
 
-          <button type="button" onClick={() => setStep(2)} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(167,184,106,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
+          <button type="button" onClick={() => setStep(2)} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(134,165,29,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
             Escolher sabores <ArrowRight size={18} />
           </button>
           <div className="mt-2 text-center text-[10px] font-bold text-white/30">Você poderá alterar a linha e a quantidade antes de confirmar.</div>
@@ -1212,7 +1212,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           {total !== quantity ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {option.products.map((product) => (
-              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#a7b86a]/45">
+              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45">
                 <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
                   {product.crop ? (
                     <div role="img" aria-label={product.name} className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
@@ -1225,11 +1225,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                         <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
                         <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
                         <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "FIT"} {product.weight}</span>
-                          <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+                          <span className="rounded-full border border-[#86a51d] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "FIT"} {product.weight}</span>
+                          <span className="text-[19px] font-black leading-none text-[#f47b0b]">{product.price}</span>
                         </div>
                       </div>
-                      <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg"><Plus size={18} strokeWidth={3} /> Adicionar</span>
+                      <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg"><Plus size={18} strokeWidth={3} /> Adicionar</span>
                     </div>
                   </div>
                 </div>
@@ -1237,8 +1237,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             ))}
           </div>
           ) : (
-            <div className="rounded-2xl border border-[#a7b86a]/30 bg-[#171d10] p-4">
-              <div className="font-black text-[#cbd99a]">✓ {quantity} marmitas escolhidas</div>
+            <div className="rounded-2xl border border-[#86a51d]/30 bg-[#171d10] p-4">
+              <div className="font-black text-[#b6d76a]">✓ {quantity} marmitas escolhidas</div>
               <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
               <button type="button" onClick={() => setSelected({})} className="mt-3 text-xs font-bold text-[#ef9b55] underline underline-offset-4">Alterar seleção</button>
             </div>
@@ -1256,17 +1256,17 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 </div>
                 <div className="p-5">
                   <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
-                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#a7b86a] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#ef7d18]">{detailProduct.price}</span></div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#86a51d] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#f47b0b]">{detailProduct.price}</span></div>
                   <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
                   <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
                     <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
                     <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
-                    <button type="button" onClick={() => setDetailQuantity(v => Math.min(quantity-total,v+1))} disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#ef7d18] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
+                    <button type="button" onClick={() => setDetailQuantity(v => Math.min(quantity-total,v+1))} disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#f47b0b] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
                   </div>
-                  <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#ef7d18] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
+                  <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#f47b0b] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
                   <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
-                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#a7b86a]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
-                    <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#d4e6a0]">Informação nutricional</h4><span className="rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-xs font-black text-[#d4e6a0]">{n.kcal} kcal</span></div>
+                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#86a51d]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
+                    <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#b6d76a]">Informação nutricional</h4><span className="rounded-full bg-[#86a51d]/15 px-2.5 py-1 text-xs font-black text-[#b6d76a]">{n.kcal} kcal</span></div>
                     <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
                     <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
                     <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p>{n.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p>}</div>
@@ -1280,7 +1280,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="sticky top-[138px] z-20 mt-4 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(1)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+            <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
             </button>
           </div>
@@ -1308,13 +1308,13 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   key={category}
                   type="button"
                   onClick={() => setComplementCategory((current) => current === category ? null : category)}
-                  className={`touch-manipulation rounded-2xl border p-3 text-left transition ${active ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}
+                  className={`touch-manipulation rounded-2xl border p-3 text-left transition ${active ? "border-[#f47b0b] bg-[#f47b0b]/10" : "border-white/10 bg-white/[.025]"}`}
                   aria-expanded={active}
                 >
                   <div className="text-xl">{labels[category].icon}</div>
                   <div className="mt-1 text-sm font-black">{labels[category].title}</div>
                   <div className="mt-0.5 text-[9px] font-bold leading-4 text-white/40 sm:text-[10px]">{labels[category].text}</div>
-                  <div className={`mt-2 text-[9px] font-black uppercase tracking-wider ${active ? "text-[#ef7d18]" : "text-white/30"}`}>
+                  <div className={`mt-2 text-[9px] font-black uppercase tracking-wider ${active ? "text-[#f47b0b]" : "text-white/30"}`}>
                     {active ? "Aberto" : "Ver opções"}
                   </div>
                 </button>
@@ -1340,7 +1340,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                       {category === "FRUTAS" ? "Frescas, práticas e ideais para o seu dia." : category === "SANDUÍCHES" ? "Leves, simples e nutritivos." : "Naturais, funcionais e refrescantes."}
                     </div>
                   </div>
-                  <span className="rounded-full bg-[#a7b86a]/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#cbd99a]">Opcional</span>
+                  <span className="rounded-full bg-[#86a51d]/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#b6d76a]">Opcional</span>
                 </div>
                 <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
                   {items.map((item) => {
@@ -1355,12 +1355,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                         <div className="min-w-0 flex-1">
                           <div className="break-words text-sm font-black leading-tight">{item.name}</div>
                           <div className="mt-1 text-[11px] leading-4 text-white/40">{item.description}</div>
-                          <div className="mt-1 text-xs font-black text-[#ef7d18]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
+                          <div className="mt-1 text-xs font-black text-[#f47b0b]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5">
                           {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
                           {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
-                          <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={15} /></button>
+                          <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black"><Plus size={15} /></button>
                         </div>
                       </div>
                     );
@@ -1371,7 +1371,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           })()}
 
           {complementItems.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#171d10] p-4">
+            <div className="mt-4 rounded-2xl border border-[#86a51d]/25 bg-[#171d10] p-4">
               <div className="font-black">Seu pedido está ficando completo ✓</div>
               <div className="mt-1 text-xs leading-5 text-white/50">
                 {complementItems.map((item) => `${selectedComplements[item.name]}x ${item.name}`).join(" • ")}
@@ -1381,7 +1381,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">
+            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">
               Continuar <ArrowRight size={17} />
             </button>
           </div>
@@ -1396,68 +1396,68 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
 
           <div className="grid gap-2.5 sm:grid-cols-2">
-            <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "delivery" ? "border-[#a7b86a] bg-[#a7b86a]/10" : "border-white/10 bg-white/[.025]"}`}>
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#a7b86a]/15 text-[#cbd99a]"><Truck size={23} /></div>
+            <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "delivery" ? "border-[#86a51d] bg-[#86a51d]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#86a51d]/15 text-[#b6d76a]"><Truck size={23} /></div>
               <div className="mt-3 text-lg font-black">Receber em casa</div>
               <div className="mt-1 text-sm text-white/50">Digite seu CEP para calcular a entrega.</div>
             </button>
-            <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "pickup" ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}>
-              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><MapPin size={23} /></div>
+            <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "pickup" ? "border-[#f47b0b] bg-[#f47b0b]/10" : "border-white/10 bg-white/[.025]"}`}>
+              <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f47b0b]/15 text-[#ef9b55]"><MapPin size={23} /></div>
               <div className="mt-3 text-lg font-black">Retirar na Nutrifit</div>
               <div className="mt-1 text-sm text-white/50">Sem taxa de entrega.</div>
             </button>
           </div>
 
           {deliveryMode === "pickup" ? (
-            <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4">
+            <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4">
               <div className="font-black">📍 Retirada na Nutrifit</div>
               <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
             </div>
           ) : (
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
-                <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#a7b86a]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#86a51d]" />
+                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
               {quantity >= DELIVERY_FREE_FROM ? (
-                <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm">
-                  <div className="font-black text-[#cbd99a]">🚚 Frete grátis</div>
+                <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm">
+                  <div className="font-black text-[#b6d76a]">🚚 Frete grátis</div>
                   <div className="mt-1 text-white/55">Seu combo tem 20 marmitas ou mais.</div>
                 </div>
               ) : delivery ? (
-                <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4">
-                  <div className="font-black text-[#cbd99a]">📍 {delivery.neighborhood}</div>
-                  <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#ef7d18]">{money(delivery.fee)}</span></div>
+                <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4">
+                  <div className="font-black text-[#b6d76a]">📍 {delivery.neighborhood}</div>
+                  <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#f47b0b]">{money(delivery.fee)}</span></div>
                 </div>
               ) : deliveryStatus === "error" ? (
-                <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar a área de entrega. Confira o CEP ou fale com a Nutrifit.</div>
+                <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar a área de entrega. Confira o CEP ou fale com a Nutrifit.</div>
               ) : null}
               {delivery && (
                 <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                  <div className="mb-3 font-black text-[#cbd99a]">📍 Confirme o endereço de entrega</div>
+                  <div className="mb-3 font-black text-[#b6d76a]">📍 Confirme o endereço de entrega</div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <label className="text-xs text-white/60">Rua / avenida
-                      <input value={deliveryStreet} onChange={(e) => setDeliveryStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryStreet} onChange={(e) => setDeliveryStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60">Número
-                      <input value={deliveryNumber} onChange={(e) => setDeliveryNumber(e.target.value)} autoComplete="address-line2" placeholder="Número" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryNumber} onChange={(e) => setDeliveryNumber(e.target.value)} autoComplete="address-line2" placeholder="Número" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60">Complemento (opcional)
-                      <input value={deliveryComplement} onChange={(e) => setDeliveryComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryComplement} onChange={(e) => setDeliveryComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60">Bairro
-                      <input value={deliveryNeighborhood} onChange={(e) => setDeliveryNeighborhood(e.target.value)} autoComplete="address-level3" placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryNeighborhood} onChange={(e) => setDeliveryNeighborhood(e.target.value)} autoComplete="address-level3" placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60">Cidade
-                      <input value={deliveryCity} onChange={(e) => setDeliveryCity(e.target.value)} autoComplete="address-level2" placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryCity} onChange={(e) => setDeliveryCity(e.target.value)} autoComplete="address-level2" placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60">UF
-                      <input value={deliveryState} onChange={(e) => setDeliveryState(e.target.value.toUpperCase().slice(0, 2))} autoComplete="address-level1" placeholder="MG" maxLength={2} className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryState} onChange={(e) => setDeliveryState(e.target.value.toUpperCase().slice(0, 2))} autoComplete="address-level1" placeholder="MG" maxLength={2} className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs text-white/60 sm:col-span-2">Ponto de referência (opcional)
-                      <input value={deliveryReference} onChange={(e) => setDeliveryReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#a7b86a]" />
+                      <input value={deliveryReference} onChange={(e) => setDeliveryReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" />
                     </label>
                   </div>
                 </div>
@@ -1468,7 +1468,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#080a07]/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl backdrop-blur-xl sm:sticky sm:bottom-2 sm:mt-5 sm:rounded-2xl sm:border sm:bg-[#0b0e09]/95 sm:p-2">
             <div className="mx-auto flex w-full max-w-3xl gap-2">
               <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-              <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-30">
+              <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
                 Continuar <ArrowRight size={17} />
               </button>
             </div>
@@ -1496,20 +1496,20 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 </>
               )}
               <span className="text-white/45">Entrega</span><strong>{deliveryFee === 0 ? "Grátis" : money(deliveryFee)}</strong>
-              <span className="border-t border-white/10 pt-2 font-black">{complementItems.some((item) => item.price === null) ? "Total parcial" : "Total"}</span><strong className="border-t border-white/10 pt-2 text-[#ef7d18]">{money(grandTotal)}</strong>
+              <span className="border-t border-white/10 pt-2 font-black">{complementItems.some((item) => item.price === null) ? "Total parcial" : "Total"}</span><strong className="border-t border-white/10 pt-2 text-[#f47b0b]">{money(grandTotal)}</strong>
             </div>
           </div>
 
           <div className="mt-4 grid gap-3">
-            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" aria-label="Nome para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
-            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" aria-label="WhatsApp para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} autoComplete="name" placeholder="Seu nome completo" aria-label="Nome para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#86a51d]" />
+            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" placeholder="Seu WhatsApp / telefone" aria-label="WhatsApp para o pedido" className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm font-semibold outline-none focus:border-[#86a51d]" />
           </div>
 
-          <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4 text-sm text-white/55">
+          <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4 text-sm text-white/55">
             <div className="font-black text-white">Pagamento pelo WhatsApp</div>
             <div className="mt-1">Ao tocar no botão, o pedido será preparado com seus sabores, valor e entrega. Você envia o comprovante do Pix pelo WhatsApp.</div>
             {hasPendingComplementPrice && (
-              <div className="mt-3 rounded-xl bg-[#ef7d18]/10 px-3 py-2 text-xs font-bold text-[#efb06d]">
+              <div className="mt-3 rounded-xl bg-[#f47b0b]/10 px-3 py-2 text-xs font-bold text-[#efb06d]">
                 Sanduíches e frutas estão selecionados para o pedido, mas o preço será confirmado pelo WhatsApp.
               </div>
             )}
@@ -1517,11 +1517,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
             <button type="button" onClick={() => setStep(4)} aria-label="Voltar para os dados do pedido" className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={sendOrder} disabled={!canPay} aria-busy={paymentStatus === "loading"} aria-label="Finalizar pedido no WhatsApp" className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+            <button type="button" onClick={sendOrder} disabled={!canPay} aria-busy={paymentStatus === "loading"} aria-label="Finalizar pedido no WhatsApp" className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
           </div>
-          {paymentStatus === "error" && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático do pedido. A mensagem foi aberta no WhatsApp; confira os itens e aguarde a confirmação da Nutrifit antes de pagar.</div>}
+          {paymentStatus === "error" && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático do pedido. A mensagem foi aberta no WhatsApp; confira os itens e aguarde a confirmação da Nutrifit antes de pagar.</div>}
           {!customerReady && <div className="mt-3 text-center text-xs text-[#ef9b55]">Informe seu nome e um WhatsApp válido para liberar o botão.</div>}
         </div>
       )}
@@ -1907,8 +1907,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     <article className="nf-mobile-meal group relative flex flex-col sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
       <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
         {product.comingSoon ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-4 text-center">
-            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Novidade</div><div className="mt-2 text-2xl font-black text-white">EM BREVE</div></div>
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(134,165,29,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-4 text-center">
+            <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#86a51d]">Novidade</div><div className="mt-2 text-2xl font-black text-white">EM BREVE</div></div>
           </div>
         ) : product.crop ? (
           <div aria-label={product.name} role="img" className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
@@ -1920,43 +1920,43 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
             <div className="min-w-0 flex-1">
               <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-[#a7b86a] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
-                <span className="text-[19px] font-black leading-none text-[#ef7d18]">{product.price}</span>
+                <span className="rounded-full border border-[#86a51d] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
+                <span className="text-[19px] font-black leading-none text-[#f47b0b]">{product.price}</span>
               </div>
             </div>
-            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
+            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
         </div>
       </div>
-      {nutrition && <div className="grid grid-cols-4 gap-1 border-t border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#d8e7a0]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
-      <details className="border-t border-[#ef7d18]/30 bg-[#0d100c] text-left">
-        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#ef7d18] px-3.5 py-3 text-sm font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
-        <div className="p-3 text-sm leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
-      </details>
-      {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (
-        <details className="border-t border-[#a7b86a]/30 bg-[#080a07] text-left">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 bg-[#a7b86a] px-3.5 py-3 text-sm font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>{product.line === "FIT" ? "TABELA NUTRICIONAL · 350 G" : "VER TABELA NUTRICIONAL"}</span><ChevronDown size={18} className="shrink-0 transition-transform" /></summary>
-          <div className="p-3 text-sm text-white/85">
+      {nutrition && <div className="grid grid-cols-4 gap-1 border-t border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#b6d76a]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
+      <div className="grid grid-cols-2 gap-2.5 border-t border-white/10 bg-[#0d100c] p-2.5">
+        <details className="min-w-0 overflow-hidden rounded-xl border border-[#86a51d]/80 bg-[#11150e] text-left">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#b6d76a] [&::-webkit-details-marker]:hidden"><Salad size={19} className="shrink-0"/><span>Ingredientes</span></summary>
+          <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
+        </details>
+        {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && <details className="min-w-0 overflow-hidden rounded-xl border border-[#f47b0b]/85 bg-[#11150e] text-left">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={19} className="shrink-0"/><span>Tabela nutricional</span></summary>
+          <div className="border-t border-[#f47b0b]/35 p-3 text-xs text-white/85">
             {nutrition ? <>
               <p className="mb-2 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "FIT" || product.line === "SALADAS" ? "350 g" : "450 g")}</p>
               {nutritionRows(nutrition).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/10 py-2"><span>{label}</span><b className="text-right">{value}</b></p>)}
-              <div className="mt-3 rounded-lg bg-white/[.04] p-3 text-xs"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
-              {nutrition.allergens && <p className="mt-2 text-xs"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>}
+              <div className="mt-3 rounded-lg bg-white/[.04] p-3"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
+              {nutrition.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>}
               <p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores de referência cadastrados por porção; confirme a ficha técnica antes de usar como rotulagem oficial.</p>
-            </> : <p className="rounded-lg bg-white/[.04] p-3 text-xs leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
+            </> : <p className="rounded-lg bg-white/[.04] p-3 leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
           </div>
-        </details>
-      )}
+        </details>}
+      </div>
       
     </article>
-    <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#a7b86a]/35">
+    <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#86a51d]/35">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
         {product.comingSoon ? (
-          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-5 text-center">
+          <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(134,165,29,.16),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)] p-5 text-center">
             <div>
-              <div className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a] sm:text-xs">Novidade</div>
+              <div className="text-[10px] font-black uppercase tracking-[.24em] text-[#86a51d] sm:text-xs">Novidade</div>
               <div className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">EM BREVE</div>
-              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[#ef7d18]" />
+              <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[#f47b0b]" />
               <div className="mt-3 text-[10px] font-semibold text-white/45 sm:text-xs">Novo prato Nutrifit</div>
             </div>
           </div>
@@ -1973,21 +1973,21 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
       </div>
       <div className="flex min-w-0 flex-1 flex-col p-2.5 sm:p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] text-[#ef7d18] sm:text-lg">{product.name}</h3>
+          <h3 className="min-w-0 break-words text-[12px] font-black leading-[1.15] text-[#f47b0b] sm:text-lg">{product.name}</h3>
           <span className="shrink-0 text-[9px] font-black text-white/45">{product.weight}</span>
         </div>
         <p className="mt-1 text-[11px] leading-5 text-white/75 sm:text-sm sm:leading-6">{product.description}</p>
-        {nutrition && <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl border border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#d8e7a0]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
-                        <details className="mt-2 overflow-hidden rounded-xl border border-[#ef7d18]/30 text-left">
-                          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#ef7d18] px-3 py-2.5 text-[11px] font-black text-black [&::-webkit-details-marker]:hidden"><span>VER INGREDIENTES DO PRATO</span><ChevronDown size={16} className="shrink-0" /></summary>
-                          <div className="bg-[#0d100c] p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
-                        </details>
-                        {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (() => {
-                          const n = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : saladsNutrition[product.name];
-                          return (
-                            <details className="mt-2 overflow-hidden rounded-xl border border-[#a7b86a]/30 bg-[#080a07]/95 text-left">
-                              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 bg-[#a7b86a] px-3 py-2.5 text-[11px] font-black text-[#080a07] [&::-webkit-details-marker]:hidden"><span>{product.line === "FIT" ? "TABELA NUTRICIONAL · 350 G" : "VER TABELA NUTRICIONAL"}</span><ChevronDown size={16} className="shrink-0" /></summary>
-                              <div className="p-2.5 text-[11px] text-white/80">
+        {nutrition && <div className="mt-2 grid grid-cols-4 gap-1 rounded-xl border border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#b6d76a]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
+                        <div className="mt-2 grid grid-cols-2 gap-2">
+                          <details className="min-w-0 overflow-hidden rounded-xl border border-[#86a51d]/80 bg-[#11150e] text-left">
+                            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center gap-1.5 px-2 py-2.5 text-center text-[11px] font-black text-[#b6d76a] [&::-webkit-details-marker]:hidden"><Salad size={17}/><span>Ingredientes</span></summary>
+                            <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
+                          </details>
+                          {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (() => {
+                            const n = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : saladsNutrition[product.name];
+                            return <details className="min-w-0 overflow-hidden rounded-xl border border-[#f47b0b]/85 bg-[#11150e] text-left">
+                              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center gap-1.5 px-2 py-2.5 text-center text-[11px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={17}/><span>Tabela nutricional</span></summary>
+                              <div className="border-t border-[#f47b0b]/35 p-2.5 text-[11px] text-white/80">
                                 {n ? <>
                                   <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
                                   {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
@@ -1996,12 +1996,12 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                                   <p className="mt-2 text-[10px] leading-relaxed text-white/55">{product.line === "SALADAS" ? "Tabela nutricional para a porção de 350 g. Confirme os ingredientes, molhos e alérgenos conforme a ficha técnica." : `Valores estimados por marmita de ${product.weight || (product.line === "FIT" ? "350 g" : "450 g")}; confirme a composição real e os alérgenos na ficha técnica.`}</p>
                                 </> : <p className="rounded-lg bg-white/[.04] p-3 text-[11px] leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para não divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
                               </div>
-                            </details>
-                          );
-                        })()}
+                            </details>;
+                          })()}
+                        </div>
         <div className="mt-auto flex items-center gap-1.5 pt-2.5">
-          <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#ef7d18] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#a7b86a] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
+          <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#f47b0b] sm:text-xl">{product.price}</div>
+          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
@@ -2025,9 +2025,9 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
     <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">{eyebrow}</div>
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">{eyebrow}</div>
           <h2 className="mt-1.5 text-3xl font-black sm:text-4xl md:text-5xl">
-            {id === "cardapio" ? <><span className="text-[#a7b86a]">LINHA FIT</span> <span className="text-[#a7b86a]">• 350 G</span></> : <span className="text-[#a7b86a]">{title}</span>}
+            {id === "cardapio" ? <><span className="text-[#86a51d]">LINHA FIT</span> <span className="text-[#86a51d]">• 350 G</span></> : <span className="text-[#86a51d]">{title}</span>}
           </h2>
           <p className="mt-1.5 text-sm text-white/50 sm:text-base">{subtitle}</p>
         </div>
@@ -2042,9 +2042,9 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
         className="nf-line-banner group relative mt-4 flex min-h-[150px] w-full items-stretch overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] sm:hidden"
       >
         <div className="relative z-10 flex w-[58%] flex-col justify-center p-4 pr-2">
-          <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">{id === "cardapio" ? "MARMITAS" : id === "performance" ? "MARMITAS" : id === "tradicional" ? "MARMITAS" : eyebrow}</div>
-          <div className="mt-1 text-xl font-black leading-tight text-[#ef7d18]">{id === "cardapio" ? "FIT" : id === "performance" ? "PERFORMANCE" : id === "tradicional" ? "TRADICIONAL" : title.replace("Linha ", "")}</div>
-          <div className="mt-0.5 text-lg font-semibold leading-tight text-[#ef7d18]">{id === "cardapio" ? "350 g" : id === "performance" ? "450 g" : id === "tradicional" ? "500 g" : ""}</div>
+          <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#86a51d]">{id === "cardapio" ? "MARMITAS" : id === "performance" ? "MARMITAS" : id === "tradicional" ? "MARMITAS" : eyebrow}</div>
+          <div className="mt-1 text-xl font-black leading-tight text-[#f47b0b]">{id === "cardapio" ? "FIT" : id === "performance" ? "PERFORMANCE" : id === "tradicional" ? "TRADICIONAL" : title.replace("Linha ", "")}</div>
+          <div className="mt-0.5 text-lg font-semibold leading-tight text-[#f47b0b]">{id === "cardapio" ? "350 g" : id === "performance" ? "450 g" : id === "tradicional" ? "500 g" : ""}</div>
           <div className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/70">{id === "cardapio" ? "Leve, equilibrada e saborosa." : id === "performance" ? "Mais proteína para o seu resultado." : id === "tradicional" ? "O sabor de sempre, com mais equilíbrio." : subtitle}</div>
         </div>
         <div className="absolute inset-y-0 right-0 w-[53%]">
@@ -2055,11 +2055,11 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <img src={coverProduct.image} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-active:scale-[1.02]" loading="lazy" />
             )
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(167,184,106,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#a7b86a]" /></div>
+            <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(134,165,29,.18),_transparent_60%),linear-gradient(145deg,#171d10,#080a07)]"><ChefHat size={54} className="text-[#86a51d]" /></div>
           )}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0d100c] via-[#0d100c]/25 to-transparent" />
         </div>
-        <div className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#ef7d18] text-black shadow-lg">
+        <div className="absolute bottom-3 right-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-[#f47b0b] text-black shadow-lg">
           {expanded ? <ChevronUp size={21} strokeWidth={2.8} /> : <ArrowRight size={21} strokeWidth={2.8} />}
         </div>
       </button>
@@ -2067,11 +2067,11 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
       {expanded && isMealLine && (
         <div className="mt-4 space-y-3 sm:hidden">
           <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-[#11140e] p-1.5">
-            <button type="button" onClick={() => { setPurchaseMode("combo"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "combo" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+            <button type="button" onClick={() => { setPurchaseMode("combo"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "combo" ? "bg-[#f47b0b] text-black" : "bg-white/[.04] text-white/65"}`}>
               <span className="block text-sm font-black">Montar combo</span>
               <span className="mt-0.5 block text-[10px] font-medium">(com desconto)</span>
             </button>
-            <button type="button" onClick={() => { setPurchaseMode("individual"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "individual" ? "bg-[#ef7d18] text-black" : "bg-white/[.04] text-white/65"}`}>
+            <button type="button" onClick={() => { setPurchaseMode("individual"); setSelectedComboQuantity(null); }} className={`rounded-xl px-2 py-3 text-center transition ${purchaseMode === "individual" ? "bg-[#f47b0b] text-black" : "bg-white/[.04] text-white/65"}`}>
               <span className="block text-sm font-black">Compra individual</span>
               <span className="mt-0.5 block text-[10px] font-medium">(sem desconto)</span>
             </button>
@@ -2085,7 +2085,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
                   const price = (lineCombo.prices as Record<number, string>)[quantity];
                   const unitPrice = parseMoney(price) / quantity;
                   return (
-                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#ef7d18]">
+                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#f47b0b]">
                       <span className="block text-sm font-black">{quantity} marmitas</span>
                       <span className="mt-1 block text-xl font-black text-[#c8dc36]">{price}</span>
                       <span className="mt-0.5 block text-xs text-white/60">{money(unitPrice)} cada</span>
@@ -2097,13 +2097,13 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           )}
 
           {purchaseMode === "combo" && selectedComboQuantity !== null && (
-            <div className="rounded-2xl border border-[#a7b86a]/25 bg-[#0c0e0b] p-3">
+            <div className="rounded-2xl border border-[#86a51d]/25 bg-[#0c0e0b] p-3">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-xs font-black uppercase tracking-wider text-[#a7b86a]">Combo selecionado</div>
+                  <div className="text-xs font-black uppercase tracking-wider text-[#86a51d]">Combo selecionado</div>
                   <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {(lineCombo.prices as Record<number, string>)[selectedComboQuantity]}</div>
                 </div>
-                <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#ef7d18] underline underline-offset-4">Alterar</button>
+                <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
               <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} />
             </div>
@@ -2121,10 +2121,10 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
         </div>
       </div>
       {expanded && id === "tradicional" && (
-        <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09]">
+        <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-[#86a51d]/25 bg-gradient-to-br from-[#171d10] via-[#11150d] to-[#0b0e09]">
           <div className="border-b border-white/10 px-4 py-4 sm:px-5 sm:py-5">
-            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Linha Tradicional • complementos</div>
-            <h3 className="mt-1 text-2xl font-black sm:text-3xl">COMPLEMENTE <span className="text-[#ef7d18]">SUA REFEIÇÃO</span></h3>
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Linha Tradicional • complementos</div>
+            <h3 className="mt-1 text-2xl font-black sm:text-3xl">COMPLEMENTE <span className="text-[#f47b0b]">SUA REFEIÇÃO</span></h3>
             <p className="mt-1.5 text-sm text-white/45">Adicione um acompanhamento ou uma porção extra sem sair da Linha Tradicional.</p>
           </div>
           <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-2 md:grid-cols-4">
@@ -2132,22 +2132,22 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <article key={item.name} className="bg-[#0d100c] p-3.5 sm:p-4">
                 <div className="grid min-h-[118px] content-between">
                   <div>
-                    <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 text-xl">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/10 text-xl">
                       {item.name === "Arroz Branco" ? "🍚" : item.name === "Feijão" ? "🫘" : item.name === "Farofa" ? "🥘" : item.name === "Purê de Batata" ? "🥔" : item.name === "Macarrão" ? "🍝" : item.name === "Couve Refogada" ? "🥬" : "🥩"}
                     </div>
                     <h4 className="mt-2.5 text-sm font-black leading-tight sm:text-base">{item.name}</h4>
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">{item.weight}</div>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-2">
-                    <span className="text-base font-black text-[#ef7d18]">{item.price}</span>
-                    <button type="button" onClick={() => onAdd(item)} aria-label={"Adicionar " + item.name} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#a7b86a] text-black transition hover:scale-105"><Plus size={17} strokeWidth={3} /></button>
+                    <span className="text-base font-black text-[#f47b0b]">{item.price}</span>
+                    <button type="button" onClick={() => onAdd(item)} aria-label={"Adicionar " + item.name} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#86a51d] text-black transition hover:scale-105"><Plus size={17} strokeWidth={3} /></button>
                   </div>
                 </div>
               </article>
             ))}
           </div>
           <div className="flex items-center gap-2 border-t border-white/10 bg-black/15 px-4 py-3 text-[11px] font-bold text-white/35 sm:px-5">
-            <ChefHat size={15} className="shrink-0 text-[#ef7d18]" />
+            <ChefHat size={15} className="shrink-0 text-[#f47b0b]" />
             <span>A porção de carne acompanha a opção disponível na produção do dia.</span>
           </div>
         </div>
@@ -2157,7 +2157,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
           type="button"
           onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#a7b86a]/45 bg-[#a7b86a]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#a7b86a]/70 hover:bg-[#a7b86a]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-[1.15rem] border border-[#86a51d]/45 bg-[#86a51d]/[.07] px-4 py-3.5 text-xs font-black text-[#d5e19e] transition hover:border-[#86a51d]/70 hover:bg-[#86a51d]/[.12] active:scale-[.99] sm:mt-4 sm:py-4 sm:text-sm"
         >
           <span>{expanded ? "Mostrar menos" : "Ver todos os pratos da linha"}</span>
           <ArrowRight size={16} className={expanded ? "rotate-[-90deg]" : ""} />
@@ -2378,14 +2378,14 @@ export default function Home() {
     if (!ctx) return;
     ctx.fillStyle = "#080a08";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#a7b86a";
+    ctx.fillStyle = "#86a51d";
     ctx.fillRect(0, 0, canvas.width, 18);
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 54px Arial";
     ctx.fillText("NUTRIFIT", 64, 100);
-    ctx.fillStyle = "#ef7d18";
+    ctx.fillStyle = "#f47b0b";
     ctx.fillRect(64, 125, 952, 4);
-    ctx.fillStyle = "#a7b86a";
+    ctx.fillStyle = "#86a51d";
     ctx.font = "bold 34px Arial";
     ctx.fillText("RESUMO DO PEDIDO", 64, 190);
     ctx.fillStyle = "#ffffff";
@@ -2409,7 +2409,7 @@ export default function Home() {
     drawWrapped("CLIENTE: " + (customerName.trim() || "A informar"));
     drawWrapped("WHATSAPP: " + (customerPhone.trim() || "A informar"));
     y += 10;
-    ctx.fillStyle = "#ef7d18";
+    ctx.fillStyle = "#f47b0b";
     drawWrapped("ITENS DO PEDIDO", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
     orderItems.forEach((item) => {
@@ -2417,7 +2417,7 @@ export default function Home() {
       drawWrapped(item.line + " • " + item.weight + " • " + money(item.price * item.quantity), "24px Arial");
     });
     y += 8;
-    ctx.fillStyle = "#a7b86a";
+    ctx.fillStyle = "#86a51d";
     drawWrapped("RESUMO DOS VALORES", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
     drawWrapped("Subtotal: " + money(orderSubtotal));
@@ -2428,7 +2428,7 @@ export default function Home() {
     ctx.fillStyle = "#baf58b";
     drawWrapped("TOTAL A PAGAR: " + money(orderGrandTotal), "bold 38px Arial");
     y += 26;
-    ctx.fillStyle = "#ef7d18";
+    ctx.fillStyle = "#f47b0b";
     drawWrapped("ENTREGA", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
     drawWrapped(orderDelivery ? (orderFreeDelivery ? "Frete grátis" : "Frete: " + money(orderDeliveryFee)) : "Taxa/endereço a confirmar");
@@ -2440,12 +2440,12 @@ export default function Home() {
     if (orderReference.trim()) drawWrapped("Referência: " + orderReference.trim());
     if (orderNotes.trim()) drawWrapped("Observações: " + orderNotes.trim());
     y += 12;
-    ctx.fillStyle = "#a7b86a";
+    ctx.fillStyle = "#86a51d";
     drawWrapped("PAGAMENTO VIA PIX", "bold 30px Arial");
     ctx.fillStyle = "#ffffff";
     drawWrapped("Chave Pix: " + PIX_KEY, "26px Arial");
     drawWrapped("Confira os dados antes de pagar.", "24px Arial");
-    ctx.fillStyle = "#ef7d18";
+    ctx.fillStyle = "#f47b0b";
     ctx.fillRect(64, 1325, 952, 3);
     ctx.fillStyle = "#bdbdbd";
     ctx.font = "22px Arial";
@@ -2844,7 +2844,7 @@ export default function Home() {
               <img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
             </span>
             <span className="leading-none">
-              <span className="text-[16px] font-black tracking-[-.04em] text-white sm:text-[22px] md:text-[28px]">NUTRI<span className="text-[#ef7d18]">FIT</span></span>
+              <span className="text-[16px] font-black tracking-[-.04em] text-white sm:text-[22px] md:text-[28px]">NUTRI<span className="text-[#f47b0b]">FIT</span></span>
             </span>
           </a>
 
@@ -2866,11 +2866,11 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
 
-            <a href="#cardapio" className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-[#ef7d18] px-2.5 py-2 text-[10px] font-black text-black transition hover:brightness-110 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs">Fazer pedido <ArrowRight size={13} /></a>
+            <a href="#cardapio" className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-[#f47b0b] px-2.5 py-2 text-[10px] font-black text-black transition hover:brightness-110 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs">Fazer pedido <ArrowRight size={13} /></a>
 
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid h-9 w-8 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/10 sm:h-11 sm:w-11">
               <ShoppingCart size={21} strokeWidth={1.7} />
-              {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#ef7d18] px-1 text-[9px] font-black text-white">{orderCount}</span>}
+              {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#f47b0b] px-1 text-[9px] font-black text-white">{orderCount}</span>}
             </button>
             <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-white/75 transition hover:bg-white/10 sm:h-11 sm:w-11"><UserRound size={20} strokeWidth={1.7} /></button>
 
@@ -2914,14 +2914,14 @@ export default function Home() {
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ff5a00]">{slide.eyebrow}</div>
             <h1 className="mt-3 text-[2rem] font-black leading-[1.05] text-[#ff5a00] sm:text-4xl md:text-5xl">{slide.title}</h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
-            <span className="mt-6 inline-flex rounded-full bg-[#a7b86a] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
+            <span className="mt-6 inline-flex rounded-full bg-[#86a51d] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
           </div>
         </a>
       </div>
     ))}
     <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
       {bannerSlides.map((slide, index) => (
-        <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#a7b86a]" : "w-2 bg-white/45"}`} />
+        <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#86a51d]" : "w-2 bg-white/45"}`} />
       ))}
     </div>
     <button type="button" onClick={() => setBannerIndex((bannerIndex - 1 + bannerSlides.length) % bannerSlides.length)} aria-label="Banner anterior" className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">‹</button>
@@ -2937,23 +2937,23 @@ export default function Home() {
 
       <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
-          <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#a7b86a]/40 bg-[#a7b86a]/[.06] p-3">
-            <ClipboardCheck size={22} className="text-[#a7b86a]" />
+          <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#86a51d]/40 bg-[#86a51d]/[.06] p-3">
+            <ClipboardCheck size={22} className="text-[#86a51d]" />
             <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Transforme suas orientações em refeições.</span></span>
-            <span className="text-[10px] font-black text-[#a7b86a]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
+            <span className="text-[10px] font-black text-[#86a51d]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
           </a>
-          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#ef7d18]/45 bg-[#ef7d18]/[.04] p-3">
-            <Stethoscope size={22} className="text-[#ef7d18]" />
+          <a href="https://wa.me/553299925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#f47b0b]/45 bg-[#f47b0b]/[.04] p-3">
+            <Stethoscope size={22} className="text-[#f47b0b]" />
             <span><span className="block text-xs font-black">Atendimento nutricional</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Fale com a nutricionista.</span></span>
-            <span className="text-[10px] font-black text-[#ef7d18]">Falar agora <ArrowRight size={12} className="ml-1 inline" /></span>
+            <span className="text-[10px] font-black text-[#f47b0b]">Falar agora <ArrowRight size={12} className="ml-1 inline" /></span>
           </a>
         </div>
       </section>
 
-      <section aria-label="Benefício de cadastro" className="border-b border-[#ef7d18]/20 bg-[#15120d]">
+      <section aria-label="Benefício de cadastro" className="border-b border-[#f47b0b]/20 bg-[#15120d]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left md:px-8">
-          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#ef7d18]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Ganhe R$ 10 de desconto na sua primeira compra! 💚</div><div className="text-[11px] text-white/45">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</div></div>
-          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#ef7d18] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
+          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#f47b0b]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Ganhe R$ 10 de desconto na sua primeira compra! 💚</div><div className="text-[11px] text-white/45">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</div></div>
+          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
         </div>
       </section>
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
@@ -2966,11 +2966,11 @@ export default function Home() {
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-transparent to-black/30"/>
 
             <div className="absolute left-3 top-3 z-20 sm:left-5 sm:top-5">
-              <span className="rounded-full border border-[#a7b86a]/60 bg-black/60 px-3 py-2 text-[10px] font-black tracking-wider text-[#d8e7a0] backdrop-blur-sm sm:text-xs">NUTRIFIT • SUCOS</span>
+              <span className="rounded-full border border-[#86a51d]/60 bg-black/60 px-3 py-2 text-[10px] font-black tracking-wider text-[#b6d76a] backdrop-blur-sm sm:text-xs">NUTRIFIT • SUCOS</span>
             </div>
 
-            <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="hidden lg:grid absolute left-5 top-1/2 z-30 h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#ef7d18] bg-black/75 text-2xl text-[#ef7d18] transition hover:bg-black">‹</button>
-            <button type="button" aria-label="Próximo sabor" onClick={() => setJuiceShowcaseIndex((current) => (current + 1) % juiceFlavors.length)} className="hidden lg:grid absolute right-5 top-1/2 z-30 h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#ef7d18] bg-black/75 text-2xl text-[#ef7d18] transition hover:bg-black">›</button>
+            <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="hidden lg:grid absolute left-5 top-1/2 z-30 h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#f47b0b] bg-black/75 text-2xl text-[#f47b0b] transition hover:bg-black">‹</button>
+            <button type="button" aria-label="Próximo sabor" onClick={() => setJuiceShowcaseIndex((current) => (current + 1) % juiceFlavors.length)} className="hidden lg:grid absolute right-5 top-1/2 z-30 h-10 w-10 -translate-y-1/2 place-items-center rounded-full border-2 border-[#f47b0b] bg-black/75 text-2xl text-[#f47b0b] transition hover:bg-black">›</button>
 
             <div className="hidden lg:block">
               <div className="relative z-10 grid min-h-[720px] grid-cols-[205px_minmax(0,1fr)_355px] content-start gap-5 px-10 pb-[165px] pt-10 xl:grid-cols-[220px_minmax(0,1fr)_385px]">
@@ -2983,31 +2983,31 @@ export default function Home() {
                   ].map((feature) => {
                     const FeatureIcon = feature.icon;
                     return <div key={feature.title} className="flex items-center gap-3">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#a7b86a] bg-black/30 text-[#a7b86a]"><FeatureIcon size={22} strokeWidth={1.5}/></span>
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#86a51d] bg-black/30 text-[#86a51d]"><FeatureIcon size={22} strokeWidth={1.5}/></span>
                       <span className="max-w-[120px] text-[11px] font-semibold uppercase leading-4 text-white drop-shadow">{feature.title}</span>
                     </div>;
                   })}
                 </aside>
                 <div className="hidden min-w-0 xl:block" aria-hidden="true"/>
                 <div className="min-w-0 self-center rounded-xl border border-white/10 bg-black/45 p-5 backdrop-blur-[2px]">
-                  <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#a7b86a]">Linha de sucos</p>
-                  <h3 className="mt-1 text-3xl font-black uppercase leading-none text-[#ef7d18] drop-shadow sm:text-4xl lg:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
+                  <p className="text-[10px] font-black uppercase tracking-[.24em] text-[#86a51d]">Linha de sucos</p>
+                  <h3 className="mt-1 text-3xl font-black uppercase leading-none text-[#f47b0b] drop-shadow sm:text-4xl lg:text-5xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                   <p className="mt-2 text-xs leading-5 text-white drop-shadow sm:text-sm">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
                   <div className="mt-3 rounded-xl border border-white/15 bg-black/45 p-3 backdrop-blur-sm">
-                    <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#a7b86a] sm:text-xs">Ingredientes</p>
+                    <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d] sm:text-xs">Ingredientes</p>
                     <p className="mt-1 text-[11px] leading-5 text-white sm:text-xs">{(juiceFlavors[juiceShowcaseIndex]?.ingredients || []).join(" • ")}</p>
-                    <p className="mt-3 text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18] sm:text-xs">Destaques do sabor</p>
+                    <p className="mt-3 text-[10px] font-black uppercase tracking-[.16em] text-[#f47b0b] sm:text-xs">Destaques do sabor</p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).map((highlight) => <span key={highlight} className="rounded-full border border-[#a7b86a]/40 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-bold text-white sm:text-[10px]">{highlight}</span>)}
+                      {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).map((highlight) => <span key={highlight} className="rounded-full border border-[#86a51d]/40 bg-[#86a51d]/10 px-2 py-1 text-[9px] font-bold text-white sm:text-[10px]">{highlight}</span>)}
                     </div>
                   </div>
                   <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
-                      <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#ef7d18] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
+                      <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                         <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
-                        <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#ef7d18]" : "text-white"}`}>{option.price}</span>
+                        <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#f47b0b]" : "text-white"}`}>{option.price}</span>
                       </button>
                     ))}
                   </div>
@@ -3025,26 +3025,26 @@ export default function Home() {
             <div className="absolute inset-x-3 bottom-3 z-20 rounded-2xl border border-white/15 bg-black/80 p-3 shadow-[0_12px_40px_rgba(0,0,0,.6)] backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-4 lg:hidden">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Suco natural</p>
-                  <h3 className="mt-0.5 text-2xl font-black uppercase leading-none text-[#ef7d18] drop-shadow sm:text-3xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
+                  <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#86a51d]">Suco natural</p>
+                  <h3 className="mt-0.5 text-2xl font-black uppercase leading-none text-[#f47b0b] drop-shadow sm:text-3xl">{juiceFlavors[juiceShowcaseIndex]?.name === "Suco de Laranja" ? "Laranja" : juiceFlavors[juiceShowcaseIndex]?.name === "Abacaxi com Hortelã" ? "Abacaxi" : juiceFlavors[juiceShowcaseIndex]?.name}</h3>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="grid h-8 w-8 place-items-center rounded-full border border-[#ef7d18] bg-black/80 text-xl leading-none text-[#ef7d18] active:scale-95">‹</button>
-                  <button type="button" aria-label="Próximo sabor" onClick={() => setJuiceShowcaseIndex((current) => (current + 1) % juiceFlavors.length)} className="grid h-8 w-8 place-items-center rounded-full border border-[#ef7d18] bg-black/80 text-xl leading-none text-[#ef7d18] active:scale-95">›</button>
-                  <span className="ml-1 rounded-full border border-[#a7b86a]/40 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-bold text-[#d8e7a0]">Natural</span>
+                  <button type="button" aria-label="Sabor anterior" onClick={() => setJuiceShowcaseIndex((current) => (current - 1 + juiceFlavors.length) % juiceFlavors.length)} className="grid h-8 w-8 place-items-center rounded-full border border-[#f47b0b] bg-black/80 text-xl leading-none text-[#f47b0b] active:scale-95">‹</button>
+                  <button type="button" aria-label="Próximo sabor" onClick={() => setJuiceShowcaseIndex((current) => (current + 1) % juiceFlavors.length)} className="grid h-8 w-8 place-items-center rounded-full border border-[#f47b0b] bg-black/80 text-xl leading-none text-[#f47b0b] active:scale-95">›</button>
+                  <span className="ml-1 rounded-full border border-[#86a51d]/40 bg-[#86a51d]/10 px-2 py-1 text-[9px] font-bold text-[#b6d76a]">Natural</span>
                 </div>
               </div>
               <p className="mt-1.5 line-clamp-2 text-[11px] leading-4 text-white/95 sm:text-xs">{juiceFlavors[juiceShowcaseIndex]?.description || "Suco natural Nutrifit."}</p>
-              <p className="mt-1.5 line-clamp-2 text-[10px] leading-4 text-white/75"><span className="font-bold uppercase tracking-wider text-[#a7b86a]">Ingredientes: </span>{(juiceFlavors[juiceShowcaseIndex]?.ingredients || []).join(" • ")}</p>
+              <p className="mt-1.5 line-clamp-2 text-[10px] leading-4 text-white/75"><span className="font-bold uppercase tracking-wider text-[#86a51d]">Ingredientes: </span>{(juiceFlavors[juiceShowcaseIndex]?.ingredients || []).join(" • ")}</p>
               <div className="mt-2 flex flex-wrap gap-1">
-                {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).slice(0,2).map((highlight)=><span key={highlight} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}
+                {(juiceFlavors[juiceShowcaseIndex]?.highlights || []).slice(0,2).map((highlight)=><span key={highlight} className="rounded-full border border-[#86a51d]/30 bg-[#86a51d]/10 px-2 py-1 text-[9px] font-semibold text-white/90">{highlight}</span>)}
               </div>
               <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
                 {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
-                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center transition ${selectedJuiceSize===option.size?"border-[#ef7d18] bg-[#251407]/90":"border-white/30 bg-black/55"}`}>
-                    <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#ef7d18]":"text-white"}`}>{option.price}</span>
+                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/90":"border-white/30 bg-black/55"}`}>
+                    <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
                 ))}
               </div>
@@ -3056,9 +3056,9 @@ export default function Home() {
           </div>
 
           <div className="mt-3 rounded-xl border border-white/10 bg-black/80 p-2.5 sm:mt-4 sm:p-3">
-          <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[.18em] text-[#a7b86a]">Explore outros sabores</p>
+          <p className="mb-2 px-1 text-[10px] font-black uppercase tracking-[.18em] text-[#86a51d]">Explore outros sabores</p>
           <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto sm:gap-3">
-            {juiceFlavors.map((flavor,index)=><button key={flavor.name} type="button" onClick={()=>setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`group w-[29%] shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition sm:w-[22%] md:w-[18%] lg:w-[13.6%] ${juiceShowcaseIndex===index?"border-[#ef7d18] shadow-[0_0_16px_rgba(239,125,24,.3)]":"border-white/20 hover:border-white/50"}`}>
+            {juiceFlavors.map((flavor,index)=><button key={flavor.name} type="button" onClick={()=>setJuiceShowcaseIndex(index)} aria-pressed={juiceShowcaseIndex===index} className={`group w-[29%] shrink-0 snap-start overflow-hidden rounded-xl border-2 text-left transition sm:w-[22%] md:w-[18%] lg:w-[13.6%] ${juiceShowcaseIndex===index?"border-[#f47b0b] shadow-[0_0_16px_rgba(239,125,24,.3)]":"border-white/20 hover:border-white/50"}`}>
               <img src={flavor.image} alt={flavor.name} loading="lazy" className="aspect-[1.45/1] w-full object-cover transition duration-300 group-hover:scale-[1.03]"/>
               <span className="block truncate bg-black/90 px-1 py-1.5 text-center text-[10px] font-black uppercase text-white sm:text-xs">{flavor.name==="Suco de Laranja"?"Laranja":flavor.name==="Abacaxi com Hortelã"?"Abacaxi":flavor.name}</span>
             </button>)}
@@ -3070,15 +3070,15 @@ export default function Home() {
 
       <section id="extras" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8 md:px-8">
         <div className="mb-4">
-          <div className="text-xs font-black uppercase tracking-[.2em] text-[#ef7d18]">Para completar seu pedido</div>
+          <div className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">Para completar seu pedido</div>
           <h2 className="mt-1.5 text-2xl font-black sm:text-3xl">Complete sua rotina</h2>
           <p className="mt-1.5 text-sm text-white/50">Pequenos extras para acompanhar suas marmitas.</p>
         </div>
 
         <div className="grid gap-2.5 md:grid-cols-2">
           {([
-            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#a7b86a"],
-            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#ef7d18"],
+            ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#86a51d"],
+            ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#f47b0b"],
           ] as const).map(([category, icon, title, subtitle, accent]) => {
             const items = comboComplements.filter((item) => item.category === category);
             return (
@@ -3108,7 +3108,7 @@ export default function Home() {
                       decoding="async"
                     />
                   )}
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#ef7d18] group-open:text-black">+</span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/5 text-lg text-white/50 transition group-open:rotate-45 group-open:bg-[#f47b0b] group-open:text-black">+</span>
                 </summary>
 
                 <div className="border-t border-white/10">
@@ -3139,7 +3139,7 @@ export default function Home() {
                           description: item.description,
                           image: item.image || ""
                         })}
-                        className="shrink-0 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#ef7d18] hover:text-black sm:px-3.5 sm:text-[11px]"
+                        className="shrink-0 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#f47b0b] hover:text-black sm:px-3.5 sm:text-[11px]"
                       >
                         {money(item.price ?? 0)}
                       </button>
@@ -3158,9 +3158,9 @@ export default function Home() {
 
 
       <section id="planos-mensais" className="scroll-mt-24 mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-14 md:px-8">
-        <div className="rounded-[1.5rem] border border-[#a7b86a]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-4 sm:rounded-[2rem] sm:p-7 md:p-10">
+        <div className="rounded-[1.5rem] border border-[#86a51d]/25 bg-gradient-to-br from-[#171d10] to-[#0e110c] p-4 sm:rounded-[2rem] sm:p-7 md:p-10">
           <div className="max-w-3xl">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Plano mensal Nutrifit</div>
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal Nutrifit</div>
             <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl md:text-4xl">Organize suas refeições do mês</h2>
             <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e combine seus sabores favoritos dentro da mesma linha. Mais praticidade para planejar sua alimentação e manter sua rotina organizada.</p>
           </div>
@@ -3171,7 +3171,7 @@ export default function Home() {
       <section id="confianca" className="border-y border-white/10 bg-[#0d100c]">
         <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-11 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Praticidade para sua rotina</div>
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Praticidade para sua rotina</div>
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Por que pedir na Nutrifit?</h2>
             <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6 md:text-base">Tudo organizado para você escolher, pedir e receber sem complicação.</p>
           </div>
@@ -3183,7 +3183,7 @@ export default function Home() {
               ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
             ].map(([icon, title, text]) => (
               <div key={title} className="flex min-h-[96px] min-w-0 flex-col items-start gap-2 rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:min-h-0 sm:rounded-3xl sm:p-6">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#a7b86a]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#86a51d]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
                 <div className="min-w-0">
                   <h3 className="text-xs font-black leading-tight sm:mt-4 sm:text-base">{title}</h3>
                   <p className="mt-1.5 text-[10px] leading-4 text-white/45 sm:mt-2 sm:text-sm sm:leading-6">{text}</p>
@@ -3192,7 +3192,7 @@ export default function Home() {
             ))}
           </div>
           <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-white/50 sm:mt-6 sm:text-sm sm:leading-6">
-            Procurando <a href="/marmitas-fit-juiz-de-fora" className="font-bold text-[#d8e7a0] underline decoration-[#a7b86a]/50 underline-offset-4 transition hover:text-white">marmitas fitness em Juiz de Fora</a>? Conheça as linhas da Nutrifit, compare os tamanhos e confira as opções disponíveis antes de montar seu pedido.
+            Procurando <a href="/marmitas-fit-juiz-de-fora" className="font-bold text-[#b6d76a] underline decoration-[#86a51d]/50 underline-offset-4 transition hover:text-white">marmitas fitness em Juiz de Fora</a>? Conheça as linhas da Nutrifit, compare os tamanhos e confira as opções disponíveis antes de montar seu pedido.
           </p>
         </div>
       </section>
@@ -3200,7 +3200,7 @@ export default function Home() {
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
         <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">É simples</div>
+            <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">É simples</div>
             <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-5xl">Como pedir</h2>
             <p className="mt-2 text-xs leading-5 text-white/50 sm:text-sm sm:leading-6">Escolha, confirme e receba.</p>
           </div>
@@ -3211,7 +3211,7 @@ export default function Home() {
               ["03","Receba","Entrega ou retirada."]
             ].map(([number,title,text], index) => (
               <div key={number} className="relative flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2.5 text-center sm:block sm:rounded-3xl sm:p-7 sm:text-left">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ef7d18]/15 text-[10px] font-black text-[#ef7d18] sm:h-10 sm:w-10 sm:text-xs">{number}</div>
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f47b0b]/15 text-[10px] font-black text-[#f47b0b] sm:h-10 sm:w-10 sm:text-xs">{number}</div>
                 <div className="min-w-0"><h3 className="text-[11px] font-black leading-tight sm:mt-4 sm:text-2xl">{title}</h3><p className="mt-1 text-[10px] leading-4 text-white/50 sm:mt-3 sm:text-sm sm:leading-7">{text}</p></div>
                 {index < 2 && <ArrowRight className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-white/15 md:block" size={18} />}
               </div>
@@ -3219,39 +3219,39 @@ export default function Home() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-8 sm:gap-5">
-            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#a7b86a]/25 bg-gradient-to-br from-[#1c2414] to-[#11140e] p-3 transition hover:border-[#a7b86a]/50 sm:rounded-[1.75rem] sm:p-6">
+            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#86a51d]/25 bg-gradient-to-br from-[#1c2414] to-[#11140e] p-3 transition hover:border-[#86a51d]/50 sm:rounded-[1.75rem] sm:p-6">
               <div className="flex h-full flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#a7b86a]/25 bg-[#a7b86a]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><Truck className="text-[#b7c879]" size={18} /></div>
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><Truck className="text-[#b7c879]" size={18} /></div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#b7c879] sm:text-[9px] sm:tracking-[.18em]">Receba do seu jeito</div>
                   <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Entrega ou retirada</h2>
                   <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Consulte a entrega ou retire diretamente na Nutrifit.</p>
-                  <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#a7b86a] px-3 py-2 text-[9px] font-black text-black transition hover:bg-[#c2d58a] sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Consultar entrega <ArrowRight size={12} /></a>
+                  <a href={whatsappOrder("Olá, Nutrifit! Gostaria de consultar a entrega para o meu endereço.")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#86a51d] px-3 py-2 text-[9px] font-black text-black transition hover:bg-[#c2d58a] sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Consultar entrega <ArrowRight size={12} /></a>
                 </div>
               </div>
             </div>
 
-            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#ef7d18]/20 bg-gradient-to-br from-[#21180f] to-[#12110d] p-3 transition hover:border-[#ef7d18]/45 sm:rounded-[1.75rem] sm:p-6">
+            <div className="group relative min-w-0 overflow-hidden rounded-2xl border border-[#f47b0b]/20 bg-gradient-to-br from-[#21180f] to-[#12110d] p-3 transition hover:border-[#f47b0b]/45 sm:rounded-[1.75rem] sm:p-6">
               <div className="flex h-full flex-col items-start gap-2 sm:flex-row sm:items-start sm:gap-3">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><MessageCircle className="text-[#ef8a2c]" size={18} /></div>
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><MessageCircle className="text-[#ef8a2c]" size={18} /></div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef8a2c] sm:text-[9px] sm:tracking-[.18em]">Atendimento direto</div>
                   <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Pedido pelo WhatsApp</h2>
                   <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições e combine a entrega ou retirada.</p>
-                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#ef7d18]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Falar no WhatsApp <MessageCircle size={12} /></a>
+                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#f47b0b]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Falar no WhatsApp <MessageCircle size={12} /></a>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="relative mt-4 overflow-hidden rounded-[1.5rem] border border-[#a7b86a]/30 bg-[#12160e] p-4 sm:mt-6 sm:rounded-[2rem] sm:p-6 md:flex md:items-center md:justify-between md:gap-6">
-            <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-[#a7b86a]/10 blur-2xl sm:h-48 sm:w-48" />
+          <div className="relative mt-4 overflow-hidden rounded-[1.5rem] border border-[#86a51d]/30 bg-[#12160e] p-4 sm:mt-6 sm:rounded-[2rem] sm:p-6 md:flex md:items-center md:justify-between md:gap-6">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-12 h-36 w-36 rounded-full bg-[#86a51d]/10 blur-2xl sm:h-48 sm:w-48" />
             <div className="relative min-w-0 flex-1">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#a7b86a]/25 bg-[#a7b86a]/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.16em] text-[#d8e7a0]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]" /> Sua rotina mais prática</div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#86a51d]/25 bg-[#86a51d]/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[.16em] text-[#b6d76a]"><span className="h-1.5 w-1.5 rounded-full bg-[#86a51d]" /> Sua rotina mais prática</div>
               <h2 className="mt-2 text-xl font-black leading-tight sm:text-2xl">Sua próxima refeição começa aqui.</h2>
               <p className="mt-1.5 max-w-xl text-xs leading-5 text-white/55 sm:text-sm sm:leading-6">Escolha seus favoritos no cardápio Nutrifit e monte um pedido do seu jeito.</p>
             </div>
-            <a href="#cardapio" className="relative mt-4 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-5 py-3 text-xs font-black text-black shadow-[0_8px_24px_rgba(239,125,24,.16)] transition hover:bg-[#ff963b] sm:mt-4 sm:w-auto md:mt-0">
+            <a href="#cardapio" className="relative mt-4 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3 text-xs font-black text-black shadow-[0_8px_24px_rgba(239,125,24,.16)] transition hover:bg-[#ff963b] sm:mt-4 sm:w-auto md:mt-0">
               Explorar cardápio <ArrowRight size={16} />
             </a>
           </div>
@@ -3264,7 +3264,7 @@ export default function Home() {
           <aside role="dialog" aria-modal="true" aria-labelledby="cart-title" className="absolute right-0 top-0 flex h-[100dvh] w-full max-w-xl flex-col border-l border-white/10 bg-[#0b0e09] shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-[#0b0e09]/95 px-4 py-3 backdrop-blur sm:px-7 sm:py-4">
               <div className="min-w-0">
-                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Seu pedido</div>
+                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Seu pedido</div>
                 <h2 id="cart-title" className="mt-1 text-xl font-black sm:text-2xl">Carrinho <span className="text-white/40">• {orderCount}</span></h2>
               </div>
               <div className="flex shrink-0 items-center gap-2">
@@ -3281,10 +3281,10 @@ export default function Home() {
               {!orderItems.length ? (
                 <div className="grid min-h-[45vh] place-items-center text-center">
                   <div>
-                    <ShoppingCart size={42} className="mx-auto text-[#a7b86a]" />
+                    <ShoppingCart size={42} className="mx-auto text-[#86a51d]" />
                     <h3 className="mt-4 text-xl font-black">Seu carrinho está vazio</h3>
                     <p className="mt-2 max-w-xs text-base sm:text-sm leading-6 text-white/45">Escolha suas marmitas, saladas ou sucos e eles aparecerão aqui.</p>
-                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-label="Voltar ao cardápio" className="mt-5 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black">
+                    <button type="button" onClick={() => { setOrderOpen(false); document.getElementById("cardapio")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} aria-label="Voltar ao cardápio" className="mt-5 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black">
                       Voltar ao cardápio
                     </button>
                   </div>
@@ -3315,9 +3315,9 @@ export default function Home() {
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => changeOrderQty(item.name, -1)} aria-label={`Diminuir ${item.name}`} title="Diminuir quantidade" className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>
                                 <span className="w-6 text-center font-black">{item.quantity}</span>
-                                <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} title="Aumentar quantidade" className="grid h-9 w-9 place-items-center rounded-full bg-[#a7b86a] text-black"><Plus size={14} /></button>
+                                <button type="button" onClick={() => changeOrderQty(item.name, 1)} aria-label={`Aumentar ${item.name}`} title="Aumentar quantidade" className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black"><Plus size={14} /></button>
                               </div>
-                              <div className="text-base font-black text-[#ef7d18]">{money(item.price * item.quantity)}</div>
+                              <div className="text-base font-black text-[#f47b0b]">{money(item.price * item.quantity)}</div>
                             </div>
                           </div>
                         </div>
@@ -3328,7 +3328,7 @@ export default function Home() {
                   {cartSuggestions.length > 0 && (
                     <section className="mt-6" aria-label="Sugestões para completar o pedido">
                       <div className="mb-3">
-                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#ef7d18]">Aproveite e adicione</div>
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#f47b0b]">Aproveite e adicione</div>
                         <h3 className="mt-1 text-lg font-black">Complete seu pedido</h3>
                         <p className="mt-1 text-xs leading-5 text-white/45">Sucos, sanduíches e frutas para acompanhar suas marmitas.</p>
                       </div>
@@ -3340,8 +3340,8 @@ export default function Home() {
                             </div>
                             <div className="p-3">
                               <h4 className="line-clamp-2 min-h-10 text-xs font-bold leading-5">{suggestion.name}</h4>
-                              <div className="mt-1 text-sm font-black text-[#a7b86a]">{money(suggestion.price as number)}</div>
-                              <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#ef7d18] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
+                              <div className="mt-1 text-sm font-black text-[#86a51d]">{money(suggestion.price as number)}</div>
+                              <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
                                 <Plus size={14} /> Adicionar
                               </button>
                             </div>
@@ -3351,67 +3351,67 @@ export default function Home() {
                     </section>
                   )}
 
-                  <section className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.055] p-4" aria-label="Progresso para frete grátis">
+                  <section className="mt-5 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.055] p-4" aria-label="Progresso para frete grátis">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-sm font-black"><Truck size={18} className="text-[#a7b86a]" /> Frete grátis</div>
-                      <span className="text-xs font-black text-[#a7b86a]">{Math.min(100, Math.round((orderCount / DELIVERY_FREE_FROM) * 100))}%</span>
+                      <div className="flex items-center gap-2 text-sm font-black"><Truck size={18} className="text-[#86a51d]" /> Frete grátis</div>
+                      <span className="text-xs font-black text-[#86a51d]">{Math.min(100, Math.round((orderCount / DELIVERY_FREE_FROM) * 100))}%</span>
                     </div>
                     <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-[#a7b86a] transition-all duration-300" style={{ width: Math.min(100, (orderCount / DELIVERY_FREE_FROM) * 100) + "%" }} />
+                      <div className="h-full rounded-full bg-[#86a51d] transition-all duration-300" style={{ width: Math.min(100, (orderCount / DELIVERY_FREE_FROM) * 100) + "%" }} />
                     </div>
                     <p className="mt-2 text-xs leading-5 text-white/55">{orderFreeDelivery ? "Frete grátis aplicado automaticamente ao atingir 20 itens." : `Faltam ${DELIVERY_FREE_FROM - orderCount} ${DELIVERY_FREE_FROM - orderCount === 1 ? "item" : "itens"} para atingir o frete grátis.`}</p>
                   </section>
 
                   <div className="mt-6 grid gap-3">
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seus dados</div>
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
                     <label className="text-xs font-bold text-white/55">Nome
-                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
                     </label>
                     <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#a7b86a]" />
+                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
                     </label>
                   </div>
 
                   <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega</div>
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
                         <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div><div className="mt-1 text-[11px] leading-5 text-white/40">Taxas por região: Zona 1 R$ 5 • Zona 2 R$ 7 • Zona 3 R$ 10 • Zona 4 R$ 13. Frete grátis a partir de 20 itens.</div>
                       </div>
-                      <Truck size={21} className="shrink-0 text-[#a7b86a]" />
+                      <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
                     {!orderFreeDelivery && (
                       <>
                         <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#a7b86a]" />
-                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
+                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
+                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
                         </div>
-                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#ef7d18]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
+                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
                         {orderDelivery && (
-                          <div className="mt-4 grid gap-3 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.04] p-3 sm:grid-cols-2">
-                            <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#a7b86a]">Endereço completo para entrega</div>
+                          <div className="mt-4 grid gap-3 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.04] p-3 sm:grid-cols-2">
+                            <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">Endereço completo para entrega</div>
                             <label className="text-xs font-bold text-white/60">Rua / avenida
-                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Número
-                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Complemento (opcional)
-                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Bairro
-                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">Cidade
-                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60">UF
-                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                             <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
-                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#a7b86a]" />
+                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
                             </label>
                           </div>
                         )}
@@ -3419,27 +3419,27 @@ export default function Home() {
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
                       </>
                     )}
-                    {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#cbd99a]">🚚 Frete grátis aplicado automaticamente.</div>}
+                    {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-[#a7b86a]/20 bg-[#171d10] p-4">
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Cupom de desconto</div>
+                  <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4">
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Cupom de desconto</div>
                     <div className="mt-1 text-xs text-white/45">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
                     <div className="mt-3 flex gap-2">
-                      <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm font-bold outline-none focus:border-[#a7b86a] disabled:opacity-60" />
+                      <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm font-bold outline-none focus:border-[#86a51d] disabled:opacity-60" />
                       {appliedCoupon ? (
                         <button type="button" onClick={removeCoupon} className="shrink-0 rounded-full border border-white/10 px-4 py-3 text-xs font-black">Remover</button>
                       ) : (
-                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#a7b86a] px-4 py-3 text-xs font-black text-black disabled:opacity-50">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
+                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
                       )}
                     </div>
-                    {couponMessage && <div className={"mt-2 text-xs font-bold " + (couponStatus === "error" ? "text-[#ef9b55]" : "text-[#cbd99a]")}>{couponMessage}</div>}
-                    {appliedCoupon && couponDiscount > 0 && <div className="mt-2 text-xs font-black text-[#cbd99a]">Desconto aplicado: -{money(couponDiscount)}</div>}
+                    {couponMessage && <div className={"mt-2 text-xs font-bold " + (couponStatus === "error" ? "text-[#ef9b55]" : "text-[#b6d76a]")}>{couponMessage}</div>}
+                    {appliedCoupon && couponDiscount > 0 && <div className="mt-2 text-xs font-black text-[#b6d76a]">Desconto aplicado: -{money(couponDiscount)}</div>}
                     {appliedCoupon && couponDiscount === 0 && <div className="mt-2 text-xs font-bold text-[#ef9b55]">O pedido ficou abaixo do mínimo deste cupom. Aumente o pedido ou remova o cupom.</div>}
                   </div>
 
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
-                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#a7b86a]" />
+                    <textarea value={orderNotes} onChange={(event) => setOrderNotes(event.target.value)} rows={3} placeholder="Ex.: preferência de entrega ou observação para o pedido" aria-label="Observações do pedido" className="mt-1.5 w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
                   </label>
                 </>
               )}
@@ -3449,20 +3449,20 @@ export default function Home() {
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/[.98] px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,.35)] backdrop-blur sm:px-7 sm:pt-5 sm:pb-7">
                 <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-xs">
                   <span className="text-white/55">{orderDiscount > 0 ? (couponDiscount > 0 ? "Cupom aplicado" : "Desconto Nutrifit") : "Descontos"}</span>
-                  <strong className={orderDiscount > 0 ? "text-[#a7b86a]" : "text-white/65"}>{orderDiscount > 0 ? "-" + money(orderDiscount) : appliedCoupon ? "Verifique o mínimo do cupom" : "Nenhum desconto aplicado"}</strong>
+                  <strong className={orderDiscount > 0 ? "text-[#86a51d]" : "text-white/65"}>{orderDiscount > 0 ? "-" + money(orderDiscount) : appliedCoupon ? "Verifique o mínimo do cupom" : "Nenhum desconto aplicado"}</strong>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
                   <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
-                  <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#a7b86a] sm:text-3xl">{money(orderGrandTotal)}</strong>
+                  <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
-                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#ef7d18]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
-                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
+                <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
-                {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
+                {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
               </div>
@@ -3476,7 +3476,7 @@ export default function Home() {
           <button type="button" aria-label="Fechar busca" onClick={() => setSearchOpen(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <section role="dialog" aria-modal="true" aria-label="Buscar produtos" className="absolute left-1/2 top-16 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
             <div className="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
-              <Search size={21} className="shrink-0 text-[#a7b86a]" />
+              <Search size={21} className="shrink-0 text-[#86a51d]" />
               <input autoFocus value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Busque por prato ou suco..." aria-label="Buscar produtos" autoComplete="off" className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:text-white/30" />
               <button type="button" onClick={() => setSearchOpen(false)} aria-label="Fechar busca" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
@@ -3485,12 +3485,12 @@ export default function Home() {
               {!searchTerm.trim() && <div id="search-title" className="p-6 text-center text-sm text-white/40">Digite o nome de uma marmita, salada ou suco.</div>}
               <div className="grid gap-2">
                 {searchResults.map((product) => (
-                  <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left hover:border-[#a7b86a]/40">
+                  <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left hover:border-[#86a51d]/40">
                     <span className="min-w-0">
                       <span className="block break-words font-black">{product.name}</span>
                       <span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {product.price}</span>
                     </span>
-                    <ArrowRight size={18} className="shrink-0 text-[#a7b86a]" />
+                    <ArrowRight size={18} className="shrink-0 text-[#86a51d]" />
                   </button>
                 ))}
               </div>
@@ -3502,13 +3502,13 @@ export default function Home() {
       {leadPromptOpen && !profileOpen && (
         <div className="fixed inset-0 z-[115]">
           <button type="button" aria-label="Fechar benefício" onClick={dismissLeadPrompt} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-          <section role="dialog" aria-modal="true" aria-labelledby="lead-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-[#ef7d18]/25 bg-[#0d100c] shadow-2xl">
+          <section role="dialog" aria-modal="true" aria-labelledby="lead-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-[#f47b0b]/25 bg-[#0d100c] shadow-2xl">
             <div className="p-6 sm:p-7">
               <button type="button" onClick={dismissLeadPrompt} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#ef7d18]">Clube Nutrifit</div>
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Clube Nutrifit</div>
               <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 10 de desconto na sua primeira compra! 💚</h2>
               <p className="mt-2 text-sm leading-6 text-white/50">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</p>
-              <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
+              <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
               <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
           </section>
@@ -3521,7 +3521,7 @@ export default function Home() {
           <section role="dialog" aria-modal="true" aria-labelledby="profile-title" className="absolute left-1/2 top-1/2 w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-3xl border border-white/10 bg-[#0d100c] shadow-2xl">
             <div className="flex items-center justify-between gap-4 border-b border-white/10 p-5">
               <div>
-                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Clube Nutrifit</div>
+                <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Clube Nutrifit</div>
                 <h2 id="profile-title" className="mt-1 text-2xl font-black">Minha conta</h2>
               </div>
               <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
@@ -3530,28 +3530,28 @@ export default function Home() {
               <p className="text-sm leading-6 text-white/50">Cadastre seus dados para participar do Clube Nutrifit e garantir R$ 10 de desconto na primeira compra.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
-                  <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">WhatsApp
-                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">E-mail
-                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" aria-label="E-mail do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" aria-label="E-mail do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
                 <label className="text-xs font-bold text-white/55">Data de nascimento
-                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" aria-label="Data de nascimento" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#a7b86a]" />
+                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" aria-label="Data de nascimento" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
                 <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs leading-5 text-white/55">
-                  <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a]" />
+                  <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#86a51d]" />
                   Quero receber novidades e ofertas da Nutrifit.
                 </label>
               </div>
 
-              {profileStatus === "exists" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Este WhatsApp já está cadastrado no Clube Nutrifit.</div>}
-              {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
-              {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/10 p-4 text-sm text-[#d8e7a0]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
+              {profileStatus === "exists" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Este WhatsApp já está cadastrado no Clube Nutrifit.</div>}
+              {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
+              {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm text-[#b6d76a]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
 
-              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-5 py-3.5 font-black text-black disabled:opacity-40">
+              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-40">
                 {profileStatus === "saving" ? <><Loader2 size={17} className="animate-spin" /> Salvando...</> : "Salvar cadastro"}
               </button>
             </div>
@@ -3563,36 +3563,36 @@ export default function Home() {
       <section id="b2b" className="border-t border-white/10 bg-[#0d100b]">
         <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 md:grid-cols-[1.05fr_.95fr] md:items-center md:px-8 md:py-12">
           <div>
-            <p className="text-xs font-black uppercase tracking-[.22em] text-[#ef7d18]">Nutrifit para empresas</p>
+            <p className="text-xs font-black uppercase tracking-[.22em] text-[#f47b0b]">Nutrifit para empresas</p>
             <h2 className="mt-3 max-w-2xl text-3xl font-black leading-tight sm:text-4xl md:text-5xl">Alimentação prática para sua equipe.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Leve marmitas e opções práticas para a rotina da sua empresa. Conte para a gente o tamanho da equipe e a frequência desejada para avaliarmos uma proposta personalizada.</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a href="/b2b" onClick={() => trackClick("b2b_proposal_click", "b2b_section")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Solicitar proposta B2B <Building2 size={17} /></a>
-              <a href="#como-pedir" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-white/85 transition hover:border-[#a7b86a]">Como funciona o pedido</a>
+              <a href="/b2b" onClick={() => trackClick("b2b_proposal_click", "b2b_section")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Solicitar proposta B2B <Building2 size={17} /></a>
+              <a href="#como-pedir" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-white/85 transition hover:border-[#86a51d]">Como funciona o pedido</a>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl border border-white/10 bg-white/[.035] p-3.5"><ChefHat className="text-[#a7b86a]" size={23} /><h3 className="mt-3 font-black">Opções variadas</h3><p className="mt-2 text-sm leading-5 text-white/55">Consulte as linhas e os pratos disponíveis no cardápio.</p></div>
-            <div className="rounded-2xl border border-white/10 bg-white/[.035] p-5"><ClipboardCheck className="text-[#a7b86a]" size={23} /><h3 className="mt-3 font-black">Proposta sob consulta</h3><p className="mt-2 text-sm leading-5 text-white/55">Condições dependem de volume, frequência e logística.</p></div>
-            <div className="rounded-xl border border-white/10 bg-white/[.035] p-3.5 sm:col-span-2"><MessageCircle className="text-[#ef7d18]" size={23} /><h3 className="mt-3 font-black">Atendimento comercial direto</h3><p className="mt-2 text-sm leading-5 text-white/55">Fale pelo WhatsApp e informe nome da empresa, cidade, quantidade estimada de refeições e quando pretende começar.</p></div>
+            <div className="rounded-xl border border-white/10 bg-white/[.035] p-3.5"><ChefHat className="text-[#86a51d]" size={23} /><h3 className="mt-3 font-black">Opções variadas</h3><p className="mt-2 text-sm leading-5 text-white/55">Consulte as linhas e os pratos disponíveis no cardápio.</p></div>
+            <div className="rounded-2xl border border-white/10 bg-white/[.035] p-5"><ClipboardCheck className="text-[#86a51d]" size={23} /><h3 className="mt-3 font-black">Proposta sob consulta</h3><p className="mt-2 text-sm leading-5 text-white/55">Condições dependem de volume, frequência e logística.</p></div>
+            <div className="rounded-xl border border-white/10 bg-white/[.035] p-3.5 sm:col-span-2"><MessageCircle className="text-[#f47b0b]" size={23} /><h3 className="mt-3 font-black">Atendimento comercial direto</h3><p className="mt-2 text-sm leading-5 text-white/55">Fale pelo WhatsApp e informe nome da empresa, cidade, quantidade estimada de refeições e quando pretende começar.</p></div>
           </div>
         </div>
       </section>
 
       <section id="entrega" className="border-t border-white/10 bg-[#080a07]">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8">
-          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Entrega e retirada</p><p className="mt-1 text-sm text-white/65">Informe seu CEP no pedido para consultar a cobertura e eventual taxa de entrega.</p></div>
-          <a href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#a7b86a]/40 px-4 py-2 text-xs font-black text-[#d8e7a0]">Consultar entrega <ArrowRight size={14}/></a>
+          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p><p className="mt-1 text-sm text-white/65">Informe seu CEP no pedido para consultar a cobertura e eventual taxa de entrega.</p></div>
+          <a href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Consultar entrega <ArrowRight size={14}/></a>
         </div>
       </section>
 
       <section id="faq" className="border-t border-white/10 bg-[#0d100b]">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
-          <p className="text-[11px] font-black uppercase tracking-[.18em] text-[#ef7d18] sm:text-xs sm:tracking-[.22em]">Dúvidas frequentes</p><h2 className="mt-2 max-w-full break-words text-2xl font-black leading-tight sm:text-4xl">Antes de fazer seu pedido</h2>
+          <p className="text-[11px] font-black uppercase tracking-[.18em] text-[#f47b0b] sm:text-xs sm:tracking-[.22em]">Dúvidas frequentes</p><h2 className="mt-2 max-w-full break-words text-2xl font-black leading-tight sm:text-4xl">Antes de fazer seu pedido</h2>
           <div className="mt-5 divide-y divide-white/10 rounded-xl border border-white/10 bg-black/20 px-4 sm:px-5">
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Onde encontro as informações nutricionais? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Abra o prato para consultar a ficha nutricional quando disponível. Os valores apresentados são referências da Nutrifit por porção e podem variar conforme ingredientes e preparo.</p></details>
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Quero pedir para uma empresa. Como funciona? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Acesse a seção Nutrifit para empresas e solicite uma proposta pelo WhatsApp. Informe quantidade estimada, frequência e local de entrega para avaliação comercial.</p></details>
-            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Preciso de ajuda com meu pedido. Com quem falo? <ChevronDown size={18} className="shrink-0 text-[#a7b86a] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Use o botão de WhatsApp no site e envie os detalhes do pedido para a equipe poder orientar você.</p></details>
+            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Onde encontro as informações nutricionais? <ChevronDown size={18} className="shrink-0 text-[#86a51d] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Abra o prato para consultar a ficha nutricional quando disponível. Os valores apresentados são referências da Nutrifit por porção e podem variar conforme ingredientes e preparo.</p></details>
+            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Quero pedir para uma empresa. Como funciona? <ChevronDown size={18} className="shrink-0 text-[#86a51d] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Acesse a seção Nutrifit para empresas e solicite uma proposta pelo WhatsApp. Informe quantidade estimada, frequência e local de entrega para avaliação comercial.</p></details>
+            <details className="group py-3.5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold">Preciso de ajuda com meu pedido. Com quem falo? <ChevronDown size={18} className="shrink-0 text-[#86a51d] transition group-open:rotate-180" /></summary><p className="mt-2 text-xs leading-5 text-white/60">Use o botão de WhatsApp no site e envie os detalhes do pedido para a equipe poder orientar você.</p></details>
           </div>
         </div>
       </section>
@@ -3601,17 +3601,17 @@ export default function Home() {
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
         aria-label="Abrir Assistente Nutrifit"
-        className="group fixed bottom-4 right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#a7b86a]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#ef7d18] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
+        className="group fixed bottom-4 right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
       >
-        <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#ef7d18]/80 bg-black sm:grid sm:h-11 sm:w-11">
+        <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/80 bg-black sm:grid sm:h-11 sm:w-11">
           <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black bg-[#a7b86a]" aria-hidden="true" />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black bg-[#86a51d]" aria-hidden="true" />
         </span>
         <span className="hidden pr-1 text-left leading-tight sm:block">
           <span className="block text-sm font-black">Assistente Nutrifit</span>
           <span className="mt-0.5 block text-[10px] font-bold text-white/55">Posso ajudar você?</span>
         </span>
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black sm:h-9 sm:w-9">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f47b0b] text-black sm:h-9 sm:w-9">
           <MessageCircle size={17} strokeWidth={2.6} />
         </span>
       </a>
@@ -3622,14 +3622,14 @@ export default function Home() {
           <section className="mb-7" aria-labelledby="nutrifit-categories-heading">
             <h2 id="nutrifit-categories-heading" className="mb-3 text-sm font-black uppercase tracking-[.16em] text-white/55">Explore nosso cardápio</h2>
             <div className="flex flex-wrap gap-2.5">
-              <a href="#cardapio" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍱</span> Fit 350 g</a>
-              <a href="#performance" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥘</span> Performance</a>
-              <a href="#tradicional" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍛</span> Tradicional</a>
-              <a href="#saladas" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥗</span> Saladas</a>
-              <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🧃</span> Sucos</a>
-              <a href="#sanduiches" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
-              <a href="#combos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🍽️</span> Combos</a>
-              <a href="#b2b" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#a7b86a]/60"><span aria-hidden="true" className="text-base">🏢</span> Empresas</a>
+              <a href="#cardapio" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🍱</span> Fit 350 g</a>
+              <a href="#performance" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🥘</span> Performance</a>
+              <a href="#tradicional" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🍛</span> Tradicional</a>
+              <a href="#saladas" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🥗</span> Saladas</a>
+              <a href="#sucos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🧃</span> Sucos</a>
+              <a href="#sanduiches" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
+              <a href="#combos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🍽️</span> Combos</a>
+              <a href="#b2b" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🏢</span> Empresas</a>
             </div>
           </section>
           <div className="grid gap-7 md:grid-cols-[1.15fr_.85fr] md:gap-12">
@@ -3643,8 +3643,8 @@ export default function Home() {
               </a>
               <p className="mt-4 max-w-xl text-sm leading-6 text-white/65 sm:text-base">Marmitas fitness saudáveis e saborosas para facilitar sua rotina em Juiz de Fora e região.</p>
               <div className="mt-5 flex flex-wrap gap-3" aria-label="Redes sociais e contato">
-                <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_social")} aria-label="WhatsApp Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#a7b86a] hover:text-black"><MessageCircle size={21}/></a>
-                <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("social_click", "footer_instagram")} aria-label="Instagram Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#a7b86a] hover:text-black"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></a>
+                <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_social")} aria-label="WhatsApp Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#86a51d] hover:text-black"><MessageCircle size={21}/></a>
+                <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("social_click", "footer_instagram")} aria-label="Instagram Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#86a51d] hover:text-black"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></a>
               </div>
             </div>
             <div className="divide-y divide-white/10 border-y border-white/10">
@@ -3669,7 +3669,7 @@ export default function Home() {
             </div>
           </div>
           <section className="mt-8 border-t border-white/10 pt-6" aria-labelledby="nutrifit-payment-heading">
-            <div className="flex items-center gap-3"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#a7b86a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg><h2 id="nutrifit-payment-heading" className="text-lg font-black sm:text-xl">Formas de pagamento</h2></div>
+            <div className="flex items-center gap-3"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#86a51d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg><h2 id="nutrifit-payment-heading" className="text-lg font-black sm:text-xl">Formas de pagamento</h2></div>
             <div className="mt-5 flex flex-wrap items-center gap-3" aria-label="Bandeiras e formas de pagamento">
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Pix"><svg viewBox="0 0 64 24" width="64" height="24" role="img" aria-label="Pix"><g fill="none" stroke="#32BCAD" strokeWidth="2.2"><path d="M9 1 16 8 9 15 2 8Z" transform="translate(0 3)"/><path d="M9 8 16 15 9 22 2 15Z" transform="translate(0 -3)"/></g><text x="22" y="17" fontSize="15" fontWeight="700" fill="#263238">Pix</text></svg></div>
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Visa"><svg viewBox="0 0 70 30" width="70" height="30" role="img" aria-label="Visa"><text x="4" y="23" fontSize="25" fontWeight="900" fontStyle="italic" fill="#1A1F71">VISA</text></svg></div>
