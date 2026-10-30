@@ -18,7 +18,28 @@ const instagram = "https://www.instagram.com/nutrifit_jf/";
 const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
+const ANALYTICS_CONSENT_KEY = "nutrifit_analytics_consent";
+
+const hasAnalyticsConsent = () => {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(ANALYTICS_CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
+};
+
+const getConsentedAcquisitionValue = (key: string) => {
+  if (!hasAnalyticsConsent()) return null;
+  try {
+    return window.localStorage.getItem(key) || null;
+  } catch {
+    return null;
+  }
+};
+
 const trackClick = (event: string, source: string) => {
+  if (!hasAnalyticsConsent()) return;
   track(event, { source });
   if (typeof window !== "undefined" && event !== "site_visit") {
     void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
@@ -30,9 +51,9 @@ const trackClick = (event: string, source: string) => {
         source,
         page: window.location.pathname,
         metadata: {
-          campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         },
       }),
     }).catch(() => {});
@@ -2523,7 +2544,7 @@ export default function Home() {
       "",
       "✅ *Pedido conferido pelo cliente.*",
     ].join("\n");
-    const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+    const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
     trackClick("order_started", acquisitionSource);
 
     // Evita abrir about:blank no Safari/iPhone.
@@ -2556,9 +2577,9 @@ export default function Home() {
           address_reference: orderReference.trim() || null,
           notes: notesText || null,
           acquisition_source: acquisitionSource,
-          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          acquisition_content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         }),
       });
       const result = await orderResponse.json().catch(() => ({}));
@@ -2634,27 +2655,29 @@ export default function Home() {
   };
 
   useEffect(() => {
-    try {
-      const acquisition = getAcquisitionData();
-      const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
-      if (!previousSource || acquisition.source !== "direct") {
-        window.localStorage.setItem("nutrifit_acquisition_source", acquisition.source);
-      }
-      if (acquisition.campaign) window.localStorage.setItem("nutrifit_acquisition_campaign", acquisition.campaign);
-      if (acquisition.medium) window.localStorage.setItem("nutrifit_acquisition_medium", acquisition.medium);
-      if (acquisition.content) window.localStorage.setItem("nutrifit_acquisition_content", acquisition.content);
-      void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
-        method: "POST",
-        headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
-        keepalive: true,
-        body: JSON.stringify({
-          event: "site_visit",
-          source: acquisition.source,
-          page: window.location.pathname,
-          metadata: { campaign: acquisition.campaign || null, medium: acquisition.medium || null, content: acquisition.content || null },
-        }),
-      }).catch(() => {});
-    } catch {}
+    if (hasAnalyticsConsent()) {
+      try {
+        const acquisition = getAcquisitionData();
+        const previousSource = window.localStorage.getItem("nutrifit_acquisition_source");
+        if (!previousSource || acquisition.source !== "direct") {
+          window.localStorage.setItem("nutrifit_acquisition_source", acquisition.source);
+        }
+        if (acquisition.campaign) window.localStorage.setItem("nutrifit_acquisition_campaign", acquisition.campaign);
+        if (acquisition.medium) window.localStorage.setItem("nutrifit_acquisition_medium", acquisition.medium);
+        if (acquisition.content) window.localStorage.setItem("nutrifit_acquisition_content", acquisition.content);
+        void fetch(SUPABASE_URL + "/rest/v1/acquisition_events", {
+          method: "POST",
+          headers: { apikey: SUPABASE_PUBLISHABLE_KEY, "Content-Type": "application/json", Prefer: "return=minimal" },
+          keepalive: true,
+          body: JSON.stringify({
+            event: "site_visit",
+            source: acquisition.source,
+            page: window.location.pathname,
+            metadata: { campaign: acquisition.campaign || null, medium: acquisition.medium || null, content: acquisition.content || null },
+          }),
+        }).catch(() => {});
+      } catch {}
+    }
     try {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
       const leadPromptSeen = window.sessionStorage.getItem("nutrifit_lead_prompt_seen") === "1";
@@ -2689,10 +2712,10 @@ export default function Home() {
           nutrifit_club_joined_at: new Date().toISOString(),
           marketing_consent: profileMarketing,
           marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
-          acquisition_source: window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource(),
-          acquisition_campaign: window.localStorage.getItem("nutrifit_acquisition_campaign") || null,
-          acquisition_medium: window.localStorage.getItem("nutrifit_acquisition_medium") || null,
-          acquisition_content: window.localStorage.getItem("nutrifit_acquisition_content") || null,
+          acquisition_source: (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct")),
+          acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
+          acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
+          acquisition_content: getConsentedAcquisitionValue("nutrifit_acquisition_content"),
         }),
       });
 
@@ -2764,7 +2787,7 @@ export default function Home() {
         }
 
         setProfileStatus("success");
-        const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+        const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
         trackClick("profile_save", acquisitionSource);
         trackClick("lead_captured", acquisitionSource);
         window.setTimeout(() => setProfileOpen(false), 700);
@@ -2801,7 +2824,7 @@ export default function Home() {
       }
 
       setProfileStatus("success");
-      const acquisitionSource = window.localStorage.getItem("nutrifit_acquisition_source") || getAcquisitionSource();
+      const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
       trackClick("profile_save", acquisitionSource);
       trackClick("lead_captured", acquisitionSource);
       window.setTimeout(() => setProfileOpen(false), 700);
