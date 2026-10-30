@@ -1942,7 +1942,6 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
               {nutritionRows(nutrition).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/10 py-2"><span>{label}</span><b className="text-right">{value}</b></p>)}
               <div className="mt-3 rounded-lg bg-white/[.04] p-3"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
               {nutrition.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>}
-              <p className="mt-2 text-[10px] leading-relaxed text-white/55">Valores de referência cadastrados por porção; confirme a ficha técnica antes de usar como rotulagem oficial.</p>
             </> : <p className="rounded-lg bg-white/[.04] p-3 leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
           </div>
         </details>}
@@ -1993,7 +1992,6 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                                   {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
                                   <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">{product.line === "SALADAS" ? "Distribuição calórica" : "Distribuição calórica estimada"}</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p></div>
                                   {n.allergens && <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>}
-                                  <p className="mt-2 text-[10px] leading-relaxed text-white/55">{product.line === "SALADAS" ? "Tabela nutricional para a porção de 350 g. Confirme os ingredientes, molhos e alérgenos conforme a ficha técnica." : `Valores estimados por marmita de ${product.weight || (product.line === "FIT" ? "350 g" : "450 g")}; confirme a composição real e os alérgenos na ficha técnica.`}</p>
                                 </> : <p className="rounded-lg bg-white/[.04] p-3 text-[11px] leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para não divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
                               </div>
                             </details>;
