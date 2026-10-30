@@ -97,3 +97,11 @@ button:focus-visible, a:focus-visible, summary:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* Mantém os atalhos de plano alimentar e nutricionista visíveis
+   em celulares na horizontal, mesmo quando a largura ativa o breakpoint sm. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-home-only {
+    display: block !important;
+  }
+}
