@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
 import AnalyticsConsent from "./components/AnalyticsConsent";
 import "./globals.css";
 
@@ -130,7 +129,6 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         <AnalyticsConsent />
-        <Analytics />
       </body>
     </html>
   );
