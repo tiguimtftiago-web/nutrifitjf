@@ -2132,7 +2132,97 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
+const traditionalIngredientCards: Record<string, { name: string; symbol: string }[]> = {
+  "Patinho com Abóbora": [{name:"Patinho moído",symbol:"🥩"},{name:"Purê de abóbora",symbol:"🎃"},{name:"Arroz branco",symbol:"🍚"}],
+  "Parmegiana Cremosa": [{name:"Filé de frango",symbol:"🍗"},{name:"Molho artesanal",symbol:"🍅"},{name:"Queijo gratinado",symbol:"🧀"},{name:"Purê de batata",symbol:"🥔"},{name:"Arroz branco",symbol:"🍚"}],
+  "Feijoada": [{name:"Feijão",symbol:"🫘"},{name:"Calabresa",symbol:"🌭"},{name:"Lombo suíno",symbol:"🥩"},{name:"Couve",symbol:"🥬"},{name:"Arroz branco",symbol:"🍚"},{name:"Farofa",symbol:"🥘"}],
+  "Frango Cremoso": [{name:"Frango",symbol:"🍗"},{name:"Molho cremoso",symbol:"🥣"},{name:"Arroz branco",symbol:"🍚"},{name:"Legumes na manteiga",symbol:"🥦"}],
+  "Churrasco Mineiro": [{name:"Contra-filé",symbol:"🥩"},{name:"Vinagrete",symbol:"🍅"},{name:"Arroz branco",symbol:"🍚"},{name:"Farofa caseira",symbol:"🥘"}],
+  "Strogonoff Leve": [{name:"Frango",symbol:"🍗"},{name:"Molho de strogonoff",symbol:"🥣"},{name:"Arroz branco",symbol:"🍚"},{name:"Brócolis",symbol:"🥦"},{name:"Batata palha",symbol:"🥔"}],
+  "Executivo Saudável": [{name:"Lombo suíno",symbol:"🥩"},{name:"Macarrão alho e óleo",symbol:"🍝"},{name:"Molho cremoso",symbol:"🥣"},{name:"Brócolis",symbol:"🥦"}],
+  "Carne de Panela com Batata e Cenoura": [{name:"Carne de panela",symbol:"🥩"},{name:"Batata",symbol:"🥔"},{name:"Cenoura",symbol:"🥕"},{name:"Arroz branco",symbol:"🍚"}],
+  "Cupim com Mandioca": [{name:"Cupim ao molho",symbol:"🥩"},{name:"Mandioca",symbol:"🍠"},{name:"Arroz com brócolis",symbol:"🍚"},{name:"Brócolis",symbol:"🥦"}],
+  "Panqueca de Frango ao Molho de Tomate": [{name:"Massa de panqueca",symbol:"🥞"},{name:"Frango desfiado",symbol:"🍗"},{name:"Molho de tomate",symbol:"🍅"},{name:"Ervas",symbol:"🌿"}],
+  "Sobrecoxa com Mostarda e Mel": [{name:"Sobrecoxa",symbol:"🍗"},{name:"Mostarda e mel",symbol:"🍯"},{name:"Arroz primavera",symbol:"🍚"}],
+};
+
+function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (product: Product) => void }) {
+  const [selectedName, setSelectedName] = useState(products[0]?.name || "");
+  const selected = products.find((product) => product.name === selectedName) || products[0];
+  const ingredients = traditionalIngredientCards[selected?.name || ""] || [];
+  return (
+    <section id="tradicional" className="scroll-mt-24 bg-[#f4eddf] text-[#17291c]">
+      <div className="mx-auto max-w-[1600px] px-3 py-6 sm:px-5 sm:py-9 lg:px-8">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#d95a13]">Sabor caseiro • refeições completas</div>
+            <h2 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">Linha <span className="text-[#d95a13]">Tradicional 500 g</span></h2>
+            <p className="mt-1 text-sm text-[#526052] sm:text-base">Escolha um prato para ver a apresentação, a composição e os detalhes.</p>
+          </div>
+          <div className="rounded-full border border-[#d95a13]/30 bg-white/70 px-4 py-2 text-xs font-black text-[#9a481c]">11 opções no cardápio</div>
+        </div>
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,.95fr)] xl:gap-7">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {products.map((product) => {
+              const active = product.name === selected?.name;
+              return <button key={product.name} type="button" onClick={() => setSelectedName(product.name)} aria-pressed={active} className={`group min-w-0 overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${active ? "border-[#ed6b19] ring-2 ring-[#ed6b19]/20" : "border-[#e3dac9]"}`}>
+                <div className="aspect-[1.22/1] overflow-hidden bg-[#e8dfce]">
+                  <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>
+                </div>
+                <div className="p-2.5 sm:p-3">
+                  <div className="line-clamp-2 min-h-[2.4em] text-[13px] font-black leading-tight sm:text-sm">{product.name}</div>
+                  <div className="mt-1 inline-flex rounded-full bg-[#ed6b19] px-2 py-1 text-[9px] font-black uppercase tracking-wide text-white">Tradicional • 500 g</div>
+                  <div className="mt-2 flex items-center justify-between gap-1">
+                    <span className="text-sm font-black text-[#173b26] sm:text-base">{product.price}</span>
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg font-black ${active ? "bg-[#ed6b19] text-white" : "bg-[#143d28] text-white"}`}>{active ? "✓" : "+"}</span>
+                  </div>
+                </div>
+              </button>;
+            })}
+          </div>
+          {selected && <aside className="overflow-hidden rounded-[1.6rem] border border-[#e3dac9] bg-[#fffaf1] shadow-[0_18px_55px_rgba(42,35,22,.12)] lg:sticky lg:top-5">
+            <div className="relative aspect-[16/10] overflow-hidden bg-[#e8dfce] sm:aspect-[16/9]">
+              <img src={selected.image} alt={selected.name} loading="lazy" className="h-full w-full object-cover"/>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-5 pb-4 pt-16">
+                <span className="inline-flex rounded-full bg-[#ed6b19] px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">Linha Tradicional • 500 g</span>
+              </div>
+            </div>
+            <div className="space-y-5 p-4 sm:p-5">
+              <div>
+                <h3 className="text-2xl font-black leading-tight sm:text-3xl">{selected.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#536052]">{selected.description}</p>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-3xl font-black text-[#123b26]">{selected.price}</span>
+                  <button type="button" onClick={() => onAdd(selected)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#123b26] px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#1d5838]"><Plus size={19} strokeWidth={3}/> Adicionar ao pedido</button>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black">Informações nutricionais</h4><span className="text-[10px] font-bold text-[#7b8376]">Porção de 500 g</span></div>
+                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {["Calorias","Proteínas","Carboidratos","Gorduras"].map((label) => <div key={label} className="rounded-xl border border-[#e8dfcf] bg-white p-3 text-center"><div className="text-[9px] font-black uppercase tracking-wide text-[#788374]">{label}</div><div className="mt-1 text-xs font-black text-[#315b38]">Em validação</div></div>)}
+                </div>
+                <p className="mt-2 text-[10px] leading-4 text-[#7b8376]">Os valores serão publicados após conferência das fichas técnicas. Não vamos estimar calorias ou macros sem os dados de cada receita.</p>
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black">Ingredientes do prato</h4><span className="text-[10px] font-bold text-[#788374]">{ingredients.length} componentes</span></div>
+                <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {ingredients.map((ingredient) => <div key={ingredient.name} className="flex min-h-[105px] flex-col items-center justify-center rounded-xl border border-[#e8dfcf] bg-white p-2 text-center shadow-sm">
+                    <span className="grid h-12 w-12 place-items-center rounded-full border-4 border-[#f2eadb] bg-[#fffaf1] text-2xl">{ingredient.symbol}</span>
+                    <span className="mt-2 text-[10px] font-bold leading-tight text-[#304331]">{ingredient.name}</span>
+                  </div>)}
+                </div>
+                <p className="mt-2 text-[10px] leading-4 text-[#7b8376]">Composição apresentada conforme a descrição atual do cardápio. As imagens individuais dos ingredientes serão substituídas por fotografias próprias após a produção visual de cada componente.</p>
+              </div>
+            </div>
+          </aside>}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
+  if (id === "tradicional") return <TraditionalCatalog products={products} onAdd={onAdd} />;
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
