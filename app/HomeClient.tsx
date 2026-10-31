@@ -2132,7 +2132,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
-const traditionalIngredientCards: Record<string, { name: string; symbol: string }[]> = {
+const traditionalCatalogIngredientCards: Record<string, { name: string; symbol: string }[]> = {
   "Patinho com Abóbora": [{name:"Patinho moído",symbol:"🥩"},{name:"Purê de abóbora",symbol:"🎃"},{name:"Arroz branco",symbol:"🍚"}],
   "Parmegiana Cremosa": [{name:"Filé de frango",symbol:"🍗"},{name:"Molho artesanal",symbol:"🍅"},{name:"Queijo gratinado",symbol:"🧀"},{name:"Purê de batata",symbol:"🥔"},{name:"Arroz branco",symbol:"🍚"}],
   "Feijoada": [{name:"Feijão",symbol:"🫘"},{name:"Calabresa",symbol:"🌭"},{name:"Lombo suíno",symbol:"🥩"},{name:"Couve",symbol:"🥬"},{name:"Arroz branco",symbol:"🍚"},{name:"Farofa",symbol:"🥘"}],
@@ -2149,7 +2149,7 @@ const traditionalIngredientCards: Record<string, { name: string; symbol: string 
 function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (product: Product) => void }) {
   const [selectedName, setSelectedName] = useState(products[0]?.name || "");
   const selected = products.find((product) => product.name === selectedName) || products[0];
-  const ingredients = traditionalIngredientCards[selected?.name || ""] || [];
+  const ingredients = traditionalCatalogIngredientCards[selected?.name || ""] || [];
   return (
     <section id="tradicional" className="scroll-mt-24 bg-[#f4eddf] text-[#17291c]">
       <div className="mx-auto max-w-[1600px] px-3 py-6 sm:px-5 sm:py-9 lg:px-8">
