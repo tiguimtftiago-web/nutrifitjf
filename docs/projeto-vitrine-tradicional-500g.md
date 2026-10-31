@@ -81,3 +81,12 @@ Foram recuperadas composições comerciais aceitas em conversas anteriores para 
 - **Feijoada Fit:** feijão, lombo suíno, calabresa, arroz, couve e farofa.
 
 Há registros históricos de preços diferentes dos valores atuais do cadastro do site. Para a vitrine, prevalecem os preços vigentes do cadastro consultado; não transportar preços antigos para a interface sem nova conferência.
+
+
+## Atualização de conferência — 31/10/2026
+- A prévia da branch está respondendo HTTP 200 e renderiza a vitrine de 11 produtos. O deploy do commit `d9f35f8` ficou READY; a atualização seguinte de conteúdo está em nova compilação.
+- A interface agora chama a lista visível de **“Composição descrita no cardápio”**, e não de ingredientes tecnicamente confirmados. O aviso informa que ingredientes completos, temperos, alergênicos e quantidades dependem da ficha técnica.
+- Os valores nutricionais permanecem como “Em validação”; nenhum macro foi estimado.
+- As descrições comerciais atualmente cadastradas no código informam componentes para os 11 pratos, mas não há fichas técnicas documentadas com quantidades, rendimento, perdas e cálculo nutricional. Essas descrições servem apenas como referência provisória de apresentação.
+- **Divergência a resolver antes da aprovação:** “Executivo Saudável” aparece atualmente no cadastro da vitrine como Tradicional 500 g, mas há registro anterior do usuário classificando esse produto na Linha Executiva. Não alterar a classificação sem conferir o cadastro comercial vigente.
+- A lista de referências históricas de Churrasco Fit Mineiro, Strogonoff Leve e Feijoada Fit não comprova a formulação da Linha Tradicional 500 g; não usar como ficha técnica.
