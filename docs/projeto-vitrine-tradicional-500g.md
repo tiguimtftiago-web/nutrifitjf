@@ -71,3 +71,13 @@ A lista abaixo corresponde ao cadastro do site verificado na implementação da 
 
 ## Critério de conclusão
 Marcar um prato como concluído somente quando foto, receita, gramagens, rendimento, ingredientes, custo e informação nutricional estiverem documentados e revisados. A vitrine completa só será submetida à aprovação após todos os 11 pratos e os testes finais estarem prontos.
+
+
+## Referências históricas recuperadas — ainda não são fichas técnicas
+Foram recuperadas composições comerciais aceitas em conversas anteriores para três produtos. Elas ajudam a orientar a fotografia e a conferência, mas não contêm quantidades por ingrediente, rendimento de cocção, perdas ou cálculo nutricional; portanto, não liberam a publicação de macros.
+
+- **Churrasco Fit Mineiro:** contra-filé grelhado, arroz, vinagrete e farofa caseira.
+- **Strogonoff Leve:** frango em cubos, molho leve cremoso, arroz e batata palha.
+- **Feijoada Fit:** feijão, lombo suíno, calabresa, arroz, couve e farofa.
+
+Há registros históricos de preços diferentes dos valores atuais do cadastro do site. Para a vitrine, prevalecem os preços vigentes do cadastro consultado; não transportar preços antigos para a interface sem nova conferência.
