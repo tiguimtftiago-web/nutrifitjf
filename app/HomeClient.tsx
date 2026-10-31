@@ -2222,7 +2222,6 @@ function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (
 }
 
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
-  if (id === "tradicional") return <TraditionalCatalog products={products} onAdd={onAdd} />;
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2232,6 +2231,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
   const visibleProducts = expanded ? products : products.slice(0, 3);
   const hiddenCount = Math.max(products.length - 3, 0);
   const coverProduct = products[0];
+  if (id === "tradicional") return <TraditionalCatalog products={products} onAdd={onAdd} />;
 
   return (
     <section id={id} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
