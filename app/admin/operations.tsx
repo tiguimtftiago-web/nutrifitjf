@@ -596,6 +596,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const soon=purchasePlans.filter(a=>a.status==="Comprar em breve").length;
     const sufficient=Math.max(0,inventory.filter(x=>x.active).length-purchasePlans.length);
     const inventoryCategories=[...new Set(inventory.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+    const itemsWithoutMinimum=inventory.filter(x=>x.active&&Number(x.minimum_quantity||0)<=0).length;
     const filteredInventory=inventory.filter(x=>{
       const q=inventorySearch.trim().toLocaleLowerCase("pt-BR");
       const matchesSearch=!q||x.name.toLocaleLowerCase("pt-BR").includes(q)||x.category.toLocaleLowerCase("pt-BR").includes(q)||(x.supplier||"").toLocaleLowerCase("pt-BR").includes(q);
@@ -652,6 +653,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
       <Stat label="Estoque baixo" value={inventory.filter(x=>Number(x.current_quantity)>0&&Number(x.current_quantity)<=Number(x.minimum_quantity)).length}/>
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
     </div>
+    {itemsWithoutMinimum>0&&<div role="status" className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.07] p-4 text-sm leading-6 text-[#f1b06e]"><b>Estoque mínimo a revisar:</b> {itemsWithoutMinimum} item(ns) ativo(s) estão sem um limite mínimo positivo cadastrado. O indicador “Estoque baixo” depende desse limite para alertar antes da falta; revise os parâmetros conforme a necessidade real de cada insumo.</div>}
     <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-7">
       <input value={stockForm.name} onChange={e=>setStockForm({...stockForm,name:e.target.value})} placeholder="Insumo" aria-label="Nome do insumo" className={input}/>
       <input value={stockForm.category} onChange={e=>setStockForm({...stockForm,category:e.target.value})} placeholder="Categoria" aria-label="Categoria do insumo" className={input}/>
