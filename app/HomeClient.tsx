@@ -2213,14 +2213,14 @@ function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (
                 <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Os valores serão publicados após conferência das fichas técnicas. Não vamos estimar calorias ou macros sem os dados de cada receita.</p>
               </div>
               <div>
-                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black !text-[#14291d]">Ingredientes do prato</h4><span className="text-[10px] font-bold !text-[#697568]">{ingredients.length} componentes</span></div>
+                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black !text-[#14291d]">Composição descrita no cardápio</h4><span className="text-[10px] font-bold !text-[#697568]">{ingredients.length} itens descritos</span></div>
                 <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {ingredients.map((ingredient) => <div key={ingredient.name} className="flex min-h-[112px] flex-col items-center justify-center rounded-2xl border border-[#e8dfcf] bg-white p-2 text-center shadow-sm">
                     <span className="grid h-14 w-14 place-items-center rounded-full border-[5px] border-[#f2eadb] bg-[#fffaf1] text-2xl">{ingredient.symbol}</span>
                     <span className="mt-2 text-[10px] font-bold leading-tight !text-[#304331]">{ingredient.name}</span>
                   </div>)}
                 </div>
-                <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Composição apresentada conforme a descrição atual do cardápio. A conferência final de cada ingrediente será feita com a respectiva ficha técnica.</p>
+                <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Esta é a composição informada na descrição comercial atual. A lista completa de ingredientes, temperos, alergênicos e quantidades será confirmada na ficha técnica antes da publicação final.</p>
               </div>
             </div>
           </aside>}
