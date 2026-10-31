@@ -1963,8 +1963,25 @@ const nutritionRows = (n: NutritionData) => [
 ];
 
 // Mobile line sections show two cards first, with a full-width view-all action below.
+const traditionalIngredientCards: Record<string, { name: string; symbol: string }[]> = {
+  "Patinho com Abóbora": [{name:"Patinho moído",symbol:"🥩"},{name:"Abóbora",symbol:"🎃"},{name:"Arroz branco",symbol:"🍚"}],
+  "Parmegiana Cremosa": [{name:"Filé de frango",symbol:"🍗"},{name:"Molho de tomate",symbol:"🍅"},{name:"Queijo gratinado",symbol:"🧀"},{name:"Purê de batata",symbol:"🥔"},{name:"Arroz branco",symbol:"🍚"}],
+  "Feijoada": [{name:"Feijão",symbol:"🫘"},{name:"Calabresa",symbol:"🌭"},{name:"Lombo suíno",symbol:"🥩"},{name:"Couve",symbol:"🥬"},{name:"Arroz branco",symbol:"🍚"},{name:"Farofa",symbol:"🥘"}],
+  "Frango Cremoso": [{name:"Frango",symbol:"🍗"},{name:"Molho cremoso",symbol:"🥣"},{name:"Arroz branco",symbol:"🍚"},{name:"Legumes na manteiga",symbol:"🥦"}],
+  "Churrasco Mineiro": [{name:"Contra-filé",symbol:"🥩"},{name:"Vinagrete",symbol:"🍅"},{name:"Arroz branco",symbol:"🍚"},{name:"Farofa",symbol:"🥘"}],
+  "Strogonoff Leve": [{name:"Frango",symbol:"🍗"},{name:"Molho de strogonoff",symbol:"🥣"},{name:"Arroz branco",symbol:"🍚"},{name:"Brócolis",symbol:"🥦"},{name:"Batata palha",symbol:"🥔"}],
+  "Executivo Saudável": [{name:"Lombo suíno",symbol:"🥩"},{name:"Macarrão",symbol:"🍝"},{name:"Molho cremoso",symbol:"🥣"},{name:"Brócolis",symbol:"🥦"}],
+  "Carne de Panela com Batata e Cenoura": [{name:"Carne de panela",symbol:"🥩"},{name:"Batata",symbol:"🥔"},{name:"Cenoura",symbol:"🥕"},{name:"Arroz branco",symbol:"🍚"}],
+  "Cupim com Mandioca": [{name:"Cupim",symbol:"🥩"},{name:"Mandioca",symbol:"🍠"},{name:"Arroz com brócolis",symbol:"🍚"},{name:"Brócolis",symbol:"🥦"}],
+  "Panqueca de Frango ao Molho de Tomate": [{name:"Panqueca",symbol:"🥞"},{name:"Frango desfiado",symbol:"🍗"},{name:"Molho de tomate",symbol:"🍅"},{name:"Ervas",symbol:"🌿"}],
+  "Sobrecoxa com Mostarda e Mel": [{name:"Sobrecoxa",symbol:"🍗"},{name:"Mostarda e mel",symbol:"🍯"},{name:"Arroz primavera",symbol:"🍚"}],
+};
+
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const nutrition = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : product.line === "SALADAS" ? saladsNutrition[product.name] : undefined;
+  const isTraditional = product.line === "TRADICIONAL";
+  const traditionalIngredients = traditionalIngredientCards[product.name] || [];
   return (
     <>
     <article className="nf-mobile-meal group relative flex flex-col sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
@@ -2009,7 +2026,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           </div>
         </details>}
       </div>
-      
+      {isTraditional && <button type="button" onClick={() => setDetailsOpen(true)} className="mx-2 mb-2 rounded-full border border-[#86a51d]/50 bg-[#86a51d]/10 px-3 py-2.5 text-xs font-black text-[#c8dc73] transition hover:bg-[#86a51d]/20">Ver detalhes do prato</button>}
     </article>
     <article className="nf-desktop-meal hidden sm:flex group min-w-0 h-full flex-col overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.18)] transition hover:-translate-y-1 hover:border-[#86a51d]/35">
       <div className="aspect-[4/3] w-full shrink-0 overflow-hidden bg-black">
@@ -2060,6 +2077,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                             </details>;
                           })()}
                         </div>
+        {isTraditional && <button type="button" onClick={() => setDetailsOpen(true)} className="mt-3 w-full rounded-full border border-[#86a51d]/50 bg-[#86a51d]/10 px-3 py-2.5 text-xs font-black text-[#c8dc73] transition hover:bg-[#86a51d]/20">Ver detalhes do prato</button>}
         <div className="mt-auto flex items-center gap-1.5 pt-2.5">
           <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#f47b0b] sm:text-xl">{product.price}</div>
           <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
@@ -2068,6 +2086,49 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
       </div>
     </article>
+    {isTraditional && detailsOpen && (
+      <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/75 p-0 backdrop-blur-sm sm:items-center sm:p-5" onClick={() => setDetailsOpen(false)}>
+        <section role="dialog" aria-modal="true" aria-label={`Detalhes de ${product.name}`} onClick={(event) => event.stopPropagation()} className="relative max-h-[94dvh] w-full max-w-2xl overflow-y-auto rounded-t-[1.6rem] border border-[#86a51d]/25 bg-[#f5efdf] text-[#142719] shadow-2xl sm:rounded-[1.6rem]">
+          <button type="button" onClick={() => setDetailsOpen(false)} aria-label="Fechar detalhes" className="sticky top-3 z-20 ml-auto mr-3 mt-3 grid h-10 w-10 place-items-center rounded-full bg-[#102d1c] text-white shadow-lg"><X size={20}/></button>
+          <div className="-mt-10">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#e9dfcc]">
+              <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover"/>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-5 pb-4 pt-12">
+                <span className="inline-flex rounded-full bg-[#86a51d] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#102414]">Traditional • 500 g</span>
+              </div>
+            </div>
+            <div className="space-y-5 px-4 pb-5 pt-4 sm:px-6">
+              <div>
+                <h2 className="text-2xl font-black leading-tight sm:text-3xl">{product.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-[#425344]">{product.description}</p>
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-3xl font-black text-[#102d1c]">{product.price}</span>
+                  <button type="button" onClick={() => { onAdd(product); setDetailsOpen(false); }} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#123d27] px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#1c5738]"><Plus size={19} strokeWidth={3}/> Adicionar ao pedido</button>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-base font-black">Informações nutricionais</h3>
+                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {["Calorias","Proteínas","Carboidratos","Gorduras"].map((label) => <div key={label} className="rounded-2xl border border-[#d9d0bd] bg-white/75 p-3 text-center"><div className="text-[10px] font-bold uppercase tracking-wide text-[#71806e]">{label}</div><div className="mt-1 text-sm font-black text-[#315b38]">Em validação</div></div>)}
+                </div>
+                <p className="mt-2 text-[11px] leading-4 text-[#687466]">Os valores nutricionais serão exibidos após conferência da ficha técnica deste prato. Não publicamos estimativas como se fossem dados confirmados.</p>
+              </div>
+              <div>
+                <div className="flex items-end justify-between gap-2"><h3 className="text-base font-black">Ingredientes</h3><span className="text-[11px] font-bold text-[#71806e]">{traditionalIngredients.length} itens identificados</span></div>
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {traditionalIngredients.map((ingredient) => <div key={ingredient.name} className="relative flex min-h-[116px] flex-col items-center justify-center rounded-2xl border border-[#e1d8c6] bg-white/80 p-3 text-center shadow-sm">
+                    <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-[#86a51d] text-[11px] font-black text-white"><Check size={13}/></span>
+                    <span className="grid h-14 w-14 place-items-center rounded-full border-[5px] border-[#f0e9d9] bg-[#fffdf8] text-3xl shadow-inner">{ingredient.symbol}</span>
+                    <span className="mt-2 text-xs font-bold text-[#233b2a]">{ingredient.name}</span>
+                  </div>)}
+                </div>
+                <p className="mt-2 text-[10px] leading-4 text-[#7b8376]">A lista visual identifica os componentes descritos atualmente no cardápio. A fotografia individual de cada ingrediente e as quantidades serão inseridas após validação das fichas e produção das imagens específicas.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    )}
     </>
   );
 }
