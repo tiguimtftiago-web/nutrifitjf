@@ -3761,7 +3761,7 @@ export default function Home() {
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
         aria-label="Abrir Assistente Nutrifit"
-        className="group fixed bottom-4 right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
+        className="group fixed bottom-[6.25rem] right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
       >
         <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/80 bg-black sm:grid sm:h-11 sm:w-11">
           <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
