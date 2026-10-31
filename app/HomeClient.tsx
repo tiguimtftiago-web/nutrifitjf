@@ -2165,7 +2165,7 @@ function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {products.map((product) => {
               const active = product.name === selected?.name;
-              return <button key={product.name} type="button" onClick={() => setSelectedName(product.name)} aria-pressed={active} className={\`group min-w-0 overflow-hidden rounded-2xl border bg-[#fffaf1] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg \${active ? "border-[#ed6b19] ring-2 ring-[#ed6b19]/25" : "border-[#e3dac9]"}\`}>
+              return <button key={product.name} type="button" onClick={() => setSelectedName(product.name)} aria-pressed={active} className={`group min-w-0 overflow-hidden rounded-2xl border bg-[#fffaf1] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${active ? "border-[#ed6b19] ring-2 ring-[#ed6b19]/25" : "border-[#e3dac9]"}`}>
                 <div className="aspect-[1.22/1] overflow-hidden bg-[#e8dfce]">
                   <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>
                 </div>
@@ -2174,7 +2174,7 @@ function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (
                   <div className="mt-1 inline-flex rounded-full bg-[#ed6b19] px-2 py-1 text-[9px] font-black uppercase tracking-wide text-white">Tradicional • 500 g</div>
                   <div className="mt-2 flex items-center justify-between gap-1">
                     <span className="text-sm font-black !text-[#173b26] sm:text-base">{product.price}</span>
-                    <span className={\`grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg font-black \${active ? "bg-[#ed6b19] text-white" : "bg-[#143d28] text-white"}\`}>{active ? "✓" : "+"}</span>
+                    <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg font-black ${active ? "bg-[#ed6b19] text-white" : "bg-[#143d28] text-white"}`}>{active ? "✓" : "+"}</span>
                   </div>
                 </div>
               </button>;
