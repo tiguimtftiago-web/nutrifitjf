@@ -2151,79 +2151,98 @@ function TraditionalCatalog({ products, onAdd }: { products: Product[]; onAdd: (
   const selected = products.find((product) => product.name === selectedName) || products[0];
   const ingredients = traditionalCatalogIngredientCards[selected?.name || ""] || [];
   return (
-    <section id="tradicional" className="scroll-mt-24 bg-[#f5eee2] text-[#14291d]">
-      <div className="mx-auto max-w-[1600px] px-3 py-6 sm:px-5 sm:py-9 lg:px-8">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+    <section id="tradicional" className="scroll-mt-24 bg-[#f7efe3] text-[#14291d]">
+      <div className="mx-auto max-w-[1500px] px-3 py-6 sm:px-5 sm:py-9 lg:px-8">
+        <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="text-[10px] font-black uppercase tracking-[.22em] text-[#d95a13]">Sabor caseiro • refeições completas</div>
             <h2 className="mt-1 text-3xl font-black tracking-tight !text-[#14291d] sm:text-4xl">Linha Tradicional <span className="!text-[#d95a13]">500 g</span></h2>
-            <p className="mt-1 text-sm !text-[#526052] sm:text-base">Refeições completas, saborosas e equilibradas.</p>
+            <p className="mt-1 text-sm !text-[#526052] sm:text-base">Escolha uma refeição para consultar sua composição.</p>
           </div>
-          <div className="rounded-full border border-[#d95a13]/30 bg-white/80 px-4 py-2 text-xs font-black !text-[#9a481c]">11 opções no cardápio</div>
-        </div>
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,.95fr)] xl:gap-7">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-full border border-[#d95a13]/30 bg-white/80 px-4 py-2 text-xs font-black !text-[#9a481c]">{products.length} opções no cardápio</div>
+        </header>
+
+        {selected && <article className="overflow-hidden rounded-[1.7rem] border border-[#e6dac8] bg-[#fffaf2] shadow-[0_18px_55px_rgba(42,35,22,.12)]">
+          <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,.9fr)]">
+            <div className="relative min-h-[260px] overflow-hidden bg-[#e8dfce] sm:min-h-[380px]">
+              <img src={selected.image} alt={selected.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover"/>
+              <div className="absolute left-4 top-4 rounded-full border border-white/50 bg-[#123b26]/95 px-4 py-2 text-xs font-black text-white shadow-lg">LINHA TRADICIONAL • 500 g</div>
+            </div>
+            <div className="flex flex-col justify-center p-5 sm:p-7 lg:p-9">
+              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#d95a13]">Refeição selecionada</div>
+              <h3 className="mt-2 text-3xl font-black leading-tight !text-[#14291d] sm:text-4xl">{selected.name}</h3>
+              <p className="mt-3 max-w-2xl text-sm leading-6 !text-[#536052] sm:text-base">{selected.description}</p>
+              <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-black !text-[#183d29]">
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#f2eadb] px-3 py-2">⚖️ {selected.weight}</span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#f2eadb] px-3 py-2">Receita cadastrada</span>
+              </div>
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#eadcc8] bg-white/80 p-4">
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-wider !text-[#657164]">Preço cadastrado</div>
+                  <div className="mt-1 text-3xl font-black !text-[#123b26]">{selected.price}</div>
+                </div>
+                <button type="button" onClick={() => onAdd(selected)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ed6b19] px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#d95a13]"><ShoppingBag size={18}/> Adicionar ao pedido</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-[#eadfce] p-4 sm:p-6 lg:p-7">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[.18em] text-[#d95a13]">Composição do prato</div>
+                <h4 className="mt-1 text-xl font-black !text-[#14291d] sm:text-2xl">Ingredientes descritos no cardápio</h4>
+              </div>
+              <span className="rounded-full border border-[#d7dfc9] bg-[#f5f8ef] px-3 py-2 text-[10px] font-black !text-[#315b38]">{ingredients.length} componentes descritos</span>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {ingredients.map((ingredient) => <div key={ingredient.name} className="flex min-h-[132px] flex-col items-center justify-center rounded-2xl border border-[#e8dfcf] bg-white p-3 text-center shadow-sm">
+                <span className="grid h-16 w-16 place-items-center rounded-full border-[5px] border-[#f2eadb] bg-[#fffaf1] text-3xl">{ingredient.symbol}</span>
+                <span className="mt-2 text-xs font-black leading-tight !text-[#304331]">{ingredient.name}</span>
+              </div>)}
+            </div>
+            <p className="mt-3 text-[11px] leading-5 !text-[#70796e]">Composição resumida conforme a descrição comercial disponível. Ingredientes completos, temperos, alergênicos e quantidades dependem da ficha técnica validada.</p>
+          </div>
+
+          <div className="grid gap-4 border-t border-[#eadfce] bg-[#fbf6ed] p-4 sm:p-6 lg:grid-cols-[1fr_1fr] lg:p-7">
+            <div className="rounded-2xl border border-[#e8dfcf] bg-white p-4">
+              <div className="flex items-center gap-2"><ChartPie size={20} className="text-[#6f8c26]"/><h4 className="text-base font-black !text-[#14291d]">Informação nutricional</h4></div>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {["Calorias","Proteínas","Carboidratos","Gorduras"].map((label) => <div key={label} className="rounded-xl bg-[#f7f1e6] px-2 py-3 text-center">
+                  <div className="text-[10px] font-black uppercase !text-[#657164]">{label}</div>
+                  <div className="mt-1 text-xs font-black !text-[#315b38]">Em validação</div>
+                </div>)}
+              </div>
+              <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Os valores serão exibidos após validação da ficha técnica. Nenhum macro será estimado.</p>
+            </div>
+            <div className="rounded-2xl border border-[#e8dfcf] bg-white p-4">
+              <div className="flex items-center gap-2"><Leaf size={20} className="text-[#6f8c26]"/><h4 className="text-base font-black !text-[#14291d]">Seleção Nutrifit</h4></div>
+              <p className="mt-3 text-sm leading-6 !text-[#536052]">Uma refeição da Linha Tradicional, apresentada com sua composição comercial e peso cadastrado. As informações técnicas serão acrescentadas após conferência da receita.</p>
+            </div>
+          </div>
+        </article>}
+
+        <div className="mt-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h4 className="text-sm font-black uppercase tracking-[.14em] !text-[#536052]">Escolha outro prato</h4>
+            <span className="text-[10px] font-bold !text-[#697568]">Toque para visualizar</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => {
               const active = product.name === selected?.name;
               return <button key={product.name} type="button" onClick={() => setSelectedName(product.name)} aria-pressed={active} className={`group min-w-0 overflow-hidden rounded-2xl border bg-[#fffaf1] text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${active ? "border-[#ed6b19] ring-2 ring-[#ed6b19]/25" : "border-[#e3dac9]"}`}>
-                <div className="aspect-[1.22/1] overflow-hidden bg-[#e8dfce]">
+                <div className="aspect-[1.45/1] overflow-hidden bg-[#e8dfce]">
                   <img src={product.image} alt={product.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>
                 </div>
-                <div className="p-2.5 sm:p-3">
-                  <div className="line-clamp-2 min-h-[2.4em] text-[13px] font-black leading-tight !text-[#14291d] sm:text-sm">{product.name}</div>
-                  <div className="mt-1 inline-flex rounded-full bg-[#ed6b19] px-2 py-1 text-[9px] font-black uppercase tracking-wide text-white">Tradicional • 500 g</div>
-                  <div className="mt-2 flex items-center justify-between gap-1">
-                    <span className="text-sm font-black !text-[#173b26] sm:text-base">{product.price}</span>
+                <div className="p-3">
+                  <div className="line-clamp-2 min-h-[2.4em] text-xs font-black leading-tight !text-[#14291d] sm:text-sm">{product.name}</div>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <span className="text-sm font-black !text-[#173b26]">{product.price}</span>
                     <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg font-black ${active ? "bg-[#ed6b19] text-white" : "bg-[#143d28] text-white"}`}>{active ? "✓" : "+"}</span>
                   </div>
                 </div>
               </button>;
             })}
           </div>
-          {selected && <aside className="overflow-hidden rounded-[1.6rem] border border-[#e3dac9] bg-[#fffaf1] shadow-[0_18px_55px_rgba(42,35,22,.12)] lg:sticky lg:top-5">
-            <div className="relative aspect-[16/10] overflow-hidden bg-[#e8dfce] sm:aspect-[16/9]">
-              <img src={selected.image} alt={selected.name} loading="lazy" className="h-full w-full object-cover"/>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-5 pb-4 pt-16">
-                <span className="inline-flex rounded-full bg-[#ed6b19] px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">Tradicional • 500 g</span>
-              </div>
-            </div>
-            <div className="space-y-5 p-4 sm:p-5">
-              <div>
-                <h3 className="text-2xl font-black leading-tight !text-[#14291d] sm:text-3xl">{selected.name}</h3>
-                <p className="mt-2 text-sm leading-6 !text-[#536052]">{selected.description}</p>
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                  <span className="text-3xl font-black !text-[#123b26]">{selected.price}</span>
-                  <button type="button" onClick={() => onAdd(selected)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#123b26] px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#1d5838]"><Plus size={19} strokeWidth={3}/> Adicionar ao pedido</button>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black !text-[#14291d]">Informações nutricionais</h4><span className="text-[10px] font-bold !text-[#697568]">Porção de 500 g</span></div>
-                <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {[
-                    {label:"Calorias",symbol:"🔥"},
-                    {label:"Proteínas",symbol:"💪"},
-                    {label:"Carboidratos",symbol:"🌾"},
-                    {label:"Gorduras",symbol:"💧"},
-                  ].map((item) => <div key={item.label} className="flex min-h-[82px] flex-col items-center justify-center rounded-2xl border border-[#e8dfcf] bg-white px-2 py-3 text-center shadow-sm">
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-[#f4eddf] text-base">{item.symbol}</span>
-                    <div className="mt-1 text-[9px] font-black uppercase tracking-wide !text-[#657164]">{item.label}</div>
-                    <div className="mt-1 text-xs font-black !text-[#315b38]">Em validação</div>
-                  </div>)}
-                </div>
-                <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Os valores serão publicados após conferência das fichas técnicas. Não vamos estimar calorias ou macros sem os dados de cada receita.</p>
-              </div>
-              <div>
-                <div className="flex items-center justify-between gap-2"><h4 className="text-base font-black !text-[#14291d]">Composição descrita no cardápio</h4><span className="text-[10px] font-bold !text-[#697568]">{ingredients.length} itens descritos</span></div>
-                <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                  {ingredients.map((ingredient) => <div key={ingredient.name} className="flex min-h-[112px] flex-col items-center justify-center rounded-2xl border border-[#e8dfcf] bg-white p-2 text-center shadow-sm">
-                    <span className="grid h-14 w-14 place-items-center rounded-full border-[5px] border-[#f2eadb] bg-[#fffaf1] text-2xl">{ingredient.symbol}</span>
-                    <span className="mt-2 text-[10px] font-bold leading-tight !text-[#304331]">{ingredient.name}</span>
-                  </div>)}
-                </div>
-                <p className="mt-2 text-[10px] leading-4 !text-[#70796e]">Esta é a composição informada na descrição comercial atual. A lista completa de ingredientes, temperos, alergênicos e quantidades será confirmada na ficha técnica antes da publicação final.</p>
-              </div>
-            </div>
-          </aside>}
         </div>
       </div>
     </section>
