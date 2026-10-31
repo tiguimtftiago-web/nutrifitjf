@@ -90,3 +90,18 @@ Há registros históricos de preços diferentes dos valores atuais do cadastro d
 - As descrições comerciais atualmente cadastradas no código informam componentes para os 11 pratos, mas não há fichas técnicas documentadas com quantidades, rendimento, perdas e cálculo nutricional. Essas descrições servem apenas como referência provisória de apresentação.
 - **Divergência a resolver antes da aprovação:** “Executivo Saudável” aparece atualmente no cadastro da vitrine como Tradicional 500 g, mas há registro anterior do usuário classificando esse produto na Linha Executiva. Não alterar a classificação sem conferir o cadastro comercial vigente.
 - A lista de referências históricas de Churrasco Fit Mineiro, Strogonoff Leve e Feijoada Fit não comprova a formulação da Linha Tradicional 500 g; não usar como ficha técnica.
+
+
+## Evidências do catálogo corrigido — PDF de 22/09/2026
+Foi localizado o arquivo `Catalogo_Nutrifit_2026_CORRIGIDO.pdf` na biblioteca. As páginas impressas 28 a 34 (páginas PDF 28–34) contêm imagens de marmitas e descrições comerciais legíveis para:
+- Patinho com Abóbora — página 28.
+- Parmegiana Cremosa — página 29.
+- Feijoada Fit — página 30.
+- Frango Cremoso — página 31.
+- Churrasco Fit Mineiro — página 32.
+- Strogonoff Leve — página 33.
+- Executivo Saudável — página 34.
+
+Essas imagens podem servir de referência visual e de composição para a revisão da vitrine, mas não foram extraídas nem integradas ao site nesta etapa. Também não comprovam que sejam fotografias atuais da produção real. Para os quatro itens adicionais do cadastro atual (Carne de Panela com Batata e Cenoura, Cupim com Mandioca, Panqueca de Frango ao Molho de Tomate e Sobrecoxa com Mostarda e Mel), não foi encontrada referência pelo nome nesse PDF.
+
+**Correção de classificação:** a página 34 identifica explicitamente Executivo Saudável como **Linha Executiva**, embora o cadastro atual usado pela vitrine o marque como Tradicional 500 g. A divergência está confirmada entre o catálogo e o cadastro; manter pendente de decisão comercial antes de fechar a lista definitiva da Linha Tradicional.
