@@ -15,6 +15,7 @@ const whatsappOrder = (text: string) =>
 const PIX_KEY = "64.776.469/0001-08";
 
 const instagram = "https://www.instagram.com/nutrifit_jf/";
+const pinterest = "https://pin.it/m42w2X7UX";
 const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
@@ -3645,6 +3646,7 @@ export default function Home() {
               <div className="mt-5 flex flex-wrap gap-3" aria-label="Redes sociais e contato">
                 <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_social")} aria-label="WhatsApp Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#86a51d] hover:text-black"><MessageCircle size={21}/></a>
                 <a href={instagram} target="_blank" rel="noreferrer" onClick={() => trackClick("social_click", "footer_instagram")} aria-label="Instagram Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#86a51d] hover:text-black"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></a>
+                <a href={pinterest} target="_blank" rel="noreferrer" onClick={() => trackClick("social_click", "footer_pinterest")} aria-label="Pinterest Nutrifit" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[.07] text-white transition hover:bg-[#86a51d] hover:text-black"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 4.93 2.98 9.16 7.24 10.99-.03-.84-.01-1.85.21-2.77L9 13.66s-.38-.76-.38-1.88c0-1.76 1.02-3.08 2.29-3.08 1.08 0 1.6.81 1.6 1.78 0 1.08-.69 2.69-1.05 4.18-.3 1.25.63 2.27 1.86 2.27 2.23 0 3.95-2.35 3.95-5.74 0-3-2.15-5.1-5.22-5.1-3.56 0-5.65 2.67-5.65 5.43 0 1.08.42 2.24.94 2.87.1.12.11.23.08.35l-.35 1.43c-.06.23-.18.28-.42.17-1.57-.73-2.55-3.02-2.55-4.86 0-3.96 2.88-7.59 8.3-7.59 4.36 0 7.75 3.11 7.75 7.27 0 4.34-2.74 7.83-6.54 7.83-1.28 0-2.48-.67-2.89-1.46l-.79 3.01c-.29 1.1-1.08 2.47-1.61 3.31A12 12 0 1 0 12 0Z"/></svg></a>
               </div>
             </div>
             <div className="divide-y divide-white/10 border-y border-white/10">
