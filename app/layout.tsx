@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import AnalyticsConsent from "./components/AnalyticsConsent";
-import ThemeToggle from "./components/ThemeToggle";
 import "./globals.css";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
@@ -126,13 +125,12 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try { var theme = localStorage.getItem("nutrifit_theme"); document.documentElement.dataset.theme = theme === "light" ? "light" : "dark"; } catch (e) { document.documentElement.dataset.theme = "dark"; }`,
+            __html: `try { document.documentElement.dataset.theme = "dark"; } catch (e) { document.documentElement.dataset.theme = "dark"; }`,
           }}
         />
       </head>
       <body>
         {children}
-        <ThemeToggle />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
