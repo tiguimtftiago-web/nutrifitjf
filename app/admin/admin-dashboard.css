@@ -89,3 +89,200 @@ main:has(> header.sticky) .nf-command-eyebrow::before {
 @media (prefers-reduced-motion: reduce) {
   main:has(> header.sticky) * { transition: none !important; }
 }
+
+
+/* Redesign administrativo Nutrifit — tema claro, hierarquia visual e leitura operacional. */
+main:has(> header.sticky) {
+  color: #171a16 !important;
+  background: #f4f6f3 !important;
+  background-image: none !important;
+}
+main:has(> header.sticky) header.sticky {
+  color: #171a16 !important;
+  background: rgba(255,255,255,.94) !important;
+  border-bottom: 1px solid #e3e8e1 !important;
+  box-shadow: 0 4px 18px rgba(20,35,18,.055) !important;
+  backdrop-filter: blur(14px);
+}
+main:has(> header.sticky) header.sticky [class*="text-white"],
+main:has(> header.sticky) header.sticky [class*="text-gray-"],
+main:has(> header.sticky) header.sticky [class*="text-zinc-"] {
+  color: #343a32 !important;
+}
+main:has(> header.sticky) > div.mx-auto {
+  max-width: 1680px !important;
+  padding-left: clamp(1rem, 2.2vw, 2.25rem);
+  padding-right: clamp(1rem, 2.2vw, 2.25rem);
+}
+main:has(> header.sticky) [class*="bg-[#080a07]"],
+main:has(> header.sticky) [class*="bg-[#090b08]"],
+main:has(> header.sticky) [class*="bg-[#0a0d09]"],
+main:has(> header.sticky) [class*="bg-[#0d110b]"],
+main:has(> header.sticky) [class*="bg-[#11150e]"],
+main:has(> header.sticky) [class*="bg-[#151a11]"] {
+  background: #ffffff !important;
+}
+main:has(> header.sticky) [class*="border-white/10"],
+main:has(> header.sticky) [class*="border-white/15"],
+main:has(> header.sticky) [class*="border-white/20"] {
+  border-color: #e2e8df !important;
+}
+main:has(> header.sticky) [class*="text-white"] {
+  color: #20251e !important;
+}
+main:has(> header.sticky) [class*="text-white/"],
+main:has(> header.sticky) [class*="text-gray-300"],
+main:has(> header.sticky) [class*="text-gray-400"],
+main:has(> header.sticky) [class*="text-zinc-300"],
+main:has(> header.sticky) [class*="text-zinc-400"] {
+  color: #687064 !important;
+}
+main:has(> header.sticky) section,
+main:has(> header.sticky) [class*="rounded-3xl"][class*="border"] {
+  border-color: #e2e8df;
+  box-shadow: 0 5px 20px rgba(29,45,25,.045);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+main:has(> header.sticky) [class*="rounded-3xl"][class*="border"] {
+  border-radius: 1.15rem !important;
+}
+main:has(> header.sticky) button[class*="rounded-3xl"][class*="border"]:hover {
+  border-color: #b9d6a9 !important;
+  box-shadow: 0 9px 24px rgba(45,83,31,.09) !important;
+  transform: translateY(-1px);
+}
+main:has(> header.sticky) input,
+main:has(> header.sticky) select,
+main:has(> header.sticky) textarea {
+  color: #20251e !important;
+  color-scheme: light;
+  border-color: #dce3d8 !important;
+  background: #fff !important;
+  border-radius: .7rem;
+}
+main:has(> header.sticky) input::placeholder,
+main:has(> header.sticky) textarea::placeholder {
+  color: #8a9285 !important;
+}
+main:has(> header.sticky) input:focus,
+main:has(> header.sticky) select:focus,
+main:has(> header.sticky) textarea:focus {
+  border-color: #6fbf2c !important;
+  box-shadow: 0 0 0 3px rgba(111,191,44,.14) !important;
+  outline: none;
+}
+main:has(> header.sticky) table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+main:has(> header.sticky) table thead {
+  background: #f6f8f5 !important;
+}
+main:has(> header.sticky) table th {
+  color: #697264 !important;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+main:has(> header.sticky) table td {
+  border-color: #edf0eb !important;
+}
+main:has(> header.sticky) table tbody tr:hover {
+  background: #f7faf5 !important;
+}
+main:has(> header.sticky) .nf-command-eyebrow::before {
+  background: #6fbf2c;
+  box-shadow: 0 0 0 4px rgba(111,191,44,.13);
+}
+@media (min-width: 1024px) {
+  main:has(> header.sticky) > div.mx-auto {
+    max-width: 1680px !important;
+  }
+  main:has(> header.sticky) section .rounded-3xl {
+    backdrop-filter: none;
+  }
+}
+@media (max-width: 640px) {
+  main:has(> header.sticky) {
+    padding-bottom: 5.5rem;
+  }
+  main:has(> header.sticky) header.sticky > div {
+    padding-top: .65rem;
+    padding-bottom: .65rem;
+  }
+  main:has(> header.sticky) [class*="rounded-3xl"][class*="p-5"] {
+    border-radius: 1rem !important;
+    padding: 1rem !important;
+  }
+}
+
+
+/* Complemento: cobre também superfícies de modais e navegação que ainda usavam tons escuros. */
+main:has(> header.sticky) [class*="bg-[#10130d]"],
+main:has(> header.sticky) [class*="bg-[#11140e]"],
+main:has(> header.sticky) [class*="bg-[#151a11]"],
+main:has(> header.sticky) [class*="bg-[#1b120a]"],
+main:has(> header.sticky) [class*="bg-[#080a07]"] {
+  background-color: #ffffff !important;
+}
+main:has(> header.sticky) [class*="text-[#d9e5a5]"],
+main:has(> header.sticky) [class*="text-[#f4aa67]"],
+main:has(> header.sticky) [class*="text-[#a7b86a]"] {
+  color: #477b2b !important;
+}
+main:has(> header.sticky) nav.fixed {
+  border-color: #e0e7dc !important;
+  background: rgba(255,255,255,.96) !important;
+  box-shadow: 0 8px 28px rgba(27,43,22,.12) !important;
+}
+main:has(> header.sticky) nav.fixed button {
+  color: #626b5d;
+}
+main:has(> header.sticky) nav.fixed button[class*="bg-[#a7b86a]"] {
+  color: #182014 !important;
+  background: #6fbf2c !important;
+}
+main:has(> header.sticky) [class*="bg-white/5"],
+main:has(> header.sticky) [class*="bg-white/[.025]"],
+main:has(> header.sticky) [class*="bg-white/[.035]"] {
+  background: #f7f9f6 !important;
+}
+main:has(> header.sticky) [class*="text-white/"] {
+  color: #687064 !important;
+}
+main:has(> header.sticky) [class*="border-[#a7b86a]"] {
+  border-color: #d8e6cf !important;
+}
+main:has(> header.sticky) [class*="border-[#ef7d18]"] {
+  border-color: #f6d5b4 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]"] {
+  background: #f58a1f !important;
+  color: #171a16 !important;
+}
+main:has(> header.sticky) [class*="shadow-2xl"] {
+  box-shadow: 0 12px 36px rgba(25,39,20,.13) !important;
+}
+
+
+/* Ajuste de contraste por tema: cartões de pedidos não devem herdar o laranja sólido dos botões de ação. */
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] {
+  background: #fff7ed !important;
+  border-color: #f3c18f !important;
+  color: #20251e !important;
+  box-shadow: 0 3px 12px rgba(160, 84, 15, .06) !important;
+  transform: none !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-white/"] {
+  color: #6b6258 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="bg-[#ef7d18]/20"] {
+  background: #ffdfbd !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-[#ffb36b]"] {
+  color: #8f4300 !important;
+}
+main:has(> header.sticky) button[class*="bg-[#ef7d18]/[.08]"] [class*="text-[#ef7d18]"] {
+  color: #a94d00 !important;
+}
