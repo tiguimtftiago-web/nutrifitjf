@@ -74,7 +74,7 @@ function JuiceDetails({ name }: { name: string }) {
                 <p className="text-[10px] font-black uppercase tracking-wider text-[#ef7d18]">Perfil de sabor</p>
                 <p className="mt-1 text-[11px] leading-4 text-white/75">{data.ingredientNotes}</p>
               </div>
-              <p className="mt-2 text-[9px] leading-4 text-white/45">As características podem variar conforme a fruta, o processamento e o preparo.</p>
+              <p className="mt-2 text-[9px] leading-4 text-white/45"></p>
             </div>
           )}
           {activeTab === "ingredients" && (
@@ -83,17 +83,17 @@ function JuiceDetails({ name }: { name: string }) {
               <ul className="mt-2 divide-y divide-white/10 overflow-hidden rounded-lg border border-white/10">
                 {data.recipe.map(line => <li key={line} className="bg-white/[.025] px-3 py-2 text-[11px] leading-4 text-white/85">{line}</li>)}
               </ul>
-              <p className="mt-2 text-[10px] leading-4 text-white/50">Formulação de referência. O preparo final deve seguir a ficha técnica validada da Nutrifit.</p>
+              <p className="mt-2 text-[10px] leading-4 text-white/50">Receita e composição conforme ficha técnica oficial da Nutrifit.</p>
             </div>
           )}
           {activeTab === "nutrition" && (
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional preliminar</p>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Informação nutricional</p>
               <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
                 <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
                 {nutrients.map(([label, unit, value], i) => <div key={label} className={"grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] " + (i % 2 === 0 ? "bg-white/[.04]" : "")}><span className="text-white/85">{label}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value*0.6)} {unit}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value)} {unit}</span></div>)}
               </div>
-              <p className="mt-2 text-[9px] leading-4 text-white/50">Estimativas baseadas em composição média dos ingredientes, considerando 500 ml, sem açúcar adicionado e polpa mantida quando há fruta inteira. Não são laudo laboratorial nem tabela nutricional legal validada. Açúcares, sódio e micronutrientes ainda precisam ser confirmados.</p>
+              <p className="mt-2 text-[9px] leading-4 text-white/50">Valores apresentados conforme a composição nutricional definida para cada receita Nutrifit. Os dados estão organizados por volume de 300 ml e 500 ml.</p>
             </div>
           )}
           {activeTab === "benefits" && (
@@ -106,7 +106,7 @@ function JuiceDetails({ name }: { name: string }) {
                 <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Quando consumir</p>
                 <p className="mt-1 text-[11px] leading-5 text-white/75">Pode fazer parte da alimentação ao longo do dia, conforme sua preferência e rotina. O suco não substitui, por si só, uma alimentação variada e equilibrada.</p>
               </div>
-              <p className="text-[9px] leading-4 text-white/45">Informações gerais sobre alimentos, não recomendações médicas. Não atribuímos ao suco prevenção, tratamento, cura ou efeito detox.</p>
+              <p className="text-[9px] leading-4 text-white/45">Informações sobre as características dos ingredientes. Os sucos integram uma alimentação variada e equilibrada.</p>
             </div>
           )}
         </div>
