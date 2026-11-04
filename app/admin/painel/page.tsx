@@ -190,6 +190,19 @@ export default function PainelNutrifit() {
   const periodOrders = orders.filter(o => inSelectedPeriod(o.created_at) && !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase()));
   const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
+  // Paid transactions use the actual payment date; pending transactions use their creation date.
+  const periodFinance = finance.filter(f =>
+    inSelectedPeriod(f.status === "pago" ? (f.paid_at || f.created_at) : f.created_at)
+  );
+  const confirmedReceipts = periodFinance
+    .filter(f => f.type !== "despesa" && f.status === "pago")
+    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+  const receivables = periodFinance
+    .filter(f => f.type !== "despesa" && f.status !== "pago")
+    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+  const paidExpenses = periodFinance
+    .filter(f => f.type === "despesa" && f.status === "pago")
+    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
   const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
   const previousRange = useMemo(() => {
     const start = new Date(periodStart);
@@ -368,10 +381,10 @@ export default function PainelNutrifit() {
                 ["Membros NutriFit Club",clubMembers.length.toLocaleString("pt-BR"),"Cadastros com adesão","#315e4c","✓"],
                 ["Total gasto registrado",formatMoney(customers.reduce((n,c)=>n+Number(c.total_spend||0),0)),"Soma dos perfis","#f16b2c","R$"]
               ]:[
-                ["Faturamento de pedidos",formatMoney(orders.reduce((n,o)=>n+Number(o.total||0),0)),"Total registrado","#b46cdb","▣"],
-                ["Recebido confirmado",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status==="pago").reduce((n,f)=>n+Number(f.amount||0),0)),"Lançamentos pagos","#4f6fe8","✓"],
-                ["A receber",formatMoney(finance.filter(f=>f.type!=="despesa"&&f.status!=="pago").reduce((n,f)=>n+Number(f.amount||0),0)),"Lançamentos não pagos","#315e4c","◷"],
-                ["Despesas registradas",formatMoney(finance.filter(f=>f.type==="despesa").reduce((n,f)=>n+Number(f.amount||0),0)),"Não equivale a lucro","#f16b2c","↘"]
+                ["Faturamento de pedidos",formatMoney(periodRevenue),periodOrders.length+" pedidos não cancelados no período","#b46cdb","▣"],
+                ["Recebido confirmado",formatMoney(confirmedReceipts),"Receitas com status pago no período","#4f6fe8","✓"],
+                ["A receber",formatMoney(receivables),"Receitas sem confirmação de pagamento no período","#315e4c","◷"],
+                ["Despesas pagas",formatMoney(paidExpenses),"Somente despesas com status pago no período","#f16b2c","↘"]
               ]).map((m,i)=><article key={m[0]} className={`nf-in relative min-h-[108px] rounded-xl border p-4 ${card}`} style={{animationDelay:`${i*55}ms`}}><span className="text-[11px] text-[#6b7280]">{m[0]}</span><button className="absolute right-3 top-1 text-lg text-[#9ca3af]" aria-label="Opções">⋮</button><div className="my-2 text-[27px] font-semibold tracking-tight">{m[1]}</div><div className="text-[10px] text-[#6b7280]">{m[2]}</div><span className="absolute bottom-2 right-2 grid h-[22px] w-[22px] place-items-center rounded-md text-[12px] text-white" style={{background:m[3]}}>{m[4]}</span></article>)}
             </section>
             <section className={`mb-3 rounded-xl border p-4 md:p-5 ${card}`}>
