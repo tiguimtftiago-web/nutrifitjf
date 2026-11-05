@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-labelledby="title desc">
+  <title id="title">Forno de micro-ondas</title>
+  <desc id="desc">Ilustração detalhada de um forno de micro-ondas preto e inox, com porta de vidro, prato interno e painel digital.</desc>
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#55585a"/><stop offset=".22" stop-color="#202326"/><stop offset=".72" stop-color="#090b0d"/><stop offset="1" stop-color="#3a3d3e"/></linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e4e7e7"/><stop offset=".25" stop-color="#858b8d"/><stop offset=".55" stop-color="#d2d6d6"/><stop offset="1" stop-color="#62696b"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#344348"/><stop offset=".45" stop-color="#10191c"/><stop offset="1" stop-color="#05090b"/></linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f7a33a" stop-opacity=".65"/><stop offset="1" stop-color="#e76d10" stop-opacity=".12"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <ellipse cx="116" cy="157" rx="98" ry="10" fill="#000" opacity=".48" filter="url(#shadow)"/>
+  <rect x="14" y="24" width="212" height="126" rx="13" fill="url(#body)" stroke="#aeb4b5" stroke-width="2"/>
+  <path d="M25 31h185" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <rect x="23" y="34" width="144" height="105" rx="7" fill="url(#steel)" stroke="#080a0b" stroke-width="2"/>
+  <rect x="29" y="40" width="132" height="93" rx="4" fill="url(#glass)" stroke="#353b3d" stroke-width="2"/>
+  <rect x="35" y="46" width="120" height="81" rx="3" fill="#11191b"/>
+  <rect x="38" y="49" width="114" height="75" rx="2" fill="url(#glow)"/>
+  <path d="M44 54h91M44 59h91" stroke="#fff" stroke-opacity=".08"/>
+  <ellipse cx="96" cy="111" rx="42" ry="8" fill="#cbd0d0" opacity=".23"/>
+  <ellipse cx="96" cy="108" rx="31" ry="5" fill="none" stroke="#d7dada" stroke-opacity=".55" stroke-width="1.5"/>
+  <path d="M70 91c11-15 39-15 51 0" fill="none" stroke="#e5a04a" stroke-opacity=".6" stroke-width="2"/>
+  <rect x="165" y="35" width="51" height="104" rx="5" fill="#161a1c" stroke="#737a7c"/>
+  <rect x="173" y="43" width="35" height="17" rx="3" fill="#101d16" stroke="#526b4d"/>
+  <text x="190.5" y="55" font-family="Arial,sans-serif" font-size="10" font-weight="700" text-anchor="middle" fill="#9fdb71">06:00</text>
+  <g fill="#555d60" stroke="#aeb5b6" stroke-width=".7">
+    <circle cx="179" cy="72" r="4"/><circle cx="191" cy="72" r="4"/><circle cx="203" cy="72" r="4"/>
+    <circle cx="179" cy="85" r="4"/><circle cx="191" cy="85" r="4"/><circle cx="203" cy="85" r="4"/>
+    <circle cx="179" cy="98" r="4"/><circle cx="191" cy="98" r="4"/><circle cx="203" cy="98" r="4"/>
+    <rect x="174" y="109" width="34" height="10" rx="4" fill="#86a51d" stroke="#b6d16c"/>
+  </g>
+  <path d="M20 145h198" stroke="#f47b0b" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+  <path d="M31 19l8-7M42 18l5-10" stroke="#86a51d" stroke-width="3" stroke-linecap="round"/>
+</svg>
