@@ -55,11 +55,11 @@ encrypted="$archive.gpg"
 tar -czf "$archive" -C "$workdir/payload" .
 sha256sum "$archive" > "$archive.sha256"
 
-gpg --batch --yes --pinentry-mode loopback \
-  --passphrase "$BACKUP_PASSPHRASE" \
-  --symmetric --cipher-algo AES256 \
+printf '%s\n' "$BACKUP_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback \
+  --passphrase-fd 0 --symmetric --cipher-algo AES256 \
   --output "$encrypted" "$archive"
-gpg --batch --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" --decrypt "$encrypted" | tar -tzf - >/dev/null
+printf '%s\n' "$BACKUP_PASSPHRASE" | gpg --batch --pinentry-mode loopback \
+  --passphrase-fd 0 --decrypt "$encrypted" | tar -tzf - >/dev/null
 
 object_key="daily/$(basename "$encrypted")"
 endpoint="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
