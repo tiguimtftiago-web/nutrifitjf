@@ -23,6 +23,8 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const customerName = String(body.customer_name ?? "").trim().slice(0, 120);
     const whatsapp = String(body.whatsapp ?? "").replace(/\D/g, "").slice(0, 20);
+    const email = String(body.email ?? "").trim().toLowerCase().slice(0, 254);
+    const clubIdentityType = body.club_identity_type === "email" ? "email" : "whatsapp";
     const itemsInput = Array.isArray(body.items) ? body.items : [];
     const street = String(body.street ?? "").trim().slice(0, 180);
     const addressNumber = String(body.address_number ?? "").trim().slice(0, 30);
@@ -188,8 +190,13 @@ const catalogNameAliases: Record<string, string> = {
       discountCents = Math.min(subtotalCents, Math.max(0, discountCents));
       redeemedCoupon = String(c.code);
     } else if (body.club_welcome_discount === true) {
+      if (clubIdentityType === "email" && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))
+        return reply(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
+      const identityFilter = clubIdentityType === "email"
+        ? "email=ilike." + encodeURIComponent(email)
+        : "whatsapp=eq." + encodeURIComponent(whatsapp);
       const profileResp = await fetch(
-        url + "/rest/v1/customer_profiles?select=nutrifit_club_member,coupon_used&whatsapp=eq." + encodeURIComponent(whatsapp) + "&limit=1",
+        url + "/rest/v1/customer_profiles?select=nutrifit_club_member,coupon_used&" + identityFilter + "&limit=1",
         { headers },
       );
       if (!profileResp.ok) return reply(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
@@ -241,8 +248,9 @@ const catalogNameAliases: Record<string, string> = {
       });
     }
     if (redeemClub) {
-      await fetch(url + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
-        method: "POST", headers, body: JSON.stringify({ p_whatsapp: whatsapp }),
+      await fetch(url + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon_by_identity", {
+        method: "POST", headers,
+        body: JSON.stringify({ p_whatsapp: clubIdentityType === "whatsapp" ? whatsapp : null, p_email: clubIdentityType === "email" ? email : null }),
       });
     }
     return reply(200, {
