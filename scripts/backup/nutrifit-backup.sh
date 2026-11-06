@@ -49,6 +49,7 @@ gpg --batch --yes --pinentry-mode loopback \
   --passphrase "$BACKUP_PASSPHRASE" \
   --symmetric --cipher-algo AES256 \
   --output "$encrypted" "$archive"
+gpg --batch --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" --decrypt "$encrypted" | tar -tzf - >/dev/null
 
 object_key="daily/$(basename "$encrypted")"
 endpoint="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
@@ -60,8 +61,10 @@ AWS_DEFAULT_REGION=auto aws s3 cp "$archive.sha256" "s3://${R2_BUCKET_NAME}/$obj
 rclone copy "$encrypted" "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CONFIG" --checkers 2 --transfers 1
 rclone copy "$archive.sha256" "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CONFIG" --checkers 2 --transfers 1
 
-AWS_DEFAULT_REGION=auto aws s3api head-object --bucket "$R2_BUCKET_NAME" --key "$object_key" \
-  --endpoint-url "$endpoint" >/dev/null
-rclone ls "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CONFIG" | awk -v expected="$(basename "$encrypted")" '$2 == expected { found=1 } END { exit !found }'
+expected_size="$(stat -c %s "$encrypted")"
+actual_size="$(AWS_DEFAULT_REGION=auto aws s3api head-object --bucket "$R2_BUCKET_NAME" --key "$object_key" \
+  --endpoint-url "$endpoint" --query ContentLength --output text)"
+[[ "$actual_size" == "$expected_size" ]]
+rclone check "$encrypted" "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CONFIG" --one-way --download
 
 printf 'Backup completed and verified in R2 and Google Drive: %s\n' "$(basename "$encrypted")"
