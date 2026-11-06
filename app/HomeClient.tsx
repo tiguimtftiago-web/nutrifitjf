@@ -2753,10 +2753,10 @@ export default function Home() {
 
   const saveProfile = async () => {
     const name = profileName.trim();
-    const phone = profilePhone.replace(/\\D/g, "");
+    const phone = profilePhone.replace(/\D/g, "");
     const email = profileEmail.trim().toLowerCase();
     const usingEmail = profileContactMethod === "email";
-    const validEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     if (!name || (usingEmail ? !validEmail : phone.length < 10)) return;
 
     setProfileStatus("saving");
