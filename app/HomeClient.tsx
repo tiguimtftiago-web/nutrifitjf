@@ -493,6 +493,7 @@ const traditionalComplements: Product[] = [
 ];
 
 const DELIVERY_FREE_FROM = 20;
+const MIN_ORDER_VALUE = 50;
 
 function formatCepInput(raw:string){
   const digits=raw.replace(/\D/g,"").slice(0,8);
@@ -2350,7 +2351,7 @@ export default function Home() {
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
-  const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
+  const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
     const cleanCep = orderCep.replace(/\D/g, "");
@@ -2534,7 +2535,7 @@ export default function Home() {
   };
 
   const sendFullOrder = async () => {
-    if (fullOrderSubmitLock.current || !orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+    if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
 
@@ -3381,7 +3382,7 @@ export default function Home() {
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
                         <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
-                        <div className="mt-1 text-[10px] leading-4 text-white/35">Prazo, dias de entrega e pedido mínimo: // PREENCHER após confirmação operacional.</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
@@ -3461,6 +3462,7 @@ export default function Home() {
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
+                {orderSubtotal < MIN_ORDER_VALUE && <p className="mt-2 rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/[.07] px-3 py-2 text-xs leading-5 text-[#ffd0a4]">Pedido mínimo de R$ 50,00 em produtos. Faltam {money(MIN_ORDER_VALUE - orderSubtotal)} para atingir o mínimo. O frete é calculado à parte.</p>}
                 <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
@@ -3592,9 +3594,9 @@ export default function Home() {
           <div className="min-w-0 flex-1">
             <p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p>
             <p className="mt-1 text-sm text-white/75">Taxas cadastradas por região: Zona 1 R$ 5,00 • Zona 2 R$ 7,00 • Zona 3 R$ 10,00 • Zona 4 R$ 13,00. Frete grátis a partir de 20 itens.</p>
-            <p className="mt-1 text-xs leading-5 text-white/50">Prazo de entrega: informação a confirmar com a equipe. // PREENCHER</p>
-            <p className="text-xs leading-5 text-white/50">Dias e horários de entrega: informação a confirmar. // PREENCHER</p>
-            <p className="text-xs leading-5 text-white/50">Pedido mínimo: informação a confirmar. // PREENCHER</p>
+            <p className="mt-1 text-xs leading-5 text-white/50">Pedidos realizados até 00h: entrega no dia seguinte.</p>
+            <p className="text-xs leading-5 text-white/50">Entregas todos os dias, a partir das 11h.</p>
+            <p className="text-xs leading-5 text-white/50">Pedido mínimo: R$ 50,00 em produtos, sem incluir o frete.</p>
             <p className="mt-2 text-xs leading-5 text-white/65">Retirada: Rua Enéas Mascarenhas, nº 94/103 • Monte Castelo • Juiz de Fora/MG.</p>
           </div>
           <button type="button" onClick={() => setOrderOpen(true)} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Calcular pelo CEP <ArrowRight size={14}/></button>
