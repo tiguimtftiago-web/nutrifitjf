@@ -14,18 +14,20 @@ Esta implementação está sendo preparada em uma branch separada. Nenhum backup
 
 - Dump lógico do schema e dos dados geridos pelo Supabase CLI.
 - Dump dos roles customizados.
+- Download do código-fonte das Edge Functions atualmente implantadas no Supabase.
 - Histórico de migrações do schema `supabase_migrations`.
 - Snapshot dos arquivos versionados no commit atual (inclui código, funções e imagens presentes no Git).
 
 ## Limitação importante do dump lógico Supabase
 
-O comando `supabase db dump` exclui os schemas gerenciados `auth`, `storage` e schemas de extensões. Portanto, este pacote protege o schema/dados de aplicação incluídos no dump, mas não deve ser tratado como restauração completa de usuários Auth nem de objetos do Storage. A auditoria atual não encontrou buckets no Storage. Antes de declarar a proteção completa, é necessário definir e validar um método separado para recuperação dos usuários Auth e verificar se a aplicação depende de algum objeto armazenado fora do repositório.
+O comando `supabase db dump` exclui os schemas gerenciados `auth`, `storage` e schemas de extensões. Portanto, este pacote protege o schema/dados de aplicação incluídos no dump, mas não deve ser tratado como restauração completa de usuários Auth nem de objetos do Storage. A auditoria atual não encontrou buckets no Storage. Antes de declarar a proteção completa, é necessário definir e validar um método separado para recuperação dos usuários Auth e verificar se a aplicação depende de algum objeto armazenado fora do repositório. Os valores dos secrets das Edge Functions também não são exportados pelo CLI e precisam permanecer guardados em um cofre de senhas/segredos.
 
 ## Pré-requisitos para ativar
 
 Configurar estes GitHub Actions Secrets (não colocar valores no repositório nem enviar por chat):
 
 - `SUPABASE_DB_URL`: connection string PostgreSQL do projeto.
+- `SUPABASE_ACCESS_TOKEN`: token de acesso Supabase com permissão mínima para listar/baixar Edge Functions.
 - `SUPABASE_PROJECT_REF`: referência do projeto, apenas para o manifesto.
 - `BACKUP_PASSPHRASE`: frase-senha longa e exclusiva para criptografia GPG.
 - `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`.
@@ -47,7 +49,7 @@ O script faz apenas leituras do banco. Gera dumps lógicos, arquiva o commit atu
 
 ## Agendamento e retenção
 
-O workflow está preparado para execução manual e possui agendamento diário às 00:00 (horário de Brasília), mas as execuções agendadas permanecem bloqueadas até criar a variável de repositório `NUTRIFIT_BACKUP_ENABLED=true`. O agendamento só deve ser ativado depois de:
+O workflow está preparado para execução manual e possui agendamento diário às 00:00 (horário de Brasília). Como ele está em uma branch de preparação, o evento agendado só passará a existir depois que a branch for revisada e integrada à `main`; mesmo assim, as execuções agendadas permanecerão bloqueadas até criar a variável de repositório `NUTRIFIT_BACKUP_ENABLED=true`. O agendamento só deve ser ativado depois de:
 1. Criar e testar o bucket privado no R2.
 2. Configurar o acesso Google Drive dedicado.
 3. Cadastrar os secrets no GitHub Actions.
