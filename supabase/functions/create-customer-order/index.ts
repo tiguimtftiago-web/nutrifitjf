@@ -135,7 +135,8 @@ const catalogNameAliases: Record<string, string> = {
       subtotalCents += priceCents * item.quantity;
       pricedItems.push({ name: item.name, line: String(match.line), weight: item.weight, price: priceCents / 100, quantity: item.quantity });
     }
-    if (subtotalCents <= 0 || subtotalCents > 50000000) return reply(400, { error: "Valor do pedido inválido." });
+    if (subtotalCents < 5000) return reply(400, { error: "O pedido mínimo é de R$ 50,00 em produtos. O frete é calculado à parte." });
+    if (subtotalCents > 50000000) return reply(400, { error: "Valor do pedido inválido." });
 
     const itemCount = items.reduce((sum: number, i: {quantity:number}) => sum + i.quantity, 0);
     const cep = String(body.cep ?? "").replace(/\D/g, "").slice(0, 8);
@@ -195,7 +196,7 @@ const catalogNameAliases: Record<string, string> = {
       const profiles = await profileResp.json();
       const profile = profiles[0];
       if (profile?.nutrifit_club_member === true && profile?.coupon_used === false) {
-        discountCents = Math.min(500, subtotalCents);
+        discountCents = Math.min(1000, subtotalCents);
         redeemClub = true;
       }
     }
