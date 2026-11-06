@@ -194,6 +194,17 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
+const customerProofData = {
+  averageRating: null as number | null, // PREENCHER somente após apurar avaliações reais
+  reviewCount: null as number | null, // PREENCHER com a quantidade confirmada
+  testimonials: [
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+  ],
+};
+
+
 const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
   { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
   { name: "Green", image: "/images/page-37.jpg", description: "Maçã, pepino, limão, gengibre e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Pepino", "Limão", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
@@ -661,6 +672,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
   const unitPrice = totalPrice / quantity;
+  const unitPriceCents = Math.round(totalPrice * 100 / quantity);
+  const totalSavings = option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
@@ -705,19 +718,34 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
 
   return (
     <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#86a51d]/25 bg-[#0d110c]">
-      <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[.025] sm:p-5">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f47b0b]/12 text-lg">📦</span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
-          <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#b6d76a]">Pacote de 30 ou 60 refeições. O preço total e o valor por unidade ficam visíveis antes de adicionar ao pedido; não é uma cobrança recorrente automática.</span>
-        </span>
-        <span className="shrink-0 text-right">
-          <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
-          <span className="mt-0.5 block text-[10px] text-white/45">{money(unitPrice)} por marmita</span>
-          <span className="mt-1 block text-xl leading-none text-[#86a51d]">{planOpen ? "⌃" : "⌄"}</span>
-        </span>
-      </button>
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f47b0b]/12 text-lg">📦</span>
+          <div className="min-w-0 flex-1">
+            <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
+            <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
+            <span className="mt-0.5 block text-xs text-white/45">{money(unitPrice)} por marmita</span>
+            {totalSavings !== null && totalSavings > 0 && <span className="mt-1 block text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa de R$ 23,97/un.</span>}
+          </div>
+          <div className="shrink-0 text-right">
+            <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
+            <span className="mt-0.5 block text-[10px] text-white/45">total do plano</span>
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="font-black text-white">{total} de {quantity} refeições escolhidas</span>
+            <span className="font-bold tabular-nums text-[#b6d76a]">{Math.round((total / quantity) * 100)}%</span>
+          </div>
+          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label="Progresso de seleção do plano" aria-valuemin={0} aria-valuemax={quantity} aria-valuenow={total}>
+            <div className="h-full rounded-full bg-[#86a51d] transition-all duration-300" style={{ width: (total / quantity) * 100 + "%" }} />
+          </div>
+          <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3 text-sm font-black text-black transition hover:brightness-110">
+            {planOpen ? "Fechar plano" : "Montar meu plano"} <ArrowRight size={16} />
+          </button>
+          <p className="mt-2 text-center text-[11px] leading-4 text-white/45">Pacote de 30 ou 60 refeições. Sem cobrança recorrente: você paga somente o plano escolhido.</p>
+        </div>
+      </div>
 
       {planOpen && (
         <div className="border-t border-white/10 p-4 sm:p-6">
@@ -727,6 +755,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               <div>
                 <div className="text-base font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div>
                 <div className="mt-1 text-xs text-white/45">{money(unitPrice)} por marmita</div>
+                {totalSavings !== null && totalSavings > 0 && <div className="mt-1 text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa</div>}
               </div>
               <div className="text-right text-lg font-black text-[#f47b0b]">{money(totalPrice)}</div>
             </div>
@@ -2310,9 +2339,6 @@ export default function Home() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
-  const [profileEmail, setProfileEmail] = useState("");
-  const [profileBirthDate, setProfileBirthDate] = useState("");
-  const [profileMarketing, setProfileMarketing] = useState(false);
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [clubDiscount, setClubDiscount] = useState(0);
   const [leadPromptOpen, setLeadPromptOpen] = useState(false);
@@ -2681,9 +2707,6 @@ export default function Home() {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
       setProfileName(saved.name || "");
       setProfilePhone(saved.phone || "");
-      setProfileEmail(saved.email || "");
-      setProfileBirthDate(saved.birthDate || "");
-      setProfileMarketing(Boolean(saved.marketing));
       setClubDiscount(saved.couponUsed === false ? 10 : 0);
     } catch {}
     setProfileStatus("idle");
@@ -2727,8 +2750,6 @@ export default function Home() {
   const saveProfile = async () => {
     const name = profileName.trim();
     const phone = profilePhone.replace(/\D/g, "");
-    const email = profileEmail.trim().toLowerCase();
-    const birthDate = profileBirthDate || null;
     if (!name || phone.length < 10) return;
 
     setProfileStatus("saving");
@@ -2743,12 +2764,12 @@ export default function Home() {
         body: JSON.stringify({
           name,
           whatsapp: phone,
-          email: email || null,
-          birth_date: birthDate,
+          email: null,
+          birth_date: null,
           nutrifit_club_member: true,
           nutrifit_club_joined_at: new Date().toISOString(),
-          marketing_consent: profileMarketing,
-          marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
+          marketing_consent: false,
+          marketing_consent_at: null,
           acquisition_source: (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct")),
           acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
           acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
@@ -2767,30 +2788,15 @@ export default function Home() {
       window.localStorage.setItem("nutrifit_profile", JSON.stringify({
         name,
         phone,
-        email,
-        birthDate,
-        marketing: profileMarketing,
+        email: null,
+        birthDate: null,
+        marketing: false,
         nutrifitClub: true,
         couponUsed: false,
       }));
       setClubDiscount(10);
       setCustomerName(name);
       setCustomerPhone(phone);
-
-      if (email && profileMarketing) {
-        void fetch("/api/club-automation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          keepalive: true,
-          body: JSON.stringify({
-            email,
-            firstName: name.split(/\s+/)[0] || name,
-            whatsapp: phone,
-            clubMember: true,
-            marketingConsent: true,
-          }),
-        }).catch((error) => console.error("club automation trigger", error));
-      }
 
       setProfileStatus("success");
       const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
@@ -2957,7 +2963,7 @@ export default function Home() {
 
       <section aria-label="Benefício de cadastro" className="border-b border-white/10 bg-[#10120d]">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-5 md:px-8">
-          <p className="min-w-0 text-[11px] leading-5 text-white/55"><strong className="text-[#f47b0b]">Clube Nutrifit:</strong> R$ 10 de desconto na primeira compra, conforme cadastro e condições do clube.</p>
+          <p className="min-w-0 text-[11px] leading-5 text-white/55"><strong className="text-[#f47b0b]">Clube Nutrifit:</strong> R$ 10 na primeira compra de novos membros, em pedidos a partir de R$ 50 em produtos (frete à parte).</p>
           <button type="button" onClick={openProfile} className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-[#f47b0b]/40 px-3 py-1.5 text-[10px] font-black text-[#ffd09e] transition hover:bg-[#f47b0b]/10">Conhecer benefício</button>
         </div>
       </section>
@@ -3199,6 +3205,37 @@ export default function Home() {
           <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-white/50 sm:mt-6 sm:text-sm sm:leading-6">
             Procurando <a href="/marmitas-fit-juiz-de-fora" className="font-bold text-[#b6d76a] underline decoration-[#86a51d]/50 underline-offset-4 transition hover:text-white">marmitas fitness em Juiz de Fora</a>? Conheça as linhas da Nutrifit, compare os tamanhos e confira as opções disponíveis antes de montar seu pedido.
           </p>
+        </div>
+      </section>
+
+      <section id="avaliacoes" className="border-t border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Experiências reais</p>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-4xl">O que nossos clientes dizem</h2>
+            <p className="mt-2 text-sm leading-6 text-white/50">Estamos preparando este espaço para avaliações verificadas e compartilhadas com autorização. Nenhuma nota ou fala será publicada sem confirmação.</p>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <article className="rounded-2xl border border-[#86a51d]/25 bg-[#11160e] p-4 sm:p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d]">Nota média</p>
+              <p className="mt-2 text-2xl font-black text-white">{customerProofData.averageRating !== null ? customerProofData.averageRating.toFixed(1) + "/5" : "// PREENCHER"}</p>
+              <p className="mt-1 text-xs text-white/45">{customerProofData.reviewCount !== null ? customerProofData.reviewCount + " avaliações confirmadas" : "// PREENCHER quantidade de avaliações"}</p>
+            </article>
+            {customerProofData.testimonials.map((review, index) => (
+              <article key={index} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#f47b0b]">Depoimento real {index + 1}</p>
+                <p className="mt-2 text-xs font-bold text-[#b6d76a]">{review.rating !== null ? "Nota " + review.rating + "/5" : "Nota: // PREENCHER"}</p>
+                <blockquote className="mt-2 min-h-12 text-sm leading-5 text-white/65">{review.quote || "Depoimento autorizado: // PREENCHER"}</blockquote>
+                <div className="mt-3 flex items-center gap-3 border-t border-white/10 pt-3">
+                  {review.photo ? <img src={review.photo} alt={review.customer ? "Foto de " + review.customer : "Foto de cliente Nutrifit"} className="h-11 w-11 rounded-full object-cover" loading="lazy" /> : <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-dashed border-white/20 text-lg">📷</div>}
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-black text-white/75">{review.customer || "Cliente: // PREENCHER"}</p>
+                    <p className="mt-0.5 text-[10px] text-white/40">{review.photo ? "Imagem autorizada" : "Foto autorizada: // PREENCHER"}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -3512,7 +3549,13 @@ export default function Home() {
               <button type="button" onClick={dismissLeadPrompt} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Clube Nutrifit</div>
               <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 10 de desconto na sua primeira compra! 💚</h2>
-              <p className="mt-2 text-sm leading-6 text-white/50">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</p>
+              <p className="mt-2 text-sm leading-6 text-white/65">O benefício funciona assim:</p>
+              <ul className="mt-3 space-y-2 text-sm leading-5 text-white/60">
+                <li>• Válido para quem se cadastra como novo membro do Clube Nutrifit.</li>
+                <li>• R$ 10 de desconto na primeira compra, uma única vez.</li>
+                <li>• Pedido mínimo de R$ 50,00 em produtos; o frete é calculado e cobrado à parte.</li>
+                <li>• O desconto é validado pelo WhatsApp cadastrado e aplicado automaticamente na finalização.</li>
+              </ul>
               <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
               <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
@@ -3532,7 +3575,7 @@ export default function Home() {
               <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
             <div className="max-h-[75vh] overflow-y-auto p-5 sm:p-6">
-              <p className="text-sm leading-6 text-white/50">Cadastre seus dados para participar do Clube Nutrifit e garantir R$ 10 de desconto na primeira compra.</p>
+              <p className="text-sm leading-6 text-white/60">Informe seu nome e WhatsApp. O número será usado para reconhecer seu cadastro e aplicar o desconto de R$ 10 na primeira compra elegível.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
                   <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
@@ -3540,21 +3583,11 @@ export default function Home() {
                 <label className="text-xs font-bold text-white/55">WhatsApp
                   <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
-                <label className="text-xs font-bold text-white/55">E-mail
-                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" aria-label="E-mail do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
-                <label className="text-xs font-bold text-white/55">Data de nascimento
-                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" aria-label="Data de nascimento" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
-                <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs leading-5 text-white/55">
-                  <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#86a51d]" />
-                  Quero receber novidades e ofertas da Nutrifit.
-                </label>
               </div>
 
               {profileStatus === "exists" && (
                 <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
-                  Este WhatsApp já possui um cadastro na Nutrifit. Para confirmar que o número é seu e concluir a entrada no Clube sem duplicar dados, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.
+                  Este WhatsApp já possui um cadastro na Nutrifit. Para confirmar que o número é seu e consultar a elegibilidade do benefício, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.
                   <a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a>
                 </div>
               )}
