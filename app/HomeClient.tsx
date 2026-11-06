@@ -2720,13 +2720,7 @@ export default function Home() {
         }).catch(() => {});
       } catch {}
     }
-    try {
-      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
-      const leadPromptSeen = window.sessionStorage.getItem("nutrifit_lead_prompt_seen") === "1";
-      if (!saved?.nutrifitClub && !leadPromptSeen) setLeadPromptOpen(true);
-    } catch {
-      setLeadPromptOpen(true);
-    }
+    // O convite do Clube fica disponível no banner discreto; não abre modal automaticamente.
   }, []);
 
   const saveProfile = async () => {
@@ -2960,10 +2954,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Benefício de cadastro" className="border-b border-[#f47b0b]/20 bg-[#15120d]">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left md:px-8">
-          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#f47b0b]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Ganhe R$ 10 de desconto na sua primeira compra! 💚</div><div className="text-[11px] text-white/45">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</div></div>
-          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
+      <section aria-label="Benefício de cadastro" className="border-b border-white/10 bg-[#10120d]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-5 md:px-8">
+          <p className="min-w-0 text-[11px] leading-5 text-white/55"><strong className="text-[#f47b0b]">Clube Nutrifit:</strong> R$ 10 de desconto na primeira compra, conforme cadastro e condições do clube.</p>
+          <button type="button" onClick={openProfile} className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-[#f47b0b]/40 px-3 py-1.5 text-[10px] font-black text-[#ffd09e] transition hover:bg-[#f47b0b]/10">Conhecer benefício</button>
         </div>
       </section>
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
@@ -3391,8 +3385,7 @@ export default function Home() {
                       </div>
                       <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
-                    {!orderFreeDelivery && (
-                      <>
+                    <>
                         <div className="mt-3 flex gap-2">
                           <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
@@ -3428,9 +3421,8 @@ export default function Home() {
                         )}
                         {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
+                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
                       </>
-                    )}
-                    {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
                   <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4">
