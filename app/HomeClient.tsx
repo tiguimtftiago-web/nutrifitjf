@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Menu } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -1334,7 +1334,10 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="rounded-2xl border border-[#86a51d]/30 bg-[#171d10] p-4">
               <div className="font-black text-[#b6d76a]">✓ {quantity} marmitas escolhidas</div>
               <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
-              <button type="button" onClick={() => setSelected({})} className="mt-3 text-xs font-bold text-[#ef9b55] underline underline-offset-4">Alterar seleção</button>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <button type="button" onClick={() => setSelected({})} className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2.5 text-xs font-bold text-[#ef9b55] underline-offset-4 hover:bg-white/5">Alterar seleção</button>
+                <button type="button" onClick={() => setStep(3)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:brightness-110">Continuar para complementos <ArrowRight size={15} /></button>
+              </div>
             </div>
           )}
           {detailProduct && total !== quantity && (
@@ -2711,6 +2714,8 @@ export default function Home() {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
       setProfileName(saved.name || "");
       setProfilePhone(saved.phone || "");
+      setProfileEmail(saved.email || "");
+      setProfileContactMethod(saved.contactMethod === "email" ? "email" : "whatsapp");
       setClubDiscount(saved.couponUsed === false ? 10 : 0);
     } catch {}
     setProfileStatus("idle");
@@ -2880,7 +2885,7 @@ export default function Home() {
             <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-white/75 transition hover:bg-white/10 sm:h-11 sm:w-11"><UserRound size={20} strokeWidth={1.7} /></button>
 
             <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" aria-expanded={menuOpen} title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
-              <span className="text-[25px] leading-[1]">☰</span>
+              <Menu size={23} strokeWidth={2.2} aria-hidden="true" />
               <span className="mt-0.5 text-[9px] font-black leading-none text-white/70 sm:text-[10px]">Menu</span>
             </button>
           </div>

@@ -203,11 +203,12 @@ const catalogNameAliases: Record<string, string> = {
       if (!profileResp.ok) return reply(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
       const profiles = await profileResp.json();
       const profile = profiles[0];
-      if (profile?.nutrifit_club_member === true && profile?.coupon_used === false) {
-        discountCents = Math.min(1000, subtotalCents);
-        redeemClub = true;
-        clubProfileId = String(profile.id);
+      if (profile?.nutrifit_club_member !== true || profile?.coupon_used !== false || !profile?.id) {
+        return reply(409, { error: "O benefício de boas-vindas não está disponível para este cadastro ou já foi utilizado." });
       }
+      discountCents = Math.min(1000, subtotalCents);
+      redeemClub = true;
+      clubProfileId = String(profile.id);
     }
     const totalCents = Math.max(0, subtotalCents - discountCents + deliveryCents);
     const payload = {
@@ -235,28 +236,44 @@ const catalogNameAliases: Record<string, string> = {
       });
     }
 
-    const insertResponse = await fetch(url + "/rest/v1/customer_orders", {
-      method: "POST", headers: { ...headers, Prefer: "return=representation" }, body: JSON.stringify(payload),
-    });
-    if (!insertResponse.ok) {
-      console.error("customer order insert failed", await insertResponse.text());
-      return reply(502, { error: "Não foi possível registrar o pedido. O WhatsApp continua disponível." });
+    let savedOrderId: string | null = null;
+    if (redeemClub) {
+      const atomicResponse = await fetch(url + "/rest/v1/rpc/create_customer_order_with_clube_welcome_coupon", {
+        method: "POST", headers,
+        body: JSON.stringify({
+          p_order: payload,
+          p_profile_id: clubProfileId,
+          p_whatsapp: clubIdentityType === "whatsapp" ? whatsapp : null,
+          p_email: clubIdentityType === "email" ? email : null,
+        }),
+      });
+      if (!atomicResponse.ok) {
+        const errorText = await atomicResponse.text();
+        console.error("atomic Clube order failed", errorText);
+        return reply(409, { error: "O benefício do Clube não pôde ser confirmado. Nenhum pedido com desconto foi registrado. Atualize os dados e tente novamente." });
+      }
+      const atomicResult = await atomicResponse.json();
+      savedOrderId = atomicResult?.id ?? null;
+      if (!savedOrderId) return reply(502, { error: "O pedido não retornou uma confirmação válida. Entre em contato com a Nutrifit antes de tentar novamente." });
+    } else {
+      const insertResponse = await fetch(url + "/rest/v1/customer_orders", {
+        method: "POST", headers: { ...headers, Prefer: "return=representation" }, body: JSON.stringify(payload),
+      });
+      if (!insertResponse.ok) {
+        console.error("customer order insert failed", await insertResponse.text());
+        return reply(502, { error: "Não foi possível registrar o pedido. O WhatsApp continua disponível." });
+      }
+      const saved = await insertResponse.json();
+      savedOrderId = saved?.[0]?.id ?? null;
     }
-    const saved = await insertResponse.json();
     if (redeemedCoupon) {
       await fetch(url + "/rest/v1/rpc/redeem_nutrifit_coupon", {
         method: "POST", headers,
         body: JSON.stringify({ p_code: redeemedCoupon }),
       });
     }
-    if (redeemClub) {
-      await fetch(url + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon_by_identity", {
-        method: "POST", headers,
-        body: JSON.stringify({ p_whatsapp: clubIdentityType === "whatsapp" ? whatsapp : null, p_email: clubIdentityType === "email" ? email : null }),
-      });
-    }
     return reply(200, {
-      ok: true, order_id: saved?.[0]?.id ?? null,
+      ok: true, order_id: savedOrderId,
       subtotal: payload.subtotal, discount: payload.discount,
       delivery_fee: payload.delivery_fee, total: payload.total,
       items: pricedItems,
