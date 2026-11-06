@@ -99,7 +99,7 @@ export default function AnalyticsConsent() {
         <button
           type="button"
           onClick={() => setSettingsOpen(true)}
-          className="fixed bottom-3 left-3 z-[90] rounded-full border border-white/20 bg-[#10140d]/95 px-3 py-2 text-[11px] font-bold text-white/70 shadow-lg backdrop-blur hover:text-white"
+          className="relative z-auto mx-3 my-2 inline-flex min-h-8 items-center rounded-full border border-white/20 bg-[#10140d]/95 px-3 py-2 text-[10px] font-bold text-white/70 shadow-sm hover:text-white"
         >
           Preferências de privacidade
         </button>

@@ -194,6 +194,17 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
+const customerProofData = {
+  averageRating: null as number | null, // PREENCHER somente após apurar avaliações reais
+  reviewCount: null as number | null, // PREENCHER com a quantidade confirmada
+  testimonials: [
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
+  ],
+};
+
+
 const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
   { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
   { name: "Green", image: "/images/page-37.jpg", description: "Maçã, pepino, limão, gengibre e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Pepino", "Limão", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
@@ -493,6 +504,7 @@ const traditionalComplements: Product[] = [
 ];
 
 const DELIVERY_FREE_FROM = 20;
+const MIN_ORDER_VALUE = 50;
 
 function formatCepInput(raw:string){
   const digits=raw.replace(/\D/g,"").slice(0,8);
@@ -660,6 +672,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
   const unitPrice = totalPrice / quantity;
+  const unitPriceCents = Math.round(totalPrice * 100 / quantity);
+  const totalSavings = option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
@@ -704,19 +718,34 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
 
   return (
     <div className="mt-5 overflow-hidden rounded-[1.5rem] border border-[#86a51d]/25 bg-[#0d110c]">
-      <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-white/[.025] sm:p-5">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f47b0b]/12 text-lg">📦</span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
-          <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{total}/{quantity} escolhidas • {planOpen ? "toque para fechar" : "toque para montar seu plano"}</span><span className="mt-1 block text-[11px] leading-4 text-[#b6d76a]">Pacote de 30 ou 60 refeições. O preço total e o valor por unidade ficam visíveis antes de adicionar ao pedido; não é uma cobrança recorrente automática.</span>
-        </span>
-        <span className="shrink-0 text-right">
-          <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
-          <span className="mt-0.5 block text-[10px] text-white/45">{money(unitPrice)} por marmita</span>
-          <span className="mt-1 block text-xl leading-none text-[#86a51d]">{planOpen ? "⌃" : "⌄"}</span>
-        </span>
-      </button>
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f47b0b]/12 text-lg">📦</span>
+          <div className="min-w-0 flex-1">
+            <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
+            <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
+            <span className="mt-0.5 block text-xs text-white/45">{money(unitPrice)} por marmita</span>
+            {totalSavings !== null && totalSavings > 0 && <span className="mt-1 block text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa de R$ 23,97/un.</span>}
+          </div>
+          <div className="shrink-0 text-right">
+            <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
+            <span className="mt-0.5 block text-[10px] text-white/45">total do plano</span>
+          </div>
+        </div>
+        <div className="mt-4">
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="font-black text-white">{total} de {quantity} refeições escolhidas</span>
+            <span className="font-bold tabular-nums text-[#b6d76a]">{Math.round((total / quantity) * 100)}%</span>
+          </div>
+          <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-white/10" role="progressbar" aria-label="Progresso de seleção do plano" aria-valuemin={0} aria-valuemax={quantity} aria-valuenow={total}>
+            <div className="h-full rounded-full bg-[#86a51d] transition-all duration-300" style={{ width: (total / quantity) * 100 + "%" }} />
+          </div>
+          <button type="button" onClick={() => setPlanOpen((open) => !open)} aria-expanded={planOpen} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3 text-sm font-black text-black transition hover:brightness-110">
+            {planOpen ? "Fechar plano" : "Montar meu plano"} <ArrowRight size={16} />
+          </button>
+          <p className="mt-2 text-center text-[11px] leading-4 text-white/45">Pacote de 30 ou 60 refeições. Sem cobrança recorrente: você paga somente o plano escolhido.</p>
+        </div>
+      </div>
 
       {planOpen && (
         <div className="border-t border-white/10 p-4 sm:p-6">
@@ -726,6 +755,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               <div>
                 <div className="text-base font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div>
                 <div className="mt-1 text-xs text-white/45">{money(unitPrice)} por marmita</div>
+                {totalSavings !== null && totalSavings > 0 && <div className="mt-1 text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa</div>}
               </div>
               <div className="text-right text-lg font-black text-[#f47b0b]">{money(totalPrice)}</div>
             </div>
@@ -2310,8 +2340,7 @@ export default function Home() {
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
   const [profileEmail, setProfileEmail] = useState("");
-  const [profileBirthDate, setProfileBirthDate] = useState("");
-  const [profileMarketing, setProfileMarketing] = useState(false);
+  const [profileContactMethod, setProfileContactMethod] = useState<"whatsapp" | "email">("whatsapp");
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [clubDiscount, setClubDiscount] = useState(0);
   const [leadPromptOpen, setLeadPromptOpen] = useState(false);
@@ -2350,7 +2379,7 @@ export default function Home() {
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
-  const canFinalizeOrder = Boolean(orderItems.length && orderCustomerReady && orderDeliveryReady);
+  const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async () => {
     const cleanCep = orderCep.replace(/\D/g, "");
@@ -2534,7 +2563,7 @@ export default function Home() {
   };
 
   const sendFullOrder = async () => {
-    if (fullOrderSubmitLock.current || !orderItems.length || !orderCustomerReady || !orderDeliveryReady) return;
+    if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
 
@@ -2608,6 +2637,8 @@ export default function Home() {
           items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
           coupon_code: appliedCoupon?.code || null,
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
+          email: (() => { try { const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}"); return typeof saved.email === "string" ? saved.email : null; } catch { return null; } })(),
+          club_identity_type: (() => { try { const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}"); return saved.contactMethod === "email" ? "email" : "whatsapp"; } catch { return "whatsapp"; } })(),
           delivery_fee: orderDeliveryFee,
           cep: orderCep.replace(/\\D/g, "") || null,
           street: orderStreet.trim(),
@@ -2680,9 +2711,6 @@ export default function Home() {
       const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}");
       setProfileName(saved.name || "");
       setProfilePhone(saved.phone || "");
-      setProfileEmail(saved.email || "");
-      setProfileBirthDate(saved.birthDate || "");
-      setProfileMarketing(Boolean(saved.marketing));
       setClubDiscount(saved.couponUsed === false ? 10 : 0);
     } catch {}
     setProfileStatus("idle");
@@ -2720,21 +2748,16 @@ export default function Home() {
         }).catch(() => {});
       } catch {}
     }
-    try {
-      const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "null");
-      const leadPromptSeen = window.sessionStorage.getItem("nutrifit_lead_prompt_seen") === "1";
-      if (!saved?.nutrifitClub && !leadPromptSeen) setLeadPromptOpen(true);
-    } catch {
-      setLeadPromptOpen(true);
-    }
+    // O convite do Clube fica disponível no banner discreto; não abre modal automaticamente.
   }, []);
 
   const saveProfile = async () => {
     const name = profileName.trim();
     const phone = profilePhone.replace(/\D/g, "");
     const email = profileEmail.trim().toLowerCase();
-    const birthDate = profileBirthDate || null;
-    if (!name || phone.length < 10) return;
+    const usingEmail = profileContactMethod === "email";
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!name || (usingEmail ? !validEmail : phone.length < 10)) return;
 
     setProfileStatus("saving");
     try {
@@ -2747,13 +2770,13 @@ export default function Home() {
         },
         body: JSON.stringify({
           name,
-          whatsapp: phone,
-          email: email || null,
-          birth_date: birthDate,
+          whatsapp: usingEmail ? null : phone,
+          email: usingEmail ? email : null,
+          birth_date: null,
           nutrifit_club_member: true,
           nutrifit_club_joined_at: new Date().toISOString(),
-          marketing_consent: profileMarketing,
-          marketing_consent_at: profileMarketing ? new Date().toISOString() : null,
+          marketing_consent: false,
+          marketing_consent_at: null,
           acquisition_source: (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct")),
           acquisition_campaign: getConsentedAcquisitionValue("nutrifit_acquisition_campaign"),
           acquisition_medium: getConsentedAcquisitionValue("nutrifit_acquisition_medium"),
@@ -2763,7 +2786,7 @@ export default function Home() {
 
       if (response.status === 409) {
         // Não consultar nem alterar perfis existentes com a chave pública.
-        // A confirmação de posse do WhatsApp e a atualização segura ocorrem no webhook oficial.
+        // Para cadastros por WhatsApp, a confirmação continua no canal oficial.
         setProfileStatus("exists");
         return;
       }
@@ -2771,31 +2794,17 @@ export default function Home() {
 
       window.localStorage.setItem("nutrifit_profile", JSON.stringify({
         name,
-        phone,
-        email,
-        birthDate,
-        marketing: profileMarketing,
+        phone: usingEmail ? "" : phone,
+        email: usingEmail ? email : null,
+        contactMethod: profileContactMethod,
+        birthDate: null,
+        marketing: false,
         nutrifitClub: true,
         couponUsed: false,
       }));
       setClubDiscount(10);
       setCustomerName(name);
-      setCustomerPhone(phone);
-
-      if (email && profileMarketing) {
-        void fetch("/api/club-automation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          keepalive: true,
-          body: JSON.stringify({
-            email,
-            firstName: name.split(/\s+/)[0] || name,
-            whatsapp: phone,
-            clubMember: true,
-            marketingConsent: true,
-          }),
-        }).catch((error) => console.error("club automation trigger", error));
-      }
+      if (!usingEmail) setCustomerPhone(phone);
 
       setProfileStatus("success");
       const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
@@ -2925,6 +2934,20 @@ export default function Home() {
   </div>
 </section>
 
+      <section aria-label="Consulta de entrega por CEP" className="border-b border-white/10 bg-[#10140d]">
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center sm:px-6 md:px-8">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">🚚 Consulte a entrega</p>
+            <h2 className="mt-1 text-base font-black sm:text-lg">Veja a taxa para seu endereço antes de montar o pedido.</h2>
+            <p className="mt-1 text-xs leading-5 text-white/50">Informe o CEP. A consulta identifica o bairro e aplica a faixa de entrega cadastrada.</p>
+          </div>
+          <div className="flex min-w-0 gap-2">
+            <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
+            <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">Ver frete</button>
+          </div>
+        </div>
+      </section>
+
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
@@ -2946,10 +2969,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Benefício de cadastro" className="border-b border-[#f47b0b]/20 bg-[#15120d]">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 text-center sm:flex-row sm:px-5 sm:text-left md:px-8">
-          <div><div className="text-[10px] font-black uppercase tracking-[.18em] text-[#f47b0b]">Clube Nutrifit</div><div className="mt-0.5 text-sm font-black text-white">Ganhe R$ 10 de desconto na sua primeira compra! 💚</div><div className="text-[11px] text-white/45">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</div></div>
-          <button type="button" onClick={openProfile} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]">🎁 Quero meus R$ 10 de desconto <ArrowRight size={15} className="ml-2" /></button>
+      <section aria-label="Benefício de cadastro" className="border-b border-white/10 bg-[#10120d]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-5 md:px-8">
+          <p className="min-w-0 text-[11px] leading-5 text-white/55"><strong className="text-[#f47b0b]">Clube Nutrifit:</strong> R$ 10 na primeira compra de novos membros, em pedidos a partir de R$ 50 em produtos (frete à parte).</p>
+          <button type="button" onClick={openProfile} className="inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-[#f47b0b]/40 px-3 py-1.5 text-[10px] font-black text-[#ffd09e] transition hover:bg-[#f47b0b]/10">Conhecer benefício</button>
         </div>
       </section>
       <section id="sucos" className="scroll-mt-[100px] overflow-hidden border-y border-white/10 bg-black">
@@ -3175,8 +3198,8 @@ export default function Home() {
             {[
               ["🍱", "Porções padronizadas", "350 g • 450 g • 500 g."],
               ["🥗", "Tudo em um só lugar", "Marmitas, saladas e sucos."],
-              ["🚚", "Entrega ou retirada", "Consulte pelo CEP."],
-              ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
+              ["🚚", "Entrega ou retirada", "Calcule a taxa pelo CEP ou escolha retirar na Nutrifit."],
+              ["🛒", "Finalização pelo carrinho", "Adicione os produtos, confira os valores e envie o pedido completo ao WhatsApp."],
             ].map(([icon, title, text]) => (
               <div key={title} className="flex min-h-[96px] min-w-0 flex-col items-start gap-2 rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:min-h-0 sm:rounded-3xl sm:p-6">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#86a51d]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
@@ -3193,6 +3216,37 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="avaliacoes" className="border-t border-white/10 bg-[#080a07]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Experiências reais</p>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-4xl">O que nossos clientes dizem</h2>
+            <p className="mt-2 text-sm leading-6 text-white/50">Estamos preparando este espaço para avaliações verificadas e compartilhadas com autorização. Nenhuma nota ou fala será publicada sem confirmação.</p>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <article className="rounded-2xl border border-[#86a51d]/25 bg-[#11160e] p-4 sm:p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d]">Nota média</p>
+              <p className="mt-2 text-2xl font-black text-white">{customerProofData.averageRating !== null ? customerProofData.averageRating.toFixed(1) + "/5" : "// PREENCHER"}</p>
+              <p className="mt-1 text-xs text-white/45">{customerProofData.reviewCount !== null ? customerProofData.reviewCount + " avaliações confirmadas" : "// PREENCHER quantidade de avaliações"}</p>
+            </article>
+            {customerProofData.testimonials.map((review, index) => (
+              <article key={index} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:p-5">
+                <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#f47b0b]">Depoimento real {index + 1}</p>
+                <p className="mt-2 text-xs font-bold text-[#b6d76a]">{review.rating !== null ? "Nota " + review.rating + "/5" : "Nota: // PREENCHER"}</p>
+                <blockquote className="mt-2 min-h-12 text-sm leading-5 text-white/65">{review.quote || "Depoimento autorizado: // PREENCHER"}</blockquote>
+                <div className="mt-3 flex items-center gap-3 border-t border-white/10 pt-3">
+                  {review.photo ? <img src={review.photo} alt={review.customer ? "Foto de " + review.customer : "Foto de cliente Nutrifit"} className="h-11 w-11 rounded-full object-cover" loading="lazy" /> : <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-dashed border-white/20 text-lg">📷</div>}
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-black text-white/75">{review.customer || "Cliente: // PREENCHER"}</p>
+                    <p className="mt-0.5 text-[10px] text-white/40">{review.photo ? "Imagem autorizada" : "Foto autorizada: // PREENCHER"}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
         <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -3202,9 +3256,9 @@ export default function Home() {
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-4">
             {[
-              ["01","Escolha","Veja o cardápio."],
-              ["02","Peça","Pelo WhatsApp."],
-              ["03","Receba","Entrega ou retirada."]
+              ["01","Escolha","Selecione marmitas, saladas, sucos e complementos no cardápio."],
+              ["02","Monte o carrinho","Revise quantidades, informe o CEP e confira o frete."],
+              ["03","Finalize e receba","Envie o resumo do pedido ao WhatsApp e combine o pagamento e o recebimento com a equipe."]
             ].map(([number,title,text], index) => (
               <div key={number} className="relative flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2.5 text-center sm:block sm:rounded-3xl sm:p-7 sm:text-left">
                 <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f47b0b]/15 text-[10px] font-black text-[#f47b0b] sm:h-10 sm:w-10 sm:text-xs">{number}</div>
@@ -3232,9 +3286,9 @@ export default function Home() {
                 <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><MessageCircle className="text-[#ef8a2c]" size={18} /></div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef8a2c] sm:text-[9px] sm:tracking-[.18em]">Atendimento direto</div>
-                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Pedido pelo WhatsApp</h2>
-                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições e combine a entrega ou retirada.</p>
-                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#f47b0b]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Falar no WhatsApp <MessageCircle size={12} /></a>
+                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Finalize pelo carrinho</h2>
+                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">O site reúne os itens, quantidades, endereço e valores. Ao finalizar, abre uma mensagem pronta para você enviar à Nutrifit no WhatsApp.</p>
+                  <button type="button" onClick={() => setOrderOpen(true)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#f47b0b]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Abrir meu carrinho <ShoppingCart size={13} /></button>
                 </div>
               </div>
             </div>
@@ -3372,12 +3426,12 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div><div className="mt-1 text-[11px] leading-5 text-white/40">Taxas por região: Zona 1 R$ 5 • Zona 2 R$ 7 • Zona 3 R$ 10 • Zona 4 R$ 13. Frete grátis a partir de 20 itens.</div>
+                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
-                    {!orderFreeDelivery && (
-                      <>
+                    <>
                         <div className="mt-3 flex gap-2">
                           <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
@@ -3413,9 +3467,8 @@ export default function Home() {
                         )}
                         {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
+                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
                       </>
-                    )}
-                    {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente.</div>}
                   </div>
 
                   <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4">
@@ -3454,6 +3507,7 @@ export default function Home() {
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
+                {orderSubtotal < MIN_ORDER_VALUE && <p className="mt-2 rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/[.07] px-3 py-2 text-xs leading-5 text-[#ffd0a4]">Pedido mínimo de R$ 50,00 em produtos. Faltam {money(MIN_ORDER_VALUE - orderSubtotal)} para atingir o mínimo. O frete é calculado à parte.</p>}
                 <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
@@ -3503,7 +3557,13 @@ export default function Home() {
               <button type="button" onClick={dismissLeadPrompt} aria-label="Fechar" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-white/60"><X size={17} /></button>
               <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Clube Nutrifit</div>
               <h2 id="lead-title" className="mt-2 text-2xl font-black leading-tight">Ganhe R$ 10 de desconto na sua primeira compra! 💚</h2>
-              <p className="mt-2 text-sm leading-6 text-white/50">Entre para o Clube Nutrifit e aproveite R$ 10 de desconto no seu primeiro pedido.</p>
+              <p className="mt-2 text-sm leading-6 text-white/65">O benefício funciona assim:</p>
+              <ul className="mt-3 space-y-2 text-sm leading-5 text-white/60">
+                <li>• Válido para quem se cadastra como novo membro do Clube Nutrifit.</li>
+                <li>• R$ 10 de desconto na primeira compra, uma única vez.</li>
+                <li>• Pedido mínimo de R$ 50,00 em produtos; o frete é calculado e cobrado à parte.</li>
+                <li>• Cadastre-se com WhatsApp ou e-mail e use o mesmo contato no Clube; o desconto é conferido no servidor e aplicado automaticamente na finalização.</li>
+              </ul>
               <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
               <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
             </div>
@@ -3523,36 +3583,38 @@ export default function Home() {
               <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
             <div className="max-h-[75vh] overflow-y-auto p-5 sm:p-6">
-              <p className="text-sm leading-6 text-white/50">Cadastre seus dados para participar do Clube Nutrifit e garantir R$ 10 de desconto na primeira compra.</p>
+              <p className="text-sm leading-6 text-white/60">Informe seu nome e escolha apenas um contato: WhatsApp ou e-mail. Ele será usado para reconhecer seu cadastro e aplicar o desconto de R$ 10 na primeira compra elegível.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
                   <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
-                <label className="text-xs font-bold text-white/55">WhatsApp
-                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
-                <label className="text-xs font-bold text-white/55">E-mail
-                  <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" aria-label="E-mail do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
-                <label className="text-xs font-bold text-white/55">Data de nascimento
-                  <input type="date" value={profileBirthDate} onChange={(event) => setProfileBirthDate(event.target.value)} autoComplete="bday" aria-label="Data de nascimento" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
-                <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs leading-5 text-white/55">
-                  <input type="checkbox" checked={profileMarketing} onChange={(event) => setProfileMarketing(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#86a51d]" />
-                  Quero receber novidades e ofertas da Nutrifit.
-                </label>
+                <div>
+                  <div className="mb-2 text-xs font-bold text-white/55">Como prefere se identificar?</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" aria-pressed={profileContactMethod === "whatsapp"} onClick={() => { setProfileContactMethod("whatsapp"); setProfileStatus("idle"); }} className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${profileContactMethod === "whatsapp" ? "border-[#86a51d] bg-[#86a51d]/15 text-[#b6d76a]" : "border-white/10 bg-white/5 text-white/60"}`}>WhatsApp</button>
+                    <button type="button" aria-pressed={profileContactMethod === "email"} onClick={() => { setProfileContactMethod("email"); setProfileStatus("idle"); }} className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${profileContactMethod === "email" ? "border-[#86a51d] bg-[#86a51d]/15 text-[#b6d76a]" : "border-white/10 bg-white/5 text-white/60"}`}>E-mail</button>
+                  </div>
+                </div>
+                {profileContactMethod === "whatsapp" ? (
+                  <label className="text-xs font-bold text-white/55">WhatsApp
+                    <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" placeholder="(32) 99999-9999" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
+                  </label>
+                ) : (
+                  <label className="text-xs font-bold text-white/55">E-mail
+                    <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" inputMode="email" aria-label="E-mail do cliente" placeholder="voce@exemplo.com" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
+                  </label>
+                )}
               </div>
 
               {profileStatus === "exists" && (
                 <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
-                  Este WhatsApp já possui um cadastro na Nutrifit. Para confirmar que o número é seu e concluir a entrada no Clube sem duplicar dados, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.
-                  <a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a>
+                  {profileContactMethod === "whatsapp" ? <>Este WhatsApp já possui cadastro. Para confirmar que o número é seu e consultar a elegibilidade, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.<a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a></> : "Este e-mail já possui cadastro na Nutrifit. Use o e-mail cadastrado ao fazer seu pedido ou fale com a equipe para recuperar seu acesso."}
                 </div>
               )}
               {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
               {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm text-[#b6d76a]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
 
-              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-40">
+              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || (profileContactMethod === "whatsapp" ? profilePhone.replace(/\D/g, "").length < 10 : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail.trim()))} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-40">
                 {profileStatus === "saving" ? <><Loader2 size={17} className="animate-spin" /> Salvando...</> : "Salvar cadastro"}
               </button>
             </div>
@@ -3582,8 +3644,15 @@ export default function Home() {
 
       <section id="entrega" className="border-t border-white/10 bg-[#080a07]">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8">
-          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p><p className="mt-1 text-sm text-white/65">Informe seu CEP no pedido para consultar a cobertura e eventual taxa de entrega.</p></div>
-          <a href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Consultar entrega <ArrowRight size={14}/></a>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p>
+            <p className="mt-1 text-sm text-white/75">Taxas cadastradas por região: Zona 1 R$ 5,00 • Zona 2 R$ 7,00 • Zona 3 R$ 10,00 • Zona 4 R$ 13,00. Frete grátis a partir de 20 itens.</p>
+            <p className="mt-1 text-xs leading-5 text-white/50">Pedidos realizados até 00h: entrega no dia seguinte.</p>
+            <p className="text-xs leading-5 text-white/50">Entregas todos os dias, a partir das 11h.</p>
+            <p className="text-xs leading-5 text-white/50">Pedido mínimo: R$ 50,00 em produtos, sem incluir o frete.</p>
+            <p className="mt-2 text-xs leading-5 text-white/65">Retirada: Rua Enéas Mascarenhas, nº 94/103 • Monte Castelo • Juiz de Fora/MG.</p>
+          </div>
+          <button type="button" onClick={() => setOrderOpen(true)} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Calcular pelo CEP <ArrowRight size={14}/></button>
         </div>
       </section>
 
@@ -3629,6 +3698,7 @@ export default function Home() {
         </div>
       </section>
 
+      {!orderOpen && (
       <a
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
@@ -3647,6 +3717,7 @@ export default function Home() {
           <MessageCircle size={17} strokeWidth={2.6} />
         </span>
       </a>
+      )}
 
 
       <footer className="border-t border-white/10 bg-[#171719] text-white">

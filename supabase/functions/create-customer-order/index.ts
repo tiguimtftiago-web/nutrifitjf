@@ -23,6 +23,8 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const customerName = String(body.customer_name ?? "").trim().slice(0, 120);
     const whatsapp = String(body.whatsapp ?? "").replace(/\D/g, "").slice(0, 20);
+    const email = String(body.email ?? "").trim().toLowerCase().slice(0, 254);
+    const clubIdentityType = body.club_identity_type === "email" ? "email" : "whatsapp";
     const itemsInput = Array.isArray(body.items) ? body.items : [];
     const street = String(body.street ?? "").trim().slice(0, 180);
     const addressNumber = String(body.address_number ?? "").trim().slice(0, 30);
@@ -135,7 +137,8 @@ const catalogNameAliases: Record<string, string> = {
       subtotalCents += priceCents * item.quantity;
       pricedItems.push({ name: item.name, line: String(match.line), weight: item.weight, price: priceCents / 100, quantity: item.quantity });
     }
-    if (subtotalCents <= 0 || subtotalCents > 50000000) return reply(400, { error: "Valor do pedido inválido." });
+    if (subtotalCents < 5000) return reply(400, { error: "O pedido mínimo é de R$ 50,00 em produtos. O frete é calculado à parte." });
+    if (subtotalCents > 50000000) return reply(400, { error: "Valor do pedido inválido." });
 
     const itemCount = items.reduce((sum: number, i: {quantity:number}) => sum + i.quantity, 0);
     const cep = String(body.cep ?? "").replace(/\D/g, "").slice(0, 8);
@@ -167,6 +170,7 @@ const catalogNameAliases: Record<string, string> = {
     let discountCents = 0;
     let redeemedCoupon: string | null = null;
     let redeemClub = false;
+    let clubProfileId: string | null = null;
 
     if (discountCode) {
       const couponResp = await fetch(
@@ -187,21 +191,27 @@ const catalogNameAliases: Record<string, string> = {
       discountCents = Math.min(subtotalCents, Math.max(0, discountCents));
       redeemedCoupon = String(c.code);
     } else if (body.club_welcome_discount === true) {
+      if (clubIdentityType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+        return reply(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
+      const identityFilter = clubIdentityType === "email"
+        ? "email=eq." + encodeURIComponent(email)
+        : "whatsapp=eq." + encodeURIComponent(whatsapp);
       const profileResp = await fetch(
-        url + "/rest/v1/customer_profiles?select=nutrifit_club_member,coupon_used&whatsapp=eq." + encodeURIComponent(whatsapp) + "&limit=1",
+        url + "/rest/v1/customer_profiles?select=id,nutrifit_club_member,coupon_used&" + identityFilter + "&limit=1",
         { headers },
       );
       if (!profileResp.ok) return reply(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
       const profiles = await profileResp.json();
       const profile = profiles[0];
       if (profile?.nutrifit_club_member === true && profile?.coupon_used === false) {
-        discountCents = Math.min(500, subtotalCents);
+        discountCents = Math.min(1000, subtotalCents);
         redeemClub = true;
+        clubProfileId = String(profile.id);
       }
     }
     const totalCents = Math.max(0, subtotalCents - discountCents + deliveryCents);
     const payload = {
-      customer_name: customerName, whatsapp, email: body.email ? String(body.email).slice(0, 254) : null,
+      customer_name: customerName, whatsapp, email: email || null, customer_profile_id: clubProfileId,
       items: pricedItems, item_count: itemCount, subtotal: subtotalCents / 100,
       discount: discountCents / 100, delivery_fee: deliveryCents / 100, total: totalCents / 100,
       cep: String(body.cep ?? "").replace(/\D/g, "").slice(0, 8) || null,
@@ -240,8 +250,9 @@ const catalogNameAliases: Record<string, string> = {
       });
     }
     if (redeemClub) {
-      await fetch(url + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon", {
-        method: "POST", headers, body: JSON.stringify({ p_whatsapp: whatsapp }),
+      await fetch(url + "/rest/v1/rpc/redeem_clube_nutrifit_welcome_coupon_by_identity", {
+        method: "POST", headers,
+        body: JSON.stringify({ p_whatsapp: clubIdentityType === "whatsapp" ? whatsapp : null, p_email: clubIdentityType === "email" ? email : null }),
       });
     }
     return reply(200, {
