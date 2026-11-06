@@ -24,11 +24,11 @@ mkdir -p "$workdir/payload/database" "$workdir/payload/source"
 
 # Supabase CLI logical dumps exclude managed auth/storage schemas by design.
 # These commands are read-only against the source database.
-supabase db dump --db-url "$SUPABASE_DB_URL" -f "$workdir/payload/database/schema.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --use-copy -f "$workdir/payload/database/data.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f "$workdir/payload/database/roles.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" --schema supabase_migrations -f "$workdir/payload/database/migration-history-schema.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" --schema supabase_migrations --data-only --use-copy -f "$workdir/payload/database/migration-history-data.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" -f "$workdir/payload/database/schema.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" --data-only --use-copy -f "$workdir/payload/database/data.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" --role-only -f "$workdir/payload/database/roles.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" --schema supabase_migrations -f "$workdir/payload/database/migration-history-schema.sql"
+supabase db dump --remote="$SUPABASE_DB_URL" --schema supabase_migrations --data-only --use-copy -f "$workdir/payload/database/migration-history-data.sql"
 
 git archive --format=tar.gz --output="$workdir/payload/source/repository.tar.gz" HEAD
 
