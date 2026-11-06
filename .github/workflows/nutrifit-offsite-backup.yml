@@ -1,0 +1,62 @@
+name: Nutrifit encrypted offsite backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *" # 00:00 America/Sao_Paulo (UTC-3)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nutrifit-offsite-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    # Scheduled runs stay disabled until the user explicitly enables the repository variable.
+    # Manual runs are always available once the required secrets are configured.
+    if: github.event_name == 'workflow_dispatch' || vars.NUTRIFIT_BACKUP_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout reviewed source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install pinned backup tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes rclone gnupg
+          npm install --global supabase@3.0.0
+          aws --version
+          rclone version
+          supabase --version
+
+      - name: Configure private Drive remote
+        shell: bash
+        env:
+          RCLONE_CONFIG_B64: ${{ secrets.RCLONE_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$RCLONE_CONFIG_B64"
+          install -d -m 700 "$RUNNER_TEMP/rclone"
+          printf '%s' "$RCLONE_CONFIG_B64" | base64 --decode > "$RUNNER_TEMP/rclone/rclone.conf"
+          chmod 600 "$RUNNER_TEMP/rclone/rclone.conf"
+          echo "RCLONE_CONFIG=$RUNNER_TEMP/rclone/rclone.conf" >> "$GITHUB_ENV"
+
+      - name: Create, encrypt, upload, and verify backup
+        shell: bash
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          RCLONE_DRIVE_REMOTE: ${{ secrets.RCLONE_DRIVE_REMOTE }}
+        run: bash scripts/backup/nutrifit-backup.sh
