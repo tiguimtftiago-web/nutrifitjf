@@ -2925,6 +2925,20 @@ export default function Home() {
   </div>
 </section>
 
+      <section aria-label="Consulta de entrega por CEP" className="border-b border-white/10 bg-[#10140d]">
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center sm:px-6 md:px-8">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">🚚 Consulte a entrega</p>
+            <h2 className="mt-1 text-base font-black sm:text-lg">Veja a taxa para seu endereço antes de montar o pedido.</h2>
+            <p className="mt-1 text-xs leading-5 text-white/50">Informe o CEP. A consulta identifica o bairro e aplica a faixa de entrega cadastrada.</p>
+          </div>
+          <div className="flex min-w-0 gap-2">
+            <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
+            <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">Ver frete</button>
+          </div>
+        </div>
+      </section>
+
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
@@ -3175,8 +3189,8 @@ export default function Home() {
             {[
               ["🍱", "Porções padronizadas", "350 g • 450 g • 500 g."],
               ["🥗", "Tudo em um só lugar", "Marmitas, saladas e sucos."],
-              ["🚚", "Entrega ou retirada", "Consulte pelo CEP."],
-              ["💬", "Pedido direto", "Tudo segue organizado no WhatsApp."],
+              ["🚚", "Entrega ou retirada", "Calcule a taxa pelo CEP ou escolha retirar na Nutrifit."],
+              ["🛒", "Finalização pelo carrinho", "Adicione os produtos, confira os valores e envie o pedido completo ao WhatsApp."],
             ].map(([icon, title, text]) => (
               <div key={title} className="flex min-h-[96px] min-w-0 flex-col items-start gap-2 rounded-2xl border border-white/10 bg-white/[.025] p-3 sm:min-h-0 sm:rounded-3xl sm:p-6">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#86a51d]/10 text-xl sm:h-auto sm:w-auto sm:place-items-start sm:bg-transparent sm:text-2xl">{icon}</div>
@@ -3202,9 +3216,9 @@ export default function Home() {
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-4">
             {[
-              ["01","Escolha","Veja o cardápio."],
-              ["02","Peça","Pelo WhatsApp."],
-              ["03","Receba","Entrega ou retirada."]
+              ["01","Escolha","Selecione marmitas, saladas, sucos e complementos no cardápio."],
+              ["02","Monte o carrinho","Revise quantidades, informe o CEP e confira o frete."],
+              ["03","Finalize e receba","Envie o resumo do pedido ao WhatsApp e combine o pagamento e o recebimento com a equipe."]
             ].map(([number,title,text], index) => (
               <div key={number} className="relative flex min-w-0 flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[.03] p-2.5 text-center sm:block sm:rounded-3xl sm:p-7 sm:text-left">
                 <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f47b0b]/15 text-[10px] font-black text-[#f47b0b] sm:h-10 sm:w-10 sm:text-xs">{number}</div>
@@ -3232,9 +3246,9 @@ export default function Home() {
                 <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/10 sm:h-11 sm:w-11 sm:rounded-2xl"><MessageCircle className="text-[#ef8a2c]" size={18} /></div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[8px] font-black uppercase tracking-[.12em] text-[#ef8a2c] sm:text-[9px] sm:tracking-[.18em]">Atendimento direto</div>
-                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Pedido pelo WhatsApp</h2>
-                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">Escolha suas refeições e combine a entrega ou retirada.</p>
-                  <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "como_pedir")} className="mt-3 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#f47b0b]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Falar no WhatsApp <MessageCircle size={12} /></a>
+                  <h2 className="mt-1 text-xs font-black leading-tight sm:text-xl">Finalize pelo carrinho</h2>
+                  <p className="mt-1.5 text-[10px] leading-4 text-white/55 sm:text-sm sm:leading-6">O site reúne os itens, quantidades, endereço e valores. Ao finalizar, abre uma mensagem pronta para você enviar à Nutrifit no WhatsApp.</p>
+                  <button type="button" onClick={() => setOrderOpen(true)} className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[.06] px-3 py-2 text-[9px] font-black transition hover:border-[#f47b0b]/50 hover:bg-white/10 sm:min-h-10 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-xs">Abrir meu carrinho <ShoppingCart size={13} /></button>
                 </div>
               </div>
             </div>
@@ -3372,7 +3386,8 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/45">{orderFreeDelivery ? "Frete grátis para 20 itens ou mais." : "Consulte a taxa pelo CEP."}</div><div className="mt-1 text-[11px] leading-5 text-white/40">Taxas por região: Zona 1 R$ 5 • Zona 2 R$ 7 • Zona 3 R$ 10 • Zona 4 R$ 13. Frete grátis a partir de 20 itens.</div>
+                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/35">Prazo, dias de entrega e pedido mínimo: // PREENCHER após confirmação operacional.</div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
@@ -3582,8 +3597,15 @@ export default function Home() {
 
       <section id="entrega" className="border-t border-white/10 bg-[#080a07]">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 md:px-8">
-          <div><p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p><p className="mt-1 text-sm text-white/65">Informe seu CEP no pedido para consultar a cobertura e eventual taxa de entrega.</p></div>
-          <a href={whatsappOrder("Olá, Nutrifit! Quero confirmar a disponibilidade de entrega para meu endereço.")} onClick={() => trackClick("delivery_question_click", "delivery_section")} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Consultar entrega <ArrowRight size={14}/></a>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega e retirada</p>
+            <p className="mt-1 text-sm text-white/75">Taxas cadastradas por região: Zona 1 R$ 5,00 • Zona 2 R$ 7,00 • Zona 3 R$ 10,00 • Zona 4 R$ 13,00. Frete grátis a partir de 20 itens.</p>
+            <p className="mt-1 text-xs leading-5 text-white/50">Prazo de entrega: informação a confirmar com a equipe. // PREENCHER</p>
+            <p className="text-xs leading-5 text-white/50">Dias e horários de entrega: informação a confirmar. // PREENCHER</p>
+            <p className="text-xs leading-5 text-white/50">Pedido mínimo: informação a confirmar. // PREENCHER</p>
+            <p className="mt-2 text-xs leading-5 text-white/65">Retirada: Rua Enéas Mascarenhas, nº 94/103 • Monte Castelo • Juiz de Fora/MG.</p>
+          </div>
+          <button type="button" onClick={() => setOrderOpen(true)} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Calcular pelo CEP <ArrowRight size={14}/></button>
         </div>
       </section>
 
@@ -3629,6 +3651,7 @@ export default function Home() {
         </div>
       </section>
 
+      {!orderOpen && (
       <a
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
@@ -3647,6 +3670,7 @@ export default function Home() {
           <MessageCircle size={17} strokeWidth={2.6} />
         </span>
       </a>
+      )}
 
 
       <footer className="border-t border-white/10 bg-[#171719] text-white">
