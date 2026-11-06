@@ -3223,11 +3223,7 @@ export default function Home() {
 
       <section id="avaliacoes" className="border-t border-white/10 bg-[#080a07]">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Experiências reais</p>
-            <h2 className="mt-2 text-2xl font-black sm:text-3xl md:text-4xl">O que nossos clientes dizem</h2>
-            <p className="mt-2 text-sm leading-6 text-white/50">Estamos preparando este espaço para avaliações verificadas e compartilhadas com autorização. Nenhuma nota ou fala será publicada sem confirmação.</p>
-          </div>
+          <details className="group overflow-hidden rounded-3xl border border-white/10 bg-[#10130d]"><summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6 [&::-webkit-details-marker]:hidden"><span><span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Experiências reais</span><span className="mt-1 block text-xl font-black sm:text-2xl">O que nossos clientes dizem</span><span className="mt-1 block text-xs text-white/45">Avaliações e depoimentos autorizados</span></span><ChevronDown size={22} className="shrink-0 text-[#a8c957] transition-transform duration-200 group-open:rotate-180"/></summary><div className="border-t border-white/10 px-5 pb-5 pt-4 sm:px-6 sm:pb-6"><div className="mb-5"><p className="text-sm leading-6 text-white/50">Estamos preparando este espaço para avaliações verificadas e compartilhadas com autorização. Nenhuma nota ou fala será publicada sem confirmação.</p></div>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <article className="rounded-2xl border border-[#86a51d]/25 bg-[#11160e] p-4 sm:p-5">
               <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d]">Nota média</p>
@@ -3248,7 +3244,7 @@ export default function Home() {
                 </div>
               </article>
             ))}
-          </div>
+          </div></div></details>
         </div>
       </section>
 
@@ -3669,24 +3665,24 @@ export default function Home() {
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">Confira dicas para conservar e aquecer suas refeições. Consulte sempre as orientações da etiqueta da sua marmita e respeite a validade indicada.</p>
           </div>
           <div className="mt-7 grid gap-4 lg:grid-cols-2">
-            <article className="overflow-hidden rounded-3xl border border-white/10 bg-[#141811] p-5 sm:p-7">
-              <div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#86a51d]/15 text-2xl" aria-hidden="true">🔥</span><div><p className="text-xs font-black uppercase tracking-[.16em] text-[#a8c957]">01 • Na hora de comer</p><h3 className="text-xl font-black sm:text-2xl">Modo de preparo 🍽️</h3></div></div>
+            <details className="group overflow-hidden rounded-3xl border border-white/10 bg-[#141811]">
+              <summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-7 [&::-webkit-details-marker]:hidden"><span className="flex min-w-0 items-center gap-3"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#86a51d]/15 text-2xl" aria-hidden="true">🔥</span><span><span className="block text-xs font-black uppercase tracking-[.16em] text-[#a8c957]">01 • Na hora de comer</span><span className="mt-1 block text-xl font-black sm:text-2xl">Modo de preparo 🍽️</span></span></span><ChevronDown size={22} className="shrink-0 text-[#a8c957] transition-transform duration-200 group-open:rotate-180"/></summary><div className="border-t border-white/10 px-5 pb-5 pt-4 sm:px-7 sm:pb-7">
               <p className="mt-4 text-sm leading-6 text-white/65">Retire a refeição do congelador e siga a orientação de descongelamento e aquecimento indicada na embalagem.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/25 p-4"><img src="/images/microondas-realista.svg" alt="Forno de micro-ondas" className="h-10 w-12 object-contain" /><h4 className="mt-2 font-black">Micro-ondas</h4><p className="mt-1 text-xs leading-5 text-white/60">Use somente recipiente próprio para micro-ondas. Faça a abertura indicada na embalagem, se aplicável, e aqueça conforme as instruções do produto.</p></div>
                 <div className="rounded-2xl border border-white/10 bg-black/25 p-4"><span className="text-2xl" aria-hidden="true">♨️</span><h4 className="mt-2 font-black">Banho-maria</h4><p className="mt-1 text-xs leading-5 text-white/60">Transfira para recipiente adequado, se a embalagem não for própria para esse método, e aqueça até ficar bem quente por completo.</p></div>
               </div>
               <p className="mt-4 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-xs leading-5 text-[#ffd09e]">⏱️ O tempo de aquecimento varia conforme o peso da marmita, o equipamento e a temperatura inicial. Siga o rótulo do seu produto.</p>
-            </article>
-            <article className="overflow-hidden rounded-3xl border border-[#4b8dff]/20 bg-[#101725] p-5 sm:p-7">
-              <div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#3978ed]/15 text-2xl" aria-hidden="true">🧊</span><div><p className="text-xs font-black uppercase tracking-[.16em] text-[#8eb6ff]">02 • Para manter a qualidade</p><h3 className="text-xl font-black sm:text-2xl">Como armazenar ❄️</h3></div></div>
+            </div></details>
+            <details className="group overflow-hidden rounded-3xl border border-[#4b8dff]/20 bg-[#101725]">
+              <summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-7 [&::-webkit-details-marker]:hidden"><span className="flex min-w-0 items-center gap-3"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#3978ed]/15 text-2xl" aria-hidden="true">🧊</span><span><span className="block text-xs font-black uppercase tracking-[.16em] text-[#8eb6ff]">02 • Para manter a qualidade</span><span className="mt-1 block text-xl font-black sm:text-2xl">Como armazenar ❄️</span></span></span><ChevronDown size={22} className="shrink-0 text-[#8eb6ff] transition-transform duration-200 group-open:rotate-180"/></summary><div className="border-t border-white/10 px-5 pb-5 pt-4 sm:px-7 sm:pb-7">
               <div className="mt-5 space-y-3">
                 <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4"><span className="text-2xl" aria-hidden="true">🥶</span><div><h4 className="font-black">Mantenha congelada</h4><p className="mt-1 text-xs leading-5 text-white/65">Guarde no freezer assim que receber, mantendo a embalagem bem fechada e identificada.</p></div></div>
                 <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4"><span className="text-2xl" aria-hidden="true">🏷️</span><div><h4 className="font-black">Confira a etiqueta</h4><p className="mt-1 text-xs leading-5 text-white/65">Observe a data de fabricação, a validade e as orientações específicas do seu pedido.</p></div></div>
                 <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/[.04] p-4"><span className="text-2xl" aria-hidden="true">🚫</span><div><h4 className="font-black">Não recongele</h4><p className="mt-1 text-xs leading-5 text-white/65">Depois de descongelar, não volte a congelar a refeição.</p></div></div>
               </div>
               <p className="mt-4 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-xs leading-5 text-[#ffd09e]">⚠️ Evite deixar a marmita por tempo prolongado em temperatura ambiente. Em caso de dúvida, fale com a Nutrifit antes de consumir.</p>
-            </article>
+            </div></details>
           </div>
           <div className="mt-5 flex flex-col items-center justify-between gap-3 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.07] p-4 text-center sm:flex-row sm:px-6 sm:text-left"><p className="text-sm font-semibold text-white/80">💚 Nutrifit: praticidade para sua rotina, cuidado em cada refeição!</p><a href={whatsappOrder("Olá, Nutrifit! Tenho uma dúvida sobre o preparo ou a conservação das marmitas.")} onClick={() => trackClick("storage_guide_whatsapp", "preparo_conservacao")} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 text-xs font-black text-black transition hover:brightness-110">Falar com a equipe <MessageCircle size={16}/></a></div>
         </div>
