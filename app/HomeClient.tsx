@@ -2339,6 +2339,8 @@ export default function Home() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileContactMethod, setProfileContactMethod] = useState<"whatsapp" | "email">("whatsapp");
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "success" | "error" | "exists">("idle");
   const [clubDiscount, setClubDiscount] = useState(0);
   const [leadPromptOpen, setLeadPromptOpen] = useState(false);
@@ -2635,6 +2637,8 @@ export default function Home() {
           items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
           coupon_code: appliedCoupon?.code || null,
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
+          email: (() => { try { const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}"); return typeof saved.email === "string" ? saved.email : null; } catch { return null; } })(),
+          club_identity_type: (() => { try { const saved = JSON.parse(window.localStorage.getItem("nutrifit_profile") || "{}"); return saved.contactMethod === "email" ? "email" : "whatsapp"; } catch { return "whatsapp"; } })(),
           delivery_fee: orderDeliveryFee,
           cep: orderCep.replace(/\\D/g, "") || null,
           street: orderStreet.trim(),
@@ -2749,8 +2753,11 @@ export default function Home() {
 
   const saveProfile = async () => {
     const name = profileName.trim();
-    const phone = profilePhone.replace(/\D/g, "");
-    if (!name || phone.length < 10) return;
+    const phone = profilePhone.replace(/\\D/g, "");
+    const email = profileEmail.trim().toLowerCase();
+    const usingEmail = profileContactMethod === "email";
+    const validEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);
+    if (!name || (usingEmail ? !validEmail : phone.length < 10)) return;
 
     setProfileStatus("saving");
     try {
@@ -2763,8 +2770,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           name,
-          whatsapp: phone,
-          email: null,
+          whatsapp: usingEmail ? null : phone,
+          email: usingEmail ? email : null,
           birth_date: null,
           nutrifit_club_member: true,
           nutrifit_club_joined_at: new Date().toISOString(),
@@ -2779,7 +2786,7 @@ export default function Home() {
 
       if (response.status === 409) {
         // Não consultar nem alterar perfis existentes com a chave pública.
-        // A confirmação de posse do WhatsApp e a atualização segura ocorrem no webhook oficial.
+        // Para cadastros por WhatsApp, a confirmação continua no canal oficial.
         setProfileStatus("exists");
         return;
       }
@@ -2787,8 +2794,9 @@ export default function Home() {
 
       window.localStorage.setItem("nutrifit_profile", JSON.stringify({
         name,
-        phone,
-        email: null,
+        phone: usingEmail ? "" : phone,
+        email: usingEmail ? email : null,
+        contactMethod: profileContactMethod,
         birthDate: null,
         marketing: false,
         nutrifitClub: true,
@@ -2796,7 +2804,7 @@ export default function Home() {
       }));
       setClubDiscount(10);
       setCustomerName(name);
-      setCustomerPhone(phone);
+      if (!usingEmail) setCustomerPhone(phone);
 
       setProfileStatus("success");
       const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
@@ -3554,7 +3562,7 @@ export default function Home() {
                 <li>• Válido para quem se cadastra como novo membro do Clube Nutrifit.</li>
                 <li>• R$ 10 de desconto na primeira compra, uma única vez.</li>
                 <li>• Pedido mínimo de R$ 50,00 em produtos; o frete é calculado e cobrado à parte.</li>
-                <li>• O desconto é validado pelo WhatsApp cadastrado e aplicado automaticamente na finalização.</li>
+                <li>• Cadastre-se com WhatsApp ou e-mail e use o mesmo contato no Clube; o desconto é conferido no servidor e aplicado automaticamente na finalização.</li>
               </ul>
               <button type="button" onClick={() => { setLeadPromptOpen(false); openProfile(); }} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">🎁 Quero meus R$ 10 de desconto <ArrowRight size={17} /></button>
               <button type="button" onClick={dismissLeadPrompt} className="mt-2 w-full py-2 text-xs font-bold text-white/35">Agora não</button>
@@ -3575,26 +3583,38 @@ export default function Home() {
               <button type="button" onClick={() => setProfileOpen(false)} aria-label="Fechar minha conta" className="grid h-10 w-10 place-items-center rounded-full bg-white/5"><X size={18} /></button>
             </div>
             <div className="max-h-[75vh] overflow-y-auto p-5 sm:p-6">
-              <p className="text-sm leading-6 text-white/60">Informe seu nome e WhatsApp. O número será usado para reconhecer seu cadastro e aplicar o desconto de R$ 10 na primeira compra elegível.</p>
+              <p className="text-sm leading-6 text-white/60">Informe seu nome e escolha apenas um contato: WhatsApp ou e-mail. Ele será usado para reconhecer seu cadastro e aplicar o desconto de R$ 10 na primeira compra elegível.</p>
               <div className="mt-5 grid gap-3">
                 <label className="text-xs font-bold text-white/55">Nome completo
                   <input value={profileName} onChange={(event) => setProfileName(event.target.value)} autoComplete="name" aria-label="Nome do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
                 </label>
-                <label className="text-xs font-bold text-white/55">WhatsApp
-                  <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
-                </label>
+                <div>
+                  <div className="mb-2 text-xs font-bold text-white/55">Como prefere se identificar?</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" aria-pressed={profileContactMethod === "whatsapp"} onClick={() => { setProfileContactMethod("whatsapp"); setProfileStatus("idle"); }} className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${profileContactMethod === "whatsapp" ? "border-[#86a51d] bg-[#86a51d]/15 text-[#b6d76a]" : "border-white/10 bg-white/5 text-white/60"}`}>WhatsApp</button>
+                    <button type="button" aria-pressed={profileContactMethod === "email"} onClick={() => { setProfileContactMethod("email"); setProfileStatus("idle"); }} className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${profileContactMethod === "email" ? "border-[#86a51d] bg-[#86a51d]/15 text-[#b6d76a]" : "border-white/10 bg-white/5 text-white/60"}`}>E-mail</button>
+                  </div>
+                </div>
+                {profileContactMethod === "whatsapp" ? (
+                  <label className="text-xs font-bold text-white/55">WhatsApp
+                    <input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} inputMode="tel" autoComplete="tel" aria-label="WhatsApp do cliente" placeholder="(32) 99999-9999" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
+                  </label>
+                ) : (
+                  <label className="text-xs font-bold text-white/55">E-mail
+                    <input type="email" value={profileEmail} onChange={(event) => setProfileEmail(event.target.value)} autoComplete="email" inputMode="email" aria-label="E-mail do cliente" placeholder="voce@exemplo.com" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-sm outline-none focus:border-[#86a51d]" />
+                  </label>
+                )}
               </div>
 
               {profileStatus === "exists" && (
                 <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm leading-6 text-white/70">
-                  Este WhatsApp já possui um cadastro na Nutrifit. Para confirmar que o número é seu e consultar a elegibilidade do benefício, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.
-                  <a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a>
+                  {profileContactMethod === "whatsapp" ? <>Este WhatsApp já possui cadastro. Para confirmar que o número é seu e consultar a elegibilidade, envie <strong className="text-white">CLUBE</strong> pelo WhatsApp oficial usando este mesmo número.<a href={whatsappOrder("CLUBE")} target="_blank" rel="noreferrer" className="mt-3 flex min-h-11 items-center justify-center rounded-full bg-[#86a51d] px-4 py-3 text-center font-black text-black">Continuar pelo WhatsApp</a></> : "Este e-mail já possui cadastro na Nutrifit. Use o e-mail cadastrado ao fazer seu pedido ou fale com a equipe para recuperar seu acesso."}
                 </div>
               )}
               {profileStatus === "error" && <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não foi possível concluir o cadastro agora. Tente novamente.</div>}
               {profileStatus === "success" && <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm text-[#b6d76a]">Cadastro concluído! Você tem R$ 10 de desconto na sua primeira compra.</div>}
 
-              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || profilePhone.replace(/\D/g, "").length < 10} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-40">
+              <button type="button" onClick={() => void saveProfile()} disabled={profileStatus === "saving" || !profileName.trim() || (profileContactMethod === "whatsapp" ? profilePhone.replace(/\D/g, "").length < 10 : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileEmail.trim()))} aria-busy={profileStatus === "saving"} className="mt-5 flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-40">
                 {profileStatus === "saving" ? <><Loader2 size={17} className="animate-spin" /> Salvando...</> : "Salvar cadastro"}
               </button>
             </div>
