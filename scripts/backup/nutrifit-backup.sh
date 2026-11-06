@@ -62,6 +62,6 @@ rclone copy "$archive.sha256" "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CON
 
 AWS_DEFAULT_REGION=auto aws s3api head-object --bucket "$R2_BUCKET_NAME" --key "$object_key" \
   --endpoint-url "$endpoint" >/dev/null
-rclone ls "$RCLONE_DRIVE_REMOTE/daily/$(basename "$encrypted")" --config "$RCLONE_CONFIG" >/dev/null
+rclone ls "$RCLONE_DRIVE_REMOTE/daily" --config "$RCLONE_CONFIG" | awk -v expected="$(basename "$encrypted")" '$2 == expected { found=1 } END { exit !found }'
 
 printf 'Backup completed and verified in R2 and Google Drive: %s\n' "$(basename "$encrypted")"
