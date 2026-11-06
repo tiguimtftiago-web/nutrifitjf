@@ -30,14 +30,14 @@ Configurar estes GitHub Actions Secrets (não colocar valores no repositório ne
 - `BACKUP_PASSPHRASE`: frase-senha longa e exclusiva para criptografia GPG.
 - `R2_ACCOUNT_ID`, `R2_BUCKET_NAME`.
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`: token R2 restrito ao bucket de backup, Object Read & Write.
-- `RCLONE_CONFIG`: caminho do arquivo de configuração rclone disponibilizado no runner.
+- `RCLONE_CONFIG_B64`: arquivo de configuração rclone codificado em Base64, contendo o OAuth da conta Google dedicada.
 - `RCLONE_DRIVE_REMOTE`: destino no formato `remote:folder`.
 
 A configuração do rclone deve ser obtida em uma máquina confiável com uma conta Google dedicada à Nutrifit e guardada como secret protegido. Não compartilhar tokens OAuth ou chaves privadas em mensagens, issues ou commits.
 
 ## Execução local
 
-Instalar Supabase CLI, AWS CLI, rclone, GPG e Git. Exportar as variáveis acima e executar:
+Instalar Supabase CLI, AWS CLI, rclone, GPG e Git. Exportar as variáveis acima e executar. No GitHub Actions, o workflow `.github/workflows/nutrifit-offsite-backup.yml` instala versões fixadas das ferramentas, reconstrói o arquivo rclone a partir de `RCLONE_CONFIG_B64` e chama este script.
 
 ```bash
 bash scripts/backup/nutrifit-backup.sh
@@ -47,7 +47,7 @@ O script faz apenas leituras do banco. Gera dumps lógicos, arquiva o commit atu
 
 ## Agendamento e retenção
 
-O agendamento diário só deve ser ativado depois de:
+O workflow está preparado para execução manual e possui agendamento diário às 00:00 (horário de Brasília), mas as execuções agendadas permanecem bloqueadas até criar a variável de repositório `NUTRIFIT_BACKUP_ENABLED=true`. O agendamento só deve ser ativado depois de:
 1. Criar e testar o bucket privado no R2.
 2. Configurar o acesso Google Drive dedicado.
 3. Cadastrar os secrets no GitHub Actions.
