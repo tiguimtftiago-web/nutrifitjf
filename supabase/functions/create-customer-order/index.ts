@@ -190,7 +190,7 @@ const catalogNameAliases: Record<string, string> = {
       discountCents = Math.min(subtotalCents, Math.max(0, discountCents));
       redeemedCoupon = String(c.code);
     } else if (body.club_welcome_discount === true) {
-      if (clubIdentityType === "email" && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))
+      if (clubIdentityType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
         return reply(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
       const identityFilter = clubIdentityType === "email"
         ? "email=ilike." + encodeURIComponent(email)
