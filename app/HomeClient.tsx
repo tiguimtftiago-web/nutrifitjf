@@ -3244,7 +3244,7 @@ export default function Home() {
                 </div>
               </article>
             ))}
-          </div></details>
+          </div></div></details>
         </div>
       </section>
 
