@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 umask 077
 
-required=(SUPABASE_DB_URL BACKUP_PASSPHRASE R2_ACCOUNT_ID R2_BUCKET_NAME AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY RCLONE_DRIVE_REMOTE RCLONE_CONFIG)
+required=(SUPABASE_DB_URL SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN BACKUP_PASSPHRASE R2_ACCOUNT_ID R2_BUCKET_NAME AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY RCLONE_DRIVE_REMOTE RCLONE_CONFIG)
 for name in "${required[@]}"; do
   if [[ -z "${!name:-}" ]]; then
     printf 'Missing required environment variable: %s\n' "$name" >&2
@@ -32,11 +32,21 @@ supabase db dump --remote="$SUPABASE_DB_URL" --schema supabase_migrations --data
 
 git archive --format=tar.gz --output="$workdir/payload/source/repository.tar.gz" HEAD
 
+mkdir -p "$workdir/function-download"
+(
+  cd "$workdir/function-download"
+  SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
+    supabase functions download --project-ref "$SUPABASE_PROJECT_REF" --use-api
+)
+test -d "$workdir/function-download/supabase/functions"
+tar -czf "$workdir/payload/source/edge-functions.tar.gz" \
+  -C "$workdir/function-download" supabase/functions
+
 cat > "$workdir/payload/manifest.txt" <<EOF
 backup_timestamp_utc=$timestamp
 repository_commit=$(git rev-parse HEAD)
 supabase_project_ref=${SUPABASE_PROJECT_REF:-not-set}
-backup_format=Supabase CLI logical SQL dumps + git archive
+backup_format=Supabase CLI logical SQL dumps + git archive + downloaded Edge Functions
 managed_schemas_note=Supabase CLI excludes auth, storage, and extension-managed schemas
 EOF
 
