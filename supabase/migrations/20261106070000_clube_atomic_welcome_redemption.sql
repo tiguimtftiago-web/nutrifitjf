@@ -1,3 +1,7 @@
+-- Harden the identity-based redemption RPC introduced by the prerequisite migration.
+alter function public.redeem_clube_nutrifit_welcome_coupon_by_identity(text, text)
+  set search_path = pg_catalog, public;
+
 create or replace function public.create_customer_order_with_clube_welcome_coupon(
   p_order jsonb,
   p_profile_id uuid,
