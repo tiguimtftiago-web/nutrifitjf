@@ -170,6 +170,7 @@ const catalogNameAliases: Record<string, string> = {
     let discountCents = 0;
     let redeemedCoupon: string | null = null;
     let redeemClub = false;
+    let clubProfileId: string | null = null;
 
     if (discountCode) {
       const couponResp = await fetch(
@@ -193,10 +194,10 @@ const catalogNameAliases: Record<string, string> = {
       if (clubIdentityType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
         return reply(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
       const identityFilter = clubIdentityType === "email"
-        ? "email=ilike." + encodeURIComponent(email)
+        ? "email=eq." + encodeURIComponent(email)
         : "whatsapp=eq." + encodeURIComponent(whatsapp);
       const profileResp = await fetch(
-        url + "/rest/v1/customer_profiles?select=nutrifit_club_member,coupon_used&" + identityFilter + "&limit=1",
+        url + "/rest/v1/customer_profiles?select=id,nutrifit_club_member,coupon_used&" + identityFilter + "&limit=1",
         { headers },
       );
       if (!profileResp.ok) return reply(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
@@ -205,11 +206,12 @@ const catalogNameAliases: Record<string, string> = {
       if (profile?.nutrifit_club_member === true && profile?.coupon_used === false) {
         discountCents = Math.min(1000, subtotalCents);
         redeemClub = true;
+        clubProfileId = String(profile.id);
       }
     }
     const totalCents = Math.max(0, subtotalCents - discountCents + deliveryCents);
     const payload = {
-      customer_name: customerName, whatsapp, email: body.email ? String(body.email).slice(0, 254) : null,
+      customer_name: customerName, whatsapp, email: email || null, customer_profile_id: clubProfileId,
       items: pricedItems, item_count: itemCount, subtotal: subtotalCents / 100,
       discount: discountCents / 100, delivery_fee: deliveryCents / 100, total: totalCents / 100,
       cep: String(body.cep ?? "").replace(/\D/g, "").slice(0, 8) || null,
