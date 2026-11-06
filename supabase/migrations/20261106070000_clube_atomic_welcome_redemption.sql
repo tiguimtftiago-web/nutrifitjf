@@ -7,7 +7,7 @@ create or replace function public.create_customer_order_with_clube_welcome_coupo
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = pg_catalog, public
 as $function$
 declare
   locked_profile_id uuid;
