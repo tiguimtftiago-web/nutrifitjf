@@ -347,7 +347,7 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
   ];
   const fmt = (n: number) => n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   return (
-    <details className={`group rounded-xl border border-[#86a51d]/25 bg-black/55 ${compact ? "mt-2" : "mt-3"}`}>
+    <details className={`group rounded-xl border border-[#86a51d]/25 bg-black/30 ${compact ? "mt-2" : "mt-3"}`}>
       <summary className={`flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left transition hover:bg-white/[.04] ${compact ? "text-[10px]" : "text-xs"}`}>
         <span className="min-w-0">
           <span className="block font-black text-white">Ingredientes e perfil nutricional</span>
@@ -2985,8 +2985,8 @@ export default function Home() {
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
           <div className="relative isolate min-h-[440px] overflow-hidden bg-black sm:min-h-[590px] lg:min-h-[720px]">
             <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute inset-0 -z-20 h-full w-full object-cover object-center brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
-            <div className="absolute inset-0 -z-10 bg-black/15 lg:bg-black/35"/>
-            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/90 via-black/55 to-black/5 lg:from-black/65 lg:via-black/15 lg:to-black/90"/>
+            <div className="absolute inset-0 -z-10 bg-black/5 lg:bg-black/35"/>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/40 via-black/15 to-transparent lg:from-black/65 lg:via-black/15 lg:to-black/90"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-transparent to-black/30"/>
 
             <div className="absolute left-3 top-3 z-20 sm:left-5 sm:top-5">
@@ -3046,7 +3046,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="absolute inset-x-3 bottom-3 z-20 rounded-2xl border border-white/15 bg-black/80 p-3 shadow-[0_12px_40px_rgba(0,0,0,.6)] backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-4 lg:hidden">
+            <div className="absolute inset-x-3 bottom-3 z-20 rounded-2xl border border-white/15 bg-black/20 p-3 shadow-[0_8px_28px_rgba(0,0,0,.24)] backdrop-blur-[1px] sm:inset-x-5 sm:bottom-5 sm:p-4 lg:hidden">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-[9px] font-black uppercase tracking-[.2em] text-[#86a51d]">Suco natural</p>
@@ -3067,7 +3067,7 @@ export default function Home() {
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
                 {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
-                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/90":"border-white/30 bg-black/55"}`}>
+                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
                     <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
                 ))}
