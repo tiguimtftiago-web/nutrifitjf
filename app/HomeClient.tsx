@@ -2587,54 +2587,49 @@ export default function Home() {
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
 
-    const lines = orderItems.map((item, i) => {
+    const lines = orderItems.map((item) => {
       const itemSubtotal = item.price * item.quantity;
-      return `*${i + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(item.price)} cada\n   💵 ${money(itemSubtotal)}`;
-    }).join("\n\n");
+      return `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\\n  ${money(item.price)} / un. · *${money(itemSubtotal)}*`;
+    }).join("\n");
 
     const notesText = orderNotes.trim();
     const deliverySummary = orderFreeDelivery
-      ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
+      ? `Frete grátis · ${orderCount} itens${orderCep ? " · CEP " + orderCep : ""}`
       : orderDelivery
-        ? `🚚 *Entrega ${money(orderDeliveryFee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
-        : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
+        ? `${orderDelivery.zone || "Entrega"} · ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " · CEP " + orderCep : ""}`
+        : `Taxa a confirmar${orderCep ? " · CEP " + orderCep : ""}`;
 
     const message = [
-      "🥗 *NUTRIFIT • NOVO PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━━━",
+      "🥗 *NUTRIFIT | NOVO PEDIDO*",
+      "━━━━━━━━━━━━━━━━━━",
       "",
       "👤 *CLIENTE*",
-      `Nome: ${customerName.trim() || "A informar"}`,
-      `WhatsApp: ${customerPhone.trim() || "A informar"}`,
+      `${customerName.trim()} · ${customerPhone.trim()}`,
       "",
-      "🛒 *ITENS DO PEDIDO*",
-      "",
+      `🛒 *ITENS · ${orderCount} unidades*`,
       lines,
       "",
-      "━━━━━━━━━━━━━━━━━━━━",
+      "━━━━━━━━━━━━━━━━━━",
       "💰 *RESUMO DO PEDIDO*",
-      `📦 Quantidade: *${orderCount} item(ns)*`,
-      `Subtotal: *${money(orderSubtotal)}*`,
-      `🎁 ${discountLabel}: *-${money(orderDiscount)}*`,
-      `🚚 Frete: *${money(orderDeliveryFee)}*`,
+      `Produtos: ${money(orderSubtotal)}`,
+      `🎁 ${discountLabel}: -${money(orderDiscount)}`,
+      `🚚 Frete: ${money(orderDeliveryFee)}`,
       `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
       "",
       "📍 *ENTREGA*",
       deliverySummary,
-      `📍 Endereço: ${orderStreet.trim()}, nº ${orderNumber.trim()}`,
-      ...(orderComplement.trim() ? [`Complemento: ${orderComplement.trim()}`] : []),
-      `Bairro: ${orderNeighborhood.trim()}`,
-      `Cidade/UF: ${orderCity.trim()}/${orderState.trim()}`,
-      `CEP: ${orderCep}`,
+      `${orderStreet.trim()}, nº ${orderNumber.trim()}${orderComplement.trim() ? " · " + orderComplement.trim() : ""}`,
+      `${orderNeighborhood.trim()} · ${orderCity.trim()}/${orderState.trim()} · CEP ${orderCep}`,
       ...(orderReference.trim() ? [`Referência: ${orderReference.trim()}`] : []),
       ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
       "",
-      "💳 *PAGAMENTO VIA PIX*",
-      `Chave Pix: ${PIX_KEY}`,
-      "📲 Envie o comprovante por este WhatsApp após o pagamento.",
+      "💳 *PIX*",
+      `Chave: ${PIX_KEY}`,
+      "Após pagar, envie o comprovante por aqui.",
       "",
-      "✅ *Pedido conferido pelo cliente.*",
+      "✅ *Confira os dados e confirme o pedido.*",
     ].join("\n");
+    
     const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
     trackClick("order_started", acquisitionSource);
 
