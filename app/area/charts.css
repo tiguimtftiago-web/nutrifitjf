@@ -147,3 +147,26 @@
 .nf-goal-actions button{border:1px solid #394733;border-radius:7px;background:#182018;color:#c3df80;padding:7px 9px;font-size:9px;cursor:pointer}
 @media(max-width:390px){.nf-goals-overview{gap:5px}.nf-goals-overview>div{padding:9px 7px}.nf-goals-overview strong{font-size:16px}.nf-goal-form{padding:11px}.nf-goal-fields{gap:8px}}
 @media(prefers-reduced-motion:reduce){.nf-goal-track i{transition:none}}
+
+
+/* Visão geral conectada aos registros reais */
+.nf-dashboard-summary{margin-top:14px;min-width:0}
+.nf-dashboard-summary .nf-metric-grid{margin:0}
+.nf-dashboard-summary .nf-daily-charts{margin-top:14px}
+.nf-dashboard-summary .nf-chart-section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px}
+.nf-dashboard-summary .nf-chart-section-title h3{font-size:16px;margin:5px 0 0}
+.nf-dashboard-summary .nf-chart-section-title>span{font-size:8px;letter-spacing:.8px;color:#8c9689;text-align:right}
+.nf-dashboard-data-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.nf-dashboard-data-grid article{min-width:0;padding:12px;background:#111611;border:1px solid #293127;border-radius:10px;display:grid;gap:7px}
+.nf-dashboard-data-grid small{font-size:8px;letter-spacing:.6px;color:#8c9689}
+.nf-dashboard-data-grid strong{font-size:17px;color:#c3df80;overflow-wrap:anywhere}
+.nf-dashboard-data-grid strong i{font-size:9px;font-style:normal;color:#9da895;font-weight:500}
+.nf-dashboard-data-grid article>span{font-size:9px;color:#8c9689;line-height:1.4}
+.nf-dashboard-error{font-size:10px;line-height:1.5;color:#ffb28f;margin:10px 0 0}
+.nf-dashboard-goals{display:grid;gap:7px;margin-top:13px;padding:13px;border:1px solid #293127;border-radius:10px;background:#111611}
+.nf-dashboard-goals>b{font-size:11px;margin-bottom:2px}
+.nf-dashboard-goals>a{display:flex;justify-content:space-between;gap:10px;color:#dce4d4;text-decoration:none;font-size:10px;padding-top:8px;border-top:1px solid #293127}
+.nf-dashboard-goals>a small{color:#a4c64a}
+.nf-chart-caption{font-size:8px;letter-spacing:.8px;color:#8c9689}
+@media(max-width:900px){.nf-dashboard-data-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.nf-dashboard-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nf-dashboard-data-grid article{padding:10px}.nf-dashboard-data-grid strong{font-size:15px}.nf-dashboard-summary .nf-chart-section-title{align-items:flex-start;flex-direction:column}.nf-dashboard-summary .nf-chart-section-title>span{text-align:left}}
