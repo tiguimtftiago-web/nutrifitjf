@@ -3392,41 +3392,17 @@ export default function Home() {
                     ))}
                   </div>
 
-                  {cartSuggestions.length > 0 && (
-                    <section className="mt-6" aria-label="Sugestões para completar o pedido">
-                      <div className="mb-3">
-                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#f47b0b]">Aproveite e adicione</div>
-                        <h3 className="mt-1 text-lg font-black">Complete seu pedido</h3>
-                        <p className="mt-1 text-xs leading-5 text-white/45">Sucos, sanduíches e frutas para acompanhar suas marmitas.</p>
-                      </div>
-                      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-7 sm:px-7">
-                        {cartSuggestions.map((suggestion) => (
-                          <article key={suggestion.name} className="w-[154px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[.035]">
-                            <div className="grid h-24 place-items-center overflow-hidden bg-white/5 text-3xl">
-                              {suggestion.image ? <img src={suggestion.image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{suggestion.emoji}</span>}
-                            </div>
-                            <div className="p-3">
-                              <h4 className="line-clamp-2 min-h-10 text-xs font-bold leading-5">{suggestion.name}</h4>
-                              <div className="mt-1 text-sm font-black text-[#86a51d]">{money(suggestion.price as number)}</div>
-                              <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
-                                <Plus size={14} /> Adicionar
-                              </button>
-                            </div>
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <section className="mt-5 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.055] p-4" aria-label="Progresso para frete grátis">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-sm font-black"><Truck size={18} className="text-[#86a51d]" /> Frete grátis</div>
-                      <span className="text-xs font-black text-[#86a51d]">{Math.min(100, Math.round((orderCount / DELIVERY_FREE_FROM) * 100))}%</span>
+                  <section className="mt-5 space-y-4 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.055] p-4" aria-label="Progresso do pedido mínimo e frete grátis">
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="font-black">Pedido mínimo de R$ 50,00</span><strong className="text-xs text-[#c5df78]">{Math.min(100,Math.round(orderSubtotal / MIN_ORDER_VALUE * 100))}%</strong></div>
+                      <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#86a51d] transition-all" style={{width:Math.min(100,orderSubtotal / MIN_ORDER_VALUE * 100)+"%"}} /></div>
+                      <p className="mt-2 text-xs text-white/80">{orderSubtotal >= MIN_ORDER_VALUE ? "Pedido mínimo atingido." : `Faltam ${money(MIN_ORDER_VALUE-orderSubtotal)} para o pedido mínimo.`}</p>
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-[#86a51d] transition-all duration-300" style={{ width: Math.min(100, (orderCount / DELIVERY_FREE_FROM) * 100) + "%" }} />
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2 font-black"><Truck size={16} className="text-[#86a51d]" /> Frete grátis • 20 itens</span><strong className="text-xs text-[#c5df78]">{Math.min(100,Math.round(orderCount / DELIVERY_FREE_FROM * 100))}%</strong></div>
+                      <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#86a51d] transition-all" style={{width:Math.min(100,orderCount / DELIVERY_FREE_FROM * 100)+"%"}} /></div>
+                      <p className="mt-2 text-xs text-white/80">{orderFreeDelivery ? "Frete grátis liberado." : `Faltam ${DELIVERY_FREE_FROM-orderCount} ${DELIVERY_FREE_FROM-orderCount===1?"item":"itens"} para frete grátis.`}</p>
                     </div>
-                    <p className="mt-2 text-xs leading-5 text-white/55">{orderFreeDelivery ? "Frete grátis aplicado automaticamente ao atingir 20 itens." : `Faltam ${DELIVERY_FREE_FROM - orderCount} ${DELIVERY_FREE_FROM - orderCount === 1 ? "item" : "itens"} para atingir o frete grátis.`}</p>
                   </section>
 
                   <div className="mt-6 grid gap-3">
@@ -3490,20 +3466,48 @@ export default function Home() {
                       </>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4">
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Cupom de desconto</div>
-                    <div className="mt-1 text-xs text-white/45">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
+                                    {cartSuggestions.length > 0 && (
+                    <section className="mt-6" aria-label="Sugestões para completar o pedido">
+                      <div className="mb-3">
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#f47b0b]">Aproveite e adicione</div>
+                        <h3 className="mt-1 text-lg font-black">Complete seu pedido</h3>
+                        <p className="mt-1 text-xs leading-5 text-white/45">Sucos, sanduíches e frutas para acompanhar suas marmitas.</p>
+                      </div>
+                      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:-mx-7 sm:px-7">
+                        {cartSuggestions.map((suggestion) => (
+                          <article key={suggestion.name} className="w-[154px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[.035]">
+                            <div className="grid h-24 place-items-center overflow-hidden bg-white/5 text-3xl">
+                              {suggestion.image ? <img src={suggestion.image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{suggestion.emoji}</span>}
+                            </div>
+                            <div className="p-3">
+                              <h4 className="line-clamp-2 min-h-10 text-xs font-bold leading-5">{suggestion.name}</h4>
+                              <div className="mt-1 text-sm font-black text-[#86a51d]">{money(suggestion.price as number)}</div>
+                              <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
+                                <Plus size={14} /> Adicionar
+                              </button>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+<div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <button type="button" onClick={() => setCouponExpanded((value) => !value)} aria-expanded={couponExpanded} className="inline-flex items-center gap-2 text-sm font-bold text-white/85"><ChevronDown size={16} className={couponExpanded ? "rotate-180 transition" : "transition"} /> Tenho um cupom</button>
+                    {couponExpanded && <>
+                    <div className="mt-2 text-xs text-white/80">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
                     <div className="mt-3 flex gap-2">
                       <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm font-bold outline-none focus:border-[#86a51d] disabled:opacity-60" />
                       {appliedCoupon ? (
                         <button type="button" onClick={removeCoupon} className="shrink-0 rounded-full border border-white/10 px-4 py-3 text-xs font-black">Remover</button>
                       ) : (
-                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
+                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#86a51d] enabled:text-black disabled:opacity-35">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
                       )}
                     </div>
                     {couponMessage && <div className={"mt-2 text-xs font-bold " + (couponStatus === "error" ? "text-[#ef9b55]" : "text-[#b6d76a]")}>{couponMessage}</div>}
                     {appliedCoupon && couponDiscount > 0 && <div className="mt-2 text-xs font-black text-[#b6d76a]">Desconto aplicado: -{money(couponDiscount)}</div>}
                     {appliedCoupon && couponDiscount === 0 && <div className="mt-2 text-xs font-bold text-[#ef9b55]">O pedido ficou abaixo do mínimo deste cupom. Aumente o pedido ou remova o cupom.</div>}
+                    </>}
                   </div>
 
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
@@ -3526,7 +3530,7 @@ export default function Home() {
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
-                {orderSubtotal < MIN_ORDER_VALUE && <p className="mt-2 rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/[.07] px-3 py-2 text-xs leading-5 text-[#ffd0a4]">Pedido mínimo de R$ 50,00 em produtos. Faltam {money(MIN_ORDER_VALUE - orderSubtotal)} para atingir o mínimo. O frete é calculado à parte.</p>}
+                
                 <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
