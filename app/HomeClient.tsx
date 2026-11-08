@@ -2393,7 +2393,7 @@ export default function Home() {
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
-  const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
+  const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
   const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async (cepValue?: string) => {
@@ -2963,7 +2963,7 @@ export default function Home() {
             <p className="mt-1 text-xs leading-5 text-white/50">Informe o CEP. A consulta identifica o bairro e aplica a faixa de entrega cadastrada.</p>
           </div>
           <div className="flex min-w-0 gap-2">
-            <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
+            <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
             <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">Ver frete</button>
           </div>
         </div>
@@ -3405,6 +3405,30 @@ export default function Home() {
                     </div>
                   </section>
 
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
+                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
+                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
+                      </div>
+                      <Truck size={21} className="shrink-0 text-[#86a51d]" />
+                    </div>
+                    <>
+                        <div className="mt-3 flex gap-2">
+                          <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
+                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
+                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
+                          </button>
+                        </div>
+                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
+                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
+                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
+                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
+                      </>
+                  </div>
+
+
                   <div className="mt-6 grid gap-3">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
                     <label className="text-xs font-bold text-white/55">Nome
@@ -3417,56 +3441,27 @@ export default function Home() {
                     </label>
                   </div>
 
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
-                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
-                      </div>
-                      <Truck size={21} className="shrink-0 text-[#86a51d]" />
-                    </div>
-                    <>
-                        <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
-                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
-                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
-                          </button>
-                        </div>
-                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
-                        {orderDelivery && (
-                          <div className="mt-4 grid gap-3 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.04] p-3 sm:grid-cols-2">
-                            <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">Endereço completo para entrega</div>
-                            <label className="text-xs font-bold text-white/60">Rua / avenida
-                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Número
-                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Complemento (opcional)
-                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Bairro
-                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Cidade
-                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">UF
-                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
-                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
+
+                                          {orderDelivery && (
+                          <div className="mt-4 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.04] p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">Endereço identificado pelo CEP</div>
+                              <button type="button" onClick={() => setAddressEditing(value => !value)} className="text-xs font-black text-[#c5df78] underline underline-offset-4">{addressEditing ? "Concluir" : "Editar"}</button>
+                            </div>
+                            {!addressEditing ? <p className="mt-2 text-sm leading-6 text-white/85">{orderStreet || "Rua não informada"} • {orderNeighborhood} • {orderCity}/{orderState}</p> : <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              <label className="text-xs font-bold text-white/75">Rua / avenida<input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Bairro<input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Cidade<input value={orderCity} onChange={e => setOrderCity(e.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">UF<input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                            </div>}
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              <label className="text-xs font-bold text-white/75">Número <span className="text-[#ffb36b]">obrigatório</span><input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} required placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Complemento (opcional)<input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75 sm:col-span-2">Ponto de referência (opcional)<input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                            </div>
                           </div>
                         )}
-                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
-                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
-                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
-                      </>
-                  </div>
-
-                                    {cartSuggestions.length > 0 && (
+                  {cartSuggestions.length > 0 && (
                     <section className="mt-6" aria-label="Sugestões para completar o pedido">
                       <div className="mb-3">
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#f47b0b]">Aproveite e adicione</div>
