@@ -2382,7 +2382,7 @@ export default function Home() {
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
-  const orderFreightLabel = orderFreeDelivery ? "Grátis" : orderDelivery ? (orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)) : "A calcular";
+  const orderFreightLabel = orderFreeDelivery ? "Grátis" : orderDelivery ? money(orderDelivery.fee) : "A calcular";
   const couponDiscount = appliedCoupon && orderSubtotal >= Number(appliedCoupon.minimum_order_value || 0)
     ? (appliedCoupon.discount_type === "percent" || appliedCoupon.discount_type === "percentage")
       ? Math.min(orderSubtotal, orderSubtotal * Number(appliedCoupon.discount_value || 0) / 100)
@@ -3409,8 +3409,7 @@ export default function Home() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
-                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
+                        <div className="mt-2 space-y-1.5 text-xs leading-5 text-white/80"><p>📍 Zona 1: R$ 5,00 • Zona 2: R$ 7,00</p><p>📍 Zona 3: R$ 10,00 • Zona 4: R$ 13,00</p><p>🕛 Pedidos até 00h: entrega no dia seguinte</p><p>🕚 Todos os dias, a partir das 11h</p><p>🛒 Pedido mínimo: R$ 50,00</p></div>
                       </div>
                       <Truck size={21} className="shrink-0 text-[#86a51d]" />
                     </div>
@@ -3421,8 +3420,8 @@ export default function Home() {
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
                         </div>
-                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
-                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
+                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/75">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderFreightLabel}</strong></div>}
+                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Informe o número do endereço para finalizar. Rua, bairro, cidade e UF foram preenchidos pelo CEP.</div>}
                         {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
                         {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
                       </>
@@ -3432,11 +3431,11 @@ export default function Home() {
                   <div className="mt-6 grid gap-3">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
                     <label className="text-xs font-bold text-white/55">Nome
-                      <input value={customerName} onChange={(event) => { setCustomerName(event.target.value); setCustomerNameError(""); }} autoComplete="name" aria-label="Nome para o pedido" placeholder="Seu nome completo" aria-invalid={Boolean(customerNameError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      <input value={customerName} onChange={(event) => { setCustomerName(event.target.value); setCustomerNameError(""); }} onBlur={() => { if (!customerName.trim()) setCustomerNameError("Informe seu nome."); }} autoComplete="name" aria-label="Nome para o pedido" placeholder="Seu nome completo" aria-invalid={Boolean(customerNameError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
                       {customerNameError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerNameError}</span>}
                     </label>
                     <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => { setCustomerPhone(formatPhoneInput(event.target.value)); setCustomerPhoneError(""); }} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" placeholder="(32) 99999-9999" aria-invalid={Boolean(customerPhoneError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      <input value={customerPhone} onChange={(event) => { setCustomerPhone(formatPhoneInput(event.target.value)); setCustomerPhoneError(""); }} onBlur={() => { if (customerPhone.replace(/\D/g, "").length < 10) setCustomerPhoneError("Informe um WhatsApp válido com DDD."); }} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" placeholder="(32) 99999-9999" aria-invalid={Boolean(customerPhoneError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
                       {customerPhoneError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerPhoneError}</span>}
                     </label>
                   </div>
@@ -3526,7 +3525,7 @@ export default function Home() {
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
                 
-                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 disabled:opacity-30"><ArrowRight size={14} className="rotate-[-45deg]" /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
