@@ -525,6 +525,20 @@ type DeliveryResult = {
   neighborhood: string;
 };
 
+type SavedDelivery = {
+  cep: string;
+  street: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zone: string;
+  fee: number;
+  savedAt: number;
+};
+
+const DELIVERY_STORAGE_KEY = "nutrifit_delivery_quote_v1";
+const DELIVERY_STORAGE_TTL = 24 * 60 * 60 * 1000;
+
 const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] }> = [
   {
     zone: "Zona 1",
@@ -2379,6 +2393,29 @@ export default function Home() {
   const [orderNotes, setOrderNotes] = useState("");
   const [orderDelivery, setOrderDelivery] = useState<DeliveryResult | null>(null);
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [deliveryNotice, setDeliveryNotice] = useState("");
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(DELIVERY_STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as SavedDelivery;
+      const valid = saved && /^\d{8}$/.test(saved.cep) && Number.isFinite(saved.savedAt) &&
+        Date.now() - saved.savedAt <= DELIVERY_STORAGE_TTL &&
+        typeof saved.neighborhood === "string" && typeof saved.zone === "string" &&
+        Number.isFinite(saved.fee);
+      if (!valid) { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); return; }
+      setOrderCep(formatCepInput(saved.cep));
+      setOrderStreet(saved.street || "");
+      setOrderNeighborhood(saved.neighborhood);
+      setOrderCity(saved.city || "");
+      setOrderState(saved.state || "");
+      setOrderDelivery({ zone: saved.zone, fee: saved.fee, neighborhood: saved.neighborhood });
+      setOrderDeliveryStatus("idle");
+      setDeliveryNotice("Frete salvo para o seu pedido");
+    } catch {
+      window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
+    }
+  }, []);
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
@@ -2405,19 +2442,53 @@ export default function Home() {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
-      setOrderStreet(data.logradouro || "");
-      setOrderNeighborhood(data.bairro || "");
-      setOrderCity(data.localidade || "");
-      setOrderState(data.uf || "");
-      setAddressEditing(false);
       const result = findDelivery(data.bairro);
-      if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
-      setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
+      if (!result) throw new Error("outside-area");
+      const saved: SavedDelivery = {
+        cep: cleanCep,
+        street: data.logradouro || "",
+        neighborhood: data.bairro,
+        city: data.localidade || "",
+        state: data.uf || "",
+        zone: result.zone,
+        fee: result.fee,
+        savedAt: Date.now(),
+      };
+      window.localStorage.setItem(DELIVERY_STORAGE_KEY, JSON.stringify(saved));
+      setOrderCep(formatCepInput(cleanCep));
+      setOrderStreet(saved.street);
+      setOrderNeighborhood(saved.neighborhood);
+      setOrderCity(saved.city);
+      setOrderState(saved.state);
+      setAddressEditing(false);
+      setOrderDelivery(result);
+      setDeliveryNotice("Frete salvo para o seu pedido");
       setOrderDeliveryStatus("idle");
-    } catch {
+    } catch (error) {
       setOrderDelivery(null);
+      setDeliveryNotice(error instanceof Error && error.message === "outside-area"
+        ? "Ainda não atendemos esse endereço. Fale com nossa equipe para consultar uma alternativa."
+        : "Não conseguimos localizar esse CEP. Confira os números e tente novamente.");
+      try { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); } catch {}
       setOrderDeliveryStatus("error");
     }
+  };
+
+  const handleOrderCepChange = (raw: string) => {
+    const nextCep = formatCepInput(raw);
+    setOrderCep(nextCep);
+    setOrderDelivery(null);
+    setDeliveryNotice("");
+    setOrderDeliveryStatus("idle");
+    setOrderStreet("");
+    setOrderNumber("");
+    setOrderComplement("");
+    setOrderNeighborhood("");
+    setOrderCity("");
+    setOrderState("");
+    setOrderReference("");
+    try { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); } catch {}
+    if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep);
   };
 
   const applyCoupon = async () => {
@@ -2689,6 +2760,16 @@ export default function Home() {
       }
 
       setOrderItems([]);
+      try { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); } catch {}
+      setOrderCep("");
+      setOrderStreet("");
+      setOrderNumber("");
+      setOrderComplement("");
+      setOrderNeighborhood("");
+      setOrderCity("");
+      setOrderState("");
+      setOrderDelivery(null);
+      setDeliveryNotice("");
       setOrderOpen(false);
       const officialItems = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
         `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
@@ -2959,9 +3040,21 @@ export default function Home() {
             <p className="mt-1 text-xs leading-5 text-white/50">Informe o CEP. A consulta identifica o bairro e aplica a faixa de entrega cadastrada.</p>
           </div>
           <div className="flex min-w-0 gap-2">
-            <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
-            <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
+            <input value={orderCep} onChange={(event) => handleOrderCepChange(event.target.value)} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
+            <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
           </div>
+          {orderDelivery && orderDeliveryStatus === "idle" && (
+            <div className="sm:col-span-2 rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/[.08] px-4 py-3 text-sm">
+              <div className="font-bold text-[#c5df78]">{orderDelivery.neighborhood} • {orderDelivery.zone} • {orderFreeDelivery ? "Grátis" : money(orderDelivery.fee)}</div>
+              <div className="mt-1 text-xs text-white/80">Frete salvo para o seu pedido</div>
+            </div>
+          )}
+          {orderDeliveryStatus === "error" && (
+            <div role="alert" className="sm:col-span-2 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/[.08] px-4 py-3 text-sm text-white/90">
+              <p>{deliveryNotice || "Não foi possível consultar esse CEP."}</p>
+              <a href={whatsappOrder("Olá, Nutrifit! Meu CEP é " + orderCep + " e gostaria de consultar a possibilidade de entrega.")} className="mt-2 inline-flex items-center gap-2 font-bold text-[#f4a45d] underline underline-offset-4">Falar com a Nutrifit pelo WhatsApp <ArrowRight size={14}/></a>
+            </div>
+          )}
         </div>
       </section>
 
@@ -3411,7 +3504,7 @@ export default function Home() {
                     </div>
                     <>
                         <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
+                          <input value={orderCep} onChange={(event) => handleOrderCepChange(event.target.value)} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
                           <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
                             {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
                           </button>
