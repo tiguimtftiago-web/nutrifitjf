@@ -6,6 +6,7 @@ import WeightTracker from "./weight-tracker";
 import { DailyProgress } from "./Charts";
 import NutritionTracker from "./nutrition-tracker";
 import TrainingTracker from "./training-tracker";
+import GoalTracker from "./goal-tracker";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -184,10 +185,9 @@ function DashboardContent() {
             </section>
           </div>
 
-          <section className="nf-recommend" id="metas">
-            <div className="nf-recommend-icon"><Sparkles size={22}/></div>
-            <div><div className="nf-eyebrow">EXPERIÊNCIA NUTRIFIT</div><h3>Uma jornada construída com você.</h3><p>Quando seu perfil estiver configurado, você poderá comparar refeições do cardápio com suas preferências e objetivos, usando informações nutricionais verificadas.</p></div>
-            <a href="/marmitas-fit-juiz-de-fora" className="nf-outline-button">Explorar cardápio <ArrowRight size={15}/></a>
+          <section className="nf-panel nf-goals-panel" id="metas">
+            <div className="nf-panel-heading"><div><div className="nf-eyebrow">OBJETIVOS PESSOAIS</div><h3>Metas e desafios</h3></div><Target size={18}/></div>
+            <GoalTracker />
           </section>
 
           <footer className="nf-disclaimer">O acompanhamento é informativo e não substitui orientação de nutricionista ou médico. <span>© NUTRIFIT 360°</span></footer>
