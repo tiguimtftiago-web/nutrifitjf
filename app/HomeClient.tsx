@@ -2962,7 +2962,6 @@ export default function Home() {
             <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PLANOS</a>
             <a href="#sanduiches" className="text-sm font-black text-white/85 hover:text-white">SANDUÍCHES</a>
             <a href="#b2b" className="text-sm font-black text-white/85 hover:text-white">EMPRESAS</a>
-            <a href="/area" className="inline-flex items-center gap-1.5 rounded-full border border-[#a4c64a]/45 bg-[#a4c64a]/10 px-3 py-2 text-xs font-black tracking-wide text-[#c5e58a] transition hover:border-[#a4c64a] hover:bg-[#a4c64a]/20"><HeartPulse size={15}/> NUTRIFIT 360°</a>
           </nav>
 
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
@@ -2976,6 +2975,11 @@ export default function Home() {
               <ShoppingCart size={21} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#f47b0b] px-1 text-[9px] font-black text-white">{orderCount}</span>}
             </button>
+            <a href="/area" onClick={() => trackClick("nutrifit360_header_click", "header")} aria-label="Acesse o Nutrifit 360: treino, alimentação e evolução" title="Acesse o Nutrifit 360°" className="group relative inline-flex h-9 shrink-0 items-center gap-1.5 overflow-hidden rounded-xl border border-[#a4c64a]/70 bg-gradient-to-r from-[#a4c64a] via-[#c8ed52] to-[#f47b0b] px-2 text-[#10130d] shadow-[0_0_18px_rgba(164,198,74,.28)] transition hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(164,198,74,.48)] sm:h-11 sm:gap-2 sm:rounded-2xl sm:px-3">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[#10130d] text-[#c8ed52] sm:h-7 sm:w-7"><Dumbbell size={15} strokeWidth={2.5}/></span>
+              <span className="flex flex-col items-start leading-none"><span className="whitespace-nowrap text-[9px] font-black tracking-[.08em] sm:text-[10px]">NUTRIFIT <span className="text-[#b94b00]">360°</span></span><span className="mt-1 hidden whitespace-nowrap text-[8px] font-extrabold tracking-wide sm:block">TREINO • NUTRIÇÃO • RESULTADO</span><span className="mt-1 whitespace-nowrap text-[7px] font-extrabold tracking-wide sm:hidden">MINHA EVOLUÇÃO</span></span>
+              <ArrowRight size={13} strokeWidth={3} className="ml-0.5 shrink-0"/>
+            </a>
             <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-white/75 transition hover:bg-white/10 sm:h-11 sm:w-11"><UserRound size={20} strokeWidth={1.7} /></button>
 
             <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-label="Menu" aria-expanded={menuOpen} title="Menu" className="grid min-w-[48px] place-items-center rounded-xl px-1 py-1 text-white transition hover:bg-white/10 md:h-12 md:w-12 md:rounded-full lg:hidden">
