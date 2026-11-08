@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
+import WeightTracker from "./weight-tracker";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -78,7 +79,7 @@ function DashboardContent() {
 
           <div className="nf-section-heading">
             <div><div className="nf-eyebrow">VISÃO GERAL</div><h2>Seu panorama</h2></div>
-            <span className="nf-demo-tag">PRÉVIA COM DADOS DEMONSTRATIVOS</span>
+            <span className="nf-demo-tag">REGISTROS REAIS DE PESO DISPONÍVEIS</span>
           </div>
 
           <div className="nf-metric-grid">
@@ -114,13 +115,14 @@ function DashboardContent() {
                 <div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Minha evolução</h3></div>
                 <div className="nf-range">{ranges.map((item)=><button key={item} onClick={()=>setRange(item)} className={range===item?"selected":""}>{item}</button>)}</div>
               </div>
-              <div className="nf-empty-chart">
+              <WeightTracker />
+              <div className="nf-empty-chart" style={{display:"none"}}>
                 <div className="nf-chart-placeholder"><Activity size={24}/></div>
                 <b>Seu gráfico começa com o primeiro registro</b>
                 <span>Registre seu peso para visualizar tendências ao longo do tempo.</span>
                 <a href="#evolucao" className="nf-outline-button">Registrar primeiro peso <Plus size={15}/></a>
               </div>
-              <div className="nf-chart-legend"><span><i/> PESO REGISTRADO</span><small>PERÍODO: {range}</small></div>
+              <div className="nf-chart-legend"><span><i/> PESO REGISTRADO</span><small>HISTÓRICO PESSOAL</small></div>
             </section>
 
             <section className="nf-panel nf-quick-panel">
