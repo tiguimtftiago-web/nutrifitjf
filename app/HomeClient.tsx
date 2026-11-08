@@ -511,6 +511,13 @@ function formatCepInput(raw:string){
   return digits.length>5?digits.slice(0,5)+"-"+digits.slice(5):digits;
 }
 
+function formatPhoneInput(raw: string) {
+  const digits = raw.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits.length ? "(" + digits : "";
+  if (digits.length <= 7) return "(" + digits.slice(0, 2) + ") " + digits.slice(2);
+  return "(" + digits.slice(0, 2) + ") " + digits.slice(2, 7) + "-" + digits.slice(7);
+}
+
 type DeliveryResult = {
   zone: string;
   fee: number;
@@ -2356,6 +2363,10 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerNameError, setCustomerNameError] = useState("");
+  const [customerPhoneError, setCustomerPhoneError] = useState("");
+  const [couponExpanded, setCouponExpanded] = useState(false);
+  const [addressEditing, setAddressEditing] = useState(false);
   const [orderCep, setOrderCep] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
@@ -2371,6 +2382,7 @@ export default function Home() {
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
+  const orderFreightLabel = orderFreeDelivery ? "Grátis" : orderDelivery ? (orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)) : "A calcular";
   const couponDiscount = appliedCoupon && orderSubtotal >= Number(appliedCoupon.minimum_order_value || 0)
     ? (appliedCoupon.discount_type === "percent" || appliedCoupon.discount_type === "percentage")
       ? Math.min(orderSubtotal, orderSubtotal * Number(appliedCoupon.discount_value || 0) / 100)
@@ -2384,8 +2396,8 @@ export default function Home() {
   const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
   const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
-  const calculateOrderDelivery = async () => {
-    const cleanCep = orderCep.replace(/\D/g, "");
+  const calculateOrderDelivery = async (cepValue?: string) => {
+    const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
     if (cleanCep.length !== 8) { setOrderDelivery(null); setOrderDeliveryStatus("error"); return; }
     setOrderDeliveryStatus("loading");
     try {
@@ -2396,6 +2408,7 @@ export default function Home() {
       setOrderNeighborhood(data.bairro || "");
       setOrderCity(data.localidade || "");
       setOrderState(data.uf || "");
+      setAddressEditing(false);
       const result = findDelivery(data.bairro);
       if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
       setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
@@ -2516,7 +2529,7 @@ export default function Home() {
     ctx.fillStyle = "#ffffff";
     drawWrapped("Subtotal: " + money(orderSubtotal));
     drawWrapped(discountLabel + ": -" + money(orderDiscount));
-    drawWrapped("Frete: " + (orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)));
+    drawWrapped("Frete: " + orderFreightLabel);
     ctx.fillStyle = "#173d20";
     ctx.fillRect(48, y - 4, 984, 90);
     ctx.fillStyle = "#baf58b";
@@ -2566,6 +2579,9 @@ export default function Home() {
   };
 
   const sendFullOrder = async () => {
+    if (!customerName.trim()) { setCustomerNameError("Informe seu nome para continuar."); return; }
+    if (orderPhoneDigits.length < 10) { setCustomerPhoneError("Informe um WhatsApp válido com DDD."); return; }
+    setCustomerNameError(""); setCustomerPhoneError("");
     if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
@@ -2876,7 +2892,7 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
 
-            <a href="#cardapio" className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-[#f47b0b] px-2.5 py-2 text-[10px] font-black text-black transition hover:brightness-110 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs">Fazer pedido <ArrowRight size={13} /></a>
+            
 
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid h-9 w-8 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/10 sm:h-11 sm:w-11">
               <ShoppingCart size={21} strokeWidth={1.7} />
@@ -2923,8 +2939,8 @@ export default function Home() {
           <div className="max-w-xl px-5 py-9 sm:px-7 sm:py-10 md:px-14">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ff5a00]">{slide.eyebrow}</div>
             <h1 className="mt-3 text-[2rem] font-black leading-[1.05] text-[#ff5a00] sm:text-4xl md:text-5xl">{slide.title}</h1>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
-            <span className="mt-6 inline-flex rounded-full bg-[#86a51d] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
+            <div className="mt-4 max-w-lg rounded-xl bg-gradient-to-r from-black/85 via-black/65 to-transparent px-3 py-2"><p className="text-sm leading-6 text-white md:text-base">{slide.text}</p></div>
+            <span className={`mt-6 inline-flex rounded-full px-6 py-3.5 font-black transition ${index === 0 ? "bg-[#f47b0b] text-black" : "border border-white/75 bg-black/20 text-white"}`}>{index === 0 ? "Montar meu pedido" : index === 1 ? "Ver cardápio FIT" : slide.cta} <ArrowRight className="ml-2" size={18} /></span>
           </div>
         </a>
       </div>
@@ -3416,10 +3432,12 @@ export default function Home() {
                   <div className="mt-6 grid gap-3">
                     <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
                     <label className="text-xs font-bold text-white/55">Nome
-                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      <input value={customerName} onChange={(event) => { setCustomerName(event.target.value); setCustomerNameError(""); }} autoComplete="name" aria-label="Nome para o pedido" placeholder="Seu nome completo" aria-invalid={Boolean(customerNameError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      {customerNameError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerNameError}</span>}
                     </label>
                     <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      <input value={customerPhone} onChange={(event) => { setCustomerPhone(formatPhoneInput(event.target.value)); setCustomerPhoneError(""); }} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" placeholder="(32) 99999-9999" aria-invalid={Boolean(customerPhoneError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      {customerPhoneError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerPhoneError}</span>}
                     </label>
                   </div>
 
@@ -3503,7 +3521,7 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
-                  <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
+                  <span className="text-white/70">Frete</span><strong className="text-right">{orderFreightLabel}</strong>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
@@ -3704,7 +3722,7 @@ export default function Home() {
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
         aria-label="Abrir Assistente Nutrifit"
-        className="group fixed bottom-4 right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
+        className="group fixed bottom-5 right-2 z-[90] flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
       >
         <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/80 bg-black sm:grid sm:h-11 sm:w-11">
           <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
