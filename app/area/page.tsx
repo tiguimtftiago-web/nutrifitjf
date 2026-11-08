@@ -5,6 +5,7 @@ import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
 import { DailyProgress } from "./Charts";
 import NutritionTracker from "./nutrition-tracker";
+import TrainingTracker from "./training-tracker";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -175,8 +176,7 @@ function DashboardContent() {
           <div className="nf-bottom-grid">
             <section className="nf-panel" id="treino">
               <div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treinamento</h3></div><Dumbbell size={18}/></div>
-              <div className="nf-feature-empty"><span className="nf-feature-icon green"><Activity size={22}/></span><div><b>Seu próximo treino começa aqui</b><p>Registre exercícios, séries, repetições e cargas para acompanhar seu desempenho.</p></div></div>
-              <a className="nf-text-link" href="#treino">Conhecer área de treino <ArrowRight size={14}/></a>
+              <TrainingTracker />
             </section>
             <section className="nf-panel" id="alimentacao">
               <div className="nf-panel-heading"><div><div className="nf-eyebrow">NUTRIÇÃO</div><h3>Alimentação</h3></div><Leaf size={18}/></div>
