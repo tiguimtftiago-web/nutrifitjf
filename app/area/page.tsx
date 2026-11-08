@@ -189,4 +189,4 @@ function DashboardContent() {
 
 export default function AreaNutrifitPage() {
   return <AreaAuthGate><DashboardContent /></AreaAuthGate>;
-}\n
+}
