@@ -19,7 +19,8 @@ function Ring({value,max,label,color,unit}:{value:number;max:number;label:string
  const radius=42,circumference=2*Math.PI*radius,progress=max>0?Math.min(value/max,1):0;
  return <div className="nf-home-ring"><svg viewBox="0 0 100 100" role="img" aria-label={`${label}: ${fmt(value)} de ${fmt(max)} ${unit}`}><circle className="track" cx="50" cy="50" r={radius}/><circle className="value" cx="50" cy="50" r={radius} stroke={color} strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress)}/></svg><div className="nf-home-ring-copy"><strong>{fmt(value)}</strong><small>{unit}</small></div><b>{label}</b></div>;
 }
-export default function DashboardSummary(){
+type DashboardSummaryProps={onNavigate:(tab:"treino"|"nutricao"|"evolucao"|"metas")=>void};
+export default function DashboardSummary({onNavigate}:DashboardSummaryProps){
  const [data,setData]=useState<Data>(initial);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
  useEffect(()=>{let live=true;async function load(){try{
   const raw=localStorage.getItem(sessionKey);const session=raw?JSON.parse(raw) as {access_token?:string}:null;
@@ -42,14 +43,14 @@ export default function DashboardSummary(){
     <Ring value={data.workouts} max={5} label="Treinos" unit="sessões" color="#78afd0"/>
    </div>
    <div className="nf-home-stats">
-    <article><span><Scale size={15}/> PESO ATUAL</span><strong>{loading?"…":data.weight===null?"—":fmt(data.weight)} <small>kg</small></strong><a href="#evolucao">Ver evolução</a></article>
-    <article><span><Dumbbell size={15}/> TEMPO ATIVO</span><strong>{loading?"…":fmt(data.minutes)} <small>min</small></strong><a href="#treino">Ver treinos</a></article>
-    <article><span><Utensils size={15}/> REFEIÇÕES HOJE</span><strong>{loading?"…":data.meals}</strong><a href="#alimentacao">Abrir nutrição</a></article>
-    <article><span><Target size={15}/> METAS ATIVAS</span><strong>{loading?"…":data.activeGoals.length}</strong><a href="#metas">Acompanhar metas</a></article>
+    <article><span><Scale size={15}/> PESO ATUAL</span><strong>{loading?"…":data.weight===null?"—":fmt(data.weight)} <small>kg</small></strong><button type="button" onClick={()=>onNavigate("evolucao")}>Ver evolução</button></article>
+    <article><span><Dumbbell size={15}/> TEMPO ATIVO</span><strong>{loading?"…":fmt(data.minutes)} <small>min</small></strong><button type="button" onClick={()=>onNavigate("treino")}>Ver treinos</button></article>
+    <article><span><Utensils size={15}/> REFEIÇÕES HOJE</span><strong>{loading?"…":data.meals}</strong><button type="button" onClick={()=>onNavigate("nutricao")}>Abrir nutrição</button></article>
+    <article><span><Target size={15}/> METAS ATIVAS</span><strong>{loading?"…":data.activeGoals.length}</strong><button type="button" onClick={()=>onNavigate("metas")}>Acompanhar metas</button></article>
    </div>
    <div className="nf-home-macros"><div><span>Carboidratos</span><b>{loading?"…":fmt(data.carbs)} g</b></div><div><span>Proteínas</span><b>{loading?"…":fmt(data.protein)} g</b></div><div><span>Gorduras</span><b>{loading?"…":fmt(data.fat)} g</b></div></div>
    {error&&<p className="nf-dashboard-error" role="status">{error}</p>}
   </section>
-  {data.activeGoals.length>0&&<section className="nf-dashboard-goals"><b>Metas em andamento</b>{data.activeGoals.slice(0,2).map(goal=><a href="#metas" key={goal.id}><span>{goal.title}</span><small>{goal.goal_type==="weight"?"Peso":goal.goal_type==="workouts"?"Treinos":"Personalizada"}</small></a>)}</section>}
+  {data.activeGoals.length>0&&<section className="nf-dashboard-goals"><b>Metas em andamento</b>{data.activeGoals.slice(0,2).map(goal=><button type="button" onClick={()=>onNavigate("metas")} key={goal.id}><span>{goal.title}</span><small>{goal.goal_type==="weight"?"Peso":goal.goal_type==="workouts"?"Treinos":"Personalizada"}</small></button>)}</section>}
  </div>;
 }
