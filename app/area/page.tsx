@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
+import { DailyProgress } from "./Charts";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -142,6 +143,8 @@ function DashboardContent() {
               <a href="#metas">Criar minha meta <ArrowRight size={13}/></a>
             </article>
           </div>
+
+          <DailyProgress onMeal={() => document.getElementById("alimentacao")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
 
           <div className="nf-main-grid">
             <section className="nf-panel nf-chart-panel" id="evolucao">
