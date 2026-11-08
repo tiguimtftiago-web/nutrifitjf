@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
-import { DailyProgress } from "./Charts";
+import DashboardSummary from "./dashboard-summary";
 import NutritionTracker from "./nutrition-tracker";
 import TrainingTracker from "./training-tracker";
 import GoalTracker from "./goal-tracker";
@@ -14,52 +13,7 @@ import {
   Watch, Zap,
 } from "lucide-react";
 
-const ranges = ["7D", "30D", "90D"] as const;
-type Range = (typeof ranges)[number];
-
-const chartSets: Record<Range, string> = {
-  "7D": "M8 96 C28 92 35 76 55 79 S88 70 108 73 S140 52 160 58 S190 47 210 50 S245 31 272 36",
-  "30D": "M8 92 C30 88 36 80 55 83 S82 65 103 72 S130 57 151 61 S180 44 201 50 S235 31 272 35",
-  "90D": "M8 90 C30 88 35 75 55 79 S85 82 105 67 S130 73 151 56 S181 61 201 45 S235 49 272 30",
-};
-
 function DashboardContent() {
-  const [range, setRange] = useState<Range>("30D");
-  const [currentWeight, setCurrentWeight] = useState<number | null>(null);
-  const [weightSummaryLoading, setWeightSummaryLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    async function loadCurrentWeight() {
-      try {
-        const raw = localStorage.getItem("nutrifit360.session");
-        const stored = raw ? JSON.parse(raw) as { access_token?: string } : null;
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-        if (!stored?.access_token || !supabaseUrl || !supabaseKey) return;
-        const response = await fetch(
-          `${supabaseUrl}/rest/v1/nutrifit360_weight_entries?select=weight_kg,measured_at&order=measured_at.desc,created_at.desc&limit=1`,
-          {
-            cache: "no-store",
-            headers: {
-              apikey: supabaseKey,
-              Authorization: `Bearer ${stored.access_token}`,
-            },
-          }
-        );
-        if (!response.ok) return;
-        const rows = await response.json() as Array<{ weight_kg: number }>;
-        if (active) setCurrentWeight(rows.length ? Number(rows[0].weight_kg) : null);
-      } catch {
-        // O painel continua disponível mesmo se o resumo não puder ser carregado.
-      } finally {
-        if (active) setWeightSummaryLoading(false);
-      }
-    }
-    void loadCurrentWeight();
-    return () => { active = false; };
-  }, []);
-
   return (
     <main className="nf-shell">
       <div className="nf-glow nf-glow-one" />
@@ -120,40 +74,13 @@ function DashboardContent() {
             <span className="nf-demo-tag">REGISTROS REAIS DE PESO DISPONÍVEIS</span>
           </div>
 
-          <div className="nf-metric-grid">
-            <article className="nf-metric-card">
-              <div className="nf-metric-top"><span>PESO ATUAL</span><Scale size={17}/></div>
-              <strong>{weightSummaryLoading ? "…" : currentWeight !== null ? currentWeight.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : "—"} <small>kg</small></strong>
-              <p>{weightSummaryLoading ? "Carregando sua última pesagem" : currentWeight !== null ? "Última pesagem registrada" : "Adicione seu primeiro registro"}</p>
-              <a href="#evolucao">Registrar peso <ArrowRight size={13}/></a>
-            </article>
-            <article className="nf-metric-card">
-              <div className="nf-metric-top"><span>TREINOS</span><Dumbbell size={17}/></div>
-              <strong>— <small>sessões</small></strong>
-              <p>Seu histórico começa aqui</p>
-              <a href="#treino">Registrar treino <ArrowRight size={13}/></a>
-            </article>
-            <article className="nf-metric-card">
-              <div className="nf-metric-top"><span>ALIMENTAÇÃO</span><Utensils size={17}/></div>
-              <strong>— <small>refeições</small></strong>
-              <p>Registre o que você consumiu</p>
-              <a href="#alimentacao">Abrir diário <ArrowRight size={13}/></a>
-            </article>
-            <article className="nf-metric-card accent-card">
-              <div className="nf-metric-top"><span>MINHA META</span><Target size={17}/></div>
-              <strong>Vamos <small>começar?</small></strong>
-              <p>Defina um objetivo para acompanhar</p>
-              <a href="#metas">Criar minha meta <ArrowRight size={13}/></a>
-            </article>
-          </div>
-
-          <DailyProgress onMeal={() => document.getElementById("alimentacao")?.scrollIntoView({ behavior: "smooth", block: "start" })} />
+          <DashboardSummary />
 
           <div className="nf-main-grid">
             <section className="nf-panel nf-chart-panel" id="evolucao">
               <div className="nf-panel-heading">
                 <div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Minha evolução</h3></div>
-                <div className="nf-range">{ranges.map((item)=><button key={item} onClick={()=>setRange(item)} className={range===item?"selected":""}>{item}</button>)}</div>
+                <span className="nf-chart-caption">PESAGENS REGISTRADAS</span>
               </div>
               <WeightTracker />
               <div className="nf-empty-chart" style={{display:"none"}}>
