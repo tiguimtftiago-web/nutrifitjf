@@ -2596,7 +2596,7 @@ export default function Home() {
     const deliverySummary = orderFreeDelivery
       ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
-        ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
+        ? `🚚 *Entrega ${money(orderDeliveryFee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
 
     const message = [
