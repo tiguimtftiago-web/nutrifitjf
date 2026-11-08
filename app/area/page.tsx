@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
 import {
@@ -21,6 +21,40 @@ const chartSets: Record<Range, string> = {
 
 function DashboardContent() {
   const [range, setRange] = useState<Range>("30D");
+  const [currentWeight, setCurrentWeight] = useState<number | null>(null);
+  const [weightSummaryLoading, setWeightSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadCurrentWeight() {
+      try {
+        const raw = localStorage.getItem("nutrifit360.session");
+        const stored = raw ? JSON.parse(raw) as { access_token?: string } : null;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        if (!stored?.access_token || !supabaseUrl || !supabaseKey) return;
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/nutrifit360_weight_entries?select=weight_kg,measured_at&order=measured_at.desc,created_at.desc&limit=1`,
+          {
+            cache: "no-store",
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${stored.access_token}`,
+            },
+          }
+        );
+        if (!response.ok) return;
+        const rows = await response.json() as Array<{ weight_kg: number }>;
+        if (active) setCurrentWeight(rows.length ? Number(rows[0].weight_kg) : null);
+      } catch {
+        // O painel continua disponível mesmo se o resumo não puder ser carregado.
+      } finally {
+        if (active) setWeightSummaryLoading(false);
+      }
+    }
+    void loadCurrentWeight();
+    return () => { active = false; };
+  }, []);
 
   return (
     <main className="nf-shell">
@@ -85,8 +119,8 @@ function DashboardContent() {
           <div className="nf-metric-grid">
             <article className="nf-metric-card">
               <div className="nf-metric-top"><span>PESO ATUAL</span><Scale size={17}/></div>
-              <strong>— <small>kg</small></strong>
-              <p>Adicione seu primeiro registro</p>
+              <strong>{weightSummaryLoading ? "…" : currentWeight !== null ? currentWeight.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : "—"} <small>kg</small></strong>
+              <p>{weightSummaryLoading ? "Carregando sua última pesagem" : currentWeight !== null ? "Última pesagem registrada" : "Adicione seu primeiro registro"}</p>
               <a href="#evolucao">Registrar peso <ArrowRight size={13}/></a>
             </article>
             <article className="nf-metric-card">
