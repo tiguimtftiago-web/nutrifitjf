@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
 import { DailyProgress } from "./Charts";
+import NutritionTracker from "./nutrition-tracker";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -179,8 +180,7 @@ function DashboardContent() {
             </section>
             <section className="nf-panel" id="alimentacao">
               <div className="nf-panel-heading"><div><div className="nf-eyebrow">NUTRIÇÃO</div><h3>Alimentação</h3></div><Leaf size={18}/></div>
-              <div className="nf-feature-empty"><span className="nf-feature-icon orange"><Salad size={22}/></span><div><b>Entenda o que vai ao seu prato</b><p>Registre refeições e acompanhe proteínas, carboidratos e gorduras.</p></div></div>
-              <a className="nf-text-link" href="#alimentacao">Abrir diário alimentar <ArrowRight size={14}/></a>
+              <NutritionTracker />
             </section>
           </div>
 
