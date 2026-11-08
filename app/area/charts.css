@@ -25,3 +25,39 @@
 @media(min-width:720px){.nf-daily-charts{grid-template-columns:1.1fr .9fr}.nf-ring-grid{align-content:start}}
 @media(max-width:390px){.nf-ring-grid{gap:6px}.nf-chart-ring{padding:11px 4px 9px}.nf-chart-ring svg{width:58px;height:58px}.nf-ring-copy{margin-top:-42px;min-height:42px}.nf-ring-copy strong{font-size:13px}.nf-ring-copy span,.nf-ring-copy small{font-size:7px}.nf-chart-section-title>span{font-size:7px}}
 @media(prefers-reduced-motion:reduce){.nf-ring-value,.nf-progress-track span{transition:none}}
+
+.nf-nutrition-tracker{margin-top:15px;min-width:0}
+.nf-nutrition-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px}
+.nf-nutrition-head h4{font-size:14px;margin:5px 0 0;color:var(--nf-text,#f4f5ef)}
+.nf-nutrition-head>span,.nf-nutrition-head button{font-size:10px;color:var(--nf-muted,#8c9689)}
+.nf-nutrition-head button{background:transparent;border:0;text-decoration:underline;cursor:pointer}
+.nf-macro-layout{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:center;padding:14px;border:1px solid var(--nf-border,#293127);border-radius:13px;background:var(--nf-surface,#111611)}
+.nf-macro-chart{width:132px;height:132px;position:relative}
+.nf-macro-chart svg{width:100%;height:100%;transform:rotate(-90deg)}
+.nf-macro-track,.nf-macro-segment{fill:none;stroke-width:10}
+.nf-macro-track{stroke:#30382c}
+.nf-macro-segment{stroke-linecap:butt}
+.nf-macro-segment.carbs,.nf-macro-legend i.carbs{stroke:#a4c64a;background:#a4c64a}
+.nf-macro-segment.protein,.nf-macro-legend i.protein{stroke:#f28a22;background:#f28a22}
+.nf-macro-segment.fat,.nf-macro-legend i.fat{stroke:#8b9fd1;background:#8b9fd1}
+.nf-macro-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.nf-macro-center strong{font-size:20px}.nf-macro-center small{font-size:9px;color:var(--nf-muted,#8c9689)}
+.nf-macro-legend{display:grid;gap:12px;min-width:0}
+.nf-macro-legend>div{display:grid;grid-template-columns:9px minmax(0,1fr) auto;gap:7px;align-items:center;font-size:10px}
+.nf-macro-legend i{width:8px;height:8px;border-radius:50%}
+.nf-macro-legend span{color:var(--nf-muted,#8c9689)}.nf-macro-legend b{font-size:10px}
+.nf-nutrition-empty,.nf-nutrition-empty{font-size:10px;line-height:1.5;color:var(--nf-muted,#8c9689);margin:10px 0}
+.nf-meal-form{margin-top:15px;padding:14px;border:1px solid var(--nf-border,#293127);border-radius:13px;background:var(--nf-surface,#111611);display:grid;gap:11px;min-width:0}
+.nf-meal-form label{display:grid;gap:6px;min-width:0;font-size:10px;color:#aab5a2}
+.nf-meal-form input,.nf-meal-form select{box-sizing:border-box;width:100%;max-width:100%;min-width:0;height:40px;padding:0 10px;border-radius:8px;border:1px solid #303a2e;background:#090e09;color:#f4f5ef;font:inherit;font-size:16px}
+.nf-meal-form input:focus-visible,.nf-meal-form select:focus-visible{outline:2px solid #a4c64a;outline-offset:2px}
+.nf-meal-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nf-meal-macros{grid-template-columns:repeat(2,minmax(0,1fr))}
+.nf-meal-form .nf-chart-action{width:100%;min-height:42px}
+.nf-chart-action:disabled{opacity:.65;cursor:wait}
+.nf-meal-error{font-size:11px;color:#ff9b83;margin:0}
+.nf-meal-history{margin-top:16px}
+.nf-meal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;padding:12px 0;border-bottom:1px solid #293127;align-items:center}
+.nf-meal-row>div{display:grid;gap:4px;min-width:0}.nf-meal-row b{font-size:11px;overflow-wrap:anywhere}.nf-meal-row small,.nf-meal-row p{font-size:9px;color:var(--nf-muted,#8c9689);margin:0}.nf-meal-row>strong{font-size:10px;color:#c4df83}.nf-meal-row p{grid-column:1/-1}
+@media(max-width:390px){.nf-macro-layout{grid-template-columns:112px minmax(0,1fr);gap:10px;padding:10px}.nf-macro-chart{width:112px;height:112px}.nf-macro-center strong{font-size:17px}.nf-macro-legend{gap:9px}.nf-macro-legend>div{font-size:9px;gap:5px}.nf-meal-form{padding:11px}.nf-meal-fields{gap:8px}}
+@media(prefers-reduced-motion:reduce){.nf-macro-segment{transition:none}}
