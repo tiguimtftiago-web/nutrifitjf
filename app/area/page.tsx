@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AreaAuthGate from "./area-auth-gate";
 import {
   Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
   ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
@@ -17,7 +18,7 @@ const chartSets: Record<Range, string> = {
   "90D": "M8 90 C30 88 35 75 55 79 S85 82 105 67 S130 73 151 56 S181 61 201 45 S235 49 272 30",
 };
 
-export default function AreaNutrifitPage() {
+function DashboardContent() {
   const [range, setRange] = useState<Range>("30D");
 
   return (
@@ -185,3 +186,5 @@ export default function AreaNutrifitPage() {
     </main>
   );
 }
+
+export default function AreaNutrifitPage() {\n  return <AreaAuthGate><DashboardContent /></AreaAuthGate>;\n}\n
