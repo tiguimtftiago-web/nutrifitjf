@@ -185,3 +185,15 @@ html[data-theme="light"] video {
   filter: none;
 }
 
+
+
+/* Contraste acessível para textos auxiliares e campos do checkout no tema escuro. */
+[class*="text-white/"] {
+  color: #c0c2bb;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b7bcb0;
+  opacity: 1;
+}

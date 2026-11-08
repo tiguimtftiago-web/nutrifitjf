@@ -511,6 +511,14 @@ function formatCepInput(raw:string){
   return digits.length>5?digits.slice(0,5)+"-"+digits.slice(5):digits;
 }
 
+function formatPhoneInput(raw: string) {
+  const digits = raw.replace(/\D/g, "").slice(0, 11);
+  if (digits.length <= 2) return digits.length ? "(" + digits : "";
+  if (digits.length <= 6) return "(" + digits.slice(0, 2) + ") " + digits.slice(2);
+  if (digits.length <= 10) return "(" + digits.slice(0, 2) + ") " + digits.slice(2, 6) + "-" + digits.slice(6);
+  return "(" + digits.slice(0, 2) + ") " + digits.slice(2, 7) + "-" + digits.slice(7);
+}
+
 type DeliveryResult = {
   zone: string;
   fee: number;
@@ -2356,6 +2364,10 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerNameError, setCustomerNameError] = useState("");
+  const [customerPhoneError, setCustomerPhoneError] = useState("");
+  const [couponExpanded, setCouponExpanded] = useState(false);
+  const [addressEditing, setAddressEditing] = useState(false);
   const [orderCep, setOrderCep] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
@@ -2371,6 +2383,7 @@ export default function Home() {
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
   const orderDeliveryFee = orderFreeDelivery ? 0 : (orderDelivery?.fee ?? 0);
+  const orderFreightLabel = orderFreeDelivery ? "Grátis" : orderDelivery ? money(orderDelivery.fee) : "A calcular";
   const couponDiscount = appliedCoupon && orderSubtotal >= Number(appliedCoupon.minimum_order_value || 0)
     ? (appliedCoupon.discount_type === "percent" || appliedCoupon.discount_type === "percentage")
       ? Math.min(orderSubtotal, orderSubtotal * Number(appliedCoupon.discount_value || 0) / 100)
@@ -2381,11 +2394,11 @@ export default function Home() {
   const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
-  const orderDeliveryReady = Boolean(orderDelivery && orderStreet.trim() && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
+  const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
   const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
-  const calculateOrderDelivery = async () => {
-    const cleanCep = orderCep.replace(/\D/g, "");
+  const calculateOrderDelivery = async (cepValue?: string) => {
+    const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
     if (cleanCep.length !== 8) { setOrderDelivery(null); setOrderDeliveryStatus("error"); return; }
     setOrderDeliveryStatus("loading");
     try {
@@ -2396,6 +2409,7 @@ export default function Home() {
       setOrderNeighborhood(data.bairro || "");
       setOrderCity(data.localidade || "");
       setOrderState(data.uf || "");
+      setAddressEditing(false);
       const result = findDelivery(data.bairro);
       if (!result && orderCount < DELIVERY_FREE_FROM) throw new Error("bairro");
       setOrderDelivery(result || { zone: "Frete grátis", fee: 0, neighborhood: data.bairro });
@@ -2516,7 +2530,7 @@ export default function Home() {
     ctx.fillStyle = "#ffffff";
     drawWrapped("Subtotal: " + money(orderSubtotal));
     drawWrapped(discountLabel + ": -" + money(orderDiscount));
-    drawWrapped("Frete: " + (orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)));
+    drawWrapped("Frete: " + orderFreightLabel);
     ctx.fillStyle = "#173d20";
     ctx.fillRect(48, y - 4, 984, 90);
     ctx.fillStyle = "#baf58b";
@@ -2566,6 +2580,9 @@ export default function Home() {
   };
 
   const sendFullOrder = async () => {
+    if (!customerName.trim()) { setCustomerNameError("Informe seu nome para continuar."); return; }
+    if (orderPhoneDigits.length < 10) { setCustomerPhoneError("Informe um WhatsApp válido com DDD."); return; }
+    setCustomerNameError(""); setCustomerPhoneError("");
     if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
@@ -2579,7 +2596,7 @@ export default function Home() {
     const deliverySummary = orderFreeDelivery
       ? `🚚 *Entrega grátis* — pedido com ${orderCount} itens${orderCep ? " • CEP " + orderCep : ""}`
       : orderDelivery
-        ? `🚚 *${orderDelivery.fee === 0 ? "Entrega grátis" : "Entrega " + money(orderDelivery.fee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
+        ? `🚚 *Entrega ${money(orderDeliveryFee)}* — ${orderDelivery.neighborhood || "bairro identificado"}${orderCep ? " • CEP " + orderCep : ""}`
         : "🚚 Taxa de entrega a confirmar pelo WhatsApp";
 
     const message = [
@@ -2876,7 +2893,7 @@ export default function Home() {
               <span>O que você procura?</span><Search size={24} />
             </button>
 
-            <a href="#cardapio" className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full bg-[#f47b0b] px-2.5 py-2 text-[10px] font-black text-black transition hover:brightness-110 sm:min-h-11 sm:gap-2 sm:px-4 sm:py-3 sm:text-xs">Fazer pedido <ArrowRight size={13} /></a>
+            
 
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid h-9 w-8 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/10 sm:h-11 sm:w-11">
               <ShoppingCart size={21} strokeWidth={1.7} />
@@ -2923,8 +2940,8 @@ export default function Home() {
           <div className="max-w-xl px-5 py-9 sm:px-7 sm:py-10 md:px-14">
             <div className="text-xs font-black uppercase tracking-[.2em] text-[#ff5a00]">{slide.eyebrow}</div>
             <h1 className="mt-3 text-[2rem] font-black leading-[1.05] text-[#ff5a00] sm:text-4xl md:text-5xl">{slide.title}</h1>
-            <p className="mt-4 max-w-lg text-sm leading-6 text-white/75 md:text-base">{slide.text}</p>
-            <span className="mt-6 inline-flex rounded-full bg-[#86a51d] px-6 py-3.5 font-black text-black">{slide.cta} <ArrowRight className="ml-2" size={18} /></span>
+            <div className="mt-4 max-w-lg rounded-xl bg-gradient-to-r from-black/85 via-black/65 to-transparent px-3 py-2"><p className="text-sm leading-6 text-white md:text-base">{slide.text}</p></div>
+            <span className={`mt-6 inline-flex rounded-full px-6 py-3.5 font-black transition ${index === 0 ? "bg-[#f47b0b] text-black" : "border border-white/75 bg-black/20 text-white"}`}>{index === 0 ? "Montar meu pedido" : index === 1 ? "Ver cardápio FIT" : slide.cta} <ArrowRight className="ml-2" size={18} /></span>
           </div>
         </a>
       </div>
@@ -2947,7 +2964,7 @@ export default function Home() {
             <p className="mt-1 text-xs leading-5 text-white/50">Informe o CEP. A consulta identifica o bairro e aplica a faixa de entrega cadastrada.</p>
           </div>
           <div className="flex min-w-0 gap-2">
-            <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
+            <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
             <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">Ver frete</button>
           </div>
         </div>
@@ -3376,6 +3393,74 @@ export default function Home() {
                     ))}
                   </div>
 
+                  <section className="mt-5 space-y-4 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.055] p-4" aria-label="Progresso do pedido mínimo e frete grátis">
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="font-black">Pedido mínimo de R$ 50,00</span><strong className="text-xs text-[#c5df78]">{Math.min(100,Math.round(orderSubtotal / MIN_ORDER_VALUE * 100))}%</strong></div>
+                      <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#86a51d] transition-all" style={{width:Math.min(100,orderSubtotal / MIN_ORDER_VALUE * 100)+"%"}} /></div>
+                      <p className="mt-2 text-xs text-white/80">{orderSubtotal >= MIN_ORDER_VALUE ? "Pedido mínimo atingido." : `Faltam ${money(MIN_ORDER_VALUE-orderSubtotal)} para o pedido mínimo.`}</p>
+                    </div>
+                    <div>
+                      <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2 font-black"><Truck size={16} className="text-[#86a51d]" /> Frete grátis • 20 itens</span><strong className="text-xs text-[#c5df78]">{Math.min(100,Math.round(orderCount / DELIVERY_FREE_FROM * 100))}%</strong></div>
+                      <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#86a51d] transition-all" style={{width:Math.min(100,orderCount / DELIVERY_FREE_FROM * 100)+"%"}} /></div>
+                      <p className="mt-2 text-xs text-white/80">{orderFreeDelivery ? "Frete grátis liberado." : `Faltam ${DELIVERY_FREE_FROM-orderCount} ${DELIVERY_FREE_FROM-orderCount===1?"item":"itens"} para frete grátis.`}</p>
+                    </div>
+                  </section>
+
+                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
+                        <div className="mt-2 space-y-1.5 text-xs leading-5 text-white/80"><p>📍 Zona 1: R$ 5,00 • Zona 2: R$ 7,00</p><p>📍 Zona 3: R$ 10,00 • Zona 4: R$ 13,00</p><p>🕛 Pedidos até 00h: entrega no dia seguinte</p><p>🕚 Todos os dias, a partir das 11h</p><p>🛒 Pedido mínimo: R$ 50,00</p></div>
+                      </div>
+                      <Truck size={21} className="shrink-0 text-[#86a51d]" />
+                    </div>
+                    <>
+                        <div className="mt-3 flex gap-2">
+                          <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
+                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
+                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
+                          </button>
+                        </div>
+                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/75">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderFreightLabel}</strong></div>}
+                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Informe o número do endereço para finalizar. Rua, bairro, cidade e UF foram preenchidos pelo CEP.</div>}
+                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
+                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
+                      </>
+                  </div>
+
+
+                  <div className="mt-6 grid gap-3">
+                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
+                    <label className="text-xs font-bold text-white/55">Nome
+                      <input value={customerName} onChange={(event) => { setCustomerName(event.target.value); setCustomerNameError(""); }} onBlur={() => { if (!customerName.trim()) setCustomerNameError("Informe seu nome."); }} autoComplete="name" aria-label="Nome para o pedido" placeholder="Seu nome completo" aria-invalid={Boolean(customerNameError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      {customerNameError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerNameError}</span>}
+                    </label>
+                    <label className="text-xs font-bold text-white/55">WhatsApp
+                      <input value={customerPhone} onChange={(event) => { setCustomerPhone(formatPhoneInput(event.target.value)); setCustomerPhoneError(""); }} onBlur={() => { if (customerPhone.replace(/\D/g, "").length < 10) setCustomerPhoneError("Informe um WhatsApp válido com DDD."); }} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" placeholder="(32) 99999-9999" aria-invalid={Boolean(customerPhoneError)} className="mt-1.5 w-full rounded-2xl border border-white/10 bg-[#141611] px-4 py-3.5 text-base text-white placeholder:text-[#bfc3b8] sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
+                      {customerPhoneError && <span role="alert" className="mt-1 block text-xs text-[#ffb36b]">{customerPhoneError}</span>}
+                    </label>
+                  </div>
+
+
+                                          {orderDelivery && (
+                          <div className="mt-4 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.04] p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">Endereço identificado pelo CEP</div>
+                              <button type="button" onClick={() => setAddressEditing(value => !value)} className="text-xs font-black text-[#c5df78] underline underline-offset-4">{addressEditing ? "Concluir" : "Editar"}</button>
+                            </div>
+                            {!addressEditing ? <p className="mt-2 text-sm leading-6 text-white/85">{orderStreet || "Rua não informada"} • {orderNeighborhood} • {orderCity}/{orderState}</p> : <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              <label className="text-xs font-bold text-white/75">Rua / avenida<input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Bairro<input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Cidade<input value={orderCity} onChange={e => setOrderCity(e.target.value)} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">UF<input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white outline-none focus:border-[#86a51d]" /></label>
+                            </div>}
+                            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                              <label className="text-xs font-bold text-white/75">Número <span className="text-[#ffb36b]">obrigatório</span><input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} required placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75">Complemento (opcional)<input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                              <label className="text-xs font-bold text-white/75 sm:col-span-2">Ponto de referência (opcional)<input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-[#141611] px-3 py-3 text-base text-white placeholder:text-[#bfc3b8] outline-none focus:border-[#86a51d]" /></label>
+                            </div>
+                          </div>
+                        )}
                   {cartSuggestions.length > 0 && (
                     <section className="mt-6" aria-label="Sugestões para completar o pedido">
                       <div className="mb-3">
@@ -3402,90 +3487,22 @@ export default function Home() {
                     </section>
                   )}
 
-                  <section className="mt-5 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.055] p-4" aria-label="Progresso para frete grátis">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-sm font-black"><Truck size={18} className="text-[#86a51d]" /> Frete grátis</div>
-                      <span className="text-xs font-black text-[#86a51d]">{Math.min(100, Math.round((orderCount / DELIVERY_FREE_FROM) * 100))}%</span>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-                      <div className="h-full rounded-full bg-[#86a51d] transition-all duration-300" style={{ width: Math.min(100, (orderCount / DELIVERY_FREE_FROM) * 100) + "%" }} />
-                    </div>
-                    <p className="mt-2 text-xs leading-5 text-white/55">{orderFreeDelivery ? "Frete grátis aplicado automaticamente ao atingir 20 itens." : `Faltam ${DELIVERY_FREE_FROM - orderCount} ${DELIVERY_FREE_FROM - orderCount === 1 ? "item" : "itens"} para atingir o frete grátis.`}</p>
-                  </section>
-
-                  <div className="mt-6 grid gap-3">
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Seus dados</div>
-                    <label className="text-xs font-bold text-white/55">Nome
-                      <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} autoComplete="name" aria-label="Nome para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
-                    </label>
-                    <label className="text-xs font-bold text-white/55">WhatsApp
-                      <input value={customerPhone} onChange={(event) => setCustomerPhone(event.target.value.replace(/[^0-9+()\- ]/g, ""))} inputMode="tel" autoComplete="tel" aria-label="WhatsApp para o pedido" className="mt-1.5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-base sm:text-sm font-semibold outline-none focus:border-[#86a51d]" />
-                    </label>
-                  </div>
-
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/[.025] p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Entrega</div>
-                        <div className="mt-1 text-base sm:text-sm text-white/65">{orderFreeDelivery ? "Frete grátis aplicado para 20 itens ou mais." : "Informe o CEP para identificar seu bairro e calcular a taxa."}</div><div className="mt-1 text-[11px] leading-5 text-white/50">Zona 1: R$ 5,00 • Zona 2: R$ 7,00 • Zona 3: R$ 10,00 • Zona 4: R$ 13,00. Frete grátis a partir de 20 itens.</div>
-                        <div className="mt-1 text-[10px] leading-4 text-white/55">Pedidos até 00h: entrega no dia seguinte. Entregas todos os dias, a partir das 11h. Pedido mínimo: R$ 50,00 em produtos; frete cobrado à parte.</div>
-                      </div>
-                      <Truck size={21} className="shrink-0 text-[#86a51d]" />
-                    </div>
-                    <>
-                        <div className="mt-3 flex gap-2">
-                          <input value={orderCep} onChange={(event) => { setOrderCep(formatCepInput(event.target.value)); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm outline-none focus:border-[#86a51d]" />
-                          <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} aria-busy={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">
-                            {orderDeliveryStatus === "loading" ? "Calculando…" : "Calcular"}
-                          </button>
-                        </div>
-                        {orderDelivery && <div className="mt-3 text-base sm:text-sm text-white/60">{orderDelivery.neighborhood} • {orderDelivery.zone} • <strong className="text-[#f47b0b]">{orderDelivery.fee === 0 ? "Grátis" : money(orderDelivery.fee)}</strong></div>}
-                        {orderDelivery && (
-                          <div className="mt-4 grid gap-3 rounded-2xl border border-[#86a51d]/25 bg-[#86a51d]/[.04] p-3 sm:grid-cols-2">
-                            <div className="sm:col-span-2 text-xs font-black uppercase tracking-[.16em] text-[#86a51d]">Endereço completo para entrega</div>
-                            <label className="text-xs font-bold text-white/60">Rua / avenida
-                              <input value={orderStreet} onChange={e => setOrderStreet(e.target.value)} autoComplete="street-address" placeholder="Nome da rua" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Número
-                              <input value={orderNumber} onChange={e => setOrderNumber(e.target.value)} placeholder="Nº da casa/prédio" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Complemento (opcional)
-                              <input value={orderComplement} onChange={e => setOrderComplement(e.target.value)} placeholder="Apto, bloco, casa..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Bairro
-                              <input value={orderNeighborhood} onChange={e => setOrderNeighborhood(e.target.value)} placeholder="Bairro" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">Cidade
-                              <input value={orderCity} onChange={e => setOrderCity(e.target.value)} placeholder="Cidade" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60">UF
-                              <input value={orderState} onChange={e => setOrderState(e.target.value.toUpperCase().slice(0,2))} maxLength={2} placeholder="MG" className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                            <label className="text-xs font-bold text-white/60 sm:col-span-2">Ponto de referência (opcional)
-                              <input value={orderReference} onChange={e => setOrderReference(e.target.value)} placeholder="Próximo a..." className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-base sm:text-sm text-white outline-none focus:border-[#86a51d]" />
-                            </label>
-                          </div>
-                        )}
-                        {!orderDeliveryReady && orderDelivery && <div className="mt-2 text-xs text-[#ef9b55]">Preencha rua, número, bairro, cidade e UF para finalizar.</div>}
-                        {orderDeliveryStatus === "error" && <div className="mt-3 text-xs text-[#ef9b55]">CEP ou bairro não encontrado na área de entrega. Confira os dados ou fale com a Nutrifit.</div>}
-                        {orderFreeDelivery && <div className="mt-3 text-base sm:text-sm font-black text-[#b6d76a]">🚚 Frete grátis aplicado automaticamente após consultar o CEP.</div>}
-                      </>
-                  </div>
-
-                  <div className="mt-4 rounded-2xl border border-[#86a51d]/20 bg-[#171d10] p-4">
-                    <div className="text-xs font-black uppercase tracking-[.18em] text-[#86a51d]">Cupom de desconto</div>
-                    <div className="mt-1 text-xs text-white/45">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
+<div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <button type="button" onClick={() => setCouponExpanded((value) => !value)} aria-expanded={couponExpanded} className="inline-flex items-center gap-2 text-sm font-bold text-white/85"><ChevronDown size={16} className={couponExpanded ? "rotate-180 transition" : "transition"} /> Tenho um cupom</button>
+                    {couponExpanded && <>
+                    <div className="mt-2 text-xs text-white/80">Digite um cupom criado pela Nutrifit. O sistema verifica validade e pedido mínimo.</div>
                     <div className="mt-3 flex gap-2">
                       <input value={couponCode} onChange={event => { setCouponCode(event.target.value.toUpperCase()); if (couponStatus !== "idle") { setCouponStatus("idle"); setCouponMessage(""); } }} disabled={Boolean(appliedCoupon)} placeholder="Ex.: NUTRI10" aria-label="Código do cupom de desconto" className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-base sm:text-sm font-bold outline-none focus:border-[#86a51d] disabled:opacity-60" />
                       {appliedCoupon ? (
                         <button type="button" onClick={removeCoupon} className="shrink-0 rounded-full border border-white/10 px-4 py-3 text-xs font-black">Remover</button>
                       ) : (
-                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
+                        <button type="button" onClick={() => void applyCoupon()} disabled={couponStatus === "loading" || !couponCode.trim()} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#86a51d] enabled:text-black disabled:opacity-35">{couponStatus === "loading" ? "Validando…" : "Aplicar"}</button>
                       )}
                     </div>
                     {couponMessage && <div className={"mt-2 text-xs font-bold " + (couponStatus === "error" ? "text-[#ef9b55]" : "text-[#b6d76a]")}>{couponMessage}</div>}
                     {appliedCoupon && couponDiscount > 0 && <div className="mt-2 text-xs font-black text-[#b6d76a]">Desconto aplicado: -{money(couponDiscount)}</div>}
                     {appliedCoupon && couponDiscount === 0 && <div className="mt-2 text-xs font-bold text-[#ef9b55]">O pedido ficou abaixo do mínimo deste cupom. Aumente o pedido ou remova o cupom.</div>}
+                    </>}
                   </div>
 
                   <label className="mt-4 block text-xs font-bold text-white/55">Observações do pedido
@@ -3503,13 +3520,13 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
-                  <span className="text-white/45">Frete</span><strong className="text-right">{orderDeliveryFee === 0 ? "Grátis" : money(orderDeliveryFee)}</strong>
+                  <span className="text-white/70">Frete</span><strong className="text-right">{orderFreightLabel}</strong>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
-                {orderSubtotal < MIN_ORDER_VALUE && <p className="mt-2 rounded-xl border border-[#f47b0b]/25 bg-[#f47b0b]/[.07] px-3 py-2 text-xs leading-5 text-[#ffd0a4]">Pedido mínimo de R$ 50,00 em produtos. Faltam {money(MIN_ORDER_VALUE - orderSubtotal)} para atingir o mínimo. O frete é calculado à parte.</p>}
-                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 flex min-h-10 w-full items-center justify-center gap-2 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/[.07] px-4 py-2 text-xs font-bold text-[#ffd0a4] transition hover:bg-[#f47b0b]/15 disabled:opacity-30"><ShoppingBag size={15} /> Compartilhar resumo visual</button>
+                
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 disabled:opacity-30"><ArrowRight size={14} className="rotate-[-45deg]" /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
@@ -3704,7 +3721,7 @@ export default function Home() {
         href="/assistente"
         onClick={() => trackClick("assistant_open", "floating_button")}
         aria-label="Abrir Assistente Nutrifit"
-        className="group fixed bottom-4 right-3 z-[90] flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
+        className="group fixed bottom-5 right-2 z-[90] flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
       >
         <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/80 bg-black sm:grid sm:h-11 sm:w-11">
           <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
