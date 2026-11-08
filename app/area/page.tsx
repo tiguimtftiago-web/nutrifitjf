@@ -187,4 +187,6 @@ function DashboardContent() {
   );
 }
 
-export default function AreaNutrifitPage() {\n  return <AreaAuthGate><DashboardContent /></AreaAuthGate>;\n}\n
+export default function AreaNutrifitPage() {
+  return <AreaAuthGate><DashboardContent /></AreaAuthGate>;
+}\n
