@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
-import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Menu } from "lucide-react";
+import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Menu, Share2 } from "lucide-react";
 
 const whatsapp =
   "https://wa.me/5532998030038?text=Ol%C3%A1%20Nutrifit!%20Quero%20fazer%20um%20pedido.";
@@ -2965,7 +2965,7 @@ export default function Home() {
           </div>
           <div className="flex min-w-0 gap-2">
             <input value={orderCep} onChange={(event) => { const nextCep = formatCepInput(event.target.value); setOrderCep(nextCep); setOrderDelivery(null); setOrderDeliveryStatus("idle"); setOrderStreet(""); setOrderNumber(""); setOrderComplement(""); setOrderNeighborhood(""); setOrderCity(""); setOrderState(""); setOrderReference(""); if (nextCep.replace(/\D/g, "").length === 8) void calculateOrderDelivery(nextCep); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
-            <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#86a51d] px-4 py-3 text-xs font-black text-black disabled:opacity-50">Ver frete</button>
+            <button type="button" onClick={() => { setOrderOpen(true); void calculateOrderDelivery(); }} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
           </div>
         </div>
       </section>
@@ -3526,7 +3526,7 @@ export default function Home() {
                   <span className="text-base font-black sm:text-lg">Total</span><strong className="text-2xl font-black text-[#86a51d] sm:text-3xl">{money(orderGrandTotal)}</strong>
                 </div>
                 
-                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 disabled:opacity-30"><ArrowRight size={14} className="rotate-[-45deg]" /> Compartilhar resumo visual</button>
+                <button type="button" onClick={() => void shareVisualOrder()} disabled={!orderItems.length} className="mt-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 disabled:opacity-30"><Share2 size={14} /> Compartilhar resumo visual</button>
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
