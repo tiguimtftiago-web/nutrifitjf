@@ -2962,6 +2962,7 @@ export default function Home() {
             <a href="#planos-mensais" className="text-sm font-black text-white/85 hover:text-white">PLANOS</a>
             <a href="#sanduiches" className="text-sm font-black text-white/85 hover:text-white">SANDUÍCHES</a>
             <a href="#b2b" className="text-sm font-black text-white/85 hover:text-white">EMPRESAS</a>
+            <a href="/area" className="inline-flex items-center gap-1.5 rounded-full border border-[#a4c64a]/45 bg-[#a4c64a]/10 px-3 py-2 text-xs font-black tracking-wide text-[#c5e58a] transition hover:border-[#a4c64a] hover:bg-[#a4c64a]/20"><HeartPulse size={15}/> NUTRIFIT 360°</a>
           </nav>
 
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5">
@@ -2995,6 +2996,7 @@ export default function Home() {
             <a href="#combos" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMBOS</a>
             <a href="#planos-mensais" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">PERSONALIZE</a>
             <a href="#como-pedir" onClick={() => setMenuOpen(false)} className="rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">COMO COMPRAR</a>
+            <a href="/area" onClick={() => setMenuOpen(false)} className="col-span-2 flex items-center justify-center gap-2 rounded-xl border border-[#a4c64a]/40 bg-[#a4c64a]/10 px-4 py-3 text-sm font-black text-[#c5e58a]"><HeartPulse size={17}/> NUTRIFIT 360° · MINHA ÁREA</a>
           </div>
           <button type="button" onClick={() => { setMenuOpen(false); setSearchOpen(true); }} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-white/[.06] px-4 py-3 text-sm font-black text-white">
             <Search size={18} /> O QUE VOCÊ PROCURA?
