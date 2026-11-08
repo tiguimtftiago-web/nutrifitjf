@@ -188,7 +188,7 @@ html[data-theme="light"] video {
 
 
 /* Contraste acessível para textos auxiliares e campos do checkout no tema escuro. */
-html[data-theme="dark"] [class*="text-white/"] {
+[class*="text-white/"] {
   color: #c0c2bb;
 }
 
