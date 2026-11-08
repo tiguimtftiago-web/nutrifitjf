@@ -51,7 +51,7 @@ function DashboardContent() {
             <div className="nf-welcome"><div><div className="nf-eyebrow"><span className="nf-eyebrow-line"/> ÁREA DO CLIENTE</div><h1>Olá, <span>bem-vindo.</span></h1><p>Seu espaço para acompanhar cada passo da sua evolução.</p></div><div className="nf-date"><CalendarDays size={15}/> SEU PAINEL PESSOAL</div></div>
 
             <div className="nf-section-heading"><div><div className="nf-eyebrow">VISÃO GERAL</div><h2>Seu panorama</h2></div><span className="nf-demo-tag">DADOS DOS SEUS REGISTROS</span></div>
-            <DashboardSummary />
+            <DashboardSummary onNavigate={setActiveTab} />
 
           </>}
           {activeTab === "treino" && <section className="nf-panel nf-tab-panel"><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><Dumbbell size={20}/></div><p className="nf-tab-description">Minutos treinados e sessões registradas nesta semana.</p><TrainingTracker /></section>}
