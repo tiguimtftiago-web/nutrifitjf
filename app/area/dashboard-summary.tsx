@@ -15,10 +15,21 @@ function iso(d:Date){return `${d.getFullYear()}-${String(d.getMonth()+1).padStar
 function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d);}
 function fmt(n:number){return n.toLocaleString("pt-BR",{maximumFractionDigits:1});}
 const initial:Data={weight:null,workouts:0,meals:0,calories:0,protein:0,carbs:0,fat:0,minutes:0,activeGoals:[]};
-function Ring({value,max,label,color,unit}:{value:number;max:number;label:string;color:string;unit:string}) {
- const radius=42,circumference=2*Math.PI*radius,progress=max>0?Math.min(value/max,1):0;
- return <div className="nf-home-ring"><svg viewBox="0 0 100 100" role="img" aria-label={`${label}: ${fmt(value)} de ${fmt(max)} ${unit}`}><circle className="track" cx="50" cy="50" r={radius}/><circle className="value" cx="50" cy="50" r={radius} stroke={color} strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress)}/></svg><div className="nf-home-ring-copy"><strong>{fmt(value)}</strong><small>{unit}</small></div><b>{label}</b></div>;
+function Ring({value,target,label,color,unit}:{value:number;target:number|null;label:string;color:string;unit:string}) {
+ const radius=42,circumference=2*Math.PI*radius;
+ const hasTarget=target!==null&&Number.isFinite(target)&&target>0;
+ const progress=hasTarget?Math.min(value/target,1):0;
+ const description=hasTarget ? label+": "+fmt(value)+" de "+fmt(target as number)+" "+unit : label+": "+fmt(value)+" "+unit+"; meta não definida";
+ return <div className="nf-home-ring">
+  <svg viewBox="0 0 100 100" role="img" aria-label={description}>
+   <circle className="track" cx="50" cy="50" r={radius}/>
+   <circle className="value" cx="50" cy="50" r={radius} stroke={color} strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress)}/>
+  </svg>
+  <div className="nf-home-ring-copy"><strong>{fmt(value)}</strong><small>{unit}</small></div>
+  <b>{label}</b><small className="nf-home-ring-target">{hasTarget ? "Meta: "+fmt(target as number)+" "+unit : "Meta não definida"}</small>
+ </div>;
 }
+
 type DashboardSummaryProps={onNavigate:(tab:"treino"|"nutricao"|"evolucao"|"metas")=>void};
 export default function DashboardSummary({onNavigate}:DashboardSummaryProps){
  const [data,setData]=useState<Data>(initial);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
@@ -38,9 +49,9 @@ export default function DashboardSummary({onNavigate}:DashboardSummaryProps){
   <section className="nf-home-panorama">
    <div className="nf-home-panorama-head"><div><span className="nf-eyebrow">SEUS DADOS REAIS</span><h3>Seu panorama hoje</h3></div><span className="nf-live-label">{loading?"ATUALIZANDO":"ATUALIZADO"}</span></div>
    <div className="nf-home-rings">
-    <Ring value={data.calories} max={2000} label="Calorias" unit="kcal" color="#a4c64a"/>
-    <Ring value={data.protein} max={100} label="Proteína" unit="g" color="#f28a22"/>
-    <Ring value={data.workouts} max={5} label="Treinos" unit="sessões" color="#78afd0"/>
+    <Ring value={data.calories} target={null} label="Calorias" unit="kcal" color="#a4c64a"/>
+    <Ring value={data.protein} target={null} label="Proteína" unit="g" color="#f28a22"/>
+    <Ring value={data.workouts} target={data.activeGoals.find(goal=>goal.goal_type==="workouts")?.target_value??null} label="Treinos" unit="sessões" color="#78afd0"/>
    </div>
    <div className="nf-home-stats">
     <article><span><Scale size={15}/> PESO ATUAL</span><strong>{loading?"…":data.weight===null?"—":fmt(data.weight)} <small>kg</small></strong><button type="button" onClick={()=>onNavigate("evolucao")}>Ver evolução</button></article>
