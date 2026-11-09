@@ -6,7 +6,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SESSION_KEY = "nutrifit360.session";
 
-type Session = { access_token: string; refresh_token: string; user: { id: string; email?: string } };
+type Session = { access_token: string; refresh_token: string; user: { id: string; email?: string; user_metadata?: { full_name?: string } } };
 type Profile = { user_id: string; full_name: string; primary_goal: string };
 
 async function authRequest(path: string, body: unknown) {
@@ -41,15 +41,46 @@ export default function AreaAuthGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session?.access_token) return;
     let cancelled = false;
-    fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles?select=user_id,full_name,primary_goal&user_id=eq.${session.user.id}&limit=1`, {
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` },
-      cache: "no-store",
-    }).then(async response => {
-      if (response.status === 401) throw new Error("Sua sessão expirou. Entre novamente.");
-      if (!response.ok) throw new Error("Não foi possível carregar seu perfil.");
-      return response.json();
-    }).then(rows => { if (!cancelled) setProfile(rows[0] || null); })
-      .catch(error => { if (!cancelled) { setMessage(error.message); if (error.message.includes("sessão expirou")) logout(); } });
+    const activeSession = session;
+    async function loadOrCreateProfile() {
+      try {
+        const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${activeSession.access_token}` };
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles?select=user_id,full_name,primary_goal&user_id=eq.${activeSession.user.id}&limit=1`, {
+          headers, cache: "no-store",
+        });
+        if (response.status === 401) throw new Error("Sua sessão expirou. Entre novamente.");
+        if (!response.ok) throw new Error("Não foi possível carregar seu perfil.");
+        const rows = await response.json() as Profile[];
+        if (rows[0]) {
+          if (!cancelled) {
+            setProfile(rows[0]);
+            setName(rows[0].full_name);
+            setGoal(rows[0].primary_goal);
+          }
+          return;
+        }
+        const fullName = (activeSession.user.user_metadata?.full_name || name).trim();
+        if (fullName.length >= 2) {
+          const created = await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles`, {
+            method: "POST",
+            headers: { ...headers, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
+            body: JSON.stringify({ user_id: activeSession.user.id, full_name: fullName, primary_goal: "bem_estar" }),
+          });
+          if (!created.ok) throw new Error("Sua conta foi criada, mas não foi possível concluir seu perfil. Tente novamente.");
+          const saved = await created.json() as Profile[];
+          if (!cancelled) setProfile(saved[0] || { user_id: activeSession.user.id, full_name: fullName, primary_goal: "bem_estar" });
+        } else if (!cancelled) {
+          setName("");
+          setProfile(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setMessage(error instanceof Error ? error.message : "Não foi possível carregar seu perfil.");
+          if (error instanceof Error && error.message.includes("sessão expirou")) logout();
+        }
+      }
+    }
+    void loadOrCreateProfile();
     return () => { cancelled = true; };
   }, [session]);
 
