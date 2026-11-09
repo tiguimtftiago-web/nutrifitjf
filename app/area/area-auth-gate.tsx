@@ -68,7 +68,7 @@ export default function AreaAuthGate({ children }: { children: ReactNode }) {
           });
           if (!created.ok) throw new Error("Sua conta foi criada, mas não foi possível concluir seu perfil. Tente novamente.");
           const saved = await created.json() as Profile[];
-          if (!cancelled) setProfile(saved[0] || { user_id: session.user.id, full_name: fullName, primary_goal: "bem_estar" });
+          if (!cancelled) setProfile(saved[0] || { user_id: activeSession.user.id, full_name: fullName, primary_goal: "bem_estar" });
         } else if (!cancelled) {
           setName("");
           setProfile(null);
