@@ -41,10 +41,11 @@ export default function AreaAuthGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session?.access_token) return;
     let cancelled = false;
+    const activeSession = session;
     async function loadOrCreateProfile() {
       try {
-        const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` };
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles?select=user_id,full_name,primary_goal&user_id=eq.${session.user.id}&limit=1`, {
+        const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${activeSession.access_token}` };
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles?select=user_id,full_name,primary_goal&user_id=eq.${activeSession.user.id}&limit=1`, {
           headers, cache: "no-store",
         });
         if (response.status === 401) throw new Error("Sua sessão expirou. Entre novamente.");
@@ -58,12 +59,12 @@ export default function AreaAuthGate({ children }: { children: ReactNode }) {
           }
           return;
         }
-        const fullName = (session.user.user_metadata?.full_name || name).trim();
+        const fullName = (activeSession.user.user_metadata?.full_name || name).trim();
         if (fullName.length >= 2) {
           const created = await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles`, {
             method: "POST",
             headers: { ...headers, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" },
-            body: JSON.stringify({ user_id: session.user.id, full_name: fullName, primary_goal: "bem_estar" }),
+            body: JSON.stringify({ user_id: activeSession.user.id, full_name: fullName, primary_goal: "bem_estar" }),
           });
           if (!created.ok) throw new Error("Sua conta foi criada, mas não foi possível concluir seu perfil. Tente novamente.");
           const saved = await created.json() as Profile[];
