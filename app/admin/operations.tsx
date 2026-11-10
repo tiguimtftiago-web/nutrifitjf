@@ -485,7 +485,11 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const cutoff=new Date(now);
     cutoff.setDate(cutoff.getDate()-(financePeriod==="all"?36500:Number(financePeriod)));
     const inPeriod=(date:string)=>financePeriod==="all"||new Date(date)>=cutoff;
-    const visibleFinance=finance.filter(x=>inPeriod(x.created_at)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    // Para lançamentos pagos, o período deve considerar a data efetiva do pagamento.
+    // Lançamentos ainda pendentes continuam usando a data em que foram registrados.
+    const financeDate=(x:Finance)=>x.status==="pago"?(x.paid_at||x.created_at):x.created_at;
+    const inFinancePeriod=(x:Finance)=>inPeriod(financeDate(x));
+    const visibleFinance=finance.filter(x=>inFinancePeriod(x)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
     const visiblePurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at)&&[x.invoice_number||"",x.notes||"",x.suppliers?.name||"",x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
     const periodPurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at));
     const sum=(rows:Finance[],type:string)=>rows.filter(x=>x.type===type&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.amount||0),0);
@@ -494,12 +498,12 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
     const fees=sum(finance.filter(x=>inPeriod(x.created_at)), "taxa");
     const orderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.total||0),0);
     const paidOrderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status==="pago_recebido").reduce((v,x)=>v+Number(x.total||0),0);
-    const confirmedReceipts=finance.filter(x=>inPeriod(x.created_at)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
-    const paidExpenses=finance.filter(x=>inPeriod(x.created_at)&&x.type==="despesa"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
+    const confirmedReceipts=finance.filter(x=>inFinancePeriod(x)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
+    const paidExpenses=finance.filter(x=>inFinancePeriod(x)&&x.type==="despesa"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
     const purchasesTotal=periodPurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
     const purchaseCount=periodPurchases.filter(x=>x.status==="recebida").length;
     const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
-    const paidFinance=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pago");
+    const paidFinance=finance.filter(x=>inFinancePeriod(x)&&x.status==="pago");
     const paidRevenue=sum(paidFinance,"receita");
     const paidExpenseTotal=sum(paidFinance,"despesa");
     const paidFeeTotal=sum(paidFinance,"taxa");
@@ -529,7 +533,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
           <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-sm font-bold text-[#f1b06e]">Conferência necessária</div><p className="mt-2 text-sm leading-6 text-white/70">Compras do estoque e despesas financeiras aparecem em listas separadas até serem conciliadas. Isso evita somar a mesma compra duas vezes. Confira os registros abaixo antes de fechar o caixa.</p></div>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-black">Lançamentos financeiros</h3><span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60">{visibleFinance.length} registro(s)</span></div>
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-white/10"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Tipo / categoria</th><th className="p-4">Descrição</th><th className="p-4">Valor</th><th className="p-4">Status</th></tr></thead><tbody>{visibleFinance.map(x=><tr key={x.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4">{new Date(x.created_at).toLocaleDateString("pt-BR")}</td><td className="p-4"><div className="font-bold">{x.type}</div><div className="mt-1 text-xs text-white/45">{x.category}</div></td><td className="max-w-[320px] whitespace-normal break-words p-4">{x.description}</td><td className="whitespace-nowrap p-4 font-black">{money(x.amount)}</td><td className="p-4"><span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold">{x.status}</span></td></tr>)}</tbody></table>{visibleFinance.length===0&&<div className="p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
+        <div className="mt-3 overflow-x-auto rounded-2xl border border-white/10"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Tipo / categoria</th><th className="p-4">Descrição</th><th className="p-4">Valor</th><th className="p-4">Status</th></tr></thead><tbody>{visibleFinance.map(x=><tr key={x.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4">{new Date(financeDate(x)).toLocaleDateString("pt-BR")}</td><td className="p-4"><div className="font-bold">{x.type}</div><div className="mt-1 text-xs text-white/45">{x.category}</div></td><td className="max-w-[320px] whitespace-normal break-words p-4">{x.description}</td><td className="whitespace-nowrap p-4 font-black">{money(x.amount)}</td><td className="p-4"><span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold">{x.status}</span></td></tr>)}</tbody></table>{visibleFinance.length===0&&<div className="p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
       </Panel>
       <Panel title="Compras registradas no estoque">
         <p className="mb-4 text-sm leading-6 text-white/55">Este histórico mostra as compras recebidas e os valores registrados na entrada de estoque. Elas ficam separadas do total de despesas até existir conciliação segura com o financeiro.</p>
