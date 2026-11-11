@@ -7,9 +7,12 @@ REVOKE TRUNCATE, REFERENCES, TRIGGER
   ON ALL TABLES IN SCHEMA public
   FROM anon, authenticated;
 
--- Keep future public tables from inheriting these unnecessary privileges.
+-- Keep future tables created by the application migration owner from inheriting
+-- these unnecessary privileges. The migration role owns these tables and can
+-- update its own default ACL.
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
   REVOKE TRUNCATE, REFERENCES, TRIGGER ON TABLES FROM anon, authenticated;
 
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
-  REVOKE TRUNCATE, REFERENCES, TRIGGER ON TABLES FROM anon, authenticated;
+-- Default privileges owned by the Supabase-managed supabase_admin role are
+-- intentionally left unchanged: this migration role cannot alter that role's
+-- defaults. Existing public tables are still covered by the REVOKE above.
