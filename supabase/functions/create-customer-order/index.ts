@@ -265,6 +265,7 @@ const catalogNameAliases: Record<string, string> = {
       }
       const saved = await insertResponse.json();
       savedOrderId = saved?.[0]?.id ?? null;
+      if (!savedOrderId) return reply(502, { error: "O pedido não retornou uma confirmação válida." });
     }
     if (redeemedCoupon) {
       await fetch(url + "/rest/v1/rpc/redeem_nutrifit_coupon", {
