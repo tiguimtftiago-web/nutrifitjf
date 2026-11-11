@@ -2746,6 +2746,13 @@ export default function Home() {
         throw new Error(typeof result.error === "string" ? result.error : "Falha ao registrar o pedido.");
       }
 
+      if (!result.test_order && (typeof result.order_id !== "string" || !result.order_id)) {
+        throw new Error("O servidor não confirmou o número do pedido.");
+      }
+      if (!Array.isArray(result.items) || !Number.isFinite(Number(result.total)) || !Number.isFinite(Number(result.subtotal)) || !Number.isFinite(Number(result.delivery_fee))) {
+        throw new Error("O servidor não retornou os valores oficiais do pedido.");
+      }
+
       if (couponDiscount > 0 && appliedCoupon) {
         setAppliedCoupon(null);
         setCouponCode("");
@@ -2771,19 +2778,41 @@ export default function Home() {
       setOrderDelivery(null);
       setDeliveryNotice("");
       setOrderOpen(false);
-      const officialItems = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
-        `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
+      // A mensagem enviada deve refletir exclusivamente os valores calculados no servidor.
+      const officialItems = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }) =>
+        `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\n  ${money(Number(item.price))} / un. · *${money(Number(item.price) * Number(item.quantity))}*`
       ).join("\n") : "";
-      const officialBlock = [
-        "ITENS E VALORES CONFIRMADOS PELO SISTEMA",
+      const officialMessage = [
+        "🥗 *NUTRIFIT | PEDIDO CONFIRMADO PELO SISTEMA*",
+        "━━━━━━━━━━━━━━━━━━",
+        "",
+        "👤 *CLIENTE*",
+        `${customerName.trim()} · ${customerPhone.trim()}`,
+        "",
+        "🛒 *ITENS E VALORES OFICIAIS*",
         officialItems,
-        `Subtotal oficial: ${money(Number(result.subtotal))}`,
-        `Frete oficial: ${money(Number(result.delivery_fee))}`,
-        `TOTAL OFICIAL: ${money(Number(result.total))}`,
+        "",
+        "💰 *RESUMO OFICIAL*",
+        `Produtos: ${money(Number(result.subtotal))}`,
+        `Descontos: -${money(Number(result.discount ?? 0))}`,
+        `Frete: ${money(Number(result.delivery_fee))}`,
+        `💵 *TOTAL A PAGAR: ${money(Number(result.total))}*`,
+        "",
+        "📍 *ENTREGA*",
+        deliverySummary,
+        `${orderStreet.trim()}, nº ${orderNumber.trim()}${orderComplement.trim() ? " · " + orderComplement.trim() : ""}`,
+        `${orderNeighborhood.trim()} · ${orderCity.trim()}/${orderState.trim()} · CEP ${orderCep}`,
+        ...(orderReference.trim() ? [`Referência: ${orderReference.trim()}`] : []),
+        ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
+        "",
+        "💳 *PIX*",
+        `Chave: ${PIX_KEY}`,
+        "Após pagar, envie o comprovante por aqui.",
+        "",
+        `🧾 *Referência do pedido:* ${result.order_id || "Pedido de teste"}`,
+        "✅ *Confira os dados e confirme o pedido.*",
       ].join("\n");
-      const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
-      const finalUrl = whatsappOrder(officialMessage + reference);
+      const finalUrl = whatsappOrder(officialMessage);
       window.location.href = finalUrl;
     } catch (error) {
       fullOrderSubmitLock.current = false;
