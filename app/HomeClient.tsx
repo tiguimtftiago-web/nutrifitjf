@@ -1176,7 +1176,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         throw new Error("Não foi possível montar o resumo oficial do pedido.");
       }
       const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
-      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const reference = result.order_code ? `\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       window.location.href = finalUrl;
       setPaymentStatus("idle");
@@ -2783,7 +2783,7 @@ export default function Home() {
         `TOTAL OFICIAL: ${money(Number(result.total))}`,
       ].join("\n");
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_id ? `\n\n🧾 *Referência do pedido:* ${result.order_id}` : "";
+      const reference = result.order_code ? `\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       window.location.href = finalUrl;
     } catch (error) {
