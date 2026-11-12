@@ -159,6 +159,12 @@ export async function POST(request: NextRequest) {
       if (!response.ok) {
         const detail = await response.text();
         console.error("Nutrifit AI Gateway error", response.status, detail.slice(0,500));
+        if (response.status === 403 && detail.includes("customer_verification_required")) {
+          return NextResponse.json({
+            error: "O atendimento com IA está aguardando a ativação do Vercel AI Gateway. Nossa equipe já identificou a pendência. Enquanto isso, fale conosco pelo WhatsApp.",
+            whatsapp: `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Olá! Preciso de ajuda com o atendimento Nutrifit.")}`
+          }, { status: 503 });
+        }
         return NextResponse.json({ error: "Não consegui responder agora. Tente novamente ou fale com nossa equipe." }, { status: 502 });
       }
       const data = await response.json();
