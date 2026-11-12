@@ -149,12 +149,12 @@ export async function POST(request: NextRequest) {
     if (!token) return NextResponse.json({ error: "O atendimento inteligente ainda não está configurado." }, { status: 503 });
 
     const apiMessages: Array<Record<string, unknown>> = [{ role: "system", content: systemPrompt }, ...messages];
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 2; attempt++) {
       const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: MODEL, messages: apiMessages, tools, tool_choice: "auto", temperature: 0.3, max_tokens: 700 }),
-        signal: AbortSignal.timeout(18000)
+        signal: AbortSignal.timeout(12000)
       });
       if (!response.ok) {
         const detail = await response.text();
