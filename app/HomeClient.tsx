@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import CustomerReviews from "./components/customer-reviews";
 import { useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Menu, Share2 } from "lucide-react";
@@ -3344,32 +3345,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="avaliacoes" className="border-t border-white/10 bg-[#080a07]">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:px-8 md:py-12">
-          <details className="group overflow-hidden rounded-3xl border border-white/10 bg-[#10130d]"><summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6 [&::-webkit-details-marker]:hidden"><span><span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#f47b0b]">Experiências reais</span><span className="mt-1 block text-xl font-black sm:text-2xl">O que nossos clientes dizem</span><span className="mt-1 block text-xs text-white/45">Avaliações e depoimentos autorizados</span></span><ChevronDown size={22} className="shrink-0 text-[#a8c957] transition-transform duration-200 group-open:rotate-180"/></summary><div className="border-t border-white/10 px-5 pb-5 pt-4 sm:px-6 sm:pb-6"><div className="mb-5"><p className="text-sm leading-6 text-white/50">Estamos preparando este espaço para avaliações verificadas e compartilhadas com autorização. Nenhuma nota ou fala será publicada sem confirmação.</p></div>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <article className="rounded-2xl border border-[#86a51d]/25 bg-[#11160e] p-4 sm:p-5">
-              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#86a51d]">Nota média</p>
-              <p className="mt-2 text-2xl font-black text-white">{customerProofData.averageRating !== null ? customerProofData.averageRating.toFixed(1) + "/5" : "// PREENCHER"}</p>
-              <p className="mt-1 text-xs text-white/45">{customerProofData.reviewCount !== null ? customerProofData.reviewCount + " avaliações confirmadas" : "// PREENCHER quantidade de avaliações"}</p>
-            </article>
-            {customerProofData.testimonials.map((review, index) => (
-              <article key={index} className="rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:p-5">
-                <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#f47b0b]">Depoimento real {index + 1}</p>
-                <p className="mt-2 text-xs font-bold text-[#b6d76a]">{review.rating !== null ? "Nota " + review.rating + "/5" : "Nota: // PREENCHER"}</p>
-                <blockquote className="mt-2 min-h-12 text-sm leading-5 text-white/65">{review.quote || "Depoimento autorizado: // PREENCHER"}</blockquote>
-                <div className="mt-3 flex items-center gap-3 border-t border-white/10 pt-3">
-                  {review.photo ? <img src={review.photo} alt={review.customer ? "Foto de " + review.customer : "Foto de cliente Nutrifit"} className="h-11 w-11 rounded-full object-cover" loading="lazy" /> : <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-dashed border-white/20 text-lg">📷</div>}
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-black text-white/75">{review.customer || "Cliente: // PREENCHER"}</p>
-                    <p className="mt-0.5 text-[10px] text-white/40">{review.photo ? "Imagem autorizada" : "Foto autorizada: // PREENCHER"}</p>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div></div></details>
-        </div>
-      </section>
+      <CustomerReviews />
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
         <div className="mx-auto max-w-7xl px-3 py-6 sm:px-5 sm:py-14 md:px-8">
