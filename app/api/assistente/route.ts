@@ -8,6 +8,8 @@ const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const WHATSAPP = "5532998030038";
 const MODEL = "openai/gpt-6.1-terra-fast";
 
+// Best-effort per-instance protection; production-grade shared rate limiting should use a durable store.
+
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const tools = [
@@ -110,15 +112,30 @@ async function runTool(name: string, rawArgs: string) {
   return { erro: "Ferramenta não reconhecida." };
 }
 
+const requestCounts = new Map<string, { count: number; resetAt: number }>();
+
 export async function POST(request: NextRequest) {
   try {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
     if (origin && host && new URL(origin).host !== host) return NextResponse.json({ error: "Origem inválida." }, { status: 403 });
 
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const clientKey = (forwardedFor?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown").slice(0, 80);
+    const now = Date.now();
+    const current = requestCounts.get(clientKey);
+    if (current && current.resetAt > now && current.count >= 12) {
+      return NextResponse.json({ error: "Muitas mensagens em pouco tempo. Aguarde um minuto e tente novamente." }, { status: 429 });
+    }
+    requestCounts.set(clientKey, !current || current.resetAt <= now ? { count: 1, resetAt: now + 60_000 } : { ...current, count: current.count + 1 });
+    if (requestCounts.size > 500) {
+      for (const [key, value] of requestCounts) if (value.resetAt <= now) requestCounts.delete(key);
+    }
+
     const raw = await request.text();
     if (raw.length > 18000) return NextResponse.json({ error: "Mensagem muito longa." }, { status: 413 });
-    const body = JSON.parse(raw);
+    let body: { messages?: unknown };
+    try { body = JSON.parse(raw); } catch { return NextResponse.json({ error: "Formato de mensagem inválido." }, { status: 400 }); }
     if (!Array.isArray(body.messages) || body.messages.length > 20) return NextResponse.json({ error: "Conversa inválida." }, { status: 400 });
 
     const messages: ChatMessage[] = body.messages
@@ -127,16 +144,17 @@ export async function POST(request: NextRequest) {
       .map((m: {role:string;content:string}) => ({ role: m.role as "user"|"assistant", content: m.content.slice(0,2000) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return NextResponse.json({ error: "Envie uma mensagem para começar." }, { status: 400 });
 
-    const token = process.env.VERCEL_OIDC_TOKEN || process.env.AI_GATEWAY_API_KEY;
+    // Vercel Functions receive the OIDC token in the request header, not process.env at runtime.
+    const token = request.headers.get("x-vercel-oidc-token") || process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
     if (!token) return NextResponse.json({ error: "O atendimento inteligente ainda não está configurado." }, { status: 503 });
 
     const apiMessages: Array<Record<string, unknown>> = [{ role: "system", content: systemPrompt }, ...messages];
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt++) {
       const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ model: MODEL, messages: apiMessages, tools, tool_choice: "auto", temperature: 0.3, max_tokens: 700 }),
-        signal: AbortSignal.timeout(25000)
+        signal: AbortSignal.timeout(18000)
       });
       if (!response.ok) {
         const detail = await response.text();
