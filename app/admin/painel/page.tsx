@@ -75,8 +75,8 @@ export default function AdminDashboardV7(){
   const financePeriod=finance.filter(f=>{const d=safeDate(f.paid_at||f.created_at);return d&&d>=start&&d<=now&&f.status==="pago";});
   const receipts=financePeriod.filter(f=>f.type==="receita").reduce((s,f)=>s+Number(f.amount||0),0);
   const expenses=financePeriod.filter(f=>f.type==="despesa").reduce((s,f)=>s+Number(f.amount||0),0);
-  const marginAvailable=false;
-  const upcoming=deliveries.filter(d=>!["entregue","cancelado","cancelada"].includes(String(d.status||"").toLowerCase())).slice(0,4);
+  const todayISO=new Date().toLocaleDateString("en-CA");
+  const upcoming=deliveries.filter(d=>!["entregue","cancelado","cancelada"].includes(String(d.status||"").toLowerCase())&&(!d.delivery_date||String(d.delivery_date)>=todayISO)).sort((a,b)=>String(a.delivery_date||"9999-12-31").localeCompare(String(b.delivery_date||"9999-12-31"))).slice(0,4);
   const nav=[["Dashboard",Home],["Pedidos",ShoppingCart],["Produção",ChefHat],["Estoque",Package],["Compras",Box],["Cardápio",Utensils],["Clientes",Users],["Financeiro",Wallet],["Relatórios",ChartNoAxesColumn],["Marketing",Megaphone],["B2B Corporativo",ClipboardList],["Configurações",Settings]] as const;
   if(loading)return <main className="min-h-screen bg-[#050705] p-10 text-center text-white">Carregando Dashboard Nutrifit V7…</main>;
   return <main className="min-h-screen bg-[#050705] text-white"><style jsx global>{`
