@@ -3038,9 +3038,11 @@ export default function Home() {
         </a>
       </div>
     ))}
-    <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+    <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1">
       {bannerSlides.map((slide, index) => (
-        <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} className={`h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#86a51d]" : "w-2 bg-white/45"}`} />
+        <button key={slide.source} type="button" onClick={() => setBannerIndex(index)} aria-label={`Ir para banner ${index + 1}`} aria-current={index === bannerIndex ? "true" : undefined} style={{ minHeight: 44, minWidth: 44 }} className="flex h-11 w-11 items-center justify-center bg-transparent p-0">
+          <span aria-hidden="true" className={`block h-2 rounded-full transition-all ${index === bannerIndex ? "w-8 bg-[#86a51d]" : "w-2 bg-white/45"}`} />
+        </button>
       ))}
     </div>
     <button type="button" onClick={() => setBannerIndex((bannerIndex - 1 + bannerSlides.length) % bannerSlides.length)} aria-label="Banner anterior" className="absolute left-4 top-1/2 z-20 hidden -translate-y-1/2 rounded-full border border-white/20 bg-black/30 p-3 text-white backdrop-blur sm:block">‹</button>
