@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { MessageCircle, Send, X, ArrowRight, MapPin, ShoppingBag, UserRound } from "lucide-react";
 
 type Msg = { role: "assistant" | "user"; text: string };
@@ -82,8 +83,8 @@ export default function AssistenteNutrifitPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#080a07] text-white">
-      <div className="mx-auto grid min-h-screen max-w-6xl lg:grid-cols-[1fr_440px]">
+    <main className="min-h-[100dvh] bg-[#080a07] text-white">
+      <div className="mx-auto grid min-h-[100dvh] max-w-6xl lg:grid-cols-[1fr_440px]">
         <section className="hidden flex-col justify-center px-8 py-12 lg:flex xl:px-16">
           <div className="text-xs font-black uppercase tracking-[.24em] text-[#ef7d18]">Protótipo Nutrifit</div>
           <h1 className="mt-4 max-w-xl text-6xl font-black leading-[.95]">Seu atendimento Nutrifit, dentro do site.</h1>
@@ -106,17 +107,17 @@ export default function AssistenteNutrifitPage() {
           </div>
         </section>
 
-        <section className="flex min-h-screen items-center justify-center p-3 sm:p-6">
-          <div className="flex h-[min(850px,calc(100vh-24px))] w-full max-w-md flex-col overflow-hidden rounded-[34px] border border-white/10 bg-[#0d100c] shadow-2xl">
+        <section className="flex min-h-[100dvh] items-center justify-center p-2 sm:p-6">
+          <div className="flex h-[min(850px,calc(100dvh-16px))] w-full max-w-md flex-col overflow-hidden rounded-[30px] border border-white/10 bg-[#0d100c] sm:rounded-[34px] shadow-2xl">
             <header className="flex items-center gap-3 border-b border-white/10 bg-black/40 px-5 py-4">
-              <div className="grid h-11 w-11 place-items-center rounded-full border border-[#ef7d18]/40 bg-black text-sm font-black">
-                <span className="text-[#a7b86a]">NF</span>
+              <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full border border-[#ef7d18]/55 bg-black">
+                <img src="/images/nutrifit-logo-icon.svg" alt="Logo Nutrifit" className="h-full w-full object-contain" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-black">Assistente Nutrifit</div>
                 <div className="flex items-center gap-1.5 text-xs text-[#a7b86a]"><span className="h-1.5 w-1.5 rounded-full bg-[#a7b86a]" /> Online agora</div>
               </div>
-              <X size={18} className="text-white/30" />
+              <button type="button" onClick={() => router.replace("/")} aria-label="Fechar atendimento e voltar ao site" title="Fechar atendimento" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#a7b86a]"><X size={21} /></button>
             </header>
 
             <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
@@ -171,7 +172,7 @@ export default function AssistenteNutrifitPage() {
               )}
             </div>
 
-            <div className="border-t border-white/10 bg-black/30 p-3">
+            <div className="border-t border-white/10 bg-black/30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] p-1.5">
                 <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Digite sua mensagem..." className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-white/30" />
                 <button onClick={send} aria-label="Enviar" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><Send size={17} /></button>
