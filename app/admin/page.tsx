@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import "./admin-dashboard.css";
 import Operations from "./operations";
-import SalesChart from "./sales-chart";
+import DashboardOverview from "./dashboard-overview";
 import {
   BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot
@@ -506,91 +506,16 @@ export default function AdminPage() {
 
           {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
 
-                    {section==="resumo"&&<>
-            <div className="mb-6">
-              <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Visão operacional</div>
-              <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{greeting}, Tiago e Elaine, o que precisa da sua atenção?</h1>
-              <p className="mt-2 text-sm text-white/40 ">Tudo que importa agora, em um único lugar.</p>
-            </div>
-
-            {purchaseAlerts.length>0&&<button onClick={()=>setSection("estoque")} className="mb-5 w-full rounded-3xl border border-[#ef7d18]/35 bg-[#1b120a] p-4 text-left transition hover:bg-[#24170d] sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#ef7d18]/15 text-[#ef9b55]"><Package size={19}/></div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-black uppercase tracking-[.16em] text-[#ef7d18]">Precisa da sua atenção</div>
-                  <div className="mt-1 text-lg font-black">{purchaseAlerts.length} {purchaseAlerts.length===1?"item precisa":"itens precisam"} ser comprados</div>
-                  <div className="mt-3 flex flex-wrap gap-2">{purchaseAlerts.slice(0,4).map(a=><span key={a.item_id} className="rounded-full bg-[#ef7d18]/10 px-3 py-1.5 text-xs font-bold text-[#f1b06e]">{a.name} • {Number(a.shortage_quantity)>0?("falta "+Number(a.shortage_quantity).toLocaleString("pt-BR")+" "+a.unit):"estoque baixo"}</span>)}</div>
-                  {purchaseAlerts.length>4&&<div className="mt-2 text-xs text-white/40">+ {purchaseAlerts.length-4} outro(s) • abrir lista completa</div>}
-                </div>
-                <ChevronRight size={18} className="mt-2 shrink-0 text-[#ef9b55]"/>
-              </div>
-            </button>}
-
-            <section>
-              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Hoje</div>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                {[
-                  {label:"Pedidos recebidos",value:todayOrders.length,sub:"inclui cancelados · "+pendingOrders.length+" aguardando ação",Icon:ShoppingBag},
-                  {label:"Produção",value:prepOrders.length,sub:"em preparo",Icon:Factory},
-                  {label:"Estoque",value:purchaseAlerts.length,sub:purchaseAlerts.length===1?"item para comprar":"itens para comprar",Icon:Package},
-                  {label:"Entregas",value:deliveryOrders.length,sub:"em rota",Icon:Truck},
-                ].map(({label,value,sub,Icon})=><button key={label} onClick={()=>setSection(label==="Pedidos"?"pedidos":label==="Produção"?"producao":label==="Estoque"?"estoque":"entregas")} className="rounded-3xl border border-white/10 bg-[#0d110b] p-4 text-left transition hover:border-white/20 sm:p-5">
-                  <Icon size={19} className="text-[#a7b86a]"/>
-                  <div className="mt-4 text-2xl font-black">{value}</div>
-                  <div className="mt-1 text-sm font-bold">{label}</div>
-                  <div className="mt-1 text-xs text-white/35">{sub}</div>
-                </button>)}
-              </div>
-            </section>
-
-            <section className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_.6fr]">
-              <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Vendas de hoje</div>
-                    <div className="mt-2 text-3xl font-black">{money(todayRevenue)}</div>
-                    <div className="mt-1 text-xs text-white/35">{todayOrders.length} {todayOrders.length===1?"pedido":"pedidos"} registrados hoje</div>
-                  </div>
-                  <BarChart3 className="text-[#a7b86a]" size={22}/>
-                </div>
-                <div className="mt-5 grid grid-cols-3 gap-2">
-                  <button onClick={()=>setSection("pedidos")} className="rounded-2xl bg-white/[.035] p-3 text-left">
-                    <div className="text-[10px] text-white/35">Pedidos</div><b className="mt-1 block text-sm">{todayOrders.length}</b>
-                  </button>
-                  <button onClick={()=>setSection("clientes")} className="rounded-2xl bg-white/[.035] p-3 text-left">
-                    <div className="text-[10px] text-white/35">Novos clientes</div><b className="mt-1 block text-sm">{todayNewCustomers}</b>
-                  </button>
-                  <button onClick={()=>setSection("financeiro")} className="rounded-2xl bg-[#a7b86a]/10 p-3 text-left">
-                    <div className="text-[10px] text-[#a7b86a]">Financeiro</div><b className="mt-1 block text-sm text-[#d9e5a5]">Abrir</b>
-                  </button>
-                </div>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-[#0d110b] p-5 sm:p-6">
-                <div className="text-xs font-black uppercase tracking-[.15em] text-white/35">Resumo rápido</div>
-                <div className="mt-4 space-y-3">
-                  <button onClick={()=>setSection("pedidos")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Pedidos em andamento</span><span className="font-black text-[#ef7d18]">{activeOrders}</span></button>
-                  <button onClick={()=>setSection("b2b")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Leads B2B</span><span className="font-black text-[#a7b86a]">{leads.length}</span></button>
-                  <button onClick={()=>setSection("whatsapp")} className="flex w-full items-center justify-between text-left"><span className="text-sm font-bold">Mensagens WhatsApp</span><span className="font-black">{messages.length}</span></button>
-                </div>
-              </div>
-            </section>
-
-            <SalesChart orders={orders} />
-
-            <section className="mt-6">
-              <div className="mb-3 text-xs font-black uppercase tracking-[.15em] text-white/35">Acesso rápido</div>
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                {[
-                  {id:"pedidos" as Section,label:"Ver pedidos",Icon:ShoppingBag},
-                  {id:"producao" as Section,label:"Abrir produção",Icon:Factory},
-                  {id:"estoque" as Section,label:"Abrir estoque",Icon:Package},
-                  {id:"financeiro" as Section,label:"Abrir financeiro",Icon:Wallet},
-                ].map(({id,label,Icon})=><button key={label} onClick={()=>setSection(id)} className="flex min-h-[64px] items-center gap-3 rounded-2xl border border-white/10 bg-[#0d110b] p-4 text-left transition hover:border-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a7b86a]">
-                  <Icon size={18} className="shrink-0 text-[#a7b86a]"/><span className="text-xs font-black sm:text-sm">{label}</span>
-                </button>)}
-              </div>
-            </section>
-          </>}
+          {section==="resumo"&&<DashboardOverview
+            orders={orders}
+            customers={customers}
+            inventory={inventory}
+            purchaseAlerts={purchaseAlerts}
+            token={token}
+            email={email}
+            onNavigate={(next)=>setSection(next as Section)}
+            onRefresh={()=>{void load();}}
+          />}
 
           {section==="pedidos"&&(
             <Panel title="Pedidos">
