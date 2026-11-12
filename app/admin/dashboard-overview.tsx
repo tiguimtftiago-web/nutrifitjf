@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Activity, Bell, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, CircleHelp,
   ClipboardList, ChefHat, CircleAlert, CircleCheck, Coins, Factory, HandCoins, Home,
@@ -13,11 +13,11 @@ type Customer = { id:string; name:string; order_count:number; total_spend:number
 type InventoryItem = { id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; active:boolean; };
 type PurchaseAlert = { item_id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; shortage_quantity:number; status:string; };
 type Production = { id:string; created_at:string; produced_at:string; quantity:number; status:string; };
-type Delivery = { id:string; customer_name:string|null; delivery_date:string|null; delivery_window:string|null; status:string; driver_name:string|null; };
+type Delivery = { id:string; customer_name:string|null; delivery_date:string|null; delivery_window:string|null; status:string; driver_name:string|null; route_name?:string|null; item_count?:number|null; };
 type Finance = { id:string; created_at:string; type:string; amount:number; status:string; paid_at:string|null; };
 type ProductLine = { name:string; value:number; color:string };
 const URL=process.env.NEXT_PUBLIC_SUPABASE_URL||"https://xdllpyqrbofszvallzxf.supabase.co";
-const KEY=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||"";
+const KEY=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||"sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 const money=(v:number)=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const cancelled=(s:string)=>["cancelado","cancelada","canceled","cancelled"].includes(String(s||"").toLowerCase());
 const parseItems=(value:unknown):any[]=>{
@@ -40,7 +40,7 @@ const statusOf=(s:string)=>{
  if(["entregue","concluido","concluida","finalizado"].includes(v))return "done";
  return "other";
 };
-function Donut({values,size=164,stroke=17,center}:{values:ProductLine[];size?:number;stroke?:number;center:React.ReactNode}){
+function Donut({values,size=164,stroke=17,center}:{values:ProductLine[];size?:number;stroke?:number;center:ReactNode}){
  const total=values.reduce((s,x)=>s+x.value,0);let offset=0;const radius=(size-stroke)/2;const circumference=2*Math.PI*radius;
  return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="nf-donut">
   <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#303030" strokeWidth={stroke}/>
@@ -129,7 +129,7 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
    </section>
    <section className="nf-row nf-row-4">
     <article className="nf-card nf-top"><h2><Activity/>Top 5 Mais Vendidos</h2>{Array.from({length:5},(_,i)=>{const item=topProducts[i];return <div className="nf-top-row" key={item?.[0]||i}><b className="nf-rank">{i+1}</b><span>{item?.[0]||"—"}</span><div className="nf-top-track"><i style={{width:item?`${item[1]/maxTop*100}%`:"0%"}}/></div><small>{item?item[1]+" un.":"0 un."}</small></div>})}</article>
-    <article className="nf-card nf-deliveries"><h2><Truck/>Próximas Entregas</h2>{Array.from({length:4},(_,i)=>{const d=nextDeliveries[i];return <div className="nf-delivery-row" key={d?.id||i}><time>{d?.delivery_window||"—"}</time><span>{d?d.customer_name||"Cliente": "—"}</span><b>{d?.status||"—"}</b><small>{d?.driver_name||"Rota —"}</small></div>})}</article>
+    <article className="nf-card nf-deliveries"><h2><Truck/>Próximas Entregas</h2>{Array.from({length:4},(_,i)=>{const d=nextDeliveries[i];return <div className="nf-delivery-row" key={d?.id||i}><time>{d?.delivery_window||"—"}</time><span>{d?d.customer_name||"Cliente": "—"} · {d?(d.item_count??orders.find(o=>o.customer_name===d.customer_name)?.item_count??"—")+" marmitas":"— marmitas"}</span><b>{d?.route_name||"Rota —"}</b><small>{d?.driver_name||""}</small></div>})}</article>
    </section>
    {loading&&<div className="nf-loading">Atualizando dados complementares…</div>}
   </div>
