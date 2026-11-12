@@ -65,7 +65,11 @@ export default function NutritionTracker(){
   const amount=Number(grams);
   if(!food){setError("Selecione um alimento cadastrado.");return;}
   if(!Number.isFinite(amount)||amount<=0||amount>3000){setError("Informe uma quantidade entre 1 e 3.000 gramas.");return;}
-  setPortions(current=>[...current,{food,grams:amount}]);
+  setPortions(current=>{
+   const existing=current.findIndex(item=>item.food.id===food.id);
+   if(existing<0) return [...current,{food,grams:amount}];
+   return current.map((item,index)=>index===existing?{...item,grams:item.grams+amount}:item);
+  });
   setGrams("100");
  }
  function removeFood(index:number){setPortions(current=>current.filter((_,i)=>i!==index));}
@@ -146,7 +150,16 @@ export default function NutritionTracker(){
    .nf-food-macros b{display:block;color:#f4f4ef;font-size:14px}
    .nf-meal-form>label{display:flex;flex-direction:column;gap:7px}
    .nf-meal-form .nf-meal-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-   @media(max-width:420px){.nf-meal-form .nf-meal-fields{grid-template-columns:1fr}}
+   @media(max-width:420px){
+    .nf-food-adder,.nf-food-portions,.nf-food-summary{padding:11px;border-radius:13px;margin:9px 0}
+    .nf-food-portion{padding:8px 0;gap:8px}
+    .nf-food-portion small{font-size:11px;line-height:1.35}
+    .nf-food-portion button{font-size:12px;white-space:nowrap}
+    .nf-food-kcal{font-size:27px}
+    .nf-food-macros{gap:8px 11px;font-size:11px}
+    .nf-food-macros b{font-size:13px}
+    .nf-meal-form .nf-meal-fields{grid-template-columns:1fr}
+   }
   `}</style>
  </section>;
 }
