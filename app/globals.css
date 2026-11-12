@@ -6,7 +6,7 @@
   --nf-bg: #0b0d0a;
   --nf-surface: #141611;
   --nf-text: #f7f8f5;
-  --nf-muted: #c0c2bb;
+  --nf-muted: #c0c2bb; /* texto auxiliar com contraste AA no fundo principal */
   --nf-border: rgba(255, 255, 255, .13);
   --nf-olive: #86a51d;
   --nf-orange: #f47b0b;
@@ -83,10 +83,26 @@ img, picture {
 
 ::selection { background: #86a51d; color: #080a07; }
 a, button { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, summary:focus-visible {
-  outline: 2px solid #f47b0b;
+button:focus-visible, a:focus-visible, summary:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid #f47b0b;
   outline-offset: 3px;
+  scroll-margin-block: 1rem;
 }
+
+/* Alvos de toque confortáveis sem alterar o tamanho dos elementos visuais da marca. */
+button { min-height: 44px; }
+button:disabled { cursor: not-allowed; }
+
+/* Campos continuam identificáveis por teclado mesmo em componentes com CSS próprio. */
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  border-color: #f47b0b;
+  box-shadow: 0 0 0 2px rgba(244, 123, 11, .22);
+}
+
+/* Evita que o conteúdo auxiliar fique abaixo do contraste mínimo AA no tema escuro. */
+:root { --nf-muted: #c0c2bb; }
+[class*="text-white/"] { color: #c0c2bb; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
