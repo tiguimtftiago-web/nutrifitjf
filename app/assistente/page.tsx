@@ -2,7 +2,7 @@
 
 import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, LoaderCircle, MapPin, MessageCircle, Send, ShoppingBag, X } from "lucide-react";
+import { ArrowRight, LoaderCircle, MessageCircle, Send, ShoppingBag, X } from "lucide-react";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -32,6 +32,27 @@ export default function AssistenteNutrifitPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Não foi possível responder agora.");
+      setMessages((current) => [...current, { role: "assistant", content: data.answer }]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Falha de conexão. Tente novamente.");
+    } finally {
+      setLoading(false);
+      requestAnimationFrame(() => endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }));
+    }
+  }
+
+  async function retryLastMessage() {
+    if (loading || messages[messages.length - 1]?.role !== "user") return;
+    setError("");
+    setLoading(true);
+    try {
+      const response = await fetch("/api/assistente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: messages.map(({ role, content }) => ({ role, content })) })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Não foi possível responder agora.");
@@ -111,7 +132,7 @@ export default function AssistenteNutrifitPage() {
               {error && (
                 <div className="rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/10 p-3 text-sm text-white/80">
                   {error}
-                  <button onClick={() => void sendMessage(messages[messages.length - 1]?.content || "Pode me ajudar?")} className="ml-2 font-bold text-[#ef9a4b] underline">Tentar novamente</button>
+                  <button onClick={() => void retryLastMessage()} className="ml-2 font-bold text-[#ef9a4b] underline">Tentar novamente</button>
                 </div>
               )}
 
@@ -138,7 +159,6 @@ export default function AssistenteNutrifitPage() {
               <div className="mt-2 flex items-center justify-center gap-4 text-[10px] text-white/25">
                 <ShoppingBag size={12} /> Nutrifit • Juiz de Fora
                 <a href="https://wa.me/5532998030038" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#a7b86a]"><MessageCircle size={12} /> WhatsApp</a>
-                <span className="hidden"><MapPin size={12} /></span>
               </div>
             </div>
           </div>
