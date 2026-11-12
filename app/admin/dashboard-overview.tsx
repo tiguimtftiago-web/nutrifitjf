@@ -63,15 +63,17 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  async function load(){
   if(!token)return;setLoading(true);
   const req=async(path:string)=>{const r=await fetch(path,{headers:{apikey:KEY,Authorization:"Bearer "+token}});if(!r.ok)throw new Error("Falha ao carregar dados adicionais");return r.json()};
-  try{const [p,d,f]=await Promise.all([
+  try{const [o,p,d,f]=await Promise.all([
+   req(URL+"/rest/v1/customer_orders?select=id,customer_profile_id,created_at,customer_name,items,item_count,total,status&order=created_at.desc&limit=1000"),
    req(URL+"/rest/v1/production_batches?select=id,created_at,produced_at,quantity,status&order=produced_at.desc&limit=500"),
    req(URL+"/rest/v1/delivery_orders?select=id,customer_name,delivery_date,delivery_window,status,driver_name&order=delivery_date.asc&limit=100"),
    req(URL+"/rest/v1/financial_transactions?select=id,created_at,type,amount,status,paid_at&order=created_at.desc&limit=500")
-  ]);setProduction(p||[]);setDeliveries(d||[]);setFinance(f||[]);
-  }catch{setProduction([]);setDeliveries([]);setFinance([])}finally{setLoading(false)}
+   ]);setDashboardOrders(o||[]);setProduction(p||[]);setDeliveries(d||[]);setFinance(f||[]);
+  }catch{setDashboardOrders(null);setProduction([]);setDeliveries([]);setFinance([])}finally{setLoading(false)}
  }
  useEffect(()=>{void load();const id=window.setInterval(()=>void load(),30000);return()=>window.clearInterval(id)},[token]);
- const sourceOrders=dashboardOrders??orders;\n const today=startOfDay();const todayString=dateKey(today.toISOString());
+ const sourceOrders=dashboardOrders??orders;
+ const today=startOfDay();const todayString=dateKey(today.toISOString());
  const periodStart=new Date(today);periodStart.setDate(periodStart.getDate()-(period-1));
  const previousStart=new Date(periodStart);previousStart.setDate(previousStart.getDate()-period);
  const validOrders=sourceOrders.filter(o=>!cancelled(o.status));
@@ -81,8 +83,9 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  const previousSales=previousOrders.reduce((s,o)=>s+Number(o.total||0),0);
  const change=previousSales?((sales-previousSales)/previousSales)*100:null;
  const average=currentOrders.length?sales/currentOrders.length:0;
- const activeCustomerIds=new Set(validOrders.map(o=>o.customer_name||"").filter(Boolean));
- const activeCustomers=customers.filter(c=>activeCustomerIds.has(c.name)).length;
+ const linkedCustomerIds=new Set(validOrders.map(o=>o.customer_profile_id).filter(Boolean));
+ const activeCustomerNames=new Set(validOrders.map(o=>o.customer_name||"").filter(Boolean));
+ const activeCustomers=customers.filter(c=>linkedCustomerIds.size?linkedCustomerIds.has(c.id):activeCustomerNames.has(c.name)).length;
  const counts={new:sourceOrders.filter(o=>statusOf(o.status)==="new").length,prep:sourceOrders.filter(o=>statusOf(o.status)==="prep").length,delivery:sourceOrders.filter(o=>statusOf(o.status)==="delivery").length,done:sourceOrders.filter(o=>statusOf(o.status)==="done").length};
  const lines:ProductLine[]=[{name:"Linha Fit (350 g)",value:0,color:"#7ed321"},{name:"Linha Performance (450 g)",value:0,color:"#ff7a00"},{name:"Linha Tradicional (500 g)",value:0,color:"#a6e82e"},{name:"Sucos e Lanches",value:0,color:"#ffd000"},{name:"Outros",value:0,color:"#777777"}];
  const productTotals=new Map<string,number>();
