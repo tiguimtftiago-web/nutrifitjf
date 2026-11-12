@@ -3,9 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
   Activity, Bell, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, CircleHelp,
-  ClipboardList, ChefHat, CircleAlert, CircleCheck, Coins, Factory, HandCoins, Home,
+  ChefHat, CircleAlert, CircleCheck, Coins, HandCoins, Home,
   Package, ShoppingBag, ShoppingCart, Truck, Users, Wallet, Utensils, BarChart3,
-  Megaphone, Settings, Building2, Leaf, TrendingUp, ArrowDown, ArrowUp, Clock3
+  Megaphone, Settings, Building2, Leaf, ArrowDown, ArrowUp
 } from "lucide-react";
 
 type Order = { id:string; order_code?:string; customer_profile_id?:string|null; created_at:string; customer_name:string|null; items:unknown; item_count:number; total:number; status:string; };
@@ -95,11 +95,11 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  const planned=todayBatches.reduce((s,p)=>s+Number(p.quantity||0),0);
  const produced=todayBatches.filter(p=>["concluida","concluido"].includes(p.status)).reduce((s,p)=>s+Number(p.quantity||0),0);
  const progress=planned?Math.min(100,Math.round(produced/planned*100)):0;
- const stockRows=[...inventory.filter(i=>i.active!==false)].sort((a,b)=>{const ar=a.minimum_quantity>0?a.current_quantity/a.minimum_quantity:99;const br=b.minimum_quantity>0?b.current_quantity/b.minimum_quantity:99;return ar-br}).slice(0,4);
+ const alertIds=new Set(purchaseAlerts.map(a=>a.item_id));\n const stockRows=[...inventory.filter(i=>i.active!==false)].sort((a,b)=>Number(alertIds.has(b.id))-Number(alertIds.has(a.id))||((a.minimum_quantity>0?a.current_quantity/a.minimum_quantity:99)-(b.minimum_quantity>0?b.current_quantity/b.minimum_quantity:99))).slice(0,4);
  const paidFinance=finance.filter(f=>f.status==="pago"||f.status==="paid"||f.status==="concluido");
  const currentFinance=paidFinance.filter(f=>new Date(f.paid_at||f.created_at)>=periodStart);
- const receipts=currentFinance.filter(f=>f.type==="receita").reduce((s,f)=>s+Number(f.amount||0),0);
- const expenses=currentFinance.filter(f=>f.type==="despesa").reduce((s,f)=>s+Number(f.amount||0),0);
+ const receipts=currentFinance.filter(f=>["receita","income"].includes(f.type)).reduce((s,f)=>s+Number(f.amount||0),0);
+ const expenses=currentFinance.filter(f=>["despesa","expense"].includes(f.type)).reduce((s,f)=>s+Number(f.amount||0),0);
  const profit=receipts-expenses;const margin=receipts?profit/receipts*100:0;
  const topProducts=[...productTotals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
  const nextDeliveries=deliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date)>=today&& !["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
