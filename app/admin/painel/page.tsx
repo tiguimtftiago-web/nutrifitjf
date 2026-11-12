@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Activity, Bell, Box, ChefHat, CircleDollarSign, ClipboardList, HelpCircle, Home, Package, RefreshCw, ShoppingCart, Truck, Users, Wallet, ChartNoAxesColumn, Utensils, Megaphone, Settings, CalendarDays } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 type Row = Record<string, any>;
 const brl = (n:number) => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n)||0);
 const safeDate = (v:any) => v ? new Date(v) : null;
