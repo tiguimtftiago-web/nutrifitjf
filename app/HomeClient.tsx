@@ -2360,6 +2360,7 @@ export default function Home() {
   };
   const [orderOpen, setOrderOpen] = useState(false);
   const [orderCaptureError, setOrderCaptureError] = useState(false);
+  const [thankYouOrder, setThankYouOrder] = useState<{ customerName: string; orderCode: string; whatsappMessage: string } | null>(null);
   const fullOrderSubmitLock = useRef(false);
   const [fullOrderSubmitting, setFullOrderSubmitting] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -2784,8 +2785,11 @@ export default function Home() {
       ].join("\n");
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
       const reference = result.order_code ? `\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
-      const finalUrl = whatsappOrder(officialMessage + reference);
-      window.location.href = finalUrl;
+      setThankYouOrder({
+        customerName: customerName.trim(),
+        orderCode: typeof result.order_code === "string" ? result.order_code : "Pedido registrado",
+        whatsappMessage: officialMessage + reference,
+      });
     } catch (error) {
       fullOrderSubmitLock.current = false;
       setFullOrderSubmitting(false);
@@ -3408,6 +3412,32 @@ export default function Home() {
         </div>
       </section>
     
+      {thankYouOrder && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-black/90 px-4 py-8 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="order-success-title">
+          <section className="w-full max-w-lg rounded-[2rem] border border-[#86a51d]/35 bg-[#0b0e09] p-6 text-center shadow-[0_25px_90px_rgba(0,0,0,.65)] sm:p-9">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[#86a51d]/40 bg-[#86a51d]/15 text-[#b7dc62]">
+              <Check size={34} strokeWidth={3} />
+            </div>
+            <p className="mt-6 text-xs font-black uppercase tracking-[.24em] text-[#f47b0b]">Nutrifit • Comida de verdade</p>
+            <h2 id="order-success-title" className="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl">Pedido recebido!</h2>
+            <p className="mt-4 text-base leading-7 text-white/75">Obrigado{thankYouOrder.customerName ? `, ${thankYouOrder.customerName}` : ""}, por escolher a Nutrifit! 🧡</p>
+            <p className="mt-2 text-sm leading-6 text-white/55">Seu pedido foi registrado com sucesso. Estamos preparando tudo com cuidado para levar sabor, qualidade e comida de verdade até você.</p>
+            <div className="mt-7 rounded-2xl border border-[#f47b0b]/35 bg-[#f47b0b]/[.08] p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.2em] text-white/55">Seu código de pedido</p>
+              <p className="mt-2 break-all text-3xl font-black tracking-wider text-[#f47b0b] sm:text-4xl">{thankYouOrder.orderCode}</p>
+              <p className="mt-2 text-xs leading-5 text-white/45">Guarde esse código para consultar e identificar seu pedido.</p>
+            </div>
+            <p className="mt-6 text-sm leading-6 text-white/65">Para concluir o contato, envie os detalhes do pedido à nossa equipe pelo WhatsApp.</p>
+            <a href={whatsappOrder(thankYouOrder.whatsappMessage)} target="_blank" rel="noreferrer" onClick={() => trackClick("order_whatsapp_opened", "order_success")} className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-6 py-4 font-black text-black transition hover:brightness-110">
+              <MessageCircle size={19} /> Enviar pedido pelo WhatsApp <ArrowRight size={18} />
+            </a>
+            <button type="button" onClick={() => { setThankYouOrder(null); fullOrderSubmitLock.current = false; setFullOrderSubmitting(false); }} className="mt-3 min-h-12 w-full rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white/75 transition hover:bg-white/5">
+              Voltar ao cardápio
+            </button>
+          </section>
+        </div>
+      )}
+
       {orderOpen && (
         <div className="fixed inset-0 z-[100]">
           <button type="button" aria-label="Fechar carrinho" onClick={() => setOrderOpen(false)} className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
