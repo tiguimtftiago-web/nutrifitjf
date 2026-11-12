@@ -250,7 +250,7 @@ const catalogNameAliases: Record<string, string> = {
     }
     const saved = await insertResponse.json();
     return reply(200, {
-      ok: true, order_id: saved?.[0]?.id ?? null, subtotal: payload.subtotal,
+      ok: true, order_id: saved?.[0]?.id ?? null, order_code: saved?.[0]?.order_code ?? null, subtotal: payload.subtotal,
       delivery_fee: payload.delivery_fee, total: payload.total, items: pricedItems,
     });
   } catch (error) {
