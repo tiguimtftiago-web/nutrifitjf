@@ -4,12 +4,12 @@ import Link from "next/link";
 const siteUrl = "https://www.nutrifitjf.com.br";
 
 export const metadata: Metadata = {
-  title: "Marmitas Fitness em Juiz de Fora | Nutrifit",
+  title: "Marmitas Fit em Juiz de Fora | Nutrifit",
   description:
-    "Peça marmitas fitness em Juiz de Fora pela Nutrifit. Confira as linhas Fit 350 g, Performance 450 g e Tradicional 500 g, veja os pratos disponíveis, monte seu combo e consulte o cardápio online.",
+    "Encontre marmitas fit em Juiz de Fora na Nutrifit. Veja as linhas Fit 350 g, Performance 450 g e Tradicional 500 g, confira os pratos e monte seu combo pelo cardápio online.",
   alternates: { canonical: "/marmitas-fit-juiz-de-fora" },
   openGraph: {
-    title: "Marmitas Fitness em Juiz de Fora | Nutrifit",
+    title: "Marmitas Fit em Juiz de Fora | Nutrifit",
     description:
       "Escolha sua linha de marmitas, monte seu combo e peça online. Nutrifit em Juiz de Fora/MG.",
     url: siteUrl + "/marmitas-fit-juiz-de-fora",
@@ -116,7 +116,7 @@ const structuredData = {
       "@type": "WebPage",
       "@id": siteUrl + "/marmitas-fit-juiz-de-fora#webpage",
       url: siteUrl + "/marmitas-fit-juiz-de-fora",
-      name: "Marmitas Fitness em Juiz de Fora | Nutrifit",
+      name: "Marmitas Fit em Juiz de Fora | Nutrifit",
       description:
         "Marmitas fit, fitness e saudáveis em Juiz de Fora, MG, com linhas Fit, Performance, Tradicional, saladas, sucos e combos.",
       isPartOf: { "@id": siteUrl + "/#website" },
