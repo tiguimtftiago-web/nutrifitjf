@@ -100,9 +100,10 @@ input:focus-visible, textarea:focus-visible, select:focus-visible {
   box-shadow: 0 0 0 2px rgba(244, 123, 11, .22);
 }
 
-/* Evita que o conteúdo auxiliar fique abaixo do contraste mínimo AA no tema escuro. */
+/* Evita que o conteúdo auxiliar fique abaixo do contraste mínimo AA. */
 :root { --nf-muted: #c0c2bb; }
-[class*="text-white/"] { color: #c0c2bb; }
+html[data-theme="dark"] [class*="text-white/"] { color: #c0c2bb; }
+html[data-theme="light"] [class*="text-white/"] { color: #55594f !important; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
