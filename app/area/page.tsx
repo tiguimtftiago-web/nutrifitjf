@@ -22,7 +22,22 @@ function DashboardContent() {
       <div className="nf-glow nf-glow-two" />
       <header className="nf-topbar">
         <a className="nf-brand" href="/" aria-label="Voltar para Nutrifit">
-          <span className="nf-brand-mark">N<span>F</span></span>
+          <span className="nf-brand-mark nf-brand-mark-360" aria-hidden="true">
+            <svg viewBox="0 0 100 100" role="img" focusable="false">
+              <defs>
+                <linearGradient id="nf360-green" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#c0df42"/><stop offset="1" stopColor="#5e8c20"/></linearGradient>
+                <linearGradient id="nf360-orange" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#ff9b24"/><stop offset="1" stopColor="#ed5b13"/></linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="46" fill="#050705" stroke="url(#nf360-green)" strokeWidth="3"/>
+              <path d="M17 72 A39 39 0 0 1 79 17" fill="none" stroke="url(#nf360-green)" strokeWidth="3.5" strokeLinecap="round"/>
+              <path d="M83 28 A39 39 0 0 1 23 84" fill="none" stroke="url(#nf360-orange)" strokeWidth="3.5" strokeLinecap="round"/>
+              <path d="M17 42 Q10 29 17 20 Q29 24 32 38 Q25 36 17 42Z" fill="url(#nf360-green)"/>
+              <path d="M26 70 L34 30 L43 30 L49 54 L57 30 L67 30 L58 70 L49 70 L45 51 L39 70Z" fill="url(#nf360-green)"/>
+              <path d="M65 30 H84 Q89 30 87 36 L85 43 H72 L70 49 H83 L81 57 H68 L65 70 H55Z" fill="url(#nf360-orange)"/>
+              <path d="M77 43 L75 55 M81 43 L79 55 M85 43 L83 54" stroke="#17100a" strokeWidth="2" strokeLinecap="round"/>
+              <text x="50" y="85" textAnchor="middle" fill="#f4f4ef" fontSize="10" fontWeight="800" letterSpacing="2">360</text>
+            </svg>
+          </span>
           <span><b>NUTRIFIT</b><small>360° · ÁREA DO CLIENTE</small></span>
         </a>
         <div className="nf-top-actions">
@@ -75,7 +90,7 @@ function DashboardContent() {
         .nf-shell{--bg:#090b09;--panel:#111511;--panel2:#151b15;--line:#252d24;--muted:#8c9689;--text:#f4f5ef;--green:#a4c64a;--orange:#f28a22;min-height:100vh;background:radial-gradient(ellipse at 76% 0%,#1b2516 0,transparent 32%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;position:relative;overflow:hidden;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
         .nf-glow{position:absolute;pointer-events:none;filter:blur(80px);opacity:.12;border-radius:50%}.nf-glow-one{width:300px;height:300px;background:#8ebd32;top:260px;right:-170px}.nf-glow-two{width:240px;height:240px;background:#f28a22;top:850px;left:-170px}
         .nf-topbar{height:76px;border-bottom:1px solid #20271f;display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1320px)/2));position:relative;z-index:2;background:#090c09e8;backdrop-filter:blur(18px)}
-        .nf-brand{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none}.nf-brand-mark{width:38px;height:38px;border:1.5px solid var(--green);border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:19px;color:var(--green);position:relative}.nf-brand-mark span{color:var(--orange);margin-left:-7px}.nf-brand b{display:block;font-size:14px;letter-spacing:2.5px}.nf-brand small{display:block;color:#8b9685;font-size:8px;letter-spacing:1.7px;margin-top:3px}
+        .nf-brand{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none}.nf-brand-mark{width:38px;height:38px;display:grid;place-items:center;position:relative;flex:none}.nf-brand-mark-360{width:54px;height:54px}.nf-brand-mark-360 svg{display:block;width:100%;height:100%;filter:drop-shadow(0 0 5px #8dbb3026)}.nf-brand b{display:block;font-size:14px;letter-spacing:2.5px}.nf-brand small{display:block;color:#8b9685;font-size:8px;letter-spacing:1.7px;margin-top:3px}
         .nf-top-actions{display:flex;align-items:center;gap:17px}.nf-live{font-size:9px;letter-spacing:1.5px;color:#9ca794}.nf-live i,.nf-hero-foot i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);margin-right:7px}.nf-icon-button{border:1px solid #293027;background:#111611;color:#c9d0c3;border-radius:11px;width:38px;height:38px;display:grid;place-items:center;position:relative}.nf-icon-button em{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--orange);right:8px;top:7px}.nf-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#a6c84b,#506b25);display:grid;place-items:center;color:#10150c;text-decoration:none;font-weight:800}
         .nf-layout{max-width:900px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding:24px 18px 0;position:relative;z-index:1}.nf-sidebar{display:none;position:sticky;top:22px;height:calc(100vh - 100px);min-height:580px;padding:14px 0;display:flex;flex-direction:column}.nf-side-label{font-size:9px;letter-spacing:2px;color:#778272;margin:0 0 16px 12px}.nf-side-link{display:flex;align-items:center;gap:12px;padding:13px 12px;color:#aab2a4;text-decoration:none;font-size:13px;border-radius:10px;margin-bottom:4px;transition:.2s}.nf-side-link:hover,.nf-side-link.active{background:#1a2417;color:#c1df72}.nf-side-link.active{box-shadow:inset 2px 0 var(--green)}.nf-side-bottom{margin-top:auto}.nf-side-promo{background:linear-gradient(145deg,#192318,#111711);border:1px solid #2b3827;border-radius:14px;padding:15px;margin:0 0 15px;color:var(--green);display:flex;flex-direction:column;gap:9px}.nf-side-promo b{font-size:12px;color:#e8efdf}.nf-side-promo span{font-size:11px;line-height:1.5;color:#9aa594}
         .nf-content{min-width:0;padding-bottom:30px}.nf-welcome{display:flex;align-items:flex-end;justify-content:space-between;margin:8px 0 16px}.nf-eyebrow{font-size:9px;letter-spacing:2px;color:var(--green);font-weight:700}.nf-eyebrow-line{display:inline-block;width:19px;height:1px;background:var(--orange);vertical-align:middle;margin-right:8px}.nf-welcome h1{font-size:34px;letter-spacing:-1.2px;margin:9px 0 5px}.nf-welcome h1 span{color:var(--green)}.nf-welcome p{font-size:13px;color:#9ba596;margin:0}.nf-date{border:1px solid #2b3429;border-radius:30px;padding:9px 13px;color:#aab4a3;font-size:9px;letter-spacing:1px;display:flex;align-items:center;gap:8px}
