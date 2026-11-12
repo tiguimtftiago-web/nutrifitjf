@@ -83,9 +83,9 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  const previousSales=previousOrders.reduce((s,o)=>s+Number(o.total||0),0);
  const change=previousSales?((sales-previousSales)/previousSales)*100:null;
  const average=currentOrders.length?sales/currentOrders.length:0;
- const linkedCustomerIds=new Set(validOrders.map(o=>o.customer_profile_id).filter(Boolean));
- const activeCustomerNames=new Set(validOrders.map(o=>o.customer_name||"").filter(Boolean));
- const activeCustomers=customers.filter(c=>linkedCustomerIds.size?linkedCustomerIds.has(c.id):activeCustomerNames.has(c.name)).length;
+ const linkedCustomerIds=new Set(currentOrders.map(o=>o.customer_profile_id).filter(Boolean));
+ const activeCustomerNames=new Set(currentOrders.map(o=>o.customer_name||"").filter(Boolean));
+ const activeCustomers=linkedCustomerIds.size||activeCustomerNames.size;
  const counts={new:sourceOrders.filter(o=>statusOf(o.status)==="new").length,prep:sourceOrders.filter(o=>statusOf(o.status)==="prep").length,delivery:sourceOrders.filter(o=>statusOf(o.status)==="delivery").length,done:sourceOrders.filter(o=>statusOf(o.status)==="done").length};
  const lines:ProductLine[]=[{name:"Linha Fit (350 g)",value:0,color:"#7ed321"},{name:"Linha Performance (450 g)",value:0,color:"#ff7a00"},{name:"Linha Tradicional (500 g)",value:0,color:"#a6e82e"},{name:"Sucos e Lanches",value:0,color:"#ffd000"},{name:"Outros",value:0,color:"#777777"}];
  const productTotals=new Map<string,number>();
@@ -95,7 +95,8 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  const planned=todayBatches.reduce((s,p)=>s+Number(p.quantity||0),0);
  const produced=todayBatches.filter(p=>["concluida","concluido"].includes(p.status)).reduce((s,p)=>s+Number(p.quantity||0),0);
  const progress=planned?Math.min(100,Math.round(produced/planned*100)):0;
- const alertIds=new Set(purchaseAlerts.map(a=>a.item_id));\n const stockRows=[...inventory.filter(i=>i.active!==false)].sort((a,b)=>Number(alertIds.has(b.id))-Number(alertIds.has(a.id))||((a.minimum_quantity>0?a.current_quantity/a.minimum_quantity:99)-(b.minimum_quantity>0?b.current_quantity/b.minimum_quantity:99))).slice(0,4);
+ const alertIds=new Set(purchaseAlerts.map(a=>a.item_id));
+ const stockRows=[...inventory.filter(i=>i.active!==false)].sort((a,b)=>Number(alertIds.has(b.id))-Number(alertIds.has(a.id))||((a.minimum_quantity>0?a.current_quantity/a.minimum_quantity:99)-(b.minimum_quantity>0?b.current_quantity/b.minimum_quantity:99))).slice(0,4);
  const paidFinance=finance.filter(f=>f.status==="pago"||f.status==="paid"||f.status==="concluido");
  const currentFinance=paidFinance.filter(f=>new Date(f.paid_at||f.created_at)>=periodStart);
  const receipts=currentFinance.filter(f=>["receita","income"].includes(f.type)).reduce((s,f)=>s+Number(f.amount||0),0);
