@@ -8,7 +8,7 @@ import {
   Megaphone, Settings, Building2, Leaf, TrendingUp, ArrowDown, ArrowUp, Clock3
 } from "lucide-react";
 
-type Order = { id:string; order_code?:string; created_at:string; customer_name:string|null; items:unknown; item_count:number; total:number; status:string; };
+type Order = { id:string; order_code?:string; customer_profile_id?:string|null; created_at:string; customer_name:string|null; items:unknown; item_count:number; total:number; status:string; };
 type Customer = { id:string; name:string; order_count:number; total_spend:number; created_at:string; };
 type InventoryItem = { id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; active:boolean; };
 type PurchaseAlert = { item_id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; shortage_quantity:number; status:string; };
@@ -59,7 +59,7 @@ function MiniBarChart({orders,days}:{orders:Order[];days:number}){
  return <div className="nf-daily-chart"><div className="nf-y-axis">{[max, max*.75,max*.5,max*.25,0].map((n,i)=><span key={i}>{Math.round(n).toLocaleString("pt-BR")}</span>)}</div><div className="nf-chart-area"><div className="nf-gridlines"><i/><i/><i/><i/><i/></div><div className="nf-bars">{buckets.map((b,i)=><div className="nf-bar-wrap" key={i}><div className="nf-bar" title={money(b.value)} style={{height:`${Math.max(b.value?2:0,b.value/max*100)}%`}}/><span>{b.date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</span></div>)}</div></div></div>
 }
 export default function DashboardOverview({orders,customers,inventory,purchaseAlerts,token,email,onNavigate,onRefresh}:{orders:Order[];customers:Customer[];inventory:InventoryItem[];purchaseAlerts:PurchaseAlert[];token:string;email:string;onNavigate:(s:string)=>void;onRefresh:()=>void}){
- const [period,setPeriod]=useState(7);const [production,setProduction]=useState<Production[]>([]);const [deliveries,setDeliveries]=useState<Delivery[]>([]);const [finance,setFinance]=useState<Finance[]>([]);const [loading,setLoading]=useState(false);
+ const [period,setPeriod]=useState(7);const [dashboardOrders,setDashboardOrders]=useState<Order[]|null>(null);const [production,setProduction]=useState<Production[]>([]);const [deliveries,setDeliveries]=useState<Delivery[]>([]);const [finance,setFinance]=useState<Finance[]>([]);const [loading,setLoading]=useState(false);
  async function load(){
   if(!token)return;setLoading(true);
   const req=async(path:string)=>{const r=await fetch(path,{headers:{apikey:KEY,Authorization:"Bearer "+token}});if(!r.ok)throw new Error("Falha ao carregar dados adicionais");return r.json()};
@@ -71,10 +71,10 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
   }catch{setProduction([]);setDeliveries([]);setFinance([])}finally{setLoading(false)}
  }
  useEffect(()=>{void load();const id=window.setInterval(()=>void load(),30000);return()=>window.clearInterval(id)},[token]);
- const today=startOfDay();const todayString=dateKey(today.toISOString());
+ const sourceOrders=dashboardOrders??orders;\n const today=startOfDay();const todayString=dateKey(today.toISOString());
  const periodStart=new Date(today);periodStart.setDate(periodStart.getDate()-(period-1));
  const previousStart=new Date(periodStart);previousStart.setDate(previousStart.getDate()-period);
- const validOrders=orders.filter(o=>!cancelled(o.status));
+ const validOrders=sourceOrders.filter(o=>!cancelled(o.status));
  const currentOrders=validOrders.filter(o=>new Date(o.created_at)>=periodStart);
  const previousOrders=validOrders.filter(o=>new Date(o.created_at)>=previousStart&&new Date(o.created_at)<periodStart);
  const sales=currentOrders.reduce((s,o)=>s+Number(o.total||0),0);
@@ -83,7 +83,7 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
  const average=currentOrders.length?sales/currentOrders.length:0;
  const activeCustomerIds=new Set(validOrders.map(o=>o.customer_name||"").filter(Boolean));
  const activeCustomers=customers.filter(c=>activeCustomerIds.has(c.name)).length;
- const counts={new:orders.filter(o=>statusOf(o.status)==="new").length,prep:orders.filter(o=>statusOf(o.status)==="prep").length,delivery:orders.filter(o=>statusOf(o.status)==="delivery").length,done:orders.filter(o=>statusOf(o.status)==="done").length};
+ const counts={new:sourceOrders.filter(o=>statusOf(o.status)==="new").length,prep:sourceOrders.filter(o=>statusOf(o.status)==="prep").length,delivery:sourceOrders.filter(o=>statusOf(o.status)==="delivery").length,done:sourceOrders.filter(o=>statusOf(o.status)==="done").length};
  const lines:ProductLine[]=[{name:"Linha Fit (350 g)",value:0,color:"#7ed321"},{name:"Linha Performance (450 g)",value:0,color:"#ff7a00"},{name:"Linha Tradicional (500 g)",value:0,color:"#a6e82e"},{name:"Sucos e Lanches",value:0,color:"#ffd000"},{name:"Outros",value:0,color:"#777777"}];
  const productTotals=new Map<string,number>();
  for(const o of currentOrders)for(const item of parseItems(o.items)){const l=item.line.toLowerCase();const ix=l.includes("fit")?0:l.includes("performance")?1:l.includes("tradicional")?2:l.includes("suco")||l.includes("lanche")?3:4;lines[ix].value+=item.quantity;productTotals.set(item.name,(productTotals.get(item.name)||0)+item.quantity)}
@@ -108,7 +108,7 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
   <aside className="nf-sidebar">
    <div className="nf-brand"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit"/><div><div className="nf-brand-word"><span>NUTRI</span><b>FIT</b></div><small>Comida de verdade para todos os estilos de vida</small></div></div>
    <nav className="nf-nav">
-    {([{id:"resumo",label:"Dashboard",Icon:Home},{id:"pedidos",label:"Pedidos",Icon:ShoppingCart,badge:orders.filter(o=>statusOf(o.status)==="new").length},{id:"producao",label:"Produção",Icon:ChefHat},{id:"estoque",label:"Estoque",Icon:Package},{id:"estoque",label:"Compras",Icon:ShoppingBag},{id:"produtos",label:"Cardápio",Icon:Utensils},{id:"clientes",label:"Clientes",Icon:Users},{id:"financeiro",label:"Financeiro",Icon:Coins},{id:"financeiro",label:"Relatórios",Icon:ChartNoAxesColumnIncreasing},{id:"b2b",label:"Marketing",Icon:Megaphone},{id:"b2b",label:"B2B Corporativo",Icon:Building2},{id:"resumo",label:"Configurações",Icon:Settings}] as any[]).map(({id,label,Icon,badge})=><button key={label} onClick={()=>onNavigate(id)} className={`nf-nav-item ${id==="resumo"&&label==="Dashboard"?"active":""}`}><Icon size={22}/><span>{label}</span>{badge>0&&<b className="nf-nav-badge">{badge}</b>}</button>)}
+    {([{id:"resumo",label:"Dashboard",Icon:Home},{id:"pedidos",label:"Pedidos",Icon:ShoppingCart,badge:sourceOrders.filter(o=>statusOf(o.status)==="new").length},{id:"producao",label:"Produção",Icon:ChefHat},{id:"estoque",label:"Estoque",Icon:Package},{id:"estoque",label:"Compras",Icon:ShoppingBag},{id:"produtos",label:"Cardápio",Icon:Utensils},{id:"clientes",label:"Clientes",Icon:Users},{id:"financeiro",label:"Financeiro",Icon:Coins},{id:"financeiro",label:"Relatórios",Icon:ChartNoAxesColumnIncreasing},{id:"b2b",label:"Marketing",Icon:Megaphone},{id:"b2b",label:"B2B Corporativo",Icon:Building2},{id:"resumo",label:"Configurações",Icon:Settings}] as any[]).map(({id,label,Icon,badge})=><button key={label} onClick={()=>onNavigate(id)} className={`nf-nav-item ${id==="resumo"&&label==="Dashboard"?"active":""}`}><Icon size={22}/><span>{label}</span>{badge>0&&<b className="nf-nav-badge">{badge}</b>}</button>)}
    </nav>
    <div className="nf-user"><div className="nf-avatar">{userLabel.slice(0,1).toUpperCase()}</div><div><b>{userLabel}</b><small>Administrador</small></div><ChevronDown size={18}/></div>
   </aside>
@@ -129,7 +129,7 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
    </section>
    <section className="nf-row nf-row-4">
     <article className="nf-card nf-top"><h2><Activity/>Top 5 Mais Vendidos</h2>{Array.from({length:5},(_,i)=>{const item=topProducts[i];return <div className="nf-top-row" key={item?.[0]||i}><b className="nf-rank">{i+1}</b><span>{item?.[0]||"—"}</span><div className="nf-top-track"><i style={{width:item?`${item[1]/maxTop*100}%`:"0%"}}/></div><small>{item?item[1]+" un.":"0 un."}</small></div>})}</article>
-    <article className="nf-card nf-deliveries"><h2><Truck/>Próximas Entregas</h2>{Array.from({length:4},(_,i)=>{const d=nextDeliveries[i];return <div className="nf-delivery-row" key={d?.id||i}><time>{d?.delivery_window||"—"}</time><span>{d?d.customer_name||"Cliente": "—"} · {d?(d.item_count??orders.find(o=>o.customer_name===d.customer_name)?.item_count??"—")+" marmitas":"— marmitas"}</span><b>{d?.route_name||"Rota —"}</b><small>{d?.driver_name||""}</small></div>})}</article>
+    <article className="nf-card nf-deliveries"><h2><Truck/>Próximas Entregas</h2>{Array.from({length:4},(_,i)=>{const d=nextDeliveries[i];return <div className="nf-delivery-row" key={d?.id||i}><time>{d?.delivery_window||"—"}</time><span>{d?d.customer_name||"Cliente": "—"} · {d?(d.item_count??sourceOrders.find(o=>o.customer_name===d.customer_name)?.item_count??"—")+" marmitas":"— marmitas"}</span><b>{d?.route_name||"Rota —"}</b><small>{d?.driver_name||""}</small></div>})}</article>
    </section>
    {loading&&<div className="nf-loading">Atualizando dados complementares…</div>}
   </div>
