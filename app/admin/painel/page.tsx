@@ -1,453 +1,109 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BarChart3, Bell, ChevronDown, ChevronRight, CircleDollarSign, Copy, Package, ShoppingBag, Users } from "lucide-react";
+import { Activity, Bell, Box, ChefHat, CircleDollarSign, ClipboardList, HelpCircle, Home, Package, RefreshCw, ShoppingCart, Truck, Users, Wallet, ChartNoAxesColumn, Utensils, Megaphone, Settings, CalendarDays } from "lucide-react";
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
-
-type Order = {
-  id: string;
-  created_at: string;
-  customer_name: string | null;
-  item_count: number | null;
-  total: number | null;
-  status: string;
-  items: unknown;
-  acquisition_source: string | null;
-  acquisition_campaign: string | null;
-  acquisition_medium: string | null;
-  acquisition_content: string | null;
+const API = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
+const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+type Row = Record<string, any>;
+const brl = (n:number) => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n)||0);
+const safeDate = (v:any) => v ? new Date(v) : null;
+const isCancelled = (s:string) => ["cancelado","cancelada","canceled","cancelled"].includes(String(s||"").toLowerCase());
+const itemRows = (raw:any):Row[] => {
+  let value=raw;
+  if(typeof value==="string"){try{value=JSON.parse(value)}catch{return []}}
+  if(value && !Array.isArray(value) && Array.isArray(value.items)) value=value.items;
+  if(!Array.isArray(value)) value=value && typeof value==="object" ? [value] : [];
+  const result:Row[]=[];
+  const visit=(item:any)=>{if(!item||typeof item!=="object")return;if(Array.isArray(item.items)){item.items.forEach(visit);return;}const name=String(item.name||item.product_name||item.title||item.description||"");if(name)result.push({name,quantity:Math.max(1,Number(item.quantity)||1),line:item.line||item.category||""});};
+  value.forEach(visit);return result;
 };
 
-type Customer = {
-  id: string;
-  created_at: string;
-  name: string;
-  whatsapp: string | null;
-  email: string | null;
-  marketing_consent: boolean;
-  marketing_consent_at: string | null;
-  coupon_code: string | null;
-  coupon_used: boolean;
-  last_order_at: string | null;
-  order_count: number;
-  total_spend: number;
-  birth_date: string | null;
-  nutrifit_club_member: boolean;
-  nutrifit_club_joined_at: string | null;
-  acquisition_source: string | null;
-  acquisition_campaign: string | null;
-  acquisition_medium: string | null;
-  acquisition_content: string | null;
-};
+export default function AdminDashboardV7(){
+  const [token,setToken]=useState("");
+  const [orders,setOrders]=useState<Row[]>([]);
+  const [customers,setCustomers]=useState<Row[]>([]);
+  const [alerts,setAlerts]=useState<Row[]>([]);
+  const [batches,setBatches]=useState<Row[]>([]);
+  const [finance,setFinance]=useState<Row[]>([]);
+  const [inventory,setInventory]=useState<Row[]>([]);
+  const [period,setPeriod]=useState("7");
+  const [loading,setLoading]=useState(true);
+  const [refreshing,setRefreshing]=useState(false);
+  const [error,setError]=useState("");
+  const [active,setActive]=useState("Dashboard");
+  const [now,setNow]=useState(new Date());
 
-type Alert = {
-  item_id: string;
-  name: string;
-  current_quantity: number;
-  minimum_quantity: number;
-  required_quantity: number;
-  shortage_quantity: number;
-  status: string;
-};
-
-type AcquisitionEvent = {
-  id: string;
-  created_at: string;
-  event: string;
-  source: string;
-  page: string | null;
-  metadata: { campaign?: string | null; medium?: string | null; content?: string | null } | null;
-};
-
-type Finance = {
-  id: string;
-  created_at: string;
-  type: string;
-  category: string;
-  description: string;
-  amount: number;
-  payment_method: string | null;
-  status: string;
-  paid_at: string | null;
-};
-
-const money = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
-
-async function request(path: string, token: string) {
-  const response = await fetch(path, {
-    headers: { apikey: KEY, Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
-  const text = await response.text();
-  if (response.status === 401) {
-    sessionStorage.removeItem("nutrifit_admin_token");
-    window.location.href = "/admin";
-    throw new Error("Sessão expirada.");
-  }
-  if (!response.ok) throw new Error(text || "Erro ao carregar dados.");
-  return text ? JSON.parse(text) : null;
-}
-
-function dayKey(date: Date) {
-  return date.toLocaleDateString("pt-BR");
-}
-
-export default function PainelNutrifit() {
-  const [token, setToken] = useState("");
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [finance, setFinance] = useState<Finance[]>([]);
-  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
-  const [inventoryPurchases, setInventoryPurchases] = useState<any[]>([]);
-  const [acquisitionEvents, setAcquisitionEvents] = useState<AcquisitionEvent[]>([]);
-  const [copiedLink, setCopiedLink] = useState("");
-  const [customerSearch, setCustomerSearch] = useState("");
-  const [expandedCustomer, setExpandedCustomer] = useState<string | null>(null);
-  const [showAllCustomers, setShowAllCustomers] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"Visão geral" | "Clientes" | "Financeiro">("Visão geral");
-  const [darkMode, setDarkMode] = useState(false);
-  const [period, setPeriod] = useState("Últimos 7 dias");
-  const [tableFilter, setTableFilter] = useState("");
-  const [comparePrevious, setComparePrevious] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showNewRecord, setShowNewRecord] = useState(false);
-
-  async function load(t: string) {
-    try {
-      setError("");
-      const [o, c, a, f, ae, inv, purchases] = await Promise.all([
-        request(`${URL}/rest/v1/customer_orders?select=id,created_at,customer_name,item_count,total,status,items,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/customer_profiles?select=id,created_at,name,whatsapp,email,marketing_consent,marketing_consent_at,coupon_code,coupon_used,last_order_at,order_count,total_spend,birth_date,nutrifit_club_member,nutrifit_club_joined_at,acquisition_source,acquisition_campaign,acquisition_medium,acquisition_content&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/inventory_purchase_alerts?select=item_id,name,current_quantity,minimum_quantity,required_quantity,shortage_quantity,status&limit=100`, t),
-        request(`${URL}/rest/v1/financial_transactions?select=id,created_at,type,category,description,amount,payment_method,status,paid_at&order=created_at.desc&limit=500`, t),
-        request(`${URL}/rest/v1/acquisition_events?select=id,created_at,event,source,page,metadata&order=created_at.desc&limit=1000`, t),
-        request(`${URL}/rest/v1/inventory_items?select=id,name,unit,current_quantity,minimum_quantity,average_cost,active&active=eq.true&limit=500`, t),
-        request(`${URL}/rest/v1/inventory_purchases?select=id,created_at,total_cost,status&order=created_at.desc&limit=200`, t),
-      ]);
-      setOrders(o || []);
-      setCustomers(c || []);
-      setAlerts(a || []);
-      setFinance(f || []);
-      setInventoryItems(inv || []);
-      setInventoryPurchases(purchases || []);
-      setAcquisitionEvents(ae || []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Não foi possível carregar o painel.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    const saved = sessionStorage.getItem("nutrifit_admin_token") || "";
-    if (!saved) {
-      window.location.href = "/admin";
-      return;
-    }
-    setToken(saved);
-    void load(saved);
-    const timer = window.setInterval(() => void load(saved), 60000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  async function refreshData() {
-    if (!token || refreshing) return;
-    setRefreshing(true);
-    try {
-      await load(token);
-    } finally {
-      setRefreshing(false);
-    }
-  }
-
-  const today = dayKey(new Date());
-  const periodStart = useMemo(() => {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    if (period === "Últimos 7 dias") start.setDate(start.getDate() - 6);
-    else if (period === "Este mês") start.setDate(1);
-    else if (period === "Últimos 30 dias") start.setDate(start.getDate() - 29);
-    return start;
-  }, [period, today]);
-  const periodEnd = useMemo(() => {
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
-    return end;
-  }, [today]);
-  const inSelectedPeriod = (value: string | null | undefined) => {
-    if (!value) return false;
-    const date = new Date(value);
-    return !Number.isNaN(date.getTime()) && date >= periodStart && date <= periodEnd;
-  };
-  const periodOrders = orders.filter(o => inSelectedPeriod(o.created_at) && !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase()));
-  const periodRevenue = periodOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-  const periodMeals = periodOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
-  // Paid transactions use the actual payment date; pending transactions use their creation date.
-  const periodFinance = finance.filter(f =>
-    inSelectedPeriod(f.status === "pago" ? (f.paid_at || f.created_at) : f.created_at)
-  );
-  const confirmedReceipts = periodFinance
-    .filter(f => f.type !== "despesa" && f.status === "pago")
-    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
-  const receivables = periodFinance
-    .filter(f => f.type !== "despesa" && f.status !== "pago")
-    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
-  const paidExpenses = periodFinance
-    .filter(f => f.type === "despesa" && f.status === "pago")
-    .reduce((sum, f) => sum + Number(f.amount || 0), 0);
-  const ticket = periodOrders.length ? periodRevenue / periodOrders.length : 0;
-  const previousRange = useMemo(() => {
-    const start = new Date(periodStart);
-    const end = new Date(periodEnd);
-    if (period === "Este mês") {
-      const elapsedDays = end.getDate();
-      start.setMonth(start.getMonth() - 1);
-      const lastDayPreviousMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
-      end.setTime(start.getTime());
-      end.setDate(Math.min(elapsedDays, lastDayPreviousMonth));
-      end.setHours(23, 59, 59, 999);
-    } else {
-      const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
-      end.setTime(start.getTime() - 1);
-      start.setTime(end.getTime());
-      start.setHours(0, 0, 0, 0);
-      start.setDate(start.getDate() - days + 1);
-    }
-    return { start, end };
-  }, [period, periodStart, periodEnd]);
-  const previousOrders = orders.filter(o => {
-    const created = new Date(o.created_at);
-    return !Number.isNaN(created.getTime()) && created >= previousRange.start && created <= previousRange.end &&
-      !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase());
-  });
-  const previousRevenue = previousOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-  const previousMeals = previousOrders.reduce((sum, o) => sum + Number(o.item_count || 0), 0);
-  const compareValue = (current: number, previous: number) => previous > 0
-    ? `${current >= previous ? "+" : ""}${((current - previous) / previous * 100).toFixed(1).replace(".", ",")}% vs período anterior`
-    : "Sem base no período anterior";
-  const inventoryValue = inventoryItems.reduce((sum, item) => sum + Number(item.current_quantity || 0) * Number(item.average_cost || 0), 0);
-  const lowStockItems = inventoryItems.filter(item => Number(item.minimum_quantity || 0) > 0 && Number(item.current_quantity || 0) <= Number(item.minimum_quantity || 0));
-  const purchaseSpend30Days = inventoryPurchases.filter(p => p.status === "recebida" && Date.now() - new Date(p.created_at).getTime() <= 30 * 86400000).reduce((sum, p) => sum + Number(p.total_cost || 0), 0);
-  const pending = orders.filter(o => ["novo", "enviado_whatsapp", "confirmado", "pago_recebido"].includes(o.status)).length;
-  const newCustomers = customers.filter(c => dayKey(new Date(c.created_at)) === today).length;
-  const clubMembers = customers.filter(c => c.nutrifit_club_member);
-  const clubNewToday = clubMembers.filter(c => dayKey(new Date(c.nutrifit_club_joined_at || c.created_at)) === today).length;
-  const clubWithoutPurchase = clubMembers.filter(c => Number(c.order_count || 0) === 0 && c.marketing_consent && c.email);
-
-  const campaignLinks = [
-    {
-      label: "Instagram • Bio",
-      description: "Link principal do perfil",
-      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=bio&utm_campaign=perfil",
-    },
-    {
-      label: "Instagram • Reels",
-      description: "Para Reels de divulgação",
-      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=reel&utm_campaign=combo&utm_content=reel_combo",
-    },
-    {
-      label: "Instagram • Stories",
-      description: "Para Stories com chamada para pedido",
-      url: "https://nutrifitjf.com.br/?utm_source=instagram&utm_medium=story&utm_campaign=combo&utm_content=story_combo",
-    },
-    {
-      label: "WhatsApp • Status",
-      description: "Para publicar no Status",
-      url: "https://nutrifitjf.com.br/?utm_source=whatsapp&utm_medium=status&utm_campaign=combo",
-    },
-    {
-      label: "Google • Perfil",
-      description: "Para o Perfil da Empresa no Google",
-      url: "https://nutrifitjf.com.br/?utm_source=google&utm_medium=perfil&utm_campaign=local",
-    },
-  ];
-
-  const acquisition = useMemo(() => {
-    const sources = new Set<string>([
-      ...customers.map(c => c.acquisition_source || "direct"),
-      ...orders.map(o => o.acquisition_source || "direct"),
-      ...acquisitionEvents.map(e => e.source || "direct"),
-    ]);
-    return Array.from(sources).map(source => {
-      const customerCount = customers.filter(c => (c.acquisition_source || "direct") === source).length;
-      const sourceOrders = orders.filter(o => (o.acquisition_source || "direct") === source);
-      const revenue = sourceOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-      const leads = acquisitionEvents.filter(e => e.event === "lead_captured" && (e.source || "direct") === source).length;
-      const visits = acquisitionEvents.filter(e => e.event === "site_visit" && (e.source || "direct") === source).length;
-      return { source, customerCount, orders: sourceOrders.length, revenue, leads, visits };
-    }).sort((a, b) => b.revenue - a.revenue || b.customerCount - a.customerCount);
-  }, [customers, orders, acquisitionEvents]);
-
-  const week = useMemo(() => {
-    const start = new Date(periodStart);
-    const end = new Date(periodEnd);
-    const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000) + 1);
-    return Array.from({ length: days }, (_, index) => {
-      const d = new Date(start);
-      d.setDate(start.getDate() + index);
-      const key = dayKey(d);
-      const value = orders
-        .filter(o => dayKey(new Date(o.created_at)) === key && !["cancelado", "cancelada", "canceled", "cancelled"].includes((o.status || "").trim().toLowerCase()))
-        .reduce((sum, o) => sum + Number(o.total || 0), 0);
-      return {
-        label: days <= 7
-          ? d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "")
-          : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", ""),
-        value,
-      };
-    });
-  }, [orders, periodStart, periodEnd]);
-
-  const maxWeek = Math.max(...week.map(d => d.value), 1);
-
-  const formatMoney = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
-  const recentFinance = finance.filter(f => !tableFilter || [f.description, f.category, f.type, f.status].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
-  const visibleCustomers = customers.filter(c => !tableFilter || [c.name, c.whatsapp || "", c.email || ""].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
-  const visibleOrders = orders.filter(o => !tableFilter || [o.customer_name || "", o.status, o.id].join(" ").toLowerCase().includes(tableFilter.toLowerCase()));
-  const surface = darkMode ? "bg-[#151a24] text-[#f3f4f6]" : "bg-[#F6F7F9] text-[#111827]";
-  const card = darkMode ? "bg-[#1d2430] border-[#303949]" : "bg-white border-[#E8EAEE]";
-  if (loading) return <main className={`min-h-screen ${surface} p-10 text-center`}>Carregando dados reais da NutriFit…</main>;
-
-  return (
-    <main className={`min-h-screen ${surface}`}>
-      <style jsx global>{`
-        .nf-scroll::-webkit-scrollbar{height:7px;width:7px}.nf-scroll::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:8px}
-        .nf-focus:focus-visible{outline:3px solid #3B6BF566;outline-offset:2px}
-        @keyframes nf-in{from{opacity:0;transform:translateY(5px);filter:blur(2px)}to{opacity:1;transform:none;filter:blur(0)}}
-        .nf-in{animation:nf-in .22s ease-out both}
-      `}</style>
-      <div className="flex min-h-screen">
-        <aside className={`hidden w-[200px] shrink-0 flex-col border-r md:flex ${card} `}>
-          <div className="flex items-center gap-2 px-4 py-5"><img src="/images/nutrifit-logo-icon.svg" className="h-7 w-7" alt="NutriFit"/><b className="text-[17px] tracking-tight">NutriFit</b><button className="ml-auto text-[#9ca3af]" aria-label="Recolher menu">◧</button></div>
-          <div className="px-5 pb-2 text-[10px] font-bold tracking-[.13em] text-[#9ca3af]">MENU</div>
-          <nav className="grid gap-1 px-2">
-            {(["Visão geral","Clientes","Financeiro"] as const).map((item,i)=><button key={item} onClick={()=>setView(item)} className={`nf-focus flex items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[12px] transition-colors ${view===item?(darkMode?"bg-[#303949] font-semibold":"bg-[#F1F2F5] font-semibold"):"text-[#6b7280] hover:bg-black/[.035]"}`}><span className="w-4 text-center">{["▦","♙","▤"][i]}</span>{item}</button>)}
-            <a href="/admin" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] text-[#6b7280] hover:bg-black/[.035]"><span className="w-4 text-center">←</span>Administração</a>
-          </nav>
-          <div className="mt-7 px-5 pb-2 text-[10px] font-bold tracking-[.13em] text-[#9ca3af]">SEGMENTOS</div>
-          <div className="grid gap-1 px-4 text-[12px] text-[#6b7280]"><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#e6a23c]"/>Escritórios</div><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#48a9a6]"/>Clínicas</div><div className="flex items-center gap-2 py-2"><i className="h-2 w-2 rounded-full bg-[#9b87d9]"/>Academias</div></div>
-          <div className="mt-auto border-t p-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><button onClick={()=>setDarkMode(!darkMode)} className="flex w-full items-center justify-between px-2 py-3 text-[11px] text-[#6b7280]">Modo escuro <span className={`rounded-full px-2 py-1 ${darkMode?"bg-[#3B6BF5] text-white":"bg-[#F1F2F5]"}`}>{darkMode?"Ligado":"Desligado"}</span></button><div className="grid grid-cols-2 gap-2"><button onClick={()=>alert("Convites de equipe devem ser configurados pelo administrador.")} className="rounded-lg border px-2 py-2 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>♧ Convidar</button><button onClick={()=>alert("Ajuda: escolha uma seção do menu e use a busca para filtrar os dados.")} className="rounded-lg border px-2 py-2 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>? Ajuda</button></div></div>
-        </aside>
-        <div className="min-w-0 flex-1">
-          <header className={`flex min-h-[62px] flex-wrap items-center justify-between gap-3 border-b px-4 py-3 md:px-7 ${card}`}>
-            <div className="relative w-full max-w-[260px]"><span className="absolute left-3 top-2 text-lg text-[#9ca3af]">⌕</span><input value={tableFilter} onChange={e=>setTableFilter(e.target.value)} placeholder="Buscar..." className="nf-focus w-full rounded-lg border bg-transparent py-2 pl-9 pr-3 text-[12px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}/></div>
-            <div className="flex items-center gap-3 text-[11px] text-[#6b7280]"><span className="hidden lg:inline">Última atualização: {new Date().toLocaleDateString("pt-BR")}</span><button onClick={() => setShowNotifications(v => !v)} className="relative rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Notificações" aria-expanded={showNotifications}>♧<i className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-red-500"/></button><button onClick={() => setShowSettings(v => !v)} className="rounded-lg border px-2.5 py-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}} aria-label="Configurações" aria-expanded={showSettings}>⚙</button><span className="flex items-center gap-2 rounded-full border py-1 pl-1 pr-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><span className="grid h-6 w-6 place-items-center rounded-full bg-[#e6e9f3] font-bold text-[#4c5b88]">NF</span><b>NutriFit Admin</b>⌄</span></div>
-          </header>
-          <div className="mx-auto max-w-[1500px] p-4 pb-24 md:p-7">
-            {(showNotifications || showSettings) && (
-              <section className={`mb-4 rounded-xl border p-4 ${card}`}>
-                {showNotifications && (
-                  <div>
-                    <h2 className="font-semibold">Notificações</h2>
-                    <p className="mt-1 text-sm text-[#6b7280]">
-                      {alerts.length ? `${alerts.length} alertas de estoque para conferir.` : "Nenhum alerta de estoque retornado pelo sistema."}
-                    </p>
-                    {alerts.slice(0, 5).map(a => (
-                      <p key={a.item_id} className="mt-2 text-sm">{a.name}: {a.current_quantity} {a.status}</p>
-                    ))}
-                  </div>
-                )}
-                {showSettings && (
-                  <div className={showNotifications ? "mt-4 border-t pt-4" : ""} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
-                    <h2 className="font-semibold">Configurações do painel</h2>
-                    <p className="mt-1 text-sm text-[#6b7280]">Preferências de visualização; não alteram dados operacionais.</p>
-                    <button onClick={() => setDarkMode(v => !v)} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
-                      Alternar modo {darkMode ? "claro" : "escuro"}
-                    </button>
-                  </div>
-                )}
-                <button onClick={() => { setShowNotifications(false); setShowSettings(false); }} className="mt-3 rounded-lg border px-3 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Fechar</button>
-              </section>
-            )}
-            {error&&<div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-            <div className="mb-5 flex flex-col justify-between gap-4 xl:flex-row xl:items-center"><h1 className="text-[22px] font-semibold tracking-tight">{view}</h1><div className="flex flex-wrap items-center gap-2"><select value={period} onChange={e=>setPeriod(e.target.value)} className={`nf-focus h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"bg-[#1d2430]":"bg-white"}`} style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><option>Hoje</option><option>Últimos 7 dias</option><option>Este mês</option><option>Últimos 30 dias</option></select><span className="text-[11px] text-[#6b7280]">comparar com</span><button onClick={()=>setComparePrevious(v=>!v)} aria-pressed={comparePrevious} className={`h-[34px] rounded-lg border px-3 text-[11px] ${darkMode?"border-[#303949]":"border-[#E8EAEE]"}`}>{comparePrevious?"Ocultar comparação":"Período anterior"}⌄</button><button onClick={() => setShowNewRecord(true)} className="h-8 rounded-lg bg-[#3B6BF5] px-3 text-[12px] font-medium text-white">＋ {view==="Visão geral"?"Nova proposta":view==="Clientes"?"Novo cliente":"Nova fatura"}</button></div></div>
-            <section className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {(view==="Visão geral"?[
-                ["Refeições nos pedidos",periodMeals.toLocaleString("pt-BR"),comparePrevious?compareValue(periodMeals,previousMeals):period+" · dados registrados","#b46cdb","▣"],
-                ["Pedidos no período",periodOrders.length.toLocaleString("pt-BR"),comparePrevious?compareValue(periodOrders.length,previousOrders.length):period+" · registros encontrados","#4f6fe8","▤"],
-                ["Ticket médio",formatMoney(ticket),comparePrevious?compareValue(ticket,previousOrders.length?previousRevenue/previousOrders.length:0):period+" · por pedido","#315e4c","◷"],
-                ["Faturamento registrado",formatMoney(periodRevenue),comparePrevious?compareValue(periodRevenue,previousRevenue):period+" · pedidos registrados","#f16b2c","⌁"]
-              ]:view==="Clientes"?[
-                ["Clientes cadastrados",customers.length.toLocaleString("pt-BR"),"Registros reais","#b46cdb","♙"],
-                ["Novos hoje",newCustomers.toLocaleString("pt-BR"),"Pelo cadastro","#4f6fe8","＋"],
-                ["Membros NutriFit Club",clubMembers.length.toLocaleString("pt-BR"),"Cadastros com adesão","#315e4c","✓"],
-                ["Total gasto registrado",formatMoney(customers.reduce((n,c)=>n+Number(c.total_spend||0),0)),"Soma dos perfis","#f16b2c","R$"]
-              ]:[
-                ["Faturamento de pedidos",formatMoney(periodRevenue),periodOrders.length+" pedidos não cancelados no período","#b46cdb","▣"],
-                ["Recebido confirmado",formatMoney(confirmedReceipts),"Receitas com status pago no período","#4f6fe8","✓"],
-                ["A receber",formatMoney(receivables),"Receitas sem confirmação de pagamento no período","#315e4c","◷"],
-                ["Despesas pagas",formatMoney(paidExpenses),"Somente despesas com status pago no período","#f16b2c","↘"]
-              ]).map((m,i)=><article key={m[0]} className={`nf-in relative min-h-[108px] rounded-xl border p-4 ${card}`} style={{animationDelay:`${i*55}ms`}}><span className="text-[11px] text-[#6b7280]">{m[0]}</span><button className="absolute right-3 top-1 text-lg text-[#9ca3af]" aria-label="Opções">⋮</button><div className="my-2 text-[27px] font-semibold tracking-tight">{m[1]}</div><div className="text-[10px] text-[#6b7280]">{m[2]}</div><span className="absolute bottom-2 right-2 grid h-[22px] w-[22px] place-items-center rounded-md text-[12px] text-white" style={{background:m[3]}}>{m[4]}</span></article>)}
-            </section>
-            <section className={`mb-3 rounded-xl border p-4 md:p-5 ${card}`}>
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2 text-[13px] font-semibold">{view==="Visão geral"?"Desempenho geral":view==="Clientes"?"Evolução de clientes":"Faturamento mensal"} <span className="grid h-4 w-4 place-items-center rounded-full border text-[9px] text-[#9ca3af]">i</span></div><div className="flex items-center gap-2"><button onClick={()=>setPeriod("Últimos 7 dias")} className="rounded-lg border px-3 py-1.5 text-[11px]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>7 dias</button><span className="text-[11px] text-[#6b7280]">Dados reais do período selecionado</span></div></div>
-              <div className="nf-scroll overflow-x-auto"><div className="flex h-[230px] min-w-[520px] gap-3 border-b pb-2" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>
-                {week.map((d,i)=><div key={d.label} className="flex min-w-0 flex-1 flex-col justify-end gap-2"><div className="text-center text-[10px] text-[#6b7280]">{d.value?formatMoney(d.value):"—"}</div><div className="relative flex flex-1 items-end rounded-t-md bg-[#3B6BF5]/[.07]"><div className="w-full rounded-t-md bg-gradient-to-b from-[#B9C6FB] to-[#8EA3F6] transition-all duration-300" style={{height:`${Math.max(3,d.value/maxWeek*100)}%`}}/></div><div className="text-center text-[10px] text-[#6b7280]">{d.label}</div></div>)}
-              </div></div>
-              <p className="mt-3 text-[10px] text-[#9ca3af]">Gráfico baseado no faturamento registrado em cada dia do período selecionado. Pedidos cancelados são excluídos; dias sem vendas aparecem como zero.</p>
-            </section>
-            <section className={`overflow-hidden rounded-xl border ${card}`}>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><div className="flex flex-wrap gap-4 text-[11px] font-medium"><button onClick={()=>setView("Visão geral")} className={view==="Visão geral"?"border-b-2 border-black pb-1 font-bold": "pb-1 text-[#6b7280]"}>Propostas / Pedidos</button><button onClick={()=>setView("Clientes")} className={view==="Clientes"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Clientes</button><button onClick={()=>setView("Financeiro")} className={view==="Financeiro"?"border-b-2 border-black pb-1 font-bold":"pb-1 text-[#6b7280]"}>Financeiro</button></div><span className="text-[10px] text-[#6b7280]">{view==="Visão geral"?visibleOrders.length:view==="Clientes"?visibleCustomers.length:recentFinance.length} registros encontrados</span></div>
-              <div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[680px] border-collapse text-left text-[11px]"><thead className={darkMode?"bg-[#202b3b] text-[#9ca3af]":"bg-[#f8f9fb] text-[#737b89]"}><tr>{(view==="Visão geral"?["Pedido / cliente","Criado em","Itens","Valor","Status"]:view==="Clientes"?["Cliente","Desde","Segmento","Pedidos","Total gasto"]:["Descrição","Data","Tipo","Valor","Status"]).map(h=><th key={h} className="px-4 py-3 font-medium">{h}</th>)}</tr></thead><tbody>
-              {view==="Visão geral"&&visibleOrders.slice(0,20).map(o=><tr key={o.id} onClick={() => setSelectedOrder(o)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedOrder(o); } }} tabIndex={0} role="button" aria-label={`Abrir pedido de ${o.customer_name || "Cliente"}`} className="cursor-pointer border-t hover:bg-black/[.035] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-400" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{o.customer_name||"Cliente"}<span className="ml-1 rounded bg-[#f0f1f4] px-1 py-0.5 text-[9px] text-[#858b96]">pedido</span></td><td className="px-4 text-[#6b7280]">{new Date(o.created_at).toLocaleString("pt-BR")}</td><td className="px-4">{o.item_count||0}</td><td className="px-4">{formatMoney(Number(o.total||0))}</td><td className="px-4"><span className={o.status==="pago_recebido"?"text-emerald-600":"text-[#6b7280]"}>{o.status}</span></td></tr>)}
-              {view==="Clientes"&&visibleCustomers.slice(0,50).map(c=><tr key={c.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{c.name}</td><td className="px-4 text-[#6b7280]">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{c.nutrifit_club_member?"NutriFit Club":"Cliente"}</td><td className="px-4">{c.order_count}</td><td className="px-4">{formatMoney(Number(c.total_spend||0))}</td></tr>)}
-              {view==="Financeiro"&&recentFinance.slice(0,50).map(f=><tr key={f.id} className="border-t" style={{borderColor:darkMode?"#303949":"#edf0f3"}}><td className="h-12 px-4 font-medium">{f.description}</td><td className="px-4 text-[#6b7280]">{new Date(f.created_at).toLocaleDateString("pt-BR")}</td><td className="px-4">{f.type} · {f.category}</td><td className="px-4">{formatMoney(Number(f.amount||0))}</td><td className="px-4"><span className={f.status==="pago"?"text-emerald-600":f.status==="atrasado"?"text-red-500":"text-[#6b7280]"}>{f.status}</span></td></tr>)}
-              {((view==="Visão geral"&&!visibleOrders.length)||(view==="Clientes"&&!visibleCustomers.length)||(view==="Financeiro"&&!recentFinance.length))&&<tr><td colSpan={5} className="p-8 text-center text-[#9ca3af]">Nenhum registro encontrado para essa busca.</td></tr>}
-              </tbody></table></div>
-            </section>
-            {view==="Visão geral"&&<section className={`mt-3 grid gap-3 xl:grid-cols-2`}><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Estoque e compras</h2><div className="grid grid-cols-2 gap-3"><div><div className="text-xl font-semibold">{inventoryItems.length}</div><div className="text-[11px] text-[#6b7280]">Insumos ativos</div></div><div><div className="text-xl font-semibold">{formatMoney(inventoryValue)}</div><div className="text-[11px] text-[#6b7280]">Valor estimado em estoque</div></div><div><div className="text-xl font-semibold">{lowStockItems.length}</div><div className="text-[11px] text-[#6b7280]">Itens no mínimo/abaixo</div></div><div><div className="text-xl font-semibold">{formatMoney(purchaseSpend30Days)}</div><div className="text-[11px] text-[#6b7280]">Compras recebidas · 30 dias</div></div></div>{lowStockItems.length>0&&<div className="mt-4 border-t pt-3 text-[11px] text-[#6b7280]" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Conferir: {lowStockItems.slice(0,8).map(i=>i.name).join(", ")}</div>}</div><div className={`rounded-xl border p-4 ${card}`}><h2 className="mb-3 text-[13px] font-semibold">Origem dos clientes e vendas</h2><div className="nf-scroll overflow-x-auto"><table className="w-full min-w-[440px] text-left text-[11px]"><thead className="text-[#6b7280]"><tr><th className="py-2">Origem</th><th>Clientes</th><th>Pedidos</th><th>Faturamento</th></tr></thead><tbody>{acquisition.slice(0,6).map(row=><tr key={row.source} className="border-t" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}><td className="py-2 capitalize">{row.source}</td><td>{row.customerCount}</td><td>{row.orders}</td><td>{formatMoney(row.revenue)}</td></tr>)}</tbody></table></div></div></section>}
-            <div className="fixed bottom-4 right-4 z-40">
-              <button onClick={() => void refreshData()} disabled={refreshing} className="rounded-full bg-[#ff6b00] px-5 py-3 text-sm font-semibold text-white shadow-lg disabled:opacity-60" aria-label="Atualizar dados do painel">
-                {refreshing ? "Atualizando…" : "↻ Atualizar dados"}
-              </button>
-            </div>
-            {selectedOrder && (
-              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="order-detail-title">
-                <section className={`w-full max-w-lg rounded-2xl border p-5 shadow-xl ${card}`}>
-                  <div className="flex items-center justify-between gap-3">
-                    <h2 id="order-detail-title" className="text-lg font-semibold">Detalhes do pedido</h2>
-                    <button onClick={() => setSelectedOrder(null)} className="rounded-lg border px-3 py-1.5" aria-label="Fechar detalhes do pedido">Fechar</button>
-                  </div>
-                  <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <div><dt className="text-xs text-[#6b7280]">Cliente</dt><dd className="mt-1 font-medium">{selectedOrder.customer_name || "Cliente"}</dd></div>
-                    <div><dt className="text-xs text-[#6b7280]">Status</dt><dd className="mt-1 font-medium">{selectedOrder.status || "Não informado"}</dd></div>
-                    <div><dt className="text-xs text-[#6b7280]">Criado em</dt><dd className="mt-1">{new Date(selectedOrder.created_at).toLocaleString("pt-BR")}</dd></div>
-                    <div><dt className="text-xs text-[#6b7280]">Quantidade de itens</dt><dd className="mt-1">{selectedOrder.item_count ?? 0}</dd></div>
-                    <div className="col-span-2"><dt className="text-xs text-[#6b7280]">Total registrado no pedido</dt><dd className="mt-1 text-xl font-semibold">{formatMoney(Number(selectedOrder.total || 0))}</dd></div>
-                  </dl>
-                  <div className="mt-4">
-                    <h3 className="mb-2 text-sm font-semibold">Itens registrados</h3>
-                    <pre className="max-h-48 overflow-auto rounded-lg border p-3 text-xs" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>{JSON.stringify(selectedOrder.items ?? [], null, 2)}</pre>
-                  </div>
-                  <p className="mt-3 text-xs text-[#6b7280]">Consulta somente leitura. Para alterar um pedido, use o fluxo oficial da administração.</p>
-                </section>
-              </div>
-            )}
-            {showNewRecord && (
-              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="new-record-title">
-                <section className={`w-full max-w-md rounded-2xl border p-5 shadow-xl ${card}`}>
-                  <h2 id="new-record-title" className="text-lg font-semibold">Novo registro</h2>
-                  <p className="mt-2 text-sm text-[#6b7280]">{view === "Visão geral" ? "Proposta ou pedido" : view === "Clientes" ? "Cadastro de cliente" : "Lançamento financeiro"}</p>
-                  <p className="mt-3 text-sm">Este painel é de acompanhamento e não grava novos registros. Para preservar a integridade dos pedidos e do financeiro, use a área administrativa oficial.</p>
-                  <div className="mt-5 flex flex-wrap justify-end gap-2">
-                    <button onClick={() => setShowNewRecord(false)} className="rounded-lg border px-4 py-2 text-sm" style={{borderColor:darkMode?"#303949":"#E8EAEE"}}>Fechar</button>
-                    <a href="/admin" className="rounded-lg bg-[#ff6b00] px-4 py-2 text-sm font-semibold text-white">Abrir administração</a>
-                  </div>
-                </section>
-              </div>
-            )}
-            <p className="mt-4 text-[10px] leading-relaxed text-[#9ca3af]">Os valores apresentados vêm das tabelas atuais do Supabase. Pedidos registrados não equivalem automaticamente a recebimentos; faturamento e saldo dependem dos lançamentos existentes. Nenhum dado demonstrativo foi lançado no banco.</p>
-          </div>
-        </div>
+  async function get(path:string,t:string){const r=await fetch(path,{headers:{apikey:KEY,Authorization:"Bearer "+t},cache:"no-store"});if(r.status===401){sessionStorage.removeItem("nutrifit_admin_token");window.location.href="/admin";throw new Error("Sessão expirada.");}const body=await r.text();if(!r.ok)throw new Error(body||"Falha ao consultar dados.");return body?JSON.parse(body):[];}
+  async function load(t:string){setError("");const [o,c,a,b,f,i]=await Promise.all([
+    get(API+"/rest/v1/customer_orders?select=*&order=created_at.desc&limit=500",t),
+    get(API+"/rest/v1/customer_profiles?select=*&order=created_at.desc&limit=500",t),
+    get(API+"/rest/v1/inventory_purchase_alerts?select=*&limit=100",t),
+    get(API+"/rest/v1/production_batches?select=*&order=created_at.desc&limit=300",t),
+    get(API+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",t),
+    get(API+"/rest/v1/inventory_items?select=*&active=eq.true&order=name.asc&limit=500",t)
+  ]);setOrders(o||[]);setCustomers(c||[]);setAlerts(a||[]);setBatches(b||[]);setFinance(f||[]);setInventory(i||[]);setNow(new Date());}
+  useEffect(()=>{const t=sessionStorage.getItem("nutrifit_admin_token")||"";if(!t){window.location.href="/admin";return;}setToken(t);load(t).catch(e=>setError(e.message)).finally(()=>setLoading(false));},[]);
+  useEffect(()=>{if(!token)return;const id=window.setInterval(()=>load(token).catch(e=>setError(e.message)),60000);return()=>window.clearInterval(id);},[token]);
+  const start=useMemo(()=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-Number(period)+1);return d;},[period,now.toDateString()]);
+  const activeOrders=orders.filter(o=>!isCancelled(o.status));
+  const scoped=activeOrders.filter(o=>{const d=safeDate(o.created_at);return d&&d>=start&&d<=now;});
+  const revenue=scoped.reduce((s,o)=>s+Number(o.total||0),0);
+  const average=scoped.length?revenue/scoped.length:0;
+  const pending=activeOrders.filter(o=>["novo","enviado_whatsapp","confirmado","pago_recebido"].includes(o.status)).length;
+  const inProduction=activeOrders.filter(o=>["em_preparo","em_producao"].includes(o.status)).length;
+  const inDelivery=activeOrders.filter(o=>["saiu_entrega","em_entrega"].includes(o.status)).length;
+  const completed=activeOrders.filter(o=>o.status==="entregue").length;
+  const lowStock=inventory.filter(i=>Number(i.minimum_quantity||0)>0&&Number(i.current_quantity||0)<=Number(i.minimum_quantity||0));
+  const mealCount=scoped.reduce((s,o)=>s+Number(o.item_count||0),0);
+  const productCounts=new Map<string,number>();
+  scoped.forEach(o=>itemRows(o.items).forEach(i=>productCounts.set(i.name,(productCounts.get(i.name)||0)+i.quantity)));
+  const topProducts=[...productCounts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const daily=Array.from({length:Number(period)},(_,index)=>{const d=new Date(start);d.setDate(start.getDate()+index);const key=d.toLocaleDateString("pt-BR");const value=scoped.filter(o=>new Date(o.created_at).toLocaleDateString("pt-BR")===key).reduce((s,o)=>s+Number(o.total||0),0);return {label:d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),value};});
+  const maxDaily=Math.max(1,...daily.map(d=>d.value));
+  const lineTotals=new Map<string,number>();scoped.forEach(o=>itemRows(o.items).forEach(i=>{const k=String(i.line||"Outros");lineTotals.set(k,(lineTotals.get(k)||0)+i.quantity);}));
+  const totalLines=[...lineTotals.values()].reduce((a,b)=>a+b,0)||1;
+  const productionDone=batches.filter(b=>["concluida","concluído","concluido","finalizada","finalizado"].includes(String(b.status||"").toLowerCase())).reduce((s,b)=>s+Number(b.quantity||0),0);
+  const productionPlanned=batches.filter(b=>!["cancelada","cancelado"].includes(String(b.status||"").toLowerCase())).reduce((s,b)=>s+Number(b.quantity||0),0);
+  const receipts=finance.filter(f=>f.type!=="despesa"&&f.status==="pago").reduce((s,f)=>s+Number(f.amount||0),0);
+  const expenses=finance.filter(f=>f.type==="despesa"&&f.status==="pago").reduce((s,f)=>s+Number(f.amount||0),0);
+  const margin=receipts>0?(receipts-expenses)/receipts*100:0;
+  const upcoming=activeOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).slice(0,4);
+  const nav=[["Dashboard",Home],["Pedidos",ShoppingCart],["Produção",ChefHat],["Estoque",Package],["Compras",Box],["Cardápio",Utensils],["Clientes",Users],["Financeiro",Wallet],["Relatórios",ChartNoAxesColumn],["Marketing",Megaphone],["B2B Corporativo",ClipboardList],["Configurações",Settings]] as const;
+  if(loading)return <main className="min-h-screen bg-[#050705] p-10 text-center text-white">Carregando Dashboard Nutrifit V7…</main>;
+  return <main className="min-h-screen bg-[#050705] text-white"><style jsx global>{`
+    .v7-card{background:linear-gradient(145deg,#10130f,#080a08);border:1px solid #343a32;border-radius:18px;box-shadow:inset 0 1px 0 #ffffff08}
+    .v7-muted{color:#a3a89f}.v7-green{color:#a8ed00}.v7-orange{color:#ff7900}
+    .v7-scroll::-webkit-scrollbar{height:6px;width:6px}.v7-scroll::-webkit-scrollbar-thumb{background:#41483d;border-radius:8px}
+    @media(max-width:767px){.v7-sidebar{display:none}.v7-main{padding:14px}.v7-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.v7-charts{grid-template-columns:1fr}.v7-lower{grid-template-columns:1fr}.v7-bottom{grid-template-columns:1fr}}
+  `}</style>
+  <div className="flex min-h-screen">
+    <aside className="v7-sidebar sticky top-0 flex h-screen w-[250px] shrink-0 flex-col border-r border-[#242820] bg-[#080a08] px-3 py-5">
+      <div className="mb-7 flex items-center gap-3 px-2"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit" className="h-14 w-14 object-contain"/><div><div className="text-[23px] font-black italic tracking-tight">NUTRI<span className="text-[#ff7900]">FIT</span></div><div className="text-[10px] text-white/65">Comida de verdade para todos</div><div className="text-[10px] text-white/65">os estilos de vida</div></div></div>
+      <nav className="grid gap-1">{nav.map(([label,Icon])=><button key={label} onClick={()=>{setActive(label);if(label!=="Dashboard")window.location.href="/admin";}} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-left text-[15px] font-semibold transition ${active===label?"bg-[#ff7900] text-white":"text-white/85 hover:bg-white/[.06]"}`}><Icon size={20}/>{label}{label==="Pedidos"&&pending>0&&<span className="ml-auto rounded-full bg-[#ff7900] px-2 py-0.5 text-xs text-black">{pending}</span>}</button>)}</nav>
+      <div className="mt-auto flex items-center gap-3 border-t border-white/10 px-2 pt-4"><div className="grid h-10 w-10 place-items-center rounded-full bg-white/10"><Users size={21}/></div><div><div className="text-sm font-bold">Nutrifit JF</div><div className="text-xs text-white/55">Administrador</div></div></div>
+    </aside>
+    <section className="v7-main min-w-0 flex-1 p-6 xl:p-7">
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-3"><ChartNoAxesColumn className="text-[#a8ed00]" size={34}/><div><h1 className="text-2xl font-black sm:text-[30px]">Dashboard Nutrifit <span className="text-[#ff7900]">V7</span></h1><p className="text-sm text-white/55">Gestão completa da operação</p></div></div><div className="flex items-center gap-3"><select value={period} onChange={e=>setPeriod(e.target.value)} className="rounded-xl border border-white/15 bg-[#10130f] px-4 py-3 text-sm"><option value="7">Últimos 7 dias</option><option value="14">Últimos 14 dias</option><option value="30">Últimos 30 dias</option></select><button onClick={()=>{setRefreshing(true);load(token).catch(e=>setError(e.message)).finally(()=>setRefreshing(false));}} className="rounded-xl border border-white/15 p-3" aria-label="Atualizar"><RefreshCw size={18} className={refreshing?"animate-spin":""}/></button><Bell size={20} className="text-white/70"/><HelpCircle size={20} className="text-white/70"/></div></header>
+      {error&&<div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{error}</div>}
+      <div className="v7-kpis mb-4 grid grid-cols-4 gap-3">
+        {[[ "Vendas (Período)",brl(revenue),scoped.length+" pedidos registrados",ShoppingCart,"#a8ed00"],["Pedidos",String(scoped.length),pending+" aguardando andamento",ClipboardList,"#ff7900"],["Clientes Ativos",String(customers.length),"Cadastros registrados",Users,"#a8ed00"],["Ticket Médio",brl(average),"Por pedido no período",CircleDollarSign,"#ff7900"]].map(([label,value,sub,Icon,color]:any)=><article key={label} className="v7-card relative min-h-[112px] overflow-hidden p-4"><div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-xl" style={{background:color+"22",color}}><Icon size={25}/></span><div className="min-w-0"><div className="text-sm text-white/70">{label}</div><div className="mt-1 text-[25px] font-black leading-none">{value}</div><div className="mt-2 text-[11px] text-white/50">{sub}</div></div></div><div className="absolute bottom-0 right-3 text-4xl opacity-[.08]">⌁</div></article>)}
       </div>
-    </main>
-  );
+      <div className="v7-charts mb-3 grid grid-cols-[1.1fr_1fr_.68fr] gap-3">
+        <article className="v7-card min-h-[235px] p-4"><h2 className="mb-4 flex items-center gap-2 text-lg font-black"><Activity className="v7-green"/> Vendas por Linha</h2><div className="flex items-center gap-5"><div className="relative h-[165px] w-[165px] shrink-0 rounded-full" style={{background:`conic-gradient(#a8ed00 0 ${(lineTotals.get("Fit")||0)/totalLines*100}%,#ff7900 0 ${((lineTotals.get("Fit")||0)+(lineTotals.get("Performance")||0))/totalLines*100}%,#e8c51a 0 78%,#555 0 100%)`}}><div className="absolute inset-[25px] grid place-items-center rounded-full bg-[#090b09] text-center"><div><b className="text-lg">{brl(revenue)}</b><div className="text-xs text-white/55">Total</div></div></div></div><div className="min-w-0 flex-1 space-y-3 text-xs">{[...lineTotals.entries()].slice(0,5).map(([name,n],i)=><div key={name} className="flex items-center gap-2"><i className="h-3 w-3 shrink-0 rounded-sm" style={{background:["#a8ed00","#ff7900","#e8c51a","#777","#4b9c91"][i%5]}}/><span className="min-w-0 flex-1 truncate">{name}</span><b>{(n/totalLines*100).toFixed(1).replace(".",",")}%</b></div>)}{lineTotals.size===0&&<p className="text-white/45">Sem itens classificados por linha neste período.</p>}</div></div></article>
+        <article className="v7-card min-h-[235px] p-4"><h2 className="mb-4 text-lg font-black">Faturamento Diário</h2><div className="flex h-[170px] items-end gap-2 border-b border-white/10 pb-2">{daily.map(d=><div key={d.label} className="flex h-full min-w-0 flex-1 flex-col justify-end gap-2"><div className="text-center text-[9px] text-white/60">{d.value?Math.round(d.value):""}</div><div className="flex h-[125px] items-end rounded-t bg-white/[.035]"><div className="w-full rounded-t-md bg-gradient-to-t from-[#4f8700] to-[#a8ed00]" style={{height:`${Math.max(2,d.value/maxDaily*100)}%`}}/></div><div className="text-center text-[9px] text-white/55">{d.label}</div></div>)}</div></article>
+        <article className="v7-card min-h-[235px] p-4"><h2 className="mb-4 text-lg font-black">Status dos Pedidos</h2><div className="space-y-3">{[["Novos",pending,"#ff7900"],["Em produção",inProduction,"#e8c51a"],["Em entrega",inDelivery,"#a8ed00"],["Concluídos",completed,"#a8ed00"]].map(([label,n,color]:any)=><div key={label} className="flex items-center justify-between rounded-lg bg-white/[.035] px-3 py-2"><span className="text-sm">{label}</span><b className="rounded-full px-3 py-0.5 text-black" style={{background:color}}>{n}</b></div>)}</div></article>
+      </div>
+      <div className="v7-lower mb-3 grid grid-cols-3 gap-3">
+        <article className="v7-card min-h-[180px] p-4"><h2 className="mb-3 flex items-center gap-2 text-lg font-black"><ChefHat className="v7-orange"/> Produção de Hoje</h2><div className="flex items-center gap-5"><div className="grid h-[112px] w-[112px] shrink-0 place-items-center rounded-full border-[12px] border-[#a8ed00] text-2xl font-black">{productionPlanned?Math.round(productionDone/productionPlanned*100):0}%</div><div className="space-y-2 text-sm"><p>Previsto: <b>{productionPlanned} marmitas</b></p><p>Produzido: <b>{productionDone}</b></p><p className="text-[#ff7900]">Pendente: <b>{Math.max(0,productionPlanned-productionDone)}</b></p></div></div><p className="mt-2 text-[10px] text-white/35">Baseado nos lotes registrados; não representa contagem manual da cozinha.</p></article>
+        <article className="v7-card min-h-[180px] p-4"><h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Package className="v7-orange"/> Estoque – Itens Críticos</h2><div className="space-y-2">{(alerts.length?alerts:lowStock).slice(0,5).map((a:any)=><div key={a.item_id||a.id||a.name} className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 text-sm"><span className="truncate">{a.name}</span><b className="shrink-0">{a.current_quantity} {a.unit||""}</b></div>)}{!alerts.length&&!lowStock.length&&<p className="text-sm text-white/45">Nenhum item crítico retornado pelo estoque.</p>}</div></article>
+        <article className="v7-card min-h-[180px] p-4"><h2 className="mb-3 flex items-center gap-2 text-lg font-black"><CircleDollarSign className="v7-orange"/> Financeiro (Período)</h2><div className="space-y-3 text-sm"><div className="flex justify-between"><span>Receitas pagas</span><b className="v7-green">{brl(receipts)}</b></div><div className="flex justify-between"><span>Despesas pagas</span><b className="text-red-400">{brl(expenses)}</b></div><div className="flex justify-between border-t border-white/10 pt-2"><span>Resultado registrado</span><b>{brl(receipts-expenses)}</b></div><div className="flex justify-between rounded-lg bg-[#315900] px-3 py-2 font-black"><span>Margem registrada</span><span className="v7-green">{margin.toFixed(1).replace(".",",")}%</span></div></div></article>
+      </div>
+      <div className="v7-bottom grid grid-cols-2 gap-3">
+        <article className="v7-card min-h-[205px] p-4"><h2 className="mb-3 flex items-center gap-2 text-lg font-black"><ChartNoAxesColumn className="v7-orange"/> Top 5 Mais Vendidos</h2><div className="space-y-3">{topProducts.map(([name,n],i)=><div key={name} className="flex items-center gap-3 text-sm"><b className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#ff7900] text-black">{i+1}</b><span className="min-w-0 flex-1 truncate">{name}</span><div className="h-3 w-[30%] overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#a8ed00]" style={{width:`${n/(topProducts[0]?.[1]||1)*100}%`}}/></div><b className="w-12 text-right">{n} un.</b></div>)}{!topProducts.length&&<p className="text-sm text-white/45">Não há itens de pedidos no período selecionado.</p>}</div></article>
+        <article className="v7-card min-h-[205px] p-4"><h2 className="mb-3 flex items-center gap-2 text-lg font-black"><Truck className="v7-orange"/> Próximas Entregas</h2><div className="space-y-2">{upcoming.map(o=><div key={o.id} className="flex items-center gap-3 border-b border-white/10 pb-2 text-sm"><span className="rounded-lg bg-white/10 px-3 py-1 text-xs">{o.delivery_time||"A definir"}</span><span className="min-w-0 flex-1 truncate">{o.customer_name||"Cliente"} · {o.item_count||0} itens</span><span className="rounded-md bg-[#a8ed00] px-2 py-1 text-xs font-black text-black">{o.status==="saiu_entrega"?"Em rota":"Programar"}</span></div>)}{!upcoming.length&&<p className="text-sm text-white/45">Nenhuma entrega pendente registrada.</p>}</div></article>
+      </div>
+      <p className="mt-4 text-[10px] text-white/35">Indicadores calculados a partir dos registros disponíveis no Supabase. Dados ausentes permanecem sem preenchimento; margens e produção não são estimadas a partir de pedidos.</p>
+    </section>
+  </div></main>;
 }
