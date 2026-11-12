@@ -33,6 +33,7 @@ const wa = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
 
 export default function AssistenteNutrifitPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "assistant",
