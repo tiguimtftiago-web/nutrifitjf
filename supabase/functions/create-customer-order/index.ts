@@ -272,8 +272,12 @@ const catalogNameAliases: Record<string, string> = {
         body: JSON.stringify({ p_code: redeemedCoupon }),
       });
     }
+    const codeResponse = savedOrderId
+      ? await fetch(url + "/rest/v1/customer_orders?select=order_code&id=eq." + encodeURIComponent(savedOrderId) + "&limit=1", { headers })
+      : null;
+    const codeRows = codeResponse?.ok ? await codeResponse.json() : [];
     return reply(200, {
-      ok: true, order_id: savedOrderId,
+      ok: true, order_id: savedOrderId, order_code: codeRows?.[0]?.order_code ?? null,
       subtotal: payload.subtotal, discount: payload.discount,
       delivery_fee: payload.delivery_fee, total: payload.total,
       items: pricedItems,
