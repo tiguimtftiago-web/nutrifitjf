@@ -166,7 +166,7 @@ export default function AssistenteNutrifitPage() {
                   <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu pedido</div>
                   <div className="mt-2 text-sm text-white/65">{selected.length} marmita(s) selecionada(s)</div>
                   <div className="mt-1 text-lg font-black">R$ {total.toFixed(2).replace(".", ",")}</div>
-                  <button onClick={openWhatsApp} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-4 py-3 font-black text-black">
+                  <button onClick={openWhatsApp} aria-label="Falar com a equipe Nutrifit pelo WhatsApp" className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-4 py-3 font-black text-black">
                     Finalizar no WhatsApp <MessageCircle size={16} />
                   </button>
                 </div>
@@ -175,7 +175,7 @@ export default function AssistenteNutrifitPage() {
 
             <div className="border-t border-white/10 bg-black/30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] p-1.5">
-                <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} placeholder="Digite sua mensagem..." className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-white/30" />
+                <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} aria-label="Mensagem para o Assistente Nutrifit" placeholder="Digite sua mensagem..." className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-white/30" />
                 <button onClick={send} aria-label="Enviar" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><Send size={17} /></button>
               </div>
               <div className="mt-2 flex items-center justify-center gap-4 text-[10px] text-white/25"><ShoppingBag size={12} /> Atendimento Nutrifit • Juiz de Fora</div>
