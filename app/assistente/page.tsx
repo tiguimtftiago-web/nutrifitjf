@@ -175,8 +175,8 @@ export default function AssistenteNutrifitPage() {
 
             <div className="border-t border-white/10 bg-black/30 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] p-1.5">
-                <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} aria-label="Mensagem para o Assistente Nutrifit" placeholder="Digite sua mensagem..." className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-white/30" />
-                <button onClick={send} aria-label="Enviar" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><Send size={17} /></button>
+                <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()} aria-label="Mensagem para o Assistente Nutrifit" aria-label="Mensagem para o Assistente Nutrifit" placeholder="Digite sua mensagem..." className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base outline-none placeholder:text-white/30" />
+                <button onClick={send} aria-label="Enviar" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ef7d18] text-black"><Send size={17} /></button>
               </div>
               <div className="mt-2 flex items-center justify-center gap-4 text-[10px] text-white/25"><ShoppingBag size={12} /> Atendimento Nutrifit • Juiz de Fora</div>
             </div>
