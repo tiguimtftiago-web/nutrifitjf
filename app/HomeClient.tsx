@@ -2975,10 +2975,20 @@ export default function Home() {
               <ShoppingCart size={21} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#f47b0b] px-1 text-[9px] font-black text-white">{orderCount}</span>}
             </button>
-            <a href="/area" onClick={() => trackClick("nutrifit360_header_click", "header")} aria-label="Acesse o Nutrifit 360: treino, alimentação e evolução" title="Acesse o Nutrifit 360°" className="group relative inline-flex h-9 shrink-0 items-center gap-1.5 overflow-hidden rounded-xl border border-[#a4c64a]/70 bg-gradient-to-r from-[#a4c64a] via-[#c8ed52] to-[#f47b0b] px-2 text-[#10130d] shadow-[0_0_18px_rgba(164,198,74,.28)] transition hover:scale-[1.03] hover:shadow-[0_0_24px_rgba(164,198,74,.48)] sm:h-11 sm:gap-2 sm:rounded-2xl sm:px-3">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[#10130d] text-[#c8ed52] sm:h-7 sm:w-7"><Dumbbell size={15} strokeWidth={2.5}/></span>
-              <span className="flex flex-col items-start leading-none"><span className="whitespace-nowrap text-[9px] font-black tracking-[.08em] sm:text-[10px]">NUTRIFIT <span className="text-[#b94b00]">360°</span></span><span className="mt-1 hidden whitespace-nowrap text-[8px] font-extrabold tracking-wide sm:block">TREINO • NUTRIÇÃO • RESULTADO</span><span className="mt-1 whitespace-nowrap text-[7px] font-extrabold tracking-wide sm:hidden">MINHA EVOLUÇÃO</span></span>
-              <ArrowRight size={13} strokeWidth={3} className="ml-0.5 shrink-0"/>
+            <a href="/area" onClick={() => trackClick("nutrifit360_header_click", "header")} aria-label="Acesse o Nutrifit 360: treino, alimentação e evolução" title="Acesse o Nutrifit 360°" className="group relative inline-flex h-10 shrink-0 items-center gap-1.5 overflow-hidden rounded-xl border border-[#f47b0b] bg-[#090b08] pl-2 pr-0 text-white shadow-[0_0_13px_rgba(244,123,11,.18),inset_0_0_12px_rgba(244,123,11,.06)] transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(244,123,11,.32)] sm:h-12 sm:gap-2 sm:rounded-2xl sm:pl-3">
+              <span className="flex min-w-0 flex-col items-center justify-center leading-none">
+                <span className="whitespace-nowrap text-[8px] font-black tracking-[.16em] text-white sm:text-[9px]">NUTRIFIT</span>
+                <span className="mt-0.5 flex items-center gap-1 text-[#f47b0b]">
+                  <Dumbbell size={13} strokeWidth={2.8} className="text-[#a4c64a] sm:h-4 sm:w-4"/>
+                  <span className="text-[18px] font-black italic tracking-[-.06em] sm:text-[21px]">360°</span>
+                  <Dumbbell size={13} strokeWidth={2.8} className="text-[#a4c64a] sm:h-4 sm:w-4"/>
+                </span>
+                <span className="mt-0.5 whitespace-nowrap text-[6px] font-extrabold tracking-[.13em] text-white/80 sm:text-[7px]">MINHA EVOLUÇÃO</span>
+                <span className="mt-1 hidden whitespace-nowrap text-[7px] font-extrabold tracking-[.12em] text-[#a4c64a] sm:block">TREINO • NUTRIÇÃO • RESULTADOS</span>
+              </span>
+              <span className="ml-1 grid h-full w-8 shrink-0 place-items-center bg-gradient-to-br from-[#ff9a22] to-[#e95c0b] text-[#10130d] shadow-[-3px_0_10px_rgba(244,123,11,.22)] sm:w-9">
+                <ArrowRight size={17} strokeWidth={3.2} className="transition-transform group-hover:translate-x-0.5"/>
+              </span>
             </a>
             <button type="button" onClick={openProfile} aria-label="Minha conta" title="Minha conta" className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-white/75 transition hover:bg-white/10 sm:h-11 sm:w-11"><UserRound size={20} strokeWidth={1.7} /></button>
 
