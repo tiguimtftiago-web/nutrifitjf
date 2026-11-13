@@ -495,7 +495,7 @@ export default function AdminPage() {
           <div className="nf-outer-stock-warning"><Package size={17}/><span><b>{purchaseAlerts.length} alertas de estoque</b><small>Verifique a reposição</small></span></div>
         </aside>
         <section className="min-w-0">
-          <div className="mb-5 md:hidden">
+          {section!=="resumo"&&<div className="mb-5 md:hidden">
             <div className="flex items-end justify-between">
               <div>
                 <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Painel</div>
@@ -504,7 +504,7 @@ export default function AdminPage() {
               <button onClick={()=>void load()} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/></button>
             </div>
             <a href="/admin/embalagens" className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.07] px-3 py-2.5 text-xs font-black text-[#d9e5a5]"><Package size={15}/>Embalagens e materiais</a>
-          </div>
+          </div>}
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
           {["estoque","produtos","financeiro","entregas","producao","cupons","embalagens"].includes(section)&&<Operations key={section} section={section==="embalagens"?"estoque":section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token} initialCategory={section==="embalagens"?"embalagem":undefined}/>}
