@@ -12,6 +12,8 @@ type Review = {
   ingredient_quality:number; portion_size:number; service:number; delivery:number;
   overall_rating:number; recommend:boolean; comment:string|null;
   publish_consent:boolean; name_consent:boolean; status:string; created_at:string;
+  whatsapp_notification_status:"not_sent"|"sent"|"failed"|"not_configured";
+  whatsapp_sent_at:string|null; whatsapp_notification_error:string|null;
 };
 
 export default function AdminReviewsPage() {
@@ -76,7 +78,9 @@ export default function AdminReviewsPage() {
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">{[["Sabor",review.food_quality],["Ingredientes",review.ingredient_quality],["Porção",review.portion_size],["Atendimento",review.service],["Entrega",review.delivery],["Média",Number(review.overall_rating).toFixed(1)]].map(([label,value])=><div key={String(label)} className="rounded-xl bg-white/[.035] p-3"><span className="text-white/45">{label}</span><b className="ml-2 text-[#f5a623]">{value}/5</b></div>)}</div>
           <p className="mt-3 text-xs text-white/55">Recomendaria a Nutrifit: <b className="text-white">{review.recommend?"Sim":"Não"}</b></p>
           {review.comment&&<blockquote className="mt-3 rounded-xl border-l-2 border-[#f47b0b] bg-white/[.025] p-3 text-sm leading-6 text-white/80">“{review.comment}”</blockquote>}
-          <p className="mt-3 text-[11px] text-white/45">Publicação autorizada: {review.publish_consent?"Sim":"Não"} · Exibir nome: {review.name_consent?"Sim":"Não"}</p>
+          <p className="mt-3 text-[11px] text-white/45">Publicação autorizada: {review.publish_consent?"Sim":"Não"} · Exibir nome: {review.name_consent?"Sim":"Não"} · Compra verificada: {review.order_id?"Sim":"Não"}</p>
+          <p className="mt-2 text-xs text-white/55">WhatsApp: <b className={review.whatsapp_notification_status==="sent"?"text-[#b6d76a]":review.whatsapp_notification_status==="failed"?"text-red-300":"text-[#ffb36b]"}>{review.whatsapp_notification_status==="sent"?"Notificação enviada":review.whatsapp_notification_status==="failed"?"Falha no envio":review.whatsapp_notification_status==="not_configured"?"Integração não configurada":"Aguardando envio"}</b>{review.whatsapp_sent_at? ` · ${new Date(review.whatsapp_sent_at).toLocaleString("pt-BR")}`:""}</p>
+          {review.whatsapp_notification_error&&<p className="mt-1 break-words text-[10px] text-red-300/80">Detalhe do envio: {review.whatsapp_notification_error}</p>}
           {review.status==="pending"&&<div className="mt-4 flex flex-wrap gap-2"><button disabled={busy===review.id} onClick={()=>moderate(review,"approved")} className="inline-flex items-center gap-2 rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black disabled:opacity-50"><Check size={15}/>Aprovar publicação</button><button disabled={busy===review.id} onClick={()=>moderate(review,"rejected")} className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-bold text-red-300 disabled:opacity-50"><X size={15}/>Reprovar</button></div>}
         </article>)}
       </div>}
