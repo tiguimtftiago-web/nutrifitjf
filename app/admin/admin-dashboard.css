@@ -311,3 +311,98 @@ main:has(> header.sticky) .nf-command-eyebrow::before {
   .nf-nav { width: 100%; }
   .nf-status { grid-column: 1 / -1; }
 }
+
+
+/* Landscape phones: promote the V7 dashboard to the desktop workspace.
+   Hide the outer mobile/admin rail so the dashboard's own navigation and
+   content can use the full landscape viewport. */
+@media (orientation: landscape) and (max-width: 1100px) and (max-height: 600px) {
+  main > div.mx-auto.grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: none !important;
+    gap: 0 !important;
+    padding: 8px 12px 16px !important;
+  }
+  main > div.mx-auto.grid > aside {
+    display: none !important;
+  }
+  main > div.mx-auto.grid > section {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  main > header.sticky > div {
+    max-width: none !important;
+    padding: 6px 12px !important;
+  }
+  main > header.sticky {
+    position: static !important;
+  }
+  main:has(.nf-dashboard) {
+    overflow-x: hidden;
+  }
+  .nf-dashboard {
+    display: grid !important;
+    grid-template-columns: minmax(150px, 19vw) minmax(0, 1fr) !important;
+    align-items: stretch;
+    gap: 12px !important;
+    width: 100% !important;
+    min-height: calc(100dvh - 68px) !important;
+    padding: 0 !important;
+  }
+  .nf-sidebar {
+    position: sticky !important;
+    top: 8px !important;
+    height: calc(100dvh - 84px) !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: 14px !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .nf-brand {
+    height: 54px !important;
+    min-height: 54px !important;
+    padding: 0 4px 7px !important;
+  }
+  .nf-brand img { width: 42px !important; height: 42px !important; }
+  .nf-brand-word { font-size: clamp(15px, 2vw, 21px) !important; }
+  .nf-brand small { display: block !important; font-size: 7px !important; }
+  .nf-nav {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+    gap: 2px !important;
+    padding-top: 7px !important;
+  }
+  .nf-nav-item {
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 8px !important;
+    gap: 7px !important;
+    font-size: 10px !important;
+  }
+  .nf-nav-item svg { width: 16px !important; height: 16px !important; }
+  .nf-user { display: flex !important; padding-top: 7px !important; }
+  .nf-avatar { width: 28px !important; height: 28px !important; font-size: 13px !important; }
+  .nf-user b { font-size: 10px !important; }
+  .nf-user small { font-size: 8px !important; }
+  .nf-main {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 0 0 12px !important;
+    gap: 8px !important;
+  }
+  .nf-header { height: 42px !important; min-height: 42px !important; }
+  .nf-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .nf-row-2 { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important; }
+  .nf-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .nf-row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .nf-status, .nf-finance { grid-column: auto !important; }
+  .nf-card { min-width: 0 !important; }
+}
