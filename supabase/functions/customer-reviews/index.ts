@@ -59,6 +59,63 @@ Deno.serve(async (req) => {
 
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return reply({ error: "Dados inválidos." }, 400); }
+  if (body.action === "resend_whatsapp") {
+    const reviewId = String(body.review_id ?? "").trim();
+    const bearer = req.headers.get("authorization") ?? "";
+    const jwt = bearer.replace(/^Bearer\\s+/i, "");
+    const publicKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
+    if (!reviewId || !jwt || !publicKey) return reply({ error: "Acesso administrativo necessário." }, 401);
+    const authClient = createClient(url, publicKey, {
+      global: { headers: { Authorization: `Bearer ${jwt}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: isAdmin, error: authError } = await authClient.rpc("is_admin_user");
+    if (authError || isAdmin !== true) return reply({ error: "Acesso não autorizado." }, 403);
+
+    const { data: review, error: reviewError } = await db.from("customer_reviews")
+      .select("id,customer_name,order_id,food_quality,ingredient_quality,portion_size,service,delivery,recommend,comment,publish_consent,whatsapp_notification_status")
+      .eq("id", reviewId).single();
+    if (reviewError || !review) return reply({ error: "Avaliação não encontrada." }, 404);
+    if (review.whatsapp_notification_status === "sent") return reply({ error: "A notificação desta avaliação já foi enviada." }, 409);
+
+    const average = ([review.food_quality,review.ingredient_quality,review.portion_size,review.service,review.delivery]
+      .reduce((sum: number, value: number) => sum + Number(value), 0) / 5).toFixed(1);
+    const message = [
+      "*NUTRIFIT • AVALIAÇÃO DE CLIENTE*",
+      "",
+      `Cliente: ${review.customer_name}`,
+      `Pedido: ${review.order_id ?? "não vinculado"}`,
+      `Média: ${average}/5`,
+      `Sabor: ${review.food_quality}/5 | Ingredientes: ${review.ingredient_quality}/5`,
+      `Porção: ${review.portion_size}/5 | Atendimento: ${review.service}/5 | Entrega: ${review.delivery}/5`,
+      `Recomendaria: ${review.recommend ? "Sim" : "Não"}`,
+      `Comentário: ${review.comment || "não informado"}`,
+      `Publicação autorizada: ${review.publish_consent ? "Sim" : "Não"}`,
+      "",
+      "Acesse o painel administrativo > Avaliações para analisar e aprovar.",
+    ].join("\\n");
+    try {
+      const sent = await sendWhatsAppNotification(message);
+      const status = sent.status;
+      const { error: updateError } = await db.from("customer_reviews").update({
+        whatsapp_notification_status: status,
+        whatsapp_message_id: sent.id,
+        whatsapp_notification_error: null,
+        whatsapp_sent_at: status === "sent" ? new Date().toISOString() : null,
+      }).eq("id", reviewId);
+      if (updateError) return reply({ error: "Mensagem enviada, mas não foi possível atualizar o registro." }, 500);
+      return reply({ success: true, notification: status });
+    } catch (sendError) {
+      const detail = String(sendError instanceof Error ? sendError.message : sendError).slice(0, 1000);
+      await db.from("customer_reviews").update({
+        whatsapp_notification_status: "failed",
+        whatsapp_notification_error: detail,
+        whatsapp_sent_at: null,
+      }).eq("id", reviewId);
+      return reply({ error: "Não foi possível enviar o WhatsApp.", detail }, 502);
+    }
+  }
+
   const customerName = String(body.customer_name ?? "").trim().slice(0, 120);
   const orderCode = String(body.order_code ?? "").trim().toUpperCase();
   const keys = ["food_quality", "ingredient_quality", "portion_size", "service", "delivery"] as const;
