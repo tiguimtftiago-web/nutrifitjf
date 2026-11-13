@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<defs>
+ <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#252b1d"/><stop offset="1" stop-color="#10140d"/></linearGradient>
+ <linearGradient id="glass" x2="1" y2="1"><stop stop-color="#ffffff" stop-opacity=".55"/><stop offset=".45" stop-color="#b8d0d0" stop-opacity=".12"/><stop offset="1" stop-color="#ffffff" stop-opacity=".35"/></linearGradient>
+ <linearGradient id="oil" x2="0" y2="1"><stop stop-color="#f8d94e"/><stop offset="1" stop-color="#b77b09"/></linearGradient>
+ <linearGradient id="meat" x2="0" y2="1"><stop stop-color="#d66b52"/><stop offset="1" stop-color="#782c25"/></linearGradient>
+ <linearGradient id="veg" x2="0" y2="1"><stop stop-color="#9bc75c"/><stop offset="1" stop-color="#28602e"/></linearGradient>
+ <linearGradient id="cheese" x2="0" y2="1"><stop stop-color="#fff9dd"/><stop offset="1" stop-color="#e8dfbf"/></linearGradient>
+</defs>
+<rect width="400" height="400" rx="12" fill="#10140d"/>
+<g stroke="#596047" stroke-opacity=".25" stroke-width="1"><path d="M100 0v400M200 0v400M300 0v400M0 100h400M0 200h400M0 300h400"/></g>
+<!-- 1 oil -->
+<g transform="translate(0 0)"><rect x="0" y="0" width="100" height="100" fill="url(#bg)"/><ellipse cx="50" cy="85" rx="25" ry="5" fill="#000" opacity=".4"/><path d="M42 18h16v9l7 8v44q0 7-8 7H43q-8 0-8-7V35l7-8z" fill="url(#oil)" stroke="#f6d35a" stroke-width="2"/><rect x="43" y="10" width="14" height="10" rx="2" fill="#e8b928"/><path d="M39 43h22M39 58h22M39 72h22" stroke="#fff4a6" stroke-opacity=".55" stroke-width="2"/><path d="M44 31v48" stroke="#fff" stroke-opacity=".4" stroke-width="3"/></g>
+<!-- 2 empty meal container -->
+<g transform="translate(100 0)"><rect width="100" height="100" fill="url(#bg)"/><path d="M13 37l14-14h54l8 13-8 42q-2 8-10 8H29q-8 0-10-8z" fill="url(#glass)" stroke="#d5e0df" stroke-width="2"/><path d="M15 35h72l-6 11H21z" fill="#d8e4e4" fill-opacity=".18" stroke="#e9f0ef"/><path d="M21 46h63l-7 32H28z" fill="#09100d" fill-opacity=".35" stroke="#b7c8c6"/><path d="M29 51v25m10-25v25m10-25v25m10-25v25m10-25v25" stroke="#c8d6d5" stroke-opacity=".35"/></g>
+<!-- 3 mozzarella -->
+<g transform="translate(200 0)"><rect width="100" height="100" fill="url(#bg)"/><path d="M15 35q2-17 23-20l37 7q13 4 9 19L73 65q-4 8-16 7L23 65q-11-5-8-16z" fill="url(#cheese)" stroke="#fff8df" stroke-width="2"/><path d="M49 57q11-8 25-2l11 8q3 5-4 9l-24 8q-11 2-17-6z" fill="#fff4d4" stroke="#e8dfbf" stroke-width="2"/><path d="M24 35q20-8 48 1" stroke="#fff" stroke-opacity=".7" fill="none" stroke-width="3"/></g>
+<!-- 4 garlic -->
+<g transform="translate(300 0)"><rect width="100" height="100" fill="url(#bg)"/><path d="M51 19q-3-9 4-14l4 2-2 14" fill="#d6c4a2"/><path d="M50 24q-23-15-31 13-8 30 15 42 16 8 30-4 26-8 17-37-8-25-31-14z" fill="#eee1c7" stroke="#cbbd9d" stroke-width="2"/><path d="M50 24q-10 20-5 53m6-52q12 19 13 47M36 29q-4 19 5 41m26-39q11 17 5 34" fill="none" stroke="#c2b28e" stroke-width="2"/><path d="M19 78q-8-7-2-15 8-7 18 2l3 17q-10 6-19-4zM65 80q-6-12 5-18 13-3 17 10l-8 12z" fill="#f8edd7" stroke="#d7c8aa"/></g>
+<!-- 5 beef cubes -->
+<g transform="translate(0 100)"><rect width="100" height="100" fill="url(#bg)"/><path d="M10 70l17-35 26-7 22 17-5 29-27 12z" fill="url(#meat)" stroke="#e48a70" stroke-width="2"/><path d="M42 43l14-19 22 10 8 23-20 15-18-7z" fill="#a63f35" stroke="#e58b72" stroke-width="2"/><path d="M16 58l20-12 15 11-7 20-22 5z" fill="#bd5545"/><path d="M26 38l20 4m13-10 13 13" stroke="#f4b19a" stroke-opacity=".55" stroke-width="2"/></g>
+<!-- 6 minced beef -->
+<g transform="translate(100 100)"><rect width="100" height="100" fill="url(#bg)"/><ellipse cx="50" cy="66" rx="37" ry="18" fill="#7b382e"/><path d="M14 58q5-28 36-31 32 2 37 31l-6 14q-28 17-61 0z" fill="#a94338" stroke="#df7b68" stroke-width="2"/><path d="M23 52l9-10 8 8 9-13 9 12 10-10 8 12 7-3" fill="none" stroke="#ed9b82" stroke-width="4" stroke-linecap="round"/><path d="M26 62l9-5m7 12 11-8m8 7 12-8" stroke="#f0b19b" stroke-width="3" stroke-linecap="round"/></g>
+<!-- 7 broccoli -->
+<g transform="translate(200 100)"><rect width="100" height="100" fill="url(#bg)"/><path d="M47 48l-7 39h16l-1-40" fill="#7b9c46"/><path d="M22 57q-13-8-5-22 5-11 18-8 2-18 19-17 16 0 18 17 18-3 22 15 4 17-14 21-21 12-58-6z" fill="url(#veg)" stroke="#6e9e42" stroke-width="2"/><g fill="#b4d96d"><circle cx="30" cy="39" r="5"/><circle cx="52" cy="29" r="6"/><circle cx="72" cy="39" r="5"/><circle cx="45" cy="49" r="5"/><circle cx="66" cy="52" r="4"/></g></g>
+<!-- 8 rice -->
+<g transform="translate(300 100)"><rect width="100" height="100" fill="url(#bg)"/><path d="M12 45q38-17 76 0l-8 33q-30 15-60 0z" fill="#8b5b30" stroke="#c18b51" stroke-width="3"/><ellipse cx="50" cy="44" rx="38" ry="20" fill="#f1e3bd" stroke="#c7ae79" stroke-width="2"/><g fill="#fff4d7"><ellipse cx="31" cy="39" rx="5" ry="2"/><ellipse cx="44" cy="32" rx="5" ry="2"/><ellipse cx="59" cy="38" rx="5" ry="2"/><ellipse cx="72" cy="44" rx="5" ry="2"/><ellipse cx="40" cy="48" rx="5" ry="2"/><ellipse cx="57" cy="51" rx="5" ry="2"/></g></g>
+<!-- 9 potato -->
+<g transform="translate(0 200)"><rect width="100" height="100" fill="url(#bg)"/><ellipse cx="35" cy="56" rx="24" ry="18" fill="#d9b96b"/><ellipse cx="67" cy="43" rx="19" ry="15" fill="#e3c77d"/><path d="M49 69q2-19 18-20 18 2 17 17-7 15-22 14z" fill="#f1d995"/><g fill="#8c6a39"><circle cx="25" cy="53" r="1.5"/><circle cx="43" cy="62" r="1.5"/><circle cx="65" cy="40" r="1.5"/></g></g>
+<!-- 10 sweet potato -->
+<g transform="translate(100 200)"><rect width="100" height="100" fill="url(#bg)"/><path d="M12 54q13-30 48-22 32 6 30 26-8 25-44 24-35-3-34-28z" fill="#9c603d" stroke="#d38a55" stroke-width="2"/><path d="M25 52q15-15 34-10 17 4 21 16-18 15-43 11z" fill="#ed9b52"/><path d="M45 35q-4 16 1 35" stroke="#f6bd79" stroke-width="3"/></g>
+<!-- 11 carrots -->
+<g transform="translate(200 200)"><rect width="100" height="100" fill="url(#bg)"/><path d="M30 29q-4-12 1-17m7 18q4-13 13-15m-1 18q11-10 18-8" stroke="#6e9a4a" stroke-width="4" fill="none"/><path d="M25 31q16-10 28 0l-13 54q-4 10-9 0z" fill="#e47c22" stroke="#ffb052" stroke-width="2"/><path d="M52 35q14-9 23 1L61 80q-4 9-8 0z" fill="#ef8a2b" stroke="#ffb65c" stroke-width="2"/></g>
+<!-- 12 peas -->
+<g transform="translate(300 200)"><rect width="100" height="100" fill="url(#bg)"/><path d="M14 57q36-34 72 0-36 35-72 0z" fill="#6a9b38" stroke="#9cc85a" stroke-width="2"/><g fill="#a9d64b" stroke="#6d9b31"><circle cx="27" cy="55" r="8"/><circle cx="43" cy="48" r="8"/><circle cx="59" cy="49" r="8"/><circle cx="75" cy="57" r="8"/><circle cx="48" cy="65" r="8"/></g></g>
+<!-- 13 chicken -->
+<g transform="translate(0 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M15 57q-2-18 19-27 22-11 43 2 14 10 5 27-11 19-41 20-22-1-26-22z" fill="#e9c6a6" stroke="#f7e3ca" stroke-width="2"/><path d="M28 51q18-14 36-4m-32 20q17-12 38-7" stroke="#b98968" stroke-width="3" fill="none"/><path d="M40 38l5 8m14-12 5 9" stroke="#fff4e5" stroke-width="3"/></g>
+<!-- 14 tomato -->
+<g transform="translate(100 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M50 23q-21-13-34 6-13 22 6 42 23 23 48 0 20-23 2-43-9-10-22-5z" fill="#c9362f" stroke="#f06a52" stroke-width="2"/><path d="M49 23l-5-10 10 6 8-7-2 12 12-1-11 8-11-3-10 5-2-10z" fill="#5e873b"/><path d="M27 42q8-12 19-10" stroke="#ff9a7d" stroke-width="3" fill="none"/></g>
+<!-- 15 pasta -->
+<g transform="translate(200 300)"><rect width="100" height="100" fill="url(#bg)"/><ellipse cx="50" cy="63" rx="39" ry="19" fill="#8c5d32"/><path d="M14 58q36-38 72 0l-8 18q-27 15-56 0z" fill="#d7a64e"/><g fill="#f1cf7b" stroke="#ad7837" stroke-width="1.5"><path d="M25 47l7-11 9 17-7 12z"/><path d="M43 43l8-10 10 17-9 12z"/><path d="M62 46l8-10 9 16-8 13z"/><path d="M34 62l8-12 9 18-9 5z"/><path d="M54 63l8-12 10 17-9 5z"/></g></g>
+<!-- 16 onion -->
+<g transform="translate(300 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M50 18q-4-11 4-16m-3 15q12-8 18-7" stroke="#9d9c4e" stroke-width="3" fill="none"/><path d="M50 17q-29 3-31 34-2 30 31 37 32-8 31-37-3-30-31-34z" fill="#c98b45" stroke="#e2b16e" stroke-width="2"/><path d="M50 20q-14 18-12 49m13-49q14 17 13 49m-13-49v59" stroke="#f1d4a0" stroke-width="2" fill="none"/></g>
+</svg>
