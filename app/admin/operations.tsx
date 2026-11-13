@@ -47,7 +47,7 @@ function inventoryImage(item:InventoryItem):string {
   return "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png";
 }
 
-export default function Operations({section,token}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string}) {
+export default function Operations({section,token,initialCategory}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string;initialCategory?:string}) {
   const [products,setProducts]=useState<Product[]>([]);
   const [comboPrices,setComboPrices]=useState<ComboPrice[]>([]);
   const [editingCombo,setEditingCombo]=useState<ComboPrice|null>(null);
@@ -71,7 +71,7 @@ export default function Operations({section,token}:{section:"estoque"|"produtos"
   const [supplierForm,setSupplierForm]=useState({name:"",contact_name:"",whatsapp:"",email:""});
   const [purchaseSupplier,setPurchaseSupplier]=useState<string>("Todos os fornecedores");
   const [inventorySearch,setInventorySearch]=useState("");
-  const [inventoryCategory,setInventoryCategory]=useState("Todas as categorias");
+  const [inventoryCategory,setInventoryCategory]=useState(initialCategory||"Todas as categorias");
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
