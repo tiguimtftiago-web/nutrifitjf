@@ -62,7 +62,8 @@ export default function PackagingCostsPage(){
   const filtered=useMemo(()=>materials.filter(x=>x.name.toLowerCase().includes(search.toLowerCase())||(x.supplier||"").toLowerCase().includes(search.toLowerCase())),[materials,search]);
   const find=(parts:string[])=>materials.find(x=>parts.some(p=>x.name.toLowerCase().includes(p)));
   const pot350=find(["marmita 350","pote 350"]);const pot450=find(["marmita 450","pote 450"]);
-  const boxMaterials=materials.filter(x=>x.name.toLowerCase().includes("caixa"));\n  const selectedBox=boxMaterials.find(x=>x.id===boxId)||null;
+  const boxMaterials=materials.filter(x=>x.name.toLowerCase().includes("caixa"));
+  const selectedBox=boxMaterials.find(x=>x.id===boxId)||null;
   const n350=Math.max(0,num(qty350));const n450=Math.max(0,num(qty450));const nBoxes=Math.max(0,num(boxes));
   const potTotal=n350*unitCost(pot350)+n450*unitCost(pot450);
   const printTotal=(n350+n450)*(4/12+4/16);
