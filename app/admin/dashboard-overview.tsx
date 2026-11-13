@@ -245,7 +245,8 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
         <div className="nf-action-grid">
           <button type="button" className="nf-action-card orange" onClick={()=>onNavigate("pedidos:new")}><span className="nf-action-icon"><ShoppingCart size={19}/></span><span><small>Pedidos novos</small><b>{actionNew}</b></span><ArrowUpRight size={17}/></button>
           <button type="button" className="nf-action-card yellow" onClick={()=>onNavigate("estoque")}><span className="nf-action-icon"><Package size={19}/></span><span><small>Estoque baixo / zerado</small><b>{lowStockCount}</b></span><ArrowUpRight size={17}/></button>
-          <button type="button" className="nf-action-card blue" onClick={()=>onNavigate("entregas")}><span className="nf-action-icon"><Truck size={19}/></span><span><small>Em entrega</small><b>{actionDelivery}</b></span><ArrowUpRight size={17}/></button>\n          <button type="button" className="nf-action-card orange" onClick={()=>onNavigate("pedidos")}><span className="nf-action-icon"><Package size={19}/></span><span><small>Marmitas pendentes</small><b>{pendingMealCount}</b><small>{pendingDeliveryByOrder.length} pedido(s) parcial(is)</small></span><ArrowUpRight size={17}/></button>
+          <button type="button" className="nf-action-card blue" onClick={()=>onNavigate("entregas")}><span className="nf-action-icon"><Truck size={19}/></span><span><small>Em entrega</small><b>{actionDelivery}</b></span><ArrowUpRight size={17}/></button>
+          <button type="button" className="nf-action-card orange" onClick={()=>onNavigate("pedidos")}><span className="nf-action-icon"><Package size={19}/></span><span><small>Marmitas pendentes</small><b>{pendingMealCount}</b><small>{pendingDeliveryByOrder.length} pedido(s) parcial(is)</small></span><ArrowUpRight size={17}/></button>
         </div>
       </section>
 
