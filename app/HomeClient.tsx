@@ -141,14 +141,7 @@ const salads: Product[] = [
   ["Summer Salad","SALADAS","350 g","R$ 21,90","Mix de alface, tomate-cereja, pepino, repolho roxo, cenoura, acompanhado de frango grelhado."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
-const snackBoxProduct: Product = {
-  name: "Nutrifit Snack Box",
-  line: "SNACK BOX",
-  weight: "1 kit",
-  price: "R$ 25,00",
-  description: "Kit lanche com 1 sanduíche natural integral, 1 suco natural de laranja 300 ml e 1 potinho de frutas picadas (melão, abacaxi e melancia).",
-  image: "/images/sanduiche-frango-nutrifit.jpg",
-};
+
 
 const traditional: Product[] = [
   ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
@@ -2305,6 +2298,10 @@ export default function Home() {
   const [comboLineIndex, setComboLineIndex] = useState(0);
   const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [snackSandwich, setSnackSandwich] = useState("Frango com Alface e Tomate");
+  const [snackJuice, setSnackJuice] = useState("Suco de Laranja — 300 ml");
+  const [snackFruit, setSnackFruit] = useState("Mamão");
+
   const [cartHydrated, setCartHydrated] = useState(false);
 
   const bannerSlides = [
@@ -2540,6 +2537,15 @@ export default function Home() {
       const found = current.find((item) => item.name === product.name);
       if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
       return [...current, { name: product.name, line: product.line, weight: product.weight, price: parseMoney(product.price), quantity: 1 }];
+    });
+    setOrderOpen(true);
+  };
+  const addSnackBoxToOrder = () => {
+    const configuredName = "Nutrifit Snack Box — " + snackSandwich + " — " + snackJuice + " — " + snackFruit;
+    setOrderItems((current) => {
+      const found = current.find((item) => item.name === configuredName);
+      if (found) return current.map((item) => item.name === configuredName ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: 25, quantity: 1 }];
     });
     setOrderOpen(true);
   };
@@ -3099,32 +3105,43 @@ export default function Home() {
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
         <div className="rounded-[1.5rem] border border-[#f47b0b]/35 bg-gradient-to-br from-[#17130d] via-[#0d100c] to-[#10150b] p-4 sm:p-6">
           <div className="mb-5">
-            <div className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">Praticidade para sua pausa</div>
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">Monte do seu jeito</div>
             <h2 className="mt-1.5 text-3xl font-black text-white sm:text-4xl">Nutrifit <span className="text-[#b6d76a]">Snack Box</span></h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Um kit lanche completo para levar: sanduíche natural, suco natural e frutas frescas.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Escolha seu sanduíche natural, seu suco de 300 ml e uma fruta. O combo completo tem preço único.</p>
           </div>
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center">
-            <div className="max-w-md">
-              <ProductCard product={snackBoxProduct} onAdd={addToOrder} />
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(260px,.8fr)] md:items-start">
+            <div className="space-y-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-black text-white">1. Escolha o sanduíche</span>
+                <select value={snackSandwich} onChange={(event) => setSnackSandwich(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
+                  <option value="Frango com Alface e Tomate">Frango</option>
+                  <option value="Pernil com Alface e Tomate">Pernil</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-black text-white">2. Escolha o suco · 300 ml</span>
+                <select value={snackJuice} onChange={(event) => setSnackJuice(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
+                  <option value="Suco de Laranja — 300 ml">Laranja</option>
+                  <option value="Abacaxi com Hortelã — 300 ml">Abacaxi com hortelã</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-black text-white">3. Escolha uma fruta</span>
+                <select value={snackFruit} onChange={(event) => setSnackFruit(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
+                  {comboComplements.filter((item) => item.category === "FRUTAS").map((fruit) => <option key={fruit.name} value={fruit.name}>{fruit.name}</option>)}
+                </select>
+                <span className="mt-1.5 block text-xs text-white/45">Opções aproveitadas do catálogo atual de frutas.</span>
+              </label>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
+                <div><div className="text-xs text-white/55">Combo completo</div><div className="text-sm font-bold text-white">Sanduíche + suco + fruta</div></div>
+                <strong className="text-2xl font-black text-[#f47b0b]">R$ 25,00</strong>
+              </div>
+              <button type="button" onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99]">Adicionar Snack Box ao pedido</button>
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Sanduíche natural integral" className="aspect-square w-full object-cover" loading="lazy" />
-                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Sanduíche natural</div>
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                <img src="/images/page-42.jpg" alt="Suco natural de laranja de 300 ml" className="aspect-square w-full object-cover" loading="lazy" />
-                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Suco de laranja · 300 ml</div>
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                <img src="/images/melao.jpg" alt="Frutas frescas picadas" className="aspect-square w-full object-cover" loading="lazy" />
-                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Potinho de frutas</div>
-              </div>
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+              <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Apresentação do Snack Box Nutrifit" className="aspect-[4/3] w-full object-cover" loading="lazy" />
+              <div className="p-3 text-xs leading-5 text-white/65">A apresentação inclui sanduíche natural embalado, suco Nutrifit de 300 ml e potinho de fruta com a identidade visual da marca.</div>
             </div>
-          </div>
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
-            <span className="text-xs text-white/65">1 sanduíche natural + 1 suco natural de laranja 300 ml + 1 potinho de frutas picadas</span>
-            <strong className="text-xl font-black text-[#f47b0b]">R$ 25,00</strong>
           </div>
         </div>
       </section>
