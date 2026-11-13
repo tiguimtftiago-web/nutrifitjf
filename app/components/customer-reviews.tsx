@@ -8,7 +8,8 @@ const key = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 export default function CustomerReviews() {
   const [stats, setStats] = useState({ count: 0, average: null as number | null, reviews: [] as any[] });
-  const [open, setOpen] = useState(false);\n  const [showAll, setShowAll] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [orderCode, setOrderCode] = useState("");
   const [ratings, setRatings] = useState([0, 0, 0, 0, 0]);
