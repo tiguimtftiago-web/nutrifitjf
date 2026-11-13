@@ -2678,7 +2678,7 @@ export default function Home() {
 
     const lines = orderItems.map((item) => {
       const itemSubtotal = item.price * item.quantity;
-      return `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\\n  ${money(item.price)} / un. · *${money(itemSubtotal)}*`;
+      return `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\n  ${money(item.price)} / un. · *${money(itemSubtotal)}*`;
     }).join("\n");
 
     const notesText = orderNotes.trim();
@@ -2690,7 +2690,7 @@ export default function Home() {
 
     const message = [
       "*NUTRIFIT | NOVO PEDIDO*",
-      "━━━━━━━━",
+      "------------",
       "",
       "*CLIENTE*",
       `${customerName.trim()} · ${customerPhone.trim()}`,
@@ -2698,7 +2698,7 @@ export default function Home() {
       `*ITENS · ${orderCount} unidades*`,
       lines,
       "",
-      "━━━━━━━━",
+      "------------",
       "*RESUMO DO PEDIDO*",
       `Produtos: ${money(orderSubtotal)}`,
       `${discountLabel}: -${money(orderDiscount)}`,
@@ -2793,16 +2793,16 @@ export default function Home() {
         `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
       ).join("\n") : "";
       const officialBlock = [
-        "ITENS E VALORES CONFIRMADOS PELO SISTEMA",
+        "*ITENS DO PEDIDO*",
         officialItems,
+        "",
+        "*RESUMO DO PEDIDO*",
         `Subtotal oficial: ${money(Number(result.subtotal))}`,
+        `Desconto oficial: -${money(Number(result.discount ?? 0))}`,
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
-        `TOTAL OFICIAL: ${money(Number(result.total))}`,
+        `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
       ].join("\n");
-      const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
-      setThankYouOrder({
-        customerName: customerName.trim(),
+      const officialMessage = message.replace(/\*ITENS ·[\s\S]*?(?=\*ENTREGA\*)/, officialBlock + "\n\n");
         orderCode: typeof result.order_code === "string" ? result.order_code : "Pedido registrado",
         whatsappMessage: officialMessage + reference,
       });
