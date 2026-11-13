@@ -350,20 +350,28 @@ export default function AdminPage() {
   }
 
   async function createProductionFromOrder(order:Order){
-    if(!token)return;
+    if(!token||busy)return;
+    if(!["confirmado","pago_recebido","em_preparo"].includes(order.status)){
+      setError("A produção só pode ser gerada para pedidos confirmados, pagos ou em preparo.");
+      return;
+    }
     setBusy(true);setError("");
     try{
       const result=await request(URL+"/rest/v1/rpc/create_production_from_order",token,{method:"POST",body:JSON.stringify({p_order_id:order.id})});
       const count=Number(result||0);
-      if(count===0){setError("A produção já foi gerada para este pedido ou nenhum item possui ficha técnica ativa.");return;}
-      setError("Produção gerada com sucesso. Ela ficará planejada e o estoque só será baixado quando for concluída.");
+      if(count===0){
+        await loadOrderProduction(order.id);
+        setError("Nenhuma nova ficha foi gerada. Verifique se todas as refeições possuem ficha técnica ativa e se a produção já não foi criada.");
+        return;
+      }
+      await loadOrderProduction(order.id);
+      setError(`${count} ficha(s) de produção gerada(s) com sucesso. O estoque só será baixado quando a produção for concluída.`);
     }catch(e){
-      console.error(e);
+      console.error("createProductionFromOrder",e);
       let detail=e instanceof Error?e.message:"";
       try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}
       setError(detail||"Não foi possível gerar a produção deste pedido.");
-    }
-    finally{setBusy(false);}
+    }finally{setBusy(false);}
   }
 
   async function registerPartialDelivery(order:Order) {
