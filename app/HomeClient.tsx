@@ -2803,6 +2803,9 @@ export default function Home() {
         `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
       ].join("\n");
       const officialMessage = message.replace(/\*ITENS ·[\s\S]*?(?=\*ENTREGA\*)/, officialBlock + "\n\n");
+      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
+      setThankYouOrder({
+        customerName: customerName.trim(),
         orderCode: typeof result.order_code === "string" ? result.order_code : "Pedido registrado",
         whatsappMessage: officialMessage + reference,
       });
