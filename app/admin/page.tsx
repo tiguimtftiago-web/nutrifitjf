@@ -236,6 +236,13 @@ export default function AdminPage() {
   async function ensurePush(requestPermission=false){
     if(!token)return;
     try{
+      const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+      const isStandalone=window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & {standalone?:boolean}).standalone===true;
+      if(requestPermission && isIOS && !isStandalone){
+        setPushStatus("idle");
+        setError("No iPhone, as notificações web só funcionam quando o Nutrifit está instalado na Tela de Início. Abra o site no Safari, toque em Compartilhar e escolha Adicionar à Tela de Início. Depois abra o ícone instalado e ative os alertas.");
+        return;
+      }
       if(!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)){setPushStatus("unsupported");return;}
       let permission=Notification.permission;
       if(requestPermission && permission!=="granted"){
@@ -408,7 +415,8 @@ export default function AdminPage() {
         }catch(error){ console.error("purchase automation trigger",error); }
       }
 
-      setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
+      if(status==="entregue") setSelectedOrder(null);
+      else setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
     }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
     finally{setBusy(false);}
   }
