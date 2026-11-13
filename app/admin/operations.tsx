@@ -12,7 +12,7 @@ type Delivery = { id:string; order_id?:string|null; created_at:string; customer_
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
 type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
-type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
+type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
@@ -730,7 +730,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         const statusClass=!x.active||qty<=0?"border-white/10 bg-white/5 text-white/50":low?"border-[#ef7d18]/30 bg-[#ef7d18]/10 text-[#f1b06e]":"border-[#a7b86a]/25 bg-[#a7b86a]/10 text-[#c4d38c]";
         return <article key={x.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#10140d]">
           <div className="relative h-36 overflow-hidden bg-[#20251a] sm:h-40">
-            <div role="img" aria-label={x.name} title={x.name} className="h-full w-full" style={{backgroundImage:"url('/images/nutrifit-insumos-sprite.svg')",backgroundSize:"400% 400%",backgroundPosition:`${inventoryImage(x).column*100/3}% ${inventoryImage(x).row*100/3}%`}}/>
+            <div role="img" aria-label={x.name} title={x.name} className="h-full w-full bg-center bg-no-repeat" style={{backgroundImage:"url("+ (x.image_path ? (x.image_path.startsWith("http") ? x.image_path : URL+"/storage/v1/object/public/inventory-images/"+x.image_path) : "/images/nutrifit-insumos-sprite.svg") +")",backgroundSize:x.image_path?"cover":"400% 400%",backgroundPosition:x.image_path?"center":`${inventoryImage(x).column*100/3}% ${inventoryImage(x).row*100/3}%`}}/>
             <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e09]/90 via-transparent to-black/10"/>
             <span className={"absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-black "+statusClass}>{status}</span>
             <div className="absolute bottom-3 left-3 right-3">
