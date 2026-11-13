@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import AdminPage from "../page";
 
-export default function AdminPainelRedirect() {
-  redirect("/admin");
+// Mantém /admin/painel no mesmo Dashboard unificado, sem redirecionar para outra área.
+export default function AdminPainelPage() {
+  return <AdminPage />;
 }
