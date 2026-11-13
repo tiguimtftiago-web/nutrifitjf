@@ -945,3 +945,25 @@ main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid > section { padding:0 !
 @media (orientation:landscape) and (min-width:640px) {
   body:has(.nf-admin-mobile-nav) .nf-admin-mobile-nav { display:none !important; }
 }
+
+/* Safe areas do iOS: notch, Dynamic Island, home indicator e laterais. */
+.nf-admin-mobile-nav {
+  left: calc(12px + env(safe-area-inset-left)) !important;
+  right: calc(12px + env(safe-area-inset-right)) !important;
+}
+@media (max-width:959px) and (orientation:portrait) {
+  main.nf-admin-root > div.mx-auto.grid {
+    padding-top: env(safe-area-inset-top) !important;
+    padding-right: calc(10px + env(safe-area-inset-right)) !important;
+    padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+    padding-left: calc(10px + env(safe-area-inset-left)) !important;
+  }
+}
+@media (orientation:landscape) and (min-width:640px) {
+  main.nf-admin-root > div.mx-auto.grid {
+    padding-top: calc(12px + env(safe-area-inset-top)) !important;
+    padding-right: calc(12px + env(safe-area-inset-right)) !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    padding-left: calc(12px + env(safe-area-inset-left)) !important;
+  }
+}
