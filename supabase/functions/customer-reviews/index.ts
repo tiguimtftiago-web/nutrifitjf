@@ -10,6 +10,27 @@ const reply = (body: unknown, status = 200) => new Response(JSON.stringify(body)
 });
 const validRating = (value: unknown) => Number.isInteger(value) && Number(value) >= 1 && Number(value) <= 5;
 
+async function sendWhatsAppNotification(message: string) {
+  const token = Deno.env.get("META_WHATSAPP_ACCESS_TOKEN") ?? "";
+  const phoneNumberId = Deno.env.get("META_PHONE_NUMBER_ID") ?? "";
+  const recipient = (Deno.env.get("META_ALERT_TO_PHONE") ?? "5532998030038").replace(/\\D/g, "");
+  if (!token || !phoneNumberId || !recipient) return { status: "not_configured" as const, id: null };
+  const response = await fetch(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: recipient,
+      type: "text",
+      text: { preview_url: false, body: message },
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(JSON.stringify(data));
+  return { status: "sent" as const, id: data?.messages?.[0]?.id ?? null };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const url = Deno.env.get("SUPABASE_URL");
@@ -21,14 +42,14 @@ Deno.serve(async (req) => {
     const { data, error } = await db.from("customer_reviews")
       .select("id,customer_name,overall_rating,comment,name_consent,created_at")
       .eq("status", "approved").eq("publish_consent", true)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }).limit(50);
     if (error) return reply({ error: "Não foi possível carregar as avaliações." }, 500);
     const all = data ?? [];
     const average = all.length ? all.reduce((sum, item) => sum + Number(item.overall_rating), 0) / all.length : null;
     return reply({
       count: all.length,
       average: average === null ? null : Number(average.toFixed(1)),
-      reviews: all.slice(0, 8).map(item => ({
+      reviews: all.map(item => ({
         id: item.id, customer: item.name_consent ? item.customer_name : "Cliente Nutrifit",
         rating: Number(item.overall_rating), comment: item.comment, created_at: item.created_at,
       })),
@@ -59,18 +80,65 @@ Deno.serve(async (req) => {
     verifiedOrder = order;
   }
 
-  const { error } = await db.from("customer_reviews").insert({
+  const reviewComment = typeof body.comment === "string" ? body.comment.trim().slice(0, 1200) || null : null;
+  const ratings = {
+    food_quality: Number(body.food_quality), ingredient_quality: Number(body.ingredient_quality),
+    portion_size: Number(body.portion_size), service: Number(body.service), delivery: Number(body.delivery),
+  };
+  const overall = Object.values(ratings).reduce((sum, rating) => sum + rating, 0) / 5;
+  const { data: inserted, error } = await db.from("customer_reviews").insert({
     order_id: verifiedOrder?.id ?? null, customer_name: customerName,
     purchase_verified: Boolean(verifiedOrder),
-    food_quality: body.food_quality, ingredient_quality: body.ingredient_quality,
-    portion_size: body.portion_size, service: body.service, delivery: body.delivery,
+    ...ratings,
     recommend: body.recommend,
-    comment: typeof body.comment === "string" ? body.comment.trim().slice(0, 1200) || null : null,
+    comment: reviewComment,
     publish_consent: body.publish_consent === true,
     name_consent: body.name_consent === true && body.publish_consent === true,
     status: "pending",
-  });
+    whatsapp_notification_status: "not_sent",
+  }).select("id").single();
   if (error?.code === "23505") return reply({ error: "Este pedido já possui uma avaliação registrada. Obrigado!" }, 409);
-  if (error) return reply({ error: "Não foi possível registrar sua avaliação." }, 500);
-  return reply({ success: true, message: "Avaliação recebida. Obrigado por ajudar a Nutrifit a melhorar!" }, 201);
+  if (error || !inserted) return reply({ error: "Não foi possível registrar sua avaliação." }, 500);
+
+  let notificationStatus: "sent" | "failed" | "not_configured" = "not_configured";
+  let messageId: string | null = null;
+  let notificationError: string | null = null;
+  const whatsappMessage = [
+    "*NUTRIFIT • NOVA AVALIAÇÃO*",
+    "",
+    `Cliente: ${customerName}`,
+    `Pedido: ${orderCode || "não informado"}`,
+    `Média: ${overall.toFixed(1)}/5`,
+    `Sabor: ${ratings.food_quality}/5 | Ingredientes: ${ratings.ingredient_quality}/5`,
+    `Porção: ${ratings.portion_size}/5 | Atendimento: ${ratings.service}/5 | Entrega: ${ratings.delivery}/5`,
+    `Recomendaria: ${body.recommend ? "Sim" : "Não"}`,
+    `Comentário: ${reviewComment || "não informado"}`,
+    `Publicação autorizada: ${body.publish_consent === true ? "Sim" : "Não"}`,
+    "",
+    "Acesse o painel administrativo > Avaliações para analisar e aprovar.",
+  ].join("\\n");
+
+  try {
+    const sent = await sendWhatsAppNotification(whatsappMessage);
+    notificationStatus = sent.status;
+    messageId = sent.id;
+  } catch (sendError) {
+    notificationStatus = "failed";
+    notificationError = String(sendError instanceof Error ? sendError.message : sendError).slice(0, 1000);
+    console.error("customer review WhatsApp notification failed", inserted.id, notificationError);
+  }
+
+  const { error: trackingError } = await db.from("customer_reviews").update({
+    whatsapp_notification_status: notificationStatus,
+    whatsapp_message_id: messageId,
+    whatsapp_notification_error: notificationError,
+    whatsapp_sent_at: notificationStatus === "sent" ? new Date().toISOString() : null,
+  }).eq("id", inserted.id);
+  if (trackingError) console.error("customer review notification tracking failed", inserted.id, trackingError);
+
+  return reply({
+    success: true,
+    notification: notificationStatus,
+    message: "Avaliação recebida. Obrigado por ajudar a Nutrifit a melhorar!",
+  }, 201);
 });
