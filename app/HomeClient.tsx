@@ -141,6 +141,15 @@ const salads: Product[] = [
   ["Summer Salad","SALADAS","350 g","R$ 21,90","Mix de alface, tomate-cereja, pepino, repolho roxo, cenoura, acompanhado de frango grelhado."]
 ].map(([name,line,weight,price,description], i) => ({name,line,weight,price,description,image:`/images/page-${[21,22,23,24,25,26][i]}.jpg`}));
 
+const snackBoxProduct: Product = {
+  name: "Nutrifit Snack Box",
+  line: "SNACK BOX",
+  weight: "1 kit",
+  price: "R$ 25,00",
+  description: "Kit lanche com 1 sanduíche natural integral, 1 suco natural de laranja 300 ml e 1 potinho de frutas picadas (melão, abacaxi e melancia).",
+  image: "/images/sanduiche-frango-nutrifit.jpg",
+};
+
 const traditional: Product[] = [
   ["Patinho com Abóbora","TRADICIONAL","500 g","R$ 29,90","Patinho moído refogado, purê de abóbora cremoso e arroz branco soltinho."],
   ["Parmegiana Cremosa","TRADICIONAL","500 g","R$ 26,90","Arroz branco, purê de batata, filé de frango empanado e assado, molho artesanal e queijo gratinado. A descrição atual não informa outros legumes."],
@@ -2049,7 +2058,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
         </div>
       </div>
       {nutrition && <div className="grid grid-cols-4 gap-1 border-t border-white/10 bg-[#11150e] px-2 py-2 text-center">{[[`${nutrition.kcal} kcal`,"Energia"],[`${nutrition.protein} g`,"Proteína"],[`${nutrition.carbs} g`,"Carboidrato"],[`${nutrition.fat} g`,"Gordura"]].map(([value,label])=><div key={label}><div className="text-[11px] font-black text-[#b6d76a]">{value}</div><div className="text-[9px] text-white/45">{label}</div></div>)}</div>}
-      <div className="grid grid-cols-2 items-start gap-2.5 border-t border-white/10 bg-[#0d100c] p-2.5">
+      <div className={`grid ${product.line === "SNACK BOX" ? "grid-cols-1" : "grid-cols-2"} items-start gap-2.5 border-t border-white/10 bg-[#0d100c] p-2.5`}>
         <details className="min-w-0 overflow-hidden rounded-xl border border-[#86a51d]/80 bg-[#11150e] text-left">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#b6d76a] [&::-webkit-details-marker]:hidden"><Salad size={19} className="shrink-0"/><span>Ingredientes</span></summary>
           <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
@@ -3086,6 +3095,39 @@ export default function Home() {
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+
+      <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
+        <div className="rounded-[1.5rem] border border-[#f47b0b]/35 bg-gradient-to-br from-[#17130d] via-[#0d100c] to-[#10150b] p-4 sm:p-6">
+          <div className="mb-5">
+            <div className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">Praticidade para sua pausa</div>
+            <h2 className="mt-1.5 text-3xl font-black text-white sm:text-4xl">Nutrifit <span className="text-[#b6d76a]">Snack Box</span></h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Um kit lanche completo para levar: sanduíche natural, suco natural e frutas frescas.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+            <div className="max-w-md">
+              <ProductCard product={snackBoxProduct} onAdd={addToOrder} />
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Sanduíche natural integral" className="aspect-square w-full object-cover" loading="lazy" />
+                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Sanduíche natural</div>
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                <img src="/images/page-42.jpg" alt="Suco natural de laranja de 300 ml" className="aspect-square w-full object-cover" loading="lazy" />
+                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Suco de laranja · 300 ml</div>
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                <img src="/images/melao.jpg" alt="Frutas frescas picadas" className="aspect-square w-full object-cover" loading="lazy" />
+                <div className="p-2 text-center text-[10px] font-bold text-white/80 sm:text-xs">Potinho de frutas</div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
+            <span className="text-xs text-white/65">1 sanduíche natural + 1 suco natural de laranja 300 ml + 1 potinho de frutas picadas</span>
+            <strong className="text-xl font-black text-[#f47b0b]">R$ 25,00</strong>
+          </div>
+        </div>
+      </section>
 
       <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
