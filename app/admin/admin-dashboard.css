@@ -935,3 +935,13 @@ main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid > section { padding:0 !
 .nf-dashboard .nf-purchase-button,
 .nf-dashboard .nf-production-empty button,
 .nf-outer-nav-item { cursor: pointer; }
+
+.nf-outer-more { display:grid; gap:3px; padding:7px 0 11px; border-top:1px solid #262626; }
+.nf-outer-more-label { padding:4px 10px; color:#A9A9B8; font-size:8px; font-weight:850; letter-spacing:.14em; text-transform:uppercase; }
+.nf-outer-more .nf-outer-nav-item { min-height:40px; font-size:11px; }
+@media (max-width:959px) and (orientation:portrait) {
+  body:has(.nf-admin-mobile-nav) .nf-admin-mobile-nav { display:block !important; }
+}
+@media (orientation:landscape) and (min-width:640px) {
+  body:has(.nf-admin-mobile-nav) .nf-admin-mobile-nav { display:none !important; }
+}
