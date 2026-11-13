@@ -913,3 +913,25 @@ main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid > section { padding:0 !
   main.nf-admin-root > div.mx-auto.grid > aside { display:flex !important; top:18px !important; height:calc(100dvh - 36px) !important; }
   body:has(.nf-dashboard) .nf-admin-mobile-nav { display:none !important; }
 }
+
+/* Ajustes finais de legibilidade e nomes sem reticências. */
+.nf-top-info > span {
+  display: block !important;
+  overflow: visible !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.nf-top-info { align-content: center; }
+.nf-dashboard .nf-stock-name { overflow-wrap: anywhere; }
+.nf-dashboard button:focus-visible {
+  outline: 2px solid #FF7A00;
+  outline-offset: 2px;
+}
+.nf-dashboard .nf-action-card,
+.nf-dashboard .nf-status-legend button,
+.nf-dashboard .nf-stock-item,
+.nf-dashboard .nf-purchase-button,
+.nf-dashboard .nf-production-empty button,
+.nf-outer-nav-item { cursor: pointer; }
