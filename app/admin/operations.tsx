@@ -35,16 +35,39 @@ async function req(path:string, token:string, init:RequestInit={}) {
 const money=(v:number)=>"R$ "+Number(v||0).toFixed(2).replace(".",",");
 const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none";
 
-function inventoryImage(item:InventoryItem):string {
-  const n=(item.name+" "+item.category).toLocaleLowerCase("pt-BR");
-  if(n.includes("purê")||n.includes("pure")||n.includes("batata")) return "/images/frango-pure-batata-inglesa.webp";
-  if(n.includes("tilápia")||n.includes("tilapia")||n.includes("peixe")||n.includes("salmão")||n.includes("salmao")) return "/images/tilapia-fit-350-web.jpg";
-  if(n.includes("lombo")||n.includes("pernil")||n.includes("suíno")||n.includes("suino")||n.includes("porco")) return "/images/pernil-acebolado-batata-real.jpg";
-  if(n.includes("frango")||n.includes("galinha")||n.includes("peito")) return "/images/frango-ensopado.jpg";
-  if(n.includes("carne")||n.includes("patinho")||n.includes("acém")||n.includes("acem")||n.includes("moída")||n.includes("moida")||n.includes("bovina")||n.includes("boi")) return "/images/carne-de-panela-com-batatas.jpg";
-  if(n.includes("cenoura")||n.includes("beterraba")||n.includes("chuchu")||n.includes("brócolis")||n.includes("brocolis")||n.includes("couve")||n.includes("legume")||n.includes("verdura")) return "/images/frango-empanado-arroz-com-ervilha-e-cenoura.jpg";
-  if(n.includes("arroz")||n.includes("feijão")||n.includes("feijao")||n.includes("macarrão")||n.includes("macarrao")||n.includes("massa")) return "/images/pernil-desfiado-molho-arroz-integral-cenoura.jpg";
-  return "/images/nutrifit-fit-350-frango-com-pure-de-batata-inglesa.png";
+type InventoryVisual = { column:number; row:number; label:string };
+function inventoryImage(item:InventoryItem):InventoryVisual {
+  const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+  const n=normalize(item.name+" "+item.category);
+  const has=(...terms:string[])=>terms.some(term=>n.includes(normalize(term)));
+  // Cada família visual aponta para um produto específico no sprite, sem reutilizar foto de prato pronto.
+  if(has("oleo","azeite")) return {column:0,row:0,label:"Garrafa de óleo"};
+  if(has("caixa de envio","caixa papelao","caixa de papelão","caixa transporte")) return {column:2,row:0,label:"Caixa de papelão"};
+  if(has("marmita","pote","embalagem","bandeja","retangular","descartavel","descartável")) return {column:1,row:0,label:"Marmita plástica vazia"};
+  if(has("mussarela","muçarela","mucarela","queijo")) return {column:2,row:0,label:"Queijo muçarela"};
+  if(has("alho")) return {column:3,row:0,label:"Alho"};
+  if(has("patinho","acem","acém","carne moida","carne moída","moida","moída")) return {column:1,row:1,label:"Carne moída"};
+  if(has("carne","bovina","boi","acém","acem")) return {column:0,row:1,label:"Carne bovina"};
+  if(has("frango","galinha","peito")) return {column:0,row:3,label:"Peito de frango"};
+  if(has("tilapia","tilápia","peixe","salmao","salmão")) return {column:2,row:3,label:"Peixe"};
+  if(has("lombo","pernil","suino","suíno","porco")) return {column:0,row:1,label:"Carne suína"};
+  if(has("brocolis","brócolis")) return {column:2,row:1,label:"Brócolis"};
+  if(has("arroz")) return {column:3,row:1,label:"Arroz"};
+  if(has("batata doce","batata-doce")) return {column:1,row:2,label:"Batata-doce"};
+  if(has("batata","pure","purê")) return {column:0,row:2,label:"Batata inglesa"};
+  if(has("cenoura")) return {column:2,row:2,label:"Cenoura"};
+  if(has("ervilha","grao de bico","grão de bico","milho")) return {column:3,row:2,label:"Ervilhas"};
+  if(has("macarrao","macarrão","massa","penne")) return {column:2,row:3,label:"Macarrão"};
+  if(has("tomate")) return {column:1,row:3,label:"Tomate"};
+  if(has("cebola")) return {column:3,row:3,label:"Cebola"};
+  if(has("beterraba","chuchu","couve","hortalica","hortaliça","legume","verdura")) return {column:2,row:1,label:"Hortaliças frescas"};
+  if(has("leite","laticinio","laticínio")) return {column:3,row:0,label:"Ingrediente lácteo"};
+  if(has("tempero","caldo","sal","pimenta","oregano","orégano","colorau","paprica","páprica")) return {column:3,row:3,label:"Temperos e aromáticos"};
+  if(has("proteina","proteína")) return {column:0,row:1,label:"Proteína"};
+  if(has("acompanhamento")) return {column:3,row:1,label:"Acompanhamento"};
+  if(has("embalagem")) return {column:1,row:0,label:"Embalagem vazia"};
+  // Fallback neutro: ingrediente in natura, nunca uma marmita pronta.
+  return {column:3,row:3,label:"Ingrediente"};
 }
 
 export default function Operations({section,token,initialCategory}:{section:"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";token:string;initialCategory?:string}) {
@@ -707,7 +730,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         const statusClass=!x.active||qty<=0?"border-white/10 bg-white/5 text-white/50":low?"border-[#ef7d18]/30 bg-[#ef7d18]/10 text-[#f1b06e]":"border-[#a7b86a]/25 bg-[#a7b86a]/10 text-[#c4d38c]";
         return <article key={x.id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#10140d]">
           <div className="relative h-36 overflow-hidden bg-[#20251a] sm:h-40">
-            <img src={inventoryImage(x)} alt={x.name} loading="lazy" className="h-full w-full object-cover"/>
+            <div role="img" aria-label={x.name} title={x.name} className="h-full w-full" style={{backgroundImage:"url('/images/nutrifit-insumos-sprite.svg')",backgroundSize:"400% 400%",backgroundPosition:`${inventoryImage(x).column*100/3}% ${inventoryImage(x).row*100/3}%`}}/>
             <div className="absolute inset-0 bg-gradient-to-t from-[#0b0e09]/90 via-transparent to-black/10"/>
             <span className={"absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-black "+statusClass}>{status}</span>
             <div className="absolute bottom-3 left-3 right-3">
