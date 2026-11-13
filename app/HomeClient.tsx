@@ -1098,7 +1098,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       "",
       "PAGAMENTO VIA PIX",
       `Chave Pix: ${PIX_KEY}`,
-      "Após o pagamento, envie o comprovante neste WhatsApp.",
+      "Após o pagamento via Pix, envie o comprovante neste WhatsApp.",
+      "Pagamento com cartão não está confirmado nesta etapa; consulte a equipe antes de pagar.",
       "",
       "IMPORTANTE",
       "Confira os itens, o valor e principalmente o endereço antes de pagar.",
@@ -1156,7 +1157,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       }
 
       const officialLines = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
-        `*${index + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
+        `*${index + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\n   Total dos itens: ${money(Number(item.price) * Number(item.quantity))}`
       ).join("\n\n") : "";
       const officialSummary = [
         "*ITENS DO PEDIDO*",
