@@ -510,6 +510,27 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const paidRefunds=sum(paidFinance,"estorno");
     // Estornos reduzem o caixa, independentemente do sinal usado no lançamento.
     const balance=paidRevenue-paidExpenseTotal-paidFeeTotal-Math.abs(paidRefunds);
+    // Série temporal calculada com os mesmos filtros e regras de data dos indicadores.
+    const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
+    const chartStart=financePeriod==="all"
+      ? new Date(chartRecords.length?Math.min(...chartRecords):now.getTime()-6*86400000)
+      : new Date(cutoff);
+    const chartSpan=Math.max(7*86400000,now.getTime()-chartStart.getTime()+1);
+    const chartBucketMs=chartSpan/7;
+    const chartBuckets=Array.from({length:7},(_,i)=>({label:new Date(chartStart.getTime()+Math.min(chartSpan-1,(i+1)*chartBucketMs-1)).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),orders:0,receipts:0,expenses:0}));
+    const addToChart=(date:string,value:number,key:"orders"|"receipts"|"expenses")=>{
+      const time=new Date(date).getTime();
+      if(!Number.isFinite(time)||time<chartStart.getTime()||time>now.getTime())return;
+      const index=Math.min(6,Math.max(0,Math.floor((time-chartStart.getTime())/chartBucketMs)));
+      chartBuckets[index][key]+=Number(value||0);
+    };
+    customerOrders.filter(x=>x.status!=="cancelado").forEach(x=>addToChart(x.created_at,x.total,"orders"));
+    finance.filter(x=>x.type==="receita"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"receipts"));
+    finance.filter(x=>x.type==="despesa"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"expenses"));
+    const chartMax=Math.max(1,...chartBuckets.flatMap(x=>[x.orders,x.receipts,x.expenses]));
+    const chartPoints=(key:"orders"|"receipts"|"expenses")=>chartBuckets.map((item,index)=>({x:34+index*102,y:178-(item[key]/chartMax)*145,value:item[key]}));
+    const chartPath=(key:"orders"|"receipts"|"expenses")=>chartPoints(key).map((p,index)=>(index?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
+    const chartMoney=(value:number)=>value>=1000?"R$ "+(value/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil":money(value);
     return <div className="space-y-5">
       {error&&<div className="flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-3 py-2 text-xs font-black">Fechar</button></div>}
       <Panel title="Financeiro NutriFit">
@@ -517,6 +538,33 @@ export default function Operations({section,token,initialCategory}:{section:"est
           <input value={financeSearch} onChange={e=>setFinanceSearch(e.target.value)} placeholder="Buscar descrição, fornecedor ou categoria..." className={input}/>
           <select value={financePeriod} onChange={e=>setFinancePeriod(e.target.value)} className={input+" sm:max-w-[220px]"}><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o histórico</option></select>
         </div>
+        <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-[#11150e] p-4 sm:p-5" aria-label="Evolução financeira no período">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h3 className="text-base font-black text-white sm:text-lg">Evolução financeira</h3><p className="mt-1 text-xs text-white/45">Comparativo dos valores ao longo do período selecionado</p></div>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] font-semibold text-white/55">{financePeriod==="all"?"Todo o histórico":"Últimos "+financePeriod+" dias"}</span>
+          </div>
+          <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-semibold text-white/65">
+            <span className="inline-flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#ef7d18]"/>Pedidos registrados</span>
+            <span className="inline-flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#a7b86a]"/>Recebimentos confirmados</span>
+            <span className="inline-flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#df6256]"/>Despesas pagas</span>
+          </div>
+          <div className="w-full overflow-hidden">
+            <svg viewBox="0 0 680 220" role="img" aria-label="Gráfico de linhas comparando pedidos registrados, recebimentos confirmados e despesas pagas" className="block h-auto w-full">
+              {[0,1,2,3].map((line)=><g key={line}><line x1="30" x2="660" y1={33+line*48} y2={33+line*48} stroke="#ffffff" strokeOpacity=".09" strokeDasharray="3 5"/><text x="24" y={37+line*48} textAnchor="end" fill="#8b8e84" fontSize="10">{Math.round(chartMax*(1-line/3)/1000*10)/10}k</text></g>)}
+              <path d={chartPath("orders")} fill="none" stroke="#ef7d18" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d={chartPath("receipts")} fill="none" stroke="#a7b86a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d={chartPath("expenses")} fill="none" stroke="#df6256" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              {(["orders","receipts","expenses"] as const).map(key=>chartPoints(key).map((point,index)=><circle key={key+"-"+index} cx={point.x} cy={point.y} r="3.5" fill={key==="orders"?"#ef7d18":key==="receipts"?"#a7b86a":"#df6256"} stroke="#10140d" strokeWidth="1.5"/>))}
+              {chartBuckets.map((item,index)=><text key={index} x={34+index*102} y="205" textAnchor="middle" fill="#a4a69e" fontSize="10">{item.label}</text>)}
+            </svg>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+            <div className="min-w-0"><div className="text-[10px] leading-4 text-white/45">Pedidos</div><b className="block truncate text-xs text-[#ef9a54] sm:text-sm">{chartMoney(chartBuckets.reduce((v,x)=>v+x.orders,0))}</b></div>
+            <div className="min-w-0"><div className="text-[10px] leading-4 text-white/45">Recebido</div><b className="block truncate text-xs text-[#b9c989] sm:text-sm">{chartMoney(chartBuckets.reduce((v,x)=>v+x.receipts,0))}</b></div>
+            <div className="min-w-0"><div className="text-[10px] leading-4 text-white/45">Despesas</div><b className="block truncate text-xs text-[#df8279] sm:text-sm">{chartMoney(chartBuckets.reduce((v,x)=>v+x.expenses,0))}</b></div>
+          </div>
+          <p className="mt-3 text-[10px] leading-4 text-white/35">Pedidos usam a data de registro. Recebimentos e despesas usam a data efetiva de pagamento. O gráfico não representa saldo bancário.</p>
+        </section>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Valor dos pedidos não cancelados</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(orderTotal)}</div><div className="mt-2 text-xs text-white/40">Pedidos registrados, não dinheiro recebido</div></div>
           <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Pedidos no status pago_recebido</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(paidOrderTotal)}</div><div className="mt-2 text-xs text-white/50">Somente pedidos neste status; não inclui entregues</div></div>
