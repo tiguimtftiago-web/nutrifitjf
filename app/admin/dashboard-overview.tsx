@@ -11,7 +11,7 @@ type Customer = { id:string; name:string; order_count:number; total_spend:number
 type InventoryItem = { id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; active:boolean; };
 type PurchaseAlert = { item_id:string; name:string; unit:string; current_quantity:number; minimum_quantity:number; shortage_quantity:number; status:string; };
 type Production = { id:string; created_at:string; produced_at:string|null; quantity:number; status:string; };
-type Delivery = { id:string; customer_name:string|null; delivery_date:string|null; delivery_window:string|null; status:string; driver_name:string|null; };
+type Delivery = { id:string; order_id:string|null; meal_quantity:number; customer_name:string|null; delivery_date:string|null; delivery_window:string|null; status:string; driver_name:string|null; };
 type Finance = { id:string; created_at:string; type:string; category?:string|null; amount:number; status:string; paid_at:string|null; };
 type ProductLine = { name:string; value:number; color:string };
 type DailyPoint = { date:Date; label:string; revenue:number; orders:number };
@@ -129,7 +129,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
       const [o,p,d,f]=await Promise.all([
         req(URL+"/rest/v1/customer_orders?select=id,customer_profile_id,created_at,customer_name,items,item_count,total,status&order=created_at.desc&limit=1000"),
         req(URL+"/rest/v1/production_batches?select=id,created_at,produced_at,quantity,status&order=produced_at.desc&limit=500"),
-        req(URL+"/rest/v1/delivery_orders?select=id,customer_name,delivery_date,delivery_window,status,driver_name&order=delivery_date.asc&limit=200"),
+        req(URL+"/rest/v1/delivery_orders?select=id,order_id,meal_quantity,customer_name,delivery_date,delivery_window,status,driver_name&order=delivery_date.asc&limit=1000"),
         req(URL+"/rest/v1/financial_transactions?select=id,created_at,type,category,amount,status,paid_at&order=created_at.desc&limit=500")
       ]);
       setDashboardOrders(o||[]);setProduction(p||[]);setDeliveries(d||[]);setFinance(f||[]);
@@ -194,6 +194,8 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
   const actionNew=sourceOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
   const actionDelivery=sourceOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
+  const pendingDeliveryByOrder=sourceOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:deliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
+  const pendingMealCount=pendingDeliveryByOrder.reduce((sum,x)=>sum+x.remaining,0);
   const startLabel=periodStart.toLocaleDateString("pt-BR");
   const endLabel=now.toLocaleDateString("pt-BR");
   const periodLabel=startLabel+" a "+endLabel;
@@ -243,7 +245,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
         <div className="nf-action-grid">
           <button type="button" className="nf-action-card orange" onClick={()=>onNavigate("pedidos:new")}><span className="nf-action-icon"><ShoppingCart size={19}/></span><span><small>Pedidos novos</small><b>{actionNew}</b></span><ArrowUpRight size={17}/></button>
           <button type="button" className="nf-action-card yellow" onClick={()=>onNavigate("estoque")}><span className="nf-action-icon"><Package size={19}/></span><span><small>Estoque baixo / zerado</small><b>{lowStockCount}</b></span><ArrowUpRight size={17}/></button>
-          <button type="button" className="nf-action-card blue" onClick={()=>onNavigate("entregas")}><span className="nf-action-icon"><Truck size={19}/></span><span><small>Em entrega</small><b>{actionDelivery}</b></span><ArrowUpRight size={17}/></button>
+          <button type="button" className="nf-action-card blue" onClick={()=>onNavigate("entregas")}><span className="nf-action-icon"><Truck size={19}/></span><span><small>Em entrega</small><b>{actionDelivery}</b></span><ArrowUpRight size={17}/></button>\n          <button type="button" className="nf-action-card orange" onClick={()=>onNavigate("pedidos")}><span className="nf-action-icon"><Package size={19}/></span><span><small>Marmitas pendentes</small><b>{pendingMealCount}</b><small>{pendingDeliveryByOrder.length} pedido(s) parcial(is)</small></span><ArrowUpRight size={17}/></button>
         </div>
       </section>
 
