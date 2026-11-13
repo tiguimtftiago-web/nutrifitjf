@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
   if (body.action === "resend_whatsapp") {
     const reviewId = String(body.review_id ?? "").trim();
     const bearer = req.headers.get("authorization") ?? "";
-    const jwt = bearer.replace(/^Bearer\\s+/i, "");
+    const jwt = bearer.replace(/^Bearer\s+/i, "");
     const publicKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
     if (!reviewId || !jwt || !publicKey) return reply({ error: "Acesso administrativo necessário." }, 401);
     const authClient = createClient(url, publicKey, {
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       `Publicação autorizada: ${review.publish_consent ? "Sim" : "Não"}`,
       "",
       "Acesse o painel administrativo > Avaliações para analisar e aprovar.",
-    ].join("\\n");
+    ].join("\n");
     try {
       const sent = await sendWhatsAppNotification(message);
       const status = sent.status;
@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
     `Publicação autorizada: ${body.publish_consent === true ? "Sim" : "Não"}`,
     "",
     "Acesse o painel administrativo > Avaliações para analisar e aprovar.",
-  ].join("\\n");
+  ].join("\n");
 
   try {
     const sent = await sendWhatsAppNotification(whatsappMessage);
