@@ -1164,7 +1164,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "",
         officialLines,
         "",
-        "━━━━━━━━━━━━",
+        "------------",
         "*VALORES CONFIRMADOS PELO SISTEMA*",
         `Subtotal: *${money(Number(result.subtotal))}*`,
         `Desconto: *-${money(Number(result.discount ?? 0))}*`,
@@ -1179,7 +1179,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         throw new Error("Não foi possível montar o resumo oficial do pedido.");
       }
       const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
-      const reference = result.order_code ? `\n\n━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
+      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       window.location.href = finalUrl;
       setPaymentStatus("idle");
@@ -2800,7 +2800,7 @@ export default function Home() {
         `TOTAL OFICIAL: ${money(Number(result.total))}`,
       ].join("\n");
       const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_code ? `\n\n━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
+      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       setThankYouOrder({
         customerName: customerName.trim(),
         orderCode: typeof result.order_code === "string" ? result.order_code : "Pedido registrado",
