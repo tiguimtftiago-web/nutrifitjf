@@ -163,9 +163,8 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const sales=currentOrders.reduce((s,o)=>s+Number(o.total||0),0);
   const previousSales=previousOrders.reduce((s,o)=>s+Number(o.total||0),0);
   const avg=currentOrders.length?sales/currentOrders.length:0;
-  const customerIds=new Set(currentOrders.map(o=>o.customer_profile_id).filter(Boolean));
-  const customerNames=new Set(currentOrders.map(o=>o.customer_name||"").filter(Boolean));
-  const activeCustomers=customerIds.size||customerNames.size;
+  const customerKeys=new Set(currentOrders.map(o=>o.customer_profile_id?String(o.customer_profile_id):("name:"+String(o.customer_name||"").trim().toLocaleLowerCase("pt-BR"))).filter(x=>x!=="name:"));
+  const activeCustomers=customerKeys.size;
   const daily:DailyPoint[]=Array.from({length:period},(_,i)=>{const d=new Date(periodStart);d.setDate(d.getDate()+i);const key=dateKey(d);const rows=currentOrders.filter(o=>dateKey(new Date(o.created_at))===key);return {date:d,label:d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),revenue:rows.reduce((s,o)=>s+Number(o.total||0),0),orders:rows.length}});
   const counts={new:currentOrders.filter(o=>statusOf(o.status)==="new").length,prep:currentOrders.filter(o=>statusOf(o.status)==="prep").length,delivery:currentOrders.filter(o=>statusOf(o.status)==="delivery").length,done:currentOrders.filter(o=>statusOf(o.status)==="done").length};
   const lines:ProductLine[]=[];
@@ -189,7 +188,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const nextDeliveries=deliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
   const paidFinance=finance.filter(f=>["pago","paid","concluido"].includes(String(f.status||"").toLowerCase())&&new Date(f.paid_at||f.created_at)>=periodStart&&new Date(f.paid_at||f.created_at)<=now);
   const expenses=paidFinance.filter(f=>["despesa","expense"].includes(String(f.type||"").toLowerCase())).reduce((s,f)=>s+Number(f.amount||0),0);
-  const inputExpenses=paidFinance.filter(f=>["despesa","expense"].includes(String(f.type||"").toLowerCase())&&String(f.category||"").toLowerCase().includes("insumo")).reduce((s,f)=>s+Number(f.amount||0),0);
+  const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
   const profit=sales-expenses;
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
   const actionNew=sourceOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
@@ -267,13 +266,13 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
           {inputMargin===null?<p className="nf-footnote">Sem custo de insumos pago e identificado no período. A margem não foi estimada.</p>:<p className="nf-footnote">Receitas = total dos pedidos não cancelados. Margem = vendas menos despesas categorizadas como insumos.</p>}
         </article>
         <article className="nf-card nf-lines-card">
-          <div className="nf-card-heading"><div><span className="nf-eyebrow">MIX DE PRODUTOS</span><h2>Vendas por linha</h2></div></div>
+          <div className="nf-card-heading"><div><span className="nf-eyebrow">MIX DE PRODUTOS</span><h2>Vendas por linha</h2></div><span className="nf-current-label">No período</span></div>
           {lineTotal>0?<div className="nf-lines-body"><Donut values={lines} center={<><b>{lineTotal.toLocaleString("pt-BR")}</b><small>un.</small></>}/><div className="nf-legend">{lines.sort((a,b)=>b.value-a.value).map(l=><div key={l.name}><i style={{background:l.color}}/><span>{l.name}</span><b>{(l.value/lineTotal*100).toLocaleString("pt-BR",{maximumFractionDigits:1})}%</b></div>)}</div></div>:<div className="nf-chart-empty">Sem vendas por linha neste período.</div>}
         </article>
       </section>
 
       <section className="nf-grid nf-grid-secondary">
-        <article className="nf-card nf-top-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">DESTAQUES</span><h2>Top 5 mais vendidos</h2></div></div>
+        <article className="nf-card nf-top-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">DESTAQUES</span><h2>Top 5 mais vendidos</h2></div><span className="nf-current-label">No período</span></div>
           {topProducts.length?<div className="nf-top-list">{topProducts.map(([name,value],i)=><div className="nf-top-row" key={name}><b className={"nf-rank rank-"+i}>{i+1}</b><div className="nf-top-info"><span>{name}</span><div className="nf-top-track"><i style={{width:(value/maxTop*100)+"%",background:["linear-gradient(90deg,#FF7A00,#FFB15B)","linear-gradient(90deg,#9BE22A,#D0F58B)","linear-gradient(90deg,#4AA3FF,#8BC8FF)","linear-gradient(90deg,#F5C518,#F9E28B)","linear-gradient(90deg,#EC4899,#F6A5D0)"][i]}}/></div></div><strong>{value} <small>un.</small></strong></div>)}</div>:<div className="nf-chart-empty">Nenhum produto vendido neste período.</div>}
         </article>
         <article className="nf-card nf-status-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">OPERAÇÃO</span><h2>Status dos pedidos</h2></div><b className="nf-total-pill">{currentOrders.length} no período</b></div>
@@ -290,7 +289,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
           {nextDeliveries.length?<div className="nf-delivery-list">{nextDeliveries.map(d=><div className="nf-delivery-row" key={d.id}><time>{d.delivery_window||new Date(d.delivery_date+"T00:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}</time><span>{d.customer_name||"Cliente"}</span><small>{d.driver_name||"Responsável não definido"}</small></div>)}</div>:<div className="nf-chart-empty">Nenhuma entrega agendada.</div>}
         </article>
         <article className="nf-card nf-production-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">COZINHA</span><h2>Produção de hoje</h2></div><span className="nf-current-label">Hoje</span></div>
-          {planned>0?<div className="nf-production-content"><div className="nf-production-ring" style={{background:"conic-gradient(#9BE22A "+Math.min(100,produced/planned*100)+"%,#303030 0)"}}><div><b>{Math.round(produced/planned*100)}%</b><small>concluído</small></div></div><div className="nf-production-stats"><p>Previsto <b>{planned} marmitas</b></p><p>Produzido <b>{produced} marmitas</b></p><p>Pendente <b>{Math.max(0,planned-produced)} marmitas</b></p></div></div>:<div className="nf-production-empty"><p>Sem produção planejada para hoje.</p><button type="button" onClick={()=>onNavigate("producao")}>Planejar produção <ArrowUpRight size={15}/></button></div>}
+          {planned>0?<div className="nf-production-content"><div className="nf-production-ring" role="img" aria-label={"Produção de hoje: "+Math.round(produced/planned*100)+"% concluída"} style={{background:"conic-gradient(#9BE22A "+Math.min(100,produced/planned*100)+"%,#303030 0)"}}><div><b>{Math.round(produced/planned*100)}%</b><small>concluído</small></div></div><div className="nf-production-stats"><p>Previsto <b>{planned} marmitas</b></p><p>Produzido <b>{produced} marmitas</b></p><p>Pendente <b>{Math.max(0,planned-produced)} marmitas</b></p></div></div>:<div className="nf-production-empty"><p>Sem produção planejada para hoje.</p><button type="button" onClick={()=>onNavigate("producao")}>Planejar produção <ArrowUpRight size={15}/></button></div>}
         </article>
       </section>
       <div className="nf-dashboard-foot">{loading?"Sincronizando informações…":"Atualização automática a cada 30 segundos"} · {refreshing?"Atualizando…":"Dados reais registrados"}</div>
