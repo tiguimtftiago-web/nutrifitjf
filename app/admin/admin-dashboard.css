@@ -140,3 +140,174 @@ main:has(> header.sticky) .nf-command-eyebrow::before {
 @media(min-width:1500px){.nf-dashboard{grid-template-columns:280px minmax(0,1fr);gap:22px}.nf-main{gap:14px}.nf-card{padding:13px 18px}.nf-card h2{font-size:19px}.nf-kpi-content strong{font-size:26px}}
 @media(max-width:1180px){.nf-dashboard{grid-template-columns:220px minmax(0,1fr);gap:14px}.nf-row-2{grid-template-columns:1.15fr 1fr}.nf-status{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);align-items:center}.nf-status h2{grid-column:1/-1}.nf-row-3{grid-template-columns:1fr 1fr}.nf-finance{grid-column:1/-1}.nf-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.nf-dashboard{display:block;padding:0}.nf-sidebar{position:relative;top:auto;height:auto;min-height:0;border-radius:0 0 14px 14px;padding:8px 10px}.nf-brand{height:65px;padding:0 4px 7px}.nf-brand img{width:55px;height:55px}.nf-brand-word{font-size:22px}.nf-brand small{font-size:8px}.nf-nav{display:flex;overflow-x:auto;padding:9px 0 2px;gap:5px}.nf-nav-item{height:38px;flex:0 0 auto;padding:0 10px;font-size:12px;gap:6px}.nf-nav-item svg{width:17px;height:17px}.nf-user{display:none}.nf-main{padding:12px;gap:11px}.nf-header{height:auto;align-items:flex-start}.nf-heading>svg{width:27px;height:27px}.nf-heading h1{font-size:18px}.nf-heading p{font-size:10px}.nf-header-actions{gap:5px}.nf-period{height:36px;padding:0 7px;gap:5px}.nf-period select{min-width:0;width:90px;font-size:10px}.nf-period svg{width:15px}.nf-icon-button{width:30px;height:34px}.nf-icon-button svg{width:19px}.nf-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.nf-kpi{height:90px;padding:8px;gap:7px}.nf-kpi-icon{width:37px;height:37px;flex-basis:37px}.nf-kpi-icon svg{width:21px}.nf-kpi-content span{font-size:10px}.nf-kpi-content strong{font-size:17px}.nf-kpi-content small{font-size:9px}.nf-kpi-content em{display:none}.nf-spark{width:30%;height:40px}.nf-row-2,.nf-row-3,.nf-row-4{grid-template-columns:1fr}.nf-status{grid-column:auto;display:flex}.nf-status h2{grid-column:auto}.nf-card{padding:12px;border-radius:12px}.nf-card h2{font-size:15px}.nf-lines-body{justify-content:space-evenly}.nf-legend>div{font-size:10px}.nf-production-body{justify-content:flex-start}.nf-finance{grid-column:auto}.nf-top-row{grid-template-columns:30px minmax(0,1fr) 75px 43px;gap:6px}.nf-top-row>span{font-size:11px}.nf-delivery-row{grid-template-columns:65px minmax(0,1fr) auto}.nf-delivery-row span{font-size:11px}}
+
+
+/* Landscape mobile: use the full viewport width instead of stacking two desktop sidebars. */
+@media (orientation: landscape) and (max-width: 1100px) and (max-height: 600px) {
+  main:has(> header.sticky) > div.mx-auto.grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+    padding: 8px 10px 58px !important;
+  }
+
+  main:has(> header.sticky) > div.mx-auto.grid > aside {
+    display: flex !important;
+    position: static !important;
+    width: 100%;
+    max-height: none !important;
+    height: auto;
+    gap: 6px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap;
+    border-radius: 14px;
+    padding: 6px;
+    scrollbar-width: thin;
+  }
+  main:has(> header.sticky) > div.mx-auto.grid > aside > a,
+  main:has(> header.sticky) > div.mx-auto.grid > aside > div {
+    flex: 0 0 auto;
+    margin: 0 !important;
+  }
+  main:has(> header.sticky) > div.mx-auto.grid > aside > a {
+    min-height: 38px;
+    padding: 0 12px;
+  }
+  main:has(> header.sticky) > div.mx-auto.grid > aside > a > span > span:nth-child(2),
+  main:has(> header.sticky) > div.mx-auto.grid > aside > div > div:first-child {
+    display: none;
+  }
+  main:has(> header.sticky) > div.mx-auto.grid > aside > div > button {
+    min-height: 38px;
+    width: auto;
+    margin: 0 !important;
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+  main:has(> header.sticky) > div.mx-auto.grid > section {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .nf-dashboard {
+    display: block;
+    min-height: 0;
+    width: 100%;
+  }
+  .nf-sidebar {
+    position: static;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 6px 8px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .nf-brand {
+    width: auto;
+    height: 42px;
+    padding: 0 8px 0 0;
+    border: 0;
+    gap: 7px;
+  }
+  .nf-brand img {
+    width: 38px;
+    height: 38px;
+  }
+  .nf-brand-word { font-size: 17px; }
+  .nf-brand small { display: none; }
+  .nf-nav {
+    display: flex;
+    min-width: 0;
+    gap: 4px;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .nf-nav-item {
+    flex: 0 0 auto;
+    height: 34px;
+    gap: 6px;
+    padding: 0 9px;
+    border-radius: 9px;
+    font-size: 11px;
+  }
+  .nf-nav-item svg { width: 16px; height: 16px; }
+  .nf-user { display: none; }
+
+  .nf-main {
+    width: 100%;
+    padding: 8px 0 12px;
+    gap: 8px;
+  }
+  .nf-header { height: 42px; min-height: 42px; }
+  .nf-heading { gap: 8px; }
+  .nf-heading > svg { width: 25px; height: 25px; }
+  .nf-heading h1 { font-size: 18px; }
+  .nf-heading p { margin-top: 2px; font-size: 10px; }
+  .nf-header-actions { gap: 6px; }
+  .nf-period { height: 34px; padding: 0 8px; gap: 5px; }
+  .nf-period select { min-width: 0; width: 104px; font-size: 11px; }
+  .nf-icon-button { width: 32px; height: 32px; }
+  .nf-icon-button svg { width: 19px; height: 19px; }
+
+  .nf-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .nf-kpi { height: 82px; min-width: 0; gap: 7px; padding: 7px; border-radius: 11px; }
+  .nf-kpi-icon { width: 34px; height: 34px; flex-basis: 34px; border-radius: 9px; }
+  .nf-kpi-icon svg { width: 19px; height: 19px; }
+  .nf-kpi-content span { font-size: 10px; }
+  .nf-kpi-content strong { font-size: clamp(14px, 2.2vw, 20px); }
+  .nf-kpi-content small { font-size: 9px; }
+  .nf-kpi-content em { display: none; }
+  .nf-spark { width: 25%; height: 34px; }
+
+  .nf-row { gap: 8px; }
+  .nf-row-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .nf-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .nf-row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nf-status { grid-column: auto; display: flex; }
+  .nf-finance { grid-column: auto; }
+  .nf-card { min-width: 0; padding: 9px 10px; border-radius: 11px; }
+  .nf-card h2 { margin-bottom: 7px; font-size: 13px; gap: 6px; }
+  .nf-card h2 svg { width: 17px; height: 17px; }
+  .nf-lines-body { min-height: 120px; gap: 6px; }
+  .nf-donut { max-width: 112px; max-height: 112px; }
+  .nf-legend { gap: 5px; }
+  .nf-legend > div { grid-template-columns: 8px minmax(0,1fr) auto; gap: 4px; font-size: 9px; }
+  .nf-legend i { width: 8px; height: 8px; }
+  .nf-legend b { font-size: 9px; }
+  .nf-daily-chart { height: 120px; grid-template-columns: 25px minmax(0,1fr); gap: 5px; }
+  .nf-status-row { height: 27px; gap: 5px; padding: 0 6px; }
+  .nf-status-row span { font-size: 10px; }
+  .nf-status-row svg { width: 15px; height: 15px; }
+  .nf-status-row b { min-width: 24px; padding: 1px 6px; font-size: 10px; }
+  .nf-production-body { min-height: 95px; gap: 8px; }
+  .nf-production-body p { font-size: 10px; }
+  .nf-stock-row { grid-template-columns: 18px minmax(0,1fr) auto; gap: 5px; min-height: 22px; }
+  .nf-stock-row b, .nf-stock-row small { font-size: 10px; }
+  .nf-finance-row { height: 23px; grid-template-columns: 18px minmax(0,1fr) auto; gap: 5px; }
+  .nf-finance-row span, .nf-finance-row b { font-size: 10px; }
+  .nf-margin { height: 28px; }
+  .nf-margin span { font-size: 10px; }
+  .nf-margin b { font-size: 17px; }
+  .nf-top-row { grid-template-columns: 23px minmax(0,1fr) 60px 34px; gap: 5px; min-height: 23px; }
+  .nf-rank { width: 21px; height: 21px; font-size: 10px; }
+  .nf-top-row > span, .nf-top-row small { font-size: 10px; }
+  .nf-delivery-row { grid-template-columns: 54px minmax(0,1fr) auto; gap: 5px; min-height: 25px; }
+  .nf-delivery-row time, .nf-delivery-row span, .nf-delivery-row b { font-size: 10px; }
+}
+
+/* Very narrow landscape phones: retain legibility with two KPI columns. */
+@media (orientation: landscape) and (max-width: 700px) and (max-height: 500px) {
+  .nf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nf-row-2, .nf-row-3, .nf-row-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nf-sidebar { grid-template-columns: 1fr; }
+  .nf-brand { display: none; }
+  .nf-nav { width: 100%; }
+  .nf-status { grid-column: 1 / -1; }
+}
