@@ -370,6 +370,7 @@ export default function AdminPage() {
   async function updateOrderStatus(order:Order,status:string){
     // Evita repetir efeitos colaterais (ex.: automação de compra) ao selecionar o status já salvo.
     if(order.status===status) return;
+    if(status==="entregue"){const delivered=deliveryRecords.filter(d=>d.order_id===order.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);const remaining=Math.max(0,Number(order.item_count||0)-delivered);if(remaining>0){setError(`Este pedido ainda tem ${remaining} marmita(s) pendente(s). Registre todas as entregas antes de finalizá-lo.`);return;}}
     if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal.")) return;
     setBusy(true); setError("");
     try{
