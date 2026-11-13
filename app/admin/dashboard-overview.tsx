@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Activity, Bell, CalendarDays, ChartNoAxesColumnIncreasing, ChefHat, CircleAlert,
-  CircleCheck, Coins, Factory, Home, Package, RefreshCw, ShoppingBag, ShoppingCart,
-  Truck, Users, Wallet, MessageCircle, Settings, Box, ArrowUpRight, ArrowDownRight
+  CalendarDays, ChefHat, CircleAlert, Coins, Factory, Home, Package, RefreshCw,
+  ShoppingBag, ShoppingCart, Truck, Users, Wallet, MessageCircle, Settings, Box, ArrowUpRight
 } from "lucide-react";
 
 type Order = { id:string; customer_profile_id?:string|null; created_at:string; customer_name:string|null; items:unknown; item_count:number; total:number; status:string; };
@@ -102,7 +101,7 @@ function DailyChart({data}:{data:DailyPoint[]}){
   </div>;
 }
 
-function Donut({values,size=160,stroke=18,center}:{values:ProductLine[];size?:number;stroke?:number;center:React.ReactNode}){
+function Donut({values,size=160,stroke=18,center}:{values:ProductLine[];size?:number;stroke?:number;center:ReactNode}){
   const total=values.reduce((s,x)=>s+x.value,0);let offset=0;const radius=(size-stroke)/2,circumference=2*Math.PI*radius;
   return <svg width={size} height={size} viewBox={"0 0 "+size+" "+size} className="nf-donut" role="img" aria-label={"Distribuição das vendas por linha. Total de "+total+" unidades."}>
     <circle cx={size/2} cy={size/2} r={radius} fill="none" stroke="#303030" strokeWidth={stroke}/>
@@ -111,7 +110,7 @@ function Donut({values,size=160,stroke=18,center}:{values:ProductLine[];size?:nu
   </svg>;
 }
 
-export default function DashboardOverview({orders,customers,inventory,purchaseAlerts,token,email,onNavigate,onRefresh}:{orders:Order[];customers:Customer[];inventory:InventoryItem[];purchaseAlerts:PurchaseAlert[];token:string;email:string;onNavigate:(s:string)=>void;onRefresh:()=>void}){
+export default function DashboardOverview({orders,inventory,purchaseAlerts,token,email,onNavigate,onRefresh}:{orders:Order[];customers:Customer[];inventory:InventoryItem[];purchaseAlerts:PurchaseAlert[];token:string;email:string;onNavigate:(s:string)=>void;onRefresh:()=>void}){
   const [period,setPeriod]=useState(7);
   const [dashboardOrders,setDashboardOrders]=useState<Order[]|null>(null);
   const [production,setProduction]=useState<Production[]>([]);
@@ -221,12 +220,13 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
     return Math.max(0,Math.min(100,current/Math.max(current,minimum*1.5,1)*100));
   };
   const userLabel=email?email.split("@")[0]:"Administrador";
+  const warningCount=purchaseAlerts.length||lowStockCount;
 
   return <div className="nf-dashboard">
     <aside className="nf-sidebar">
       <div className="nf-brand"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit"/><div><div className="nf-brand-word"><span>NUTRI</span><b>FIT</b></div><small>Comida de verdade para todos os estilos de vida</small></div></div>
       <nav className="nf-nav" aria-label="Navegação principal">{nav.map(({id,label,Icon,badge})=><button type="button" key={id} onClick={()=>onNavigate(id)} className={"nf-nav-item "+(id==="resumo"?"active":"")} aria-current={id==="resumo"?"page":undefined}><Icon size={19}/><span>{label}</span>{badge? <b className="nf-nav-badge">{badge}</b>:null}</button>)}</nav>
-      <div className="nf-stock-warning"><span><CircleAlert size={16}/></span><div><b>{lowStockCount} itens com estoque baixo</b><small>Verifique a reposição</small></div></div>
+      <div className="nf-stock-warning"><span><CircleAlert size={16}/></span><div><b>{warningCount} itens com estoque baixo</b><small>Verifique a reposição</small></div></div>
       <div className="nf-user"><div className="nf-avatar">{userLabel.slice(0,1).toUpperCase()}</div><div><b>{userLabel}</b><small>Administrador</small></div></div>
     </aside>
     <div className="nf-main">
@@ -274,7 +274,7 @@ export default function DashboardOverview({orders,customers,inventory,purchaseAl
 
       <section className="nf-grid nf-grid-secondary">
         <article className="nf-card nf-top-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">DESTAQUES</span><h2>Top 5 mais vendidos</h2></div></div>
-          {topProducts.length?<div className="nf-top-list">{topProducts.map(([name,value],i)=><div className="nf-top-row" key={name}><b className={"nf-rank rank-"+i}>{i+1}</b><div className="nf-top-info"><span>{name}</span><div className="nf-top-track"><i style={{width:(value/maxTop*100)+"%"}}/></div></div><strong>{value} <small>un.</small></strong></div>)}</div>:<div className="nf-chart-empty">Nenhum produto vendido neste período.</div>}
+          {topProducts.length?<div className="nf-top-list">{topProducts.map(([name,value],i)=><div className="nf-top-row" key={name}><b className={"nf-rank rank-"+i}>{i+1}</b><div className="nf-top-info"><span>{name}</span><div className="nf-top-track"><i style={{width:(value/maxTop*100)+"%",background:["linear-gradient(90deg,#FF7A00,#FFB15B)","linear-gradient(90deg,#9BE22A,#D0F58B)","linear-gradient(90deg,#4AA3FF,#8BC8FF)","linear-gradient(90deg,#F5C518,#F9E28B)","linear-gradient(90deg,#EC4899,#F6A5D0)"][i]}}/></div></div><strong>{value} <small>un.</small></strong></div>)}</div>:<div className="nf-chart-empty">Nenhum produto vendido neste período.</div>}
         </article>
         <article className="nf-card nf-status-card"><div className="nf-card-heading"><div><span className="nf-eyebrow">OPERAÇÃO</span><h2>Status dos pedidos</h2></div><b className="nf-total-pill">{currentOrders.length} no período</b></div>
           {currentOrders.length?<><div className="nf-status-bar" role="group" aria-label="Distribuição dos pedidos no período">{[{key:"new",label:"Novos",value:counts.new,color:"#FF7A00"},{key:"prep",label:"Produção",value:counts.prep,color:"#F5C518"},{key:"delivery",label:"Entrega",value:counts.delivery,color:"#4AA3FF"},{key:"done",label:"Concluídos",value:counts.done,color:"#9BE22A"}].map(x=><button key={x.key} type="button" style={{width:(x.value/currentOrders.length*100)+"%",background:x.color}} title={x.label+" · "+x.value} aria-label={x.label+": "+x.value} onClick={()=>onNavigate("pedidos:"+x.key)}>{x.value>0?x.value:""}</button>)}</div><div className="nf-status-legend">{[{key:"new",label:"Novos",value:counts.new,color:"#FF7A00"},{key:"prep",label:"Produção",value:counts.prep,color:"#F5C518"},{key:"delivery",label:"Entrega",value:counts.delivery,color:"#4AA3FF"},{key:"done",label:"Concluídos",value:counts.done,color:"#9BE22A"}].map(x=><button key={x.key} type="button" onClick={()=>onNavigate("pedidos:"+x.key)}><i style={{background:x.color}}/><span>{x.label}</span><b>{x.value}</b></button>)}</div></>:<div className="nf-chart-empty">Nenhum pedido no período selecionado.</div>}
