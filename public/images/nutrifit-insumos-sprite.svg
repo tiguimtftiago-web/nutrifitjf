@@ -35,8 +35,8 @@
 <g transform="translate(300 200)"><rect width="100" height="100" fill="url(#bg)"/><path d="M14 57q36-34 72 0-36 35-72 0z" fill="#6a9b38" stroke="#9cc85a" stroke-width="2"/><g fill="#a9d64b" stroke="#6d9b31"><circle cx="27" cy="55" r="8"/><circle cx="43" cy="48" r="8"/><circle cx="59" cy="49" r="8"/><circle cx="75" cy="57" r="8"/><circle cx="48" cy="65" r="8"/></g></g>
 <!-- 13 chicken -->
 <g transform="translate(0 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M15 57q-2-18 19-27 22-11 43 2 14 10 5 27-11 19-41 20-22-1-26-22z" fill="#e9c6a6" stroke="#f7e3ca" stroke-width="2"/><path d="M28 51q18-14 36-4m-32 20q17-12 38-7" stroke="#b98968" stroke-width="3" fill="none"/><path d="M40 38l5 8m14-12 5 9" stroke="#fff4e5" stroke-width="3"/></g>
-<!-- 14 tomato -->
-<g transform="translate(100 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M50 23q-21-13-34 6-13 22 6 42 23 23 48 0 20-23 2-43-9-10-22-5z" fill="#c9362f" stroke="#f06a52" stroke-width="2"/><path d="M49 23l-5-10 10 6 8-7-2 12 12-1-11 8-11-3-10 5-2-10z" fill="#5e873b"/><path d="M27 42q8-12 19-10" stroke="#ff9a7d" stroke-width="3" fill="none"/></g>
+<!-- 14 shipping carton -->
+<g transform="translate(100 300)"><rect width="100" height="100" fill="url(#bg)"/><path d="M15 36l34-17 36 17-35 19z" fill="#c48b4d" stroke="#e2b37a" stroke-width="2"/><path d="M15 36v38l35 17V55z" fill="#9b6335" stroke="#d49a5c" stroke-width="2"/><path d="M50 55l35-19v38L50 91z" fill="#b8793f" stroke="#e0a76a" stroke-width="2"/><path d="M49 19v36m-34-19 35 19 36-19" stroke="#f0c58a" stroke-width="2" fill="none"/><path d="M43 42l13-7 9 5-13 8z" fill="#e8c38b" opacity=".8"/></g>
 <!-- 15 pasta -->
 <g transform="translate(200 300)"><rect width="100" height="100" fill="url(#bg)"/><ellipse cx="50" cy="63" rx="39" ry="19" fill="#8c5d32"/><path d="M14 58q36-38 72 0l-8 18q-27 15-56 0z" fill="#d7a64e"/><g fill="#f1cf7b" stroke="#ad7837" stroke-width="1.5"><path d="M25 47l7-11 9 17-7 12z"/><path d="M43 43l8-10 10 17-9 12z"/><path d="M62 46l8-10 9 16-8 13z"/><path d="M34 62l8-12 9 18-9 5z"/><path d="M54 63l8-12 10 17-9 5z"/></g></g>
 <!-- 16 onion -->
