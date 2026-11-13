@@ -125,7 +125,9 @@ const catalogNameAliases: Record<string, string> = {
         });
         continue;
       }
-      const requestedName = normalizeProduct(item.name);
+      const isSnackBox = normalizeProduct(item.line) === normalizeProduct("Snack Box");
+      const baseItemName = isSnackBox ? item.name.split(" — ")[0] : item.name;
+      const requestedName = normalizeProduct(baseItemName);
       const catalogName = catalogNameAliases[requestedName] ?? requestedName;
       const match = catalog.find((p: Record<string, unknown>) =>
         normalizeProduct(p.name) === catalogName &&
