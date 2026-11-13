@@ -249,8 +249,10 @@ const catalogNameAliases: Record<string, string> = {
       return reply(502, { error: "Não foi possível registrar o pedido no sistema." });
     }
     const saved = await insertResponse.json();
+    const savedOrderId = saved?.[0]?.id ?? null;
+    if (!savedOrderId) return reply(502, { error: "O pedido não retornou uma confirmação válida." });
     return reply(200, {
-      ok: true, order_id: saved?.[0]?.id ?? null, order_code: saved?.[0]?.order_code ?? null, subtotal: payload.subtotal,
+      ok: true, order_id: savedOrderId, order_code: saved?.[0]?.order_code ?? null, subtotal: payload.subtotal,
       delivery_fee: payload.delivery_fee, total: payload.total, items: pricedItems,
     });
   } catch (error) {
