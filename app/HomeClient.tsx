@@ -2714,7 +2714,7 @@ export default function Home() {
       "",
       "*PAGAMENTO: PIX*",
       `Chave: ${PIX_KEY}`,
-      "Se preferir cartão, consulte a equipe Nutrifit antes de realizar o pagamento; a opção não está confirmada neste pedido.",
+      "Após pagar via Pix, envie o comprovante por aqui. Pagamento com cartão ainda não está confirmado; consulte a equipe antes de pagar.",
       "",
       "*Confira os dados e confirme o pedido.*",
     ].join("\n");
