@@ -1098,7 +1098,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       "",
       "PAGAMENTO VIA PIX",
       `Chave Pix: ${PIX_KEY}`,
-      "Após o pagamento, envie o comprovante neste WhatsApp.",
+      "Após o pagamento via Pix, envie o comprovante neste WhatsApp.",
+      "Pagamento com cartão não está confirmado nesta etapa; consulte a equipe antes de pagar.",
       "",
       "IMPORTANTE",
       "Confira os itens, o valor e principalmente o endereço antes de pagar.",
@@ -1156,19 +1157,19 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       }
 
       const officialLines = Array.isArray(result.items) ? result.items.map((item: { name: string; line: string; weight: string; price: number; quantity: number }, index: number) =>
-        `*${index + 1}. ${item.quantity}x ${item.name}*\\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
+        `*${index + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\n   Total dos itens: ${money(Number(item.price) * Number(item.quantity))}`
       ).join("\n\n") : "";
       const officialSummary = [
-        "🛒 *ITENS DO PEDIDO*",
+        "*ITENS DO PEDIDO*",
         "",
         officialLines,
         "",
-        "━━━━━━━━━━━━━━━━━━━━",
-        "💰 *VALORES CONFIRMADOS PELO SISTEMA*",
+        "------------",
+        "*VALORES CONFIRMADOS PELO SISTEMA*",
         `Subtotal: *${money(Number(result.subtotal))}*`,
-        `🎁 Desconto: *-${money(Number(result.discount ?? 0))}*`,
-        `🚚 Frete: *${money(Number(result.delivery_fee))}*`,
-        `💵 *TOTAL OFICIAL: ${money(Number(result.total))}*`,
+        `Desconto: *-${money(Number(result.discount ?? 0))}*`,
+        `Frete: *${money(Number(result.delivery_fee))}*`,
+        `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
         "",
         "",
       ].join("\n");
@@ -1178,7 +1179,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         throw new Error("Não foi possível montar o resumo oficial do pedido.");
       }
       const officialMessage = message.slice(0, itemsStart) + officialSummary + message.slice(addressStart);
-      const reference = result.order_code ? `\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
+      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       const finalUrl = whatsappOrder(officialMessage + reference);
       window.location.href = finalUrl;
       setPaymentStatus("idle");
@@ -2677,7 +2678,7 @@ export default function Home() {
 
     const lines = orderItems.map((item) => {
       const itemSubtotal = item.price * item.quantity;
-      return `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\\n  ${money(item.price)} / un. · *${money(itemSubtotal)}*`;
+      return `• *${item.quantity}x ${item.name}* — ${item.line} · ${item.weight}\n  ${money(item.price)} / un. · *${money(itemSubtotal)}*`;
     }).join("\n");
 
     const notesText = orderNotes.trim();
@@ -2688,34 +2689,34 @@ export default function Home() {
         : `Taxa a confirmar${orderCep ? " · CEP " + orderCep : ""}`;
 
     const message = [
-      "🥗 *NUTRIFIT | NOVO PEDIDO*",
-      "━━━━━━━━━━━━━━━━━━",
+      "*NUTRIFIT | NOVO PEDIDO*",
+      "------------",
       "",
-      "👤 *CLIENTE*",
+      "*CLIENTE*",
       `${customerName.trim()} · ${customerPhone.trim()}`,
       "",
-      `🛒 *ITENS · ${orderCount} unidades*`,
+      `*ITENS · ${orderCount} unidades*`,
       lines,
       "",
-      "━━━━━━━━━━━━━━━━━━",
-      "💰 *RESUMO DO PEDIDO*",
+      "------------",
+      "*RESUMO DO PEDIDO*",
       `Produtos: ${money(orderSubtotal)}`,
-      `🎁 ${discountLabel}: -${money(orderDiscount)}`,
-      `🚚 Frete: ${money(orderDeliveryFee)}`,
-      `💵 *TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
+      `${discountLabel}: -${money(orderDiscount)}`,
+      `Frete: ${money(orderDeliveryFee)}`,
+      `*TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
       "",
-      "📍 *ENTREGA*",
+      "*ENTREGA*",
       deliverySummary,
       `${orderStreet.trim()}, nº ${orderNumber.trim()}${orderComplement.trim() ? " · " + orderComplement.trim() : ""}`,
       `${orderNeighborhood.trim()} · ${orderCity.trim()}/${orderState.trim()} · CEP ${orderCep}`,
       ...(orderReference.trim() ? [`Referência: ${orderReference.trim()}`] : []),
-      ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
+      ...(notesText ? ["", "*OBSERVAÇÕES*", notesText] : []),
       "",
-      "💳 *PIX*",
+      "*PAGAMENTO: PIX*",
       `Chave: ${PIX_KEY}`,
-      "Após pagar, envie o comprovante por aqui.",
+      "Após pagar via Pix, envie o comprovante por aqui. Pagamento com cartão ainda não está confirmado; consulte a equipe antes de pagar.",
       "",
-      "✅ *Confira os dados e confirme o pedido.*",
+      "*Confira os dados e confirme o pedido.*",
     ].join("\n");
     
     const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
@@ -2792,14 +2793,17 @@ export default function Home() {
         `${index + 1}. ${item.quantity}x ${item.name} | ${money(Number(item.price))} cada | ${money(Number(item.price) * Number(item.quantity))}`
       ).join("\n") : "";
       const officialBlock = [
-        "ITENS E VALORES CONFIRMADOS PELO SISTEMA",
+        "*ITENS DO PEDIDO*",
         officialItems,
+        "",
+        "*RESUMO DO PEDIDO*",
         `Subtotal oficial: ${money(Number(result.subtotal))}`,
+        `Desconto oficial: -${money(Number(result.discount ?? 0))}`,
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
-        `TOTAL OFICIAL: ${money(Number(result.total))}`,
+        `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
       ].join("\n");
-      const officialMessage = message.replace(/ITENS DO PEDIDO[\s\S]*?(?=ENDEREÇO \/ RECEBIMENTO)/, officialBlock + "\n\n");
-      const reference = result.order_code ? `\n\n━━━━━━━━━━━━━━━━━━━━\n🧾 *CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
+      const officialMessage = message.replace(/\*ITENS ·[\s\S]*?(?=\*ENTREGA\*)/, officialBlock + "\n\n");
+      const reference = result.order_code ? `\n\n------------\n*CÓDIGO DO PEDIDO NUTRIFIT*\n*${result.order_code}*\nGuarde este código para identificar seu pedido e, se desejar, validar sua avaliação.` : "";
       setThankYouOrder({
         customerName: customerName.trim(),
         orderCode: typeof result.order_code === "string" ? result.order_code : "Pedido registrado",
