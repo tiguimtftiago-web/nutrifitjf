@@ -63,8 +63,9 @@ export default function PackagingCostsPage(){
   const pot350=find(["marmita 350","pote 350"]);const pot450=find(["marmita 450","pote 450"]);
   const n350=Math.max(0,num(qty350));const n450=Math.max(0,num(qty450));const nBoxes=Math.max(0,num(boxes));
   const potTotal=n350*num(pot350?.average_cost)+n450*num(pot450?.average_cost);
-  const printTotal=(n350+n450)*printStandards.reduce((s,x)=>s+4/x.yield,0);
-  const boxTotal=nBoxes*num(boxPrice);const total=potTotal+printTotal+boxTotal;
+  const printTotal=(n350+n450)*(4/12+4/16);
+  const largeSealTotal=nBoxes*(4/5);
+  const boxTotal=nBoxes*num(boxPrice);const total=potTotal+printTotal+largeSealTotal+boxTotal;
 
   if(!token)return <main className="min-h-screen bg-[#080b07] px-4 py-10 text-white"><div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-[#10130d] p-6"><div className="text-xs font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit · Gestão</div><h1 className="mt-2 text-2xl font-black">Embalagens e materiais</h1><p className="mt-2 text-sm text-white/55">Entre com a mesma conta administrativa do painel.</p><form onSubmit={login} className="mt-6 grid gap-3"><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail administrativo" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"/><input type="password" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="Senha" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"/><button disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 font-black text-black">{busy?"Entrando...":"Entrar"}</button></form>{error&&<p className="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}</div></main>;
 
