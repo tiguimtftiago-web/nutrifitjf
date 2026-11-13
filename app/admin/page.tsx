@@ -5,7 +5,7 @@ import "./admin-dashboard.css";
 import Operations from "./operations";
 import DashboardOverview from "./dashboard-overview";
 import {
-  BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
+  ArrowLeft, BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
   ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot
 } from "lucide-react";
 
@@ -99,6 +99,9 @@ export default function AdminPage() {
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [section,setSection] = useState<Section>("resumo");
+  const [sectionHistory,setSectionHistory] = useState<Section[]>([]);
+  const navigateSection = (next:Section) => { if(next===section) return; setSectionHistory(history=>[...history,section]); setSection(next); };
+  const goBackSection = () => { setSectionHistory(history=>{ const previous=history[history.length-1] || "resumo"; setSection(previous); return history.slice(0,-1); }); };
   const [orders,setOrders] = useState<Order[]>([]);
   const [showCancelledOrders,setShowCancelledOrders] = useState(false);
   const [customers,setCustomers] = useState<Customer[]>([]);
@@ -476,6 +479,7 @@ export default function AdminPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3"><img src="/images/nutrifit-logo-icon.svg" alt="" className="h-9 w-9"/><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><div className="font-black">Dashboard Nutrifit <span className="text-[#ef7d18]">V7</span></div></div></div>
           <div className="flex items-center gap-2">
+            {sectionHistory.length>0&&<button title="Voltar à aba anterior" aria-label="Voltar à aba anterior" onClick={goBackSection} className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-2.5 text-xs font-black text-[#d9e5a5] sm:px-4"><ArrowLeft size={14} className="inline"/><span className="ml-2 hidden sm:inline">Voltar</span></button>}
             <button title={pushStatus==="enabled"?"Alertas ativos":"Ativar alertas"} aria-label={pushStatus==="enabled"?"Alertas ativos":"Ativar alertas"} onClick={()=>void enablePush()} disabled={pushStatus==="loading"||pushStatus==="enabled"} className={`rounded-full border px-3 py-2.5 text-xs font-black sm:px-4 ${pushStatus==="enabled"?"border-[#a7b86a]/40 bg-[#a7b86a]/10 text-[#c4d38c]":"border-[#ef7d18]/30 bg-[#1b120a] text-[#f1b06e]"}`}><span className="sm:hidden">🔔</span><span className="hidden sm:inline">{pushStatus==="enabled"?"🔔 Alertas ativos":pushStatus==="loading"?"Ativando...":"🔔 Ativar alertas"}</span></button>
             <button title="Atualizar dados" aria-label="Atualizar dados" onClick={()=>void load()} className="rounded-full border border-white/10 px-3 py-2.5 text-xs font-black sm:px-4"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/><span className="ml-2 hidden sm:inline">Atualizar</span></button>
             <button title="Sair" aria-label="Sair" onClick={()=>{sessionStorage.removeItem("nutrifit_admin_token");sessionStorage.removeItem("nutrifit_admin_email");setToken("");}} className="rounded-full border border-white/10 px-3 py-2.5 text-xs font-black sm:px-4"><LogOut size={14} className="inline"/><span className="ml-2 hidden sm:inline">Sair</span></button>
@@ -490,7 +494,7 @@ export default function AdminPage() {
             {id==="pedidos"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Operação</div>}
             {id==="clientes"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Relacionamento</div>}
             {id==="estoque"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Gestão</div>}
-            <button onClick={()=>setSection(id)} aria-current={section===id?"page":undefined} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#a7b86a] ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>
+            <button onClick={()=>navigateSection(id)} aria-current={section===id?"page":undefined} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#a7b86a] ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>
           </div>)}
         </aside>
         <section className="min-w-0">
@@ -515,7 +519,7 @@ export default function AdminPage() {
             purchaseAlerts={purchaseAlerts}
             token={token}
             email={email}
-            onNavigate={(next)=>setSection(next as Section)}
+            onNavigate={(next)=>navigateSection(next as Section)}
             onRefresh={()=>{void load();}}
           />}
 
@@ -664,9 +668,9 @@ export default function AdminPage() {
       {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><div className="rounded-xl border border-white/10 p-4"><div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><h3 className="min-w-0 break-words text-base font-black leading-tight">Histórico de contatos por e-mail</h3><span className="shrink-0 self-start rounded-full bg-white/5 px-2.5 py-1 text-xs text-white/55 sm:self-auto">{contactEvents.filter(e=>e.lead_id===selected.id).length} registro(s)</span></div>{contactEvents.filter(e=>e.lead_id===selected.id).length===0?<p className="text-sm text-white/45">Nenhum evento de e-mail registrado para este lead.</p>:<div className="grid gap-3">{contactEvents.filter(e=>e.lead_id===selected.id).map(e=><div key={e.id} className="rounded-lg bg-white/[.035] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-bold">{e.event_type==="delivered"?"Entregue ao servidor":e.event_type==="sent"?"Enviado":e.event_type==="bounced"?"Falhou na entrega":e.event_type==="opened"?"Aberto":e.event_type==="clicked"?"Link clicado":e.event_type==="replied"?"Resposta recebida":e.event_type}</span><time className="text-xs text-white/45">{new Date(e.event_at).toLocaleString("pt-BR")}</time></div><p className="mt-1 text-xs text-white/60">{e.recipient_email}</p><p className="mt-1 text-sm">{e.subject||"Sem assunto registrado"}</p>{e.evidence_note&&<p className="mt-2 text-xs text-white/45">{e.evidence_note}</p>}</div>)}</div>}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.split("").filter(ch=>ch>="0"&&ch<="9").join("")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
       <nav className="fixed inset-x-3 bottom-3 z-40 rounded-2xl border border-white/10 bg-[#10130d]/95 p-2 shadow-2xl backdrop-blur md:hidden">
         <div className="grid grid-cols-4 gap-1">
-          <button onClick={()=>setSection("resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="resumo"?"bg-[#a7b86a] text-black":"text-white/55"}`}><Home size={17}/><span>Início</span></button>
-          <button onClick={()=>setSection("pedidos")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
-          <button onClick={()=>setSection("whatsapp")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="whatsapp"?"bg-[#a7b86a] text-black":"text-white/55"}`}><MessageCircle size={17}/><span>WhatsApp</span></button>
+          <button onClick={()=>navigateSection("resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="resumo"?"bg-[#a7b86a] text-black":"text-white/55"}`}><Home size={17}/><span>Início</span></button>
+          <button onClick={()=>navigateSection("pedidos")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
+          <button onClick={()=>navigateSection("whatsapp")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="whatsapp"?"bg-[#a7b86a] text-black":"text-white/55"}`}><MessageCircle size={17}/><span>WhatsApp</span></button>
           <button onClick={()=>setMobileMore(v=>!v)} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${mobileMore||!["resumo","pedidos","whatsapp"].includes(section)?"bg-[#a7b86a] text-black":"text-white/55"}`}><MoreHorizontal size={17}/><span>Mais</span></button>
         </div>
       </nav>
@@ -676,7 +680,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 gap-2">
             
             
-            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{setSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
+            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{navigateSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
           </div>
         </div>
       </div>}
