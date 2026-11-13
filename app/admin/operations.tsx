@@ -8,7 +8,7 @@ const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_
 type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; active:boolean; sku:string|null; description:string|null; image_url:string|null; };
 type ComboPrice = { id:string; name:string; quantity:number; price:number; active:boolean; notes:string|null; };
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
-type Delivery = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; };
+type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
 type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
@@ -118,6 +118,41 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const interval=window.setInterval(()=>{void load(true);},30000);
     return ()=>window.clearInterval(interval);
   },[section]);
+
+  async function markOrderAsDelivered(order:CustomerOrder){
+    if(["entregue","concluido","concluida"].includes(order.status))return;
+    const delivered=deliveries
+      .filter(d=>d.order_id===order.id&&d.status==="entregue")
+      .reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);
+    const remaining=Math.max(0,Number(order.item_count||0)-delivered);
+    setBusy(true);setError("");
+    try{
+      if(remaining>0){
+        const localDate=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+        await req(URL+"/rest/v1/delivery_orders",token,{
+          method:"POST",
+          headers:{Prefer:"return=minimal"},
+          body:JSON.stringify({
+            order_id:order.id,
+            customer_name:order.customer_name,
+            city:"Juiz de Fora",
+            delivery_date:localDate,
+            status:"entregue",
+            meal_quantity:remaining,
+            notes:"Entrega confirmada diretamente na Central de Pedidos e Preparo."
+          })
+        });
+      }
+      await req(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{
+        method:"PATCH",
+        headers:{Prefer:"return=minimal"},
+        body:JSON.stringify({status:"entregue"})
+      });
+      await load();
+    }catch(e){
+      setError("Não foi possível finalizar este pedido. "+(e instanceof Error?e.message:"Tente novamente."));
+    }finally{setBusy(false);}
+  }
 
   async function createProductionPlan(order:CustomerOrder){
     const existing=production.filter(p=>p.order_id===order.id);
@@ -828,7 +863,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     <Panel title="Produção">
     <div className="mb-5 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.06] p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Central de pedidos e preparo</div><h2 className="mt-1 text-xl font-black">O que precisa ser preparado</h2><p className="mt-1 text-sm text-white/50">Cliente, pratos, quantidades e ficha de preparo em um só lugar.</p></div><button type="button" onClick={()=>void load(true)} className="rounded-full border border-white/10 px-4 py-2 text-sm font-bold">Atualizar lista</button></div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[{label:"Pedidos ativos",value:customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length},{label:"Planejadas",value:production.filter(p=>p.status==="planejada").length},{label:"Em preparo",value:production.filter(p=>p.status==="em_producao").length},{label:"Concluídas",value:production.filter(p=>p.status==="concluida").length}].map(s=><div key={s.label} className="rounded-xl border border-white/10 bg-black/20 p-3"><div className="text-xs text-white/45">{s.label}</div><div className="mt-1 text-2xl font-black">{s.value}</div></div>)}</div>
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[{label:"Pedidos ativos",value:customerOrders.filter(o=>!["entregue","concluido","concluida","cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length},{label:"Planejadas",value:production.filter(p=>p.status==="planejada").length},{label:"Em preparo",value:production.filter(p=>p.status==="em_producao").length},{label:"Concluídas",value:production.filter(p=>p.status==="concluida").length}].map(s=><div key={s.label} className="rounded-xl border border-white/10 bg-black/20 p-3"><div className="text-xs text-white/45">{s.label}</div><div className="mt-1 text-2xl font-black">{s.value}</div></div>)}</div>
       <div className="mt-4 space-y-3">{customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length===0?<div className="rounded-xl border border-white/10 p-4 text-sm text-white/45">Nenhum pedido ativo encontrado.</div>:customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).map(order=>{
         const items=Array.isArray(order.items)?order.items:[];const linked=production.filter(p=>p.order_id===order.id);
         const statusLabel=(s:string)=>s==="pago_recebido"?"Pago / recebido":s==="enviado_whatsapp"?"Enviado pelo WhatsApp":s==="em_producao"?"Em produção":s==="concluido"||s==="concluida"?"Concluído":s.replace(/_/g," ");
@@ -841,7 +876,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         {expanded&&<div id={"production-order-details-"+order.id} className="mt-3 border-t border-white/10 pt-3">
         <div className="rounded-xl border border-white/5 bg-white/[.025] p-3"><div className="mb-2 text-xs font-black uppercase tracking-wider text-white/45">Itens solicitados</div><div className="space-y-2">{items.map((item,i)=><div key={i} className="flex items-start justify-between gap-3 border-b border-white/5 pb-2 last:border-0 last:pb-0"><div className="min-w-0"><div className="break-words text-sm font-semibold">{item.name||"Item sem nome"}</div><div className="mt-0.5 text-xs text-white/40">{item.line||"Linha não informada"} · {item.weight||"Peso não informado"}</div></div><div className="shrink-0 rounded-lg bg-white/5 px-2.5 py-1.5 text-sm font-black">×{Number(item.quantity||0)}</div></div>)}</div></div>
         {order.notes&&<div className="mt-3 rounded-lg bg-white/[.025] p-3 text-sm text-white/65"><b>Observações:</b> {order.notes}</div>}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div className="text-xs text-white/45">{linked.length?linked.length+" registro(s) de produção vinculado(s)":"Sem registro de produção vinculado"}</div><div className="flex flex-wrap gap-2"><button type="button" disabled={busy} onClick={()=>void createProductionPlan(order)} className="rounded-full border border-[#a7b86a]/50 px-4 py-2.5 text-sm font-black text-[#c4d38c] disabled:opacity-50">Gerar plano de produção</button><button type="button" onClick={()=>printOrderProductionSheet(order)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">Imprimir ficha</button></div></div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><div className="text-xs text-white/45">{linked.length?linked.length+" registro(s) de produção vinculado(s)":"Sem registro de produção vinculado"}</div><div className="flex flex-wrap gap-2"><button type="button" disabled={busy} onClick={()=>void createProductionPlan(order)} className="rounded-full border border-[#a7b86a]/50 px-4 py-2.5 text-sm font-black text-[#c4d38c] disabled:opacity-50">Gerar plano de produção</button><button type="button" onClick={()=>printOrderProductionSheet(order)} className="rounded-full bg-[#ef7d18] px-4 py-2.5 text-sm font-black text-black">Imprimir ficha</button>{["entregue","concluido","concluida"].includes(order.status)?<span className="rounded-full border border-[#ef7d18]/40 bg-[#ef7d18]/10 px-4 py-2.5 text-sm font-black text-[#ffb36b]">Pedido finalizado</span>:<button type="button" disabled={busy} onClick={()=>void markOrderAsDelivered(order)} className="rounded-full bg-[#a7b86a] px-4 py-2.5 text-sm font-black text-black disabled:opacity-50">{busy?"Finalizando…":"Marcar como entregue"}</button>}</div></div>
         {linked.length>0&&<div className="mt-3 space-y-2">{linked.map(p=><button type="button" key={p.id} onClick={()=>setSelectedProduction(p)} className="flex w-full flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 p-3 text-left"><span className="text-sm font-semibold">{recipes.find(r=>r.id===p.recipe_id)?.name||products.find(x=>x.id===p.product_id)?.name||"Produção vinculada"} · {p.quantity} un.</span><span className="text-xs text-[#c4d38c]">{statusLabel(p.status)}</span></button>)}</div>}
         </div>}</article>
       })}</div>
