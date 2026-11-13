@@ -14,6 +14,7 @@ type Review = {
   publish_consent:boolean; name_consent:boolean; status:string; created_at:string;
   whatsapp_notification_status:"not_sent"|"sent"|"failed"|"not_configured";
   whatsapp_sent_at:string|null; whatsapp_notification_error:string|null;
+  order?:{order_code:string|null;status:string;total:number;item_count:number;whatsapp:string|null}|null;
 };
 
 export default function AdminReviewsPage() {
@@ -22,11 +23,13 @@ export default function AdminReviewsPage() {
   const [loading,setLoading] = useState(true);
   const [busy,setBusy] = useState("");
   const [error,setError] = useState("");
+  const [filter,setFilter] = useState<"all"|"pending"|"critical"|"positive"|"whatsapp">("all");
+  const [search,setSearch] = useState("");
 
   async function load(currentToken:string) {
     setLoading(true);setError("");
     try {
-      const response=await fetch(URL+"/rest/v1/customer_reviews?select=*&order=created_at.desc",{
+      const response=await fetch(URL+"/rest/v1/customer_reviews?select=*,order:customer_orders!customer_reviews_order_id_fkey(order_code,status,total,item_count,whatsapp)&order=created_at.desc",{
         headers:{apikey:KEY,Authorization:"Bearer "+currentToken}
       });
       if(!response.ok) throw new Error(response.status===401?"Sessão expirada. Entre novamente no painel principal.":"Não foi possível carregar as avaliações.");
@@ -74,6 +77,8 @@ export default function AdminReviewsPage() {
 
   const pending=reviews.filter(r=>r.status==="pending");
   const published=reviews.filter(r=>r.status==="approved");
+  const critical=reviews.filter(r=>Number(r.overall_rating)<=3 || !r.recommend || [r.food_quality,r.ingredient_quality,r.portion_size,r.service,r.delivery].some(n=>n<=2));
+  const filtered=reviews.filter(r=>{const q=search.trim().toLowerCase();const match=!q||[r.customer_name,r.order?.order_code||"",r.comment||""].join(" ").toLowerCase().includes(q);const by=filter==="all"?true:filter==="pending"?r.status==="pending":filter==="critical"?critical.some(x=>x.id===r.id):filter==="positive"?Number(r.overall_rating)>=4&&r.recommend: r.whatsapp_notification_status!=="sent";return match&&by;});
   return <main className="min-h-screen bg-[#080a07] px-4 py-6 text-white sm:px-6">
     <div className="mx-auto max-w-5xl">
       <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"><ChevronLeft size={17}/>Voltar ao painel</Link>
@@ -83,16 +88,16 @@ export default function AdminReviewsPage() {
       </div>
       {!token&&<div className="mt-6 rounded-2xl border border-[#f47b0b]/30 bg-[#10130d] p-5 text-sm text-white/70">Entre primeiro no <Link href="/admin" className="font-bold text-[#f5a623] underline">painel administrativo</Link>. Depois, abra novamente esta página para revisar as avaliações.</div>}
       {error&&<p role="alert" className="mt-5 rounded-xl bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}
-      {token&&<div className="mt-6 grid gap-3 sm:grid-cols-3">
+      {token&&<div className="mt-6 grid gap-3 sm:grid-cols-4">
         <div className="rounded-2xl border border-[#f47b0b]/30 bg-[#11130e] p-4"><p className="text-xs text-white/50">Aguardando análise</p><p className="mt-1 text-3xl font-black text-[#f5a623]">{pending.length}</p></div>
         <div className="rounded-2xl border border-[#86a51d]/30 bg-[#11160e] p-4"><p className="text-xs text-white/50">Publicadas</p><p className="mt-1 text-3xl font-black text-[#b6d76a]">{published.length}</p></div>
-        <div className="rounded-2xl border border-white/10 bg-[#10130d] p-4"><p className="text-xs text-white/50">Total recebidas</p><p className="mt-1 text-3xl font-black">{reviews.length}</p></div>
+        <div className="rounded-2xl border border-red-500/20 bg-[#10130d] p-4"><p className="text-xs text-white/50">Precisam de atenção</p><p className="mt-1 text-3xl font-black text-red-300">{critical.length}</p></div><div className="rounded-2xl border border-white/10 bg-[#10130d] p-4"><p className="text-xs text-white/50">Total recebidas</p><p className="mt-1 text-3xl font-black">{reviews.length}</p></div>
       </div>}
       {loading?<div className="mt-8 flex items-center gap-2 text-sm text-white/50"><Loader2 className="animate-spin" size={18}/>Carregando avaliações…</div>:token&&<div className="mt-7 space-y-4">
-        {reviews.length===0?<div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">Nenhuma avaliação recebida até agora.</div>:reviews.map(review=><article key={review.id} className="rounded-2xl border border-white/10 bg-[#10130d] p-4 sm:p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-black">{review.customer_name}</p><p className="mt-1 text-[11px] text-white/40">{review.order_id ? "Pedido vinculado" : "Sem pedido vinculado"} · {new Date(review.created_at).toLocaleString("pt-BR")}</p></div><span className={review.status==="approved"?"rounded-full bg-[#86a51d]/15 px-3 py-1 text-xs text-[#b6d76a]":review.status==="rejected"?"rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-300":"rounded-full bg-[#f47b0b]/15 px-3 py-1 text-xs text-[#ffb36b]"}>{review.status==="approved"?"Publicada":review.status==="rejected"?"Reprovada":"Pendente"}</span></div>
+        {reviews.length===0?<div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">Nenhuma avaliação recebida até agora.</div>:filtered.length===0?<div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">Nenhuma avaliação corresponde a este filtro.</div>:filtered.map(review=><article key={review.id} className="rounded-2xl border border-white/10 bg-[#10130d] p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-black">{review.customer_name}</p><p className="mt-1 text-[11px] text-white/40">{review.order?.order_code ? `Pedido ${review.order.order_code}` : review.order_id ? "Pedido vinculado (código indisponível)" : "Sem pedido vinculado"} · {new Date(review.created_at).toLocaleString("pt-BR")}</p></div><span className={review.status==="approved"?"rounded-full bg-[#86a51d]/15 px-3 py-1 text-xs text-[#b6d76a]":review.status==="rejected"?"rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-300":"rounded-full bg-[#f47b0b]/15 px-3 py-1 text-xs text-[#ffb36b]"}>{review.status==="approved"?"Publicada":review.status==="rejected"?"Reprovada":"Pendente"}</span></div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">{[["Sabor",review.food_quality],["Ingredientes",review.ingredient_quality],["Porção",review.portion_size],["Atendimento",review.service],["Entrega",review.delivery],["Média",Number(review.overall_rating).toFixed(1)]].map(([label,value])=><div key={String(label)} className="rounded-xl bg-white/[.035] p-3"><span className="text-white/45">{label}</span><b className="ml-2 text-[#f5a623]">{value}/5</b></div>)}</div>
-          <p className="mt-3 text-xs text-white/55">Recomendaria a Nutrifit: <b className="text-white">{review.recommend?"Sim":"Não"}</b></p>
+          <p className="mt-3 text-xs text-white/55">Pedido: <b className="text-white">{review.order?.order_code||"Não vinculado"}</b> · Situação: <b className="text-white">{review.order?.status||"—"}</b> · Total: <b className="text-white">{review.order?.total!=null?Number(review.order.total).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"—"}</b></p>\n          <p className="mt-3 text-xs text-white/55">Recomendaria a Nutrifit: <b className="text-white">{review.recommend?"Sim":"Não"}</b></p>
           {review.comment&&<blockquote className="mt-3 rounded-xl border-l-2 border-[#f47b0b] bg-white/[.025] p-3 text-sm leading-6 text-white/80">“{review.comment}”</blockquote>}
           <p className="mt-3 text-[11px] text-white/45">Publicação autorizada: {review.publish_consent?"Sim":"Não"} · Exibir nome: {review.name_consent?"Sim":"Não"} · Compra verificada: {review.order_id?"Sim":"Não"}</p>
           <p className="mt-2 text-xs text-white/55">WhatsApp: <b className={review.whatsapp_notification_status==="sent"?"text-[#b6d76a]":review.whatsapp_notification_status==="failed"?"text-red-300":"text-[#ffb36b]"}>{review.whatsapp_notification_status==="sent"?"Notificação enviada":review.whatsapp_notification_status==="failed"?"Falha no envio":review.whatsapp_notification_status==="not_configured"?"Integração não configurada":"Aguardando envio"}</b>{review.whatsapp_sent_at? ` · ${new Date(review.whatsapp_sent_at).toLocaleString("pt-BR")}`:""}</p>
