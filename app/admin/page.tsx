@@ -14,7 +14,8 @@ const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzx
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 const FALLBACK_VAPID_PUBLIC_KEY = "BB0vbJzwFpvhg9vRY65tqKh220prqXjozkHCwBXAxesWCJntEJlxmX4QW-m6OAP4bnNcVIbrpJ62v-MawD9rBuc";
 
-type DeliveryRecord = { id:string; order_id:string|null; customer_name:string|null; delivery_date:string|null; status:string; meal_quantity:number; notes:string|null; created_at:string; };\ntype Order = { order_code:string; id:string; customer_profile_id:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
+type DeliveryRecord = { id:string; order_id:string|null; customer_name:string|null; delivery_date:string|null; status:string; meal_quantity:number; notes:string|null; created_at:string; };
+type Order = { order_code:string; id:string; customer_profile_id:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type ContactEvent = { id:string; lead_id:string; recipient_email:string; subject:string|null; event_type:string; event_at:string; evidence_note:string|null; };
@@ -103,7 +104,11 @@ export default function AdminPage() {
   const [sectionHistory,setSectionHistory] = useState<Section[]>([]);
   const navigateSection = (next:Section) => { if(next===section) return; setSectionHistory(history=>[...history,section]); setSection(next); };
   const goBackSection = () => { setSectionHistory(history=>{ const previous=history[history.length-1] || "resumo"; setSection(previous); return history.slice(0,-1); }); };
-  const [orders,setOrders] = useState<Order[]>([]);\n  const [deliveryRecords,setDeliveryRecords] = useState<DeliveryRecord[]>([]);\n  const [deliveryQuantity,setDeliveryQuantity] = useState("1");\n  const [deliveryDate,setDeliveryDate] = useState("");\n  const [deliveryNote,setDeliveryNote] = useState("");
+  const [orders,setOrders] = useState<Order[]>([]);
+  const [deliveryRecords,setDeliveryRecords] = useState<DeliveryRecord[]>([]);
+  const [deliveryQuantity,setDeliveryQuantity] = useState("1");
+  const [deliveryDate,setDeliveryDate] = useState("");
+  const [deliveryNote,setDeliveryNote] = useState("");
   const [showCancelledOrders,setShowCancelledOrders] = useState(false);
   const [orderStatusFilter,setOrderStatusFilter] = useState("all");
   const [customers,setCustomers] = useState<Customer[]>([]);
@@ -136,7 +141,8 @@ export default function AdminPage() {
         request(`${URL}/rest/v1/b2b_leads?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=*&limit=500`,t),
-        request(`${URL}/rest/v1/b2b_contact_events?select=id,lead_id,recipient_email,subject,event_type,event_at,evidence_note&order=event_at.desc&limit=500`,t),\n        request(`${URL}/rest/v1/delivery_orders?select=id,order_id,customer_name,delivery_date,status,meal_quantity,notes,created_at&order=delivery_date.desc&limit=1000`,t),
+        request(`${URL}/rest/v1/b2b_contact_events?select=id,lead_id,recipient_email,subject,event_type,event_at,evidence_note&order=event_at.desc&limit=500`,t),
+        request(`${URL}/rest/v1/delivery_orders?select=id,order_id,customer_name,delivery_date,status,meal_quantity,notes,created_at&order=delivery_date.desc&limit=1000`,t),
       ]);
       setOrders(o||[]); setDeliveryRecords(deliveries||[]); setCustomers((c||[]).map((profile:Customer)=>{ const linked=(o||[]).filter((order:Order)=>order.customer_profile_id===profile.id && order.status!=="cancelado"); return {...profile,order_count:linked.length,total_spend:linked.reduce((sum:number,order:Order)=>sum+Number(order.total||0),0)}; })); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]); setContactEvents(events||[]);
     } catch (e) {
