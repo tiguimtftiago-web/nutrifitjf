@@ -7,19 +7,20 @@ import Operations from "./operations";
 import DashboardOverview from "./dashboard-overview";
 import {
   ArrowLeft, BarChart3, Building2, LogOut, MessageCircle, RefreshCw, Search,
-  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot
+  ShoppingBag, Users, X, Package, Home, MoreHorizontal, ChevronRight, Wallet, Truck, Factory, Ticket, Bot, Settings
 } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 const FALLBACK_VAPID_PUBLIC_KEY = "BB0vbJzwFpvhg9vRY65tqKh220prqXjozkHCwBXAxesWCJntEJlxmX4QW-m6OAP4bnNcVIbrpJ62v-MawD9rBuc";
 
+type DeliveryRecord = { id:string; order_id:string|null; customer_name:string|null; delivery_date:string|null; status:string; meal_quantity:number; notes:string|null; created_at:string; };
 type Order = { order_code:string; id:string; customer_profile_id:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
 type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type ContactEvent = { id:string; lead_id:string; recipient_email:string; subject:string|null; event_type:string; event_at:string; evidence_note:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
-type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons";
+type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"|"embalagens"|"configuracoes";
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };
 type OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
@@ -104,7 +105,12 @@ export default function AdminPage() {
   const navigateSection = (next:Section) => { if(next===section) return; setSectionHistory(history=>[...history,section]); setSection(next); };
   const goBackSection = () => { setSectionHistory(history=>{ const previous=history[history.length-1] || "resumo"; setSection(previous); return history.slice(0,-1); }); };
   const [orders,setOrders] = useState<Order[]>([]);
+  const [deliveryRecords,setDeliveryRecords] = useState<DeliveryRecord[]>([]);
+  const [deliveryQuantity,setDeliveryQuantity] = useState("1");
+  const [deliveryDate,setDeliveryDate] = useState("");
+  const [deliveryNote,setDeliveryNote] = useState("");
   const [showCancelledOrders,setShowCancelledOrders] = useState(false);
+  const [orderStatusFilter,setOrderStatusFilter] = useState("all");
   const [customers,setCustomers] = useState<Customer[]>([]);
   const [messages,setMessages] = useState<Message[]>([]);
   const [leads,setLeads] = useState<Lead[]>([]);
@@ -128,7 +134,7 @@ export default function AdminPage() {
     if (!t) return;
     if (!background) { setBusy(true); setError(""); }
     try {
-      const [o,c,m,l,i,a,events] = await Promise.all([
+      const [o,c,m,l,i,a,events,deliveries] = await Promise.all([
         request(`${URL}/rest/v1/customer_orders?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/customer_profiles?select=*&order=created_at.desc&limit=100`,t),
         request(`${URL}/rest/v1/whatsapp_messages?select=id,created_at,from_phone,display_name,message_text,message_type,processed&order=created_at.desc&limit=100`,t),
@@ -136,8 +142,9 @@ export default function AdminPage() {
         request(`${URL}/rest/v1/inventory_items?select=*&order=name.asc&limit=500`,t),
         request(`${URL}/rest/v1/inventory_purchase_alerts?select=*&limit=500`,t),
         request(`${URL}/rest/v1/b2b_contact_events?select=id,lead_id,recipient_email,subject,event_type,event_at,evidence_note&order=event_at.desc&limit=500`,t),
+        request(`${URL}/rest/v1/delivery_orders?select=id,order_id,customer_name,delivery_date,status,meal_quantity,notes,created_at&order=delivery_date.desc&limit=1000`,t),
       ]);
-      setOrders(o||[]); setCustomers((c||[]).map((profile:Customer)=>{ const linked=(o||[]).filter((order:Order)=>order.customer_profile_id===profile.id && order.status!=="cancelado"); return {...profile,order_count:linked.length,total_spend:linked.reduce((sum:number,order:Order)=>sum+Number(order.total||0),0)}; })); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]); setContactEvents(events||[]);
+      setOrders(o||[]); setDeliveryRecords(deliveries||[]); setCustomers((c||[]).map((profile:Customer)=>{ const linked=(o||[]).filter((order:Order)=>order.customer_profile_id===profile.id && order.status!=="cancelado"); return {...profile,order_count:linked.length,total_spend:linked.reduce((sum:number,order:Order)=>sum+Number(order.total||0),0)}; })); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]); setContactEvents(events||[]);
     } catch (e) {
       console.error(e);
       if (!background) setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");
@@ -351,9 +358,25 @@ export default function AdminPage() {
     finally{setBusy(false);}
   }
 
+  async function registerPartialDelivery(order:Order) {
+    const quantity=Math.floor(Number(deliveryQuantity));
+    const delivered=deliveryRecords.filter(d=>d.order_id===order.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);
+    const remaining=Math.max(0,Number(order.item_count||0)-delivered);
+    if(!Number.isInteger(quantity)||quantity<1||quantity>remaining){setError(`Informe uma quantidade entre 1 e ${remaining}.`);return;}
+    if(!deliveryDate){setError("Informe a data da entrega.");return;}
+    setBusy(true);setError("");
+    try{
+      await request(`${URL}/rest/v1/delivery_orders`,token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({order_id:order.id,customer_name:order.customer_name,city:"Juiz de Fora",delivery_date:deliveryDate,status:"entregue",meal_quantity:quantity,notes:deliveryNote.trim()||null})});
+      setDeliveryQuantity("1");setDeliveryNote("");
+      await load(token,true);
+    }catch(e){setError(e instanceof Error?e.message:"Não foi possível registrar a entrega.");}
+    finally{setBusy(false);}
+  }
+
   async function updateOrderStatus(order:Order,status:string){
     // Evita repetir efeitos colaterais (ex.: automação de compra) ao selecionar o status já salvo.
     if(order.status===status) return;
+    if(status==="entregue"){const delivered=deliveryRecords.filter(d=>d.order_id===order.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);const remaining=Math.max(0,Number(order.item_count||0)-delivered);if(remaining>0){setError(`Este pedido ainda tem ${remaining} marmita(s) pendente(s). Registre todas as entregas antes de finalizá-lo.`);return;}}
     if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal.")) return;
     setBusy(true); setError("");
     try{
@@ -429,7 +452,7 @@ export default function AdminPage() {
   const q=search.toLowerCase().trim();
   const filteredCustomers=customers.filter(x=>!q||[x.name,x.whatsapp,x.email||""].join(" ").toLowerCase().includes(q));
   const filteredLeads=leads.filter(x=>!q||[x.company,x.contact_name,x.whatsapp,x.email].join(" ").toLowerCase().includes(q));
-  const visibleOrders=orders.filter(x=>showCancelledOrders||x.status!=="cancelado");
+  const visibleOrders=orders.filter(x=>(showCancelledOrders||x.status!=="cancelado")&&(orderStatusFilter==="all"||(orderStatusFilter==="new"&&["enviado_whatsapp","novo","confirmado","pago_recebido"].includes(x.status))||(orderStatusFilter==="prep"&&["em_preparo","em_producao"].includes(x.status))||(orderStatusFilter==="delivery"&&["saiu_entrega","em_entrega"].includes(x.status))||(orderStatusFilter==="done"&&["entregue","concluido","concluida"].includes(x.status))));
   const cancelledOrdersCount=orders.filter(x=>x.status==="cancelado").length;
   const revenue=orders.reduce((s,x)=>s+Number(x.total||0),0);
   const activeOrders=orders.filter(x=>!["entregue","cancelado"].includes(x.status)).length;
@@ -461,21 +484,20 @@ export default function AdminPage() {
   );
 
   const nav = [
-    {id:"resumo" as Section,label:"Resumo",Icon:BarChart3},
+    {id:"resumo" as Section,label:"Dashboard",Icon:Home},
     {id:"pedidos" as Section,label:"Pedidos",Icon:ShoppingBag},
-    {id:"clientes" as Section,label:"Clientes",Icon:Users},
-    {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
-    {id:"b2b" as Section,label:"B2B",Icon:Building2},
+    {id:"producao" as Section,label:"Produção",Icon:Factory},
     {id:"estoque" as Section,label:"Estoque",Icon:Package},
-    {id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},
-    {id:"financeiro" as Section,label:"Financeiro",Icon:BarChart3},
-    {id:"entregas" as Section,label:"Entregas",Icon:Package},
-    {id:"producao" as Section,label:"Produção",Icon:ShoppingBag},
-    {id:"cupons" as Section,label:"Cupons",Icon:Package},
+    {id:"entregas" as Section,label:"Entregas",Icon:Truck},
+    {id:"clientes" as Section,label:"Clientes",Icon:Users},
+    {id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},
+    {id:"embalagens" as Section,label:"Embalagens",Icon:Package},
+    {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
+    {id:"configuracoes" as Section,label:"Configurações",Icon:Settings},
   ];
 
   return (
-    <main className="min-h-screen bg-[#080a07] text-white">
+    <main className="nf-admin-root min-h-screen bg-[#080a07] text-white">
       <header className="relative z-30 border-b border-white/10 bg-[#090c08]/95">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3"><img src="/images/nutrifit-logo-icon.svg" alt="" className="h-9 w-9"/><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Nutrifit</div><div className="font-black">Dashboard Nutrifit <span className="text-[#ef7d18]">V7</span></div></div></div>
@@ -488,18 +510,14 @@ export default function AdminPage() {
         </div>
       </header>
       <div className="mx-auto grid max-w-none gap-6 px-4 py-6 pb-36 sm:px-6 md:pb-8 md:grid-cols-[250px_minmax(0,1fr)]">
-        <aside className="hidden h-fit max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-white/10 bg-[#080a08] p-2 md:sticky md:top-24 md:block">
-          <a href="/admin/avaliacoes" className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.07] px-4 py-3 text-left text-sm font-black text-[#ffb36b] hover:bg-[#ef7d18]/10"><MessageCircle size={18}/><span><span className="block">Avaliações</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-white/40">Moderar depoimentos</span></span></a>
-          <a href="/admin/embalagens" className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.06] px-4 py-3 text-left text-sm font-black text-[#d9e5a5] hover:bg-[#a7b86a]/10"><Package size={18}/><span><span className="block">Embalagens e materiais</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-white/40">Custos e acondicionamento</span></span></a>
-          {nav.map(({id,label,Icon})=><div key={id}>
-            {id==="pedidos"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Operação</div>}
-            {id==="clientes"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Relacionamento</div>}
-            {id==="estoque"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Gestão</div>}
-            <button onClick={()=>navigateSection(id)} aria-current={section===id?"page":undefined} className={`mb-1 flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#a7b86a] ${section===id?"bg-[#a7b86a] text-black":"text-white/55 hover:bg-white/5 hover:text-white"}`}><Icon size={17}/>{label}</button>
-          </div>)}
+        <aside className="nf-outer-sidebar hidden h-fit max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-white/10 bg-[#080a08] p-2 md:sticky md:top-24 md:block" aria-label="Navegação do Dashboard">
+          <div className="nf-outer-brand"><img src="/images/nutrifit-logo-icon.svg" alt="Nutrifit"/><span>NUTRI<b>FIT</b></span></div>
+          <nav className="nf-outer-nav">{nav.map(({id,label,Icon})=><button key={id} onClick={()=>{if(id==="pedidos")setOrderStatusFilter("all");navigateSection(id);}} aria-current={section===id?"page":undefined} className={"nf-outer-nav-item "+(section===id?"active":"")}><Icon size={18}/><span>{label}</span>{id==="pedidos"&&pendingOrders.length>0?<b className="nf-nav-badge">{pendingOrders.length}</b>:null}</button>)}</nav>
+          <div className="nf-outer-more"><div className="nf-outer-more-label">Mais módulos</div><button type="button" onClick={()=>navigateSection("b2b")} className={"nf-outer-nav-item "+(section==="b2b"?"active":"")}><Building2 size={18}/><span>B2B corporativo</span></button><button type="button" onClick={()=>navigateSection("produtos")} className={"nf-outer-nav-item "+(section==="produtos"?"active":"")}><ShoppingBag size={18}/><span>Cardápio</span></button><button type="button" onClick={()=>navigateSection("cupons")} className={"nf-outer-nav-item "+(section==="cupons"?"active":"")}><Ticket size={18}/><span>Cupons</span></button></div>
+          <div className="nf-outer-stock-warning"><Package size={17}/><span><b>{purchaseAlerts.length} alertas de estoque</b><small>Verifique a reposição</small></span></div>
         </aside>
         <section className="min-w-0">
-          <div className="mb-5 md:hidden">
+          {section!=="resumo"&&<div className="mb-5 md:hidden">
             <div className="flex items-end justify-between">
               <div>
                 <div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Painel</div>
@@ -508,10 +526,10 @@ export default function AdminPage() {
               <button onClick={()=>void load()} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/></button>
             </div>
             <a href="/admin/embalagens" className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.07] px-3 py-2.5 text-xs font-black text-[#d9e5a5]"><Package size={15}/>Embalagens e materiais</a>
-          </div>
+          </div>}
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
-          {["estoque","produtos","financeiro","entregas","producao","cupons"].includes(section)&&<Operations section={section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token}/>}
+          {["estoque","produtos","financeiro","entregas","producao","cupons","embalagens"].includes(section)&&<Operations key={section} section={section==="embalagens"?"estoque":section as "estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"} token={token} initialCategory={section==="embalagens"?"embalagem":undefined}/>}
 
           {section==="resumo"&&<DashboardOverview
             orders={orders}
@@ -520,12 +538,14 @@ export default function AdminPage() {
             purchaseAlerts={purchaseAlerts}
             token={token}
             email={email}
-            onNavigate={(next)=>navigateSection(next as Section)}
+            onNavigate={(next)=>{const parts=next.split(":");const target=parts[0] as Section;if(target==="pedidos")setOrderStatusFilter(parts[1]||"all");navigateSection(target);}}
             onRefresh={()=>{void load();}}
           />}
 
+          {section==="configuracoes"&&<Panel title="Configurações"><div className="grid gap-4"><div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xs text-white/45">Conta administrativa</div><div className="mt-1 break-all text-sm font-bold">{email||"Conta autenticada"}</div></div><div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-sm font-bold">Notificações administrativas</div><p className="mt-1 text-xs text-white/45">{pushStatus==="enabled"?"Notificações ativas neste dispositivo.":pushStatus==="denied"?"Permissão bloqueada pelo navegador.":"Ative alertas de pedidos e estoque neste dispositivo."}</p><button type="button" onClick={()=>void enablePush()} disabled={pushStatus==="enabled"||pushStatus==="loading"||pushStatus==="unsupported"} className="mt-3 min-h-11 rounded-xl bg-[#ef7d18] px-4 text-xs font-black text-black disabled:opacity-50">{pushStatus==="enabled"?"Notificações ativas":pushStatus==="loading"?"Ativando…":"Ativar notificações"}</button></div></div></Panel>}
           {section==="pedidos"&&(
             <Panel title="Pedidos">
+              {orderStatusFilter!=="all"&&<div className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.07] px-3 py-2"><span className="text-xs text-[#ffb36b]">Filtro: {({new:"Novos",prep:"Em produção",delivery:"Em entrega",done:"Concluídos"} as Record<string,string>)[orderStatusFilter]||"Pedidos"}</span><button type="button" onClick={()=>setOrderStatusFilter("all")} className="min-h-10 px-3 text-xs font-bold text-white/70">Limpar filtro</button></div>}
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs text-white/45">{showCancelledOrders?"Exibindo todos os pedidos, inclusive cancelados.":"Pedidos cancelados ficam ocultos da lista principal."}</p>
                 <button type="button" onClick={()=>setShowCancelledOrders(v=>!v)} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-[#a7b86a] hover:bg-white/5">
@@ -534,7 +554,7 @@ export default function AdminPage() {
               </div>
               <div className="grid gap-3 md:hidden">
                 {visibleOrders.map(o=>(
-                  <button key={o.id} onClick={()=>setSelectedOrder(o)} className={"w-full rounded-2xl border-l-4 border-y border-r p-4 text-left transition " + orderStatusStyle(o.status).card + " " + (o.status==="enviado_whatsapp" ? "border-l-[#ef7d18]" : o.status==="confirmado" ? "border-l-[#d6a43b]" : o.status==="pago_recebido"||o.status==="em_preparo" ? "border-l-[#a7b86a]" : o.status==="saiu_entrega" ? "border-l-[#5b9de0]" : o.status==="cancelado" ? "border-l-red-500" : "border-l-white/20")}>
+                  <button key={o.id} onClick={()=>{setSelectedOrder(o);setDeliveryDate(new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10));setDeliveryQuantity("1");setDeliveryNote("");setError("");}} className={"w-full rounded-2xl border-l-4 border-y border-r p-4 text-left transition " + orderStatusStyle(o.status).card + " " + (o.status==="enviado_whatsapp" ? "border-l-[#ef7d18]" : o.status==="confirmado" ? "border-l-[#d6a43b]" : o.status==="pago_recebido"||o.status==="em_preparo" ? "border-l-[#a7b86a]" : o.status==="saiu_entrega" ? "border-l-[#5b9de0]" : o.status==="cancelado" ? "border-l-red-500" : "border-l-white/20")}>
                     <div className="flex items-start justify-between gap-3"><div><div className="font-black">{o.customer_name||"Cliente"}</div><div className="mt-1 text-xs text-white/40">{new Date(o.created_at).toLocaleString("pt-BR")}</div></div><span className={"rounded-full px-2.5 py-1 text-[10px] font-black " + orderStatusStyle(o.status).badge}>{orderStatusStyle(o.status).label}</span></div>
                     <div className="mt-4 flex items-end justify-between">
                       <div className="text-xs text-white/45">{o.item_count} {o.item_count === 1 ? "item" : "itens"}</div>
@@ -560,6 +580,7 @@ export default function AdminPage() {
                 <div className="rounded-2xl bg-white/[.03] p-4"><div className="text-[10px] font-black uppercase tracking-[.12em] text-white/35">Entrega</div><div className="mt-2 font-bold">{selectedOrder.neighborhood||"Bairro não informado"}</div><div className="mt-1 text-xs text-white/45">{selectedOrder.cep||"CEP não informado"}</div></div>
               </div>
               <div className="mt-5 rounded-2xl border border-white/10 p-4"><div className="flex items-center justify-between gap-3"><div className="text-xs font-black uppercase tracking-[.12em] text-white/35">Itens do pedido</div><span className="rounded-full bg-white/5 px-2.5 py-1 text-xs font-bold text-white/60">{parseOrderItems(selectedOrder.items).reduce((sum,item)=>sum+item.quantity,0)||selectedOrder.item_count||0} unidade(s)</span></div>{parseOrderItems(selectedOrder.items).length>0?<div className="mt-3 space-y-2">{parseOrderItems(selectedOrder.items).map((item,index)=>{const subtotal=item.price===null?null:item.price*item.quantity;return <div key={index} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[.025] p-4"><div className="min-w-0 flex-1"><div className="break-words text-base font-extrabold leading-snug text-white sm:text-lg">{item.name}</div>{item.line&&<div className="mt-1 text-xs text-[#a7b86a]">{item.line}</div>}{item.weight&&<div className="mt-1 break-words text-xs text-white/45">{item.weight}</div>}{subtotal!==null&&<div className="mt-1 text-sm font-bold text-[#ef7d18]">{money(subtotal)}</div>}</div><div className="shrink-0 rounded-xl bg-[#ef7d18]/15 px-3 py-2 text-center"><div className="text-[10px] font-black uppercase tracking-wide text-[#ef7d18]">Qtd.</div><div className="text-xl font-black leading-tight text-[#ef7d18]">{item.quantity}×</div></div></div>})}</div>:<div className="mt-3 rounded-xl border border-white/5 bg-white/[.025] p-3 text-sm leading-6 text-white/60">{typeof selectedOrder.items==="string"&&selectedOrder.items.trim()?selectedOrder.items:"Os itens deste pedido não estão disponíveis em formato reconhecido."}</div>}</div>
+              {(()=>{const records=deliveryRecords.filter(d=>d.order_id===selectedOrder.id).sort((a,b)=>(a.delivery_date||"").localeCompare(b.delivery_date||""));const delivered=records.filter(d=>d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);const total=Math.max(0,Number(selectedOrder.item_count||0));const remaining=Math.max(0,total-delivered);const percent=total?Math.min(100,delivered/total*100):0;return <section className="mt-5 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.045] p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><div className="text-xs font-black uppercase tracking-[.12em] text-[#a7b86a]">Controle de entregas</div><p className="mt-1 text-xs text-white/45">Entregas parciais vinculadas a este pedido</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-black ${remaining>0?"bg-[#ef7d18]/15 text-[#ffb36b]":"bg-[#a7b86a]/15 text-[#d9e5a5]"}`}>{remaining>0?"Entrega parcial":"Pedido totalmente entregue"}</span></div><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div className="rounded-xl bg-black/20 p-3"><b className="block text-2xl">{total}</b><span className="text-[10px] text-white/45">Contratadas</span></div><div className="rounded-xl bg-black/20 p-3"><b className="block text-2xl text-[#a7b86a]">{delivered}</b><span className="text-[10px] text-white/45">Entregues</span></div><div className="rounded-xl bg-black/20 p-3"><b className="block text-2xl text-[#ffb36b]">{remaining}</b><span className="text-[10px] text-white/45">Pendentes</span></div></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#a7b86a]" style={{width:`${percent}%`}}/></div><div className="mt-4"><div className="mb-2 text-[10px] font-black uppercase tracking-[.12em] text-white/40">Histórico de entregas</div>{records.length===0?<p className="rounded-xl bg-black/20 p-3 text-xs text-white/40">Nenhuma entrega registrada para este pedido.</p>:<div className="space-y-2">{records.map(d=><div key={d.id} className="flex items-center justify-between gap-3 rounded-xl bg-black/20 px-3 py-2"><div><b className="text-sm">{d.meal_quantity} marmita(s)</b><div className="text-[10px] text-white/45">{d.delivery_date?new Date(d.delivery_date+"T12:00:00").toLocaleDateString("pt-BR"):"Data não informada"}</div>{d.notes&&<div className="mt-1 text-[10px] text-white/35">{d.notes}</div>}</div><span className="text-[10px] font-bold text-[#a7b86a]">{d.status==="entregue"?"Confirmada":d.status}</span></div>)}</div>}</div>{remaining>0&&<div className="mt-4 border-t border-white/10 pt-4"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/45">Registrar nova entrega</div><div className="grid grid-cols-2 gap-2"><label className="grid gap-1 text-[10px] font-bold text-white/55">Quantidade<input type="number" min="1" max={remaining} step="1" value={deliveryQuantity} onChange={e=>setDeliveryQuantity(e.target.value)} className="min-h-11 rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-white"/></label><label className="grid gap-1 text-[10px] font-bold text-white/55">Data<input type="date" value={deliveryDate} onChange={e=>setDeliveryDate(e.target.value)} className="min-h-11 rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-white"/></label></div><label className="mt-2 grid gap-1 text-[10px] font-bold text-white/55">Observação (opcional)<input value={deliveryNote} onChange={e=>setDeliveryNote(e.target.value)} placeholder="Ex.: entrega complementar" className="min-h-11 rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-white placeholder:text-white/25"/></label><button type="button" onClick={()=>void registerPartialDelivery(selectedOrder)} disabled={busy||!deliveryDate||Number(deliveryQuantity)<1||Number(deliveryQuantity)>remaining} className="mt-3 min-h-11 w-full rounded-xl bg-[#ef7d18] px-4 py-3 text-sm font-black text-black disabled:opacity-40">{busy?"Registrando…":`Confirmar entrega de ${deliveryQuantity||0} marmita(s)`}</button><p className="mt-2 text-[10px] text-white/35">O sistema bloqueia automaticamente quantidades acima do saldo do pedido.</p></div>}</section>})()}
               <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs"><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Subtotal</div><b className="mt-1 block">{money(selectedOrder.subtotal)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Entrega</div><b className="mt-1 block">{money(selectedOrder.delivery_fee)}</b></div><div className="rounded-xl bg-white/[.03] p-3"><div className="text-white/35">Total</div><b className="mt-1 block text-[#ef7d18]">{money(selectedOrder.total)}</b></div></div>
               <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Insumos necessários</div>{orderRequirements.length===0?<div className="rounded-xl border border-white/5 bg-white/[.02] p-4 text-sm text-white/45">{["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(selectedOrder.status)?"Nenhuma ficha técnica correspondente encontrada para os itens deste pedido.":"Confirme o pedido para calcular automaticamente os insumos necessários."}</div>:<div className="overflow-x-auto rounded-xl border border-white/5"><table className="w-full text-left text-sm"><thead><tr className="text-xs text-white/35"><th className="p-3">Insumo</th><th className="p-3">Necessário</th><th className="p-3">Estoque</th><th className="p-3">Situação</th></tr></thead><tbody>{orderRequirements.map(x=>{const shortage=x.required_quantity>x.current_quantity;return <tr key={x.id} className="border-t border-white/5"><td className="p-3 font-bold">{x.item_name}</td><td className="p-3">{x.required_quantity.toLocaleString("pt-BR",{maximumFractionDigits:3})} {x.unit}</td><td className="p-3">{x.current_quantity.toLocaleString("pt-BR",{maximumFractionDigits:3})} {x.unit}</td><td className={"p-3 font-black "+(shortage?"text-[#ef7d18]":"text-[#a7b86a]")}>{shortage?"Falta "+(x.required_quantity-x.current_quantity).toLocaleString("pt-BR",{maximumFractionDigits:3})+" "+x.unit:"OK"}</td></tr>})}</tbody></table></div>}</div>
 <div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Produção</div>{orderProductions.length===0?<><button onClick={()=>void createProductionFromOrder(selectedOrder)} disabled={busy||!["confirmado","pago_recebido","em_preparo"].includes(selectedOrder.status)} className="w-full rounded-xl bg-[#ef7d18] px-4 py-3 text-left text-sm font-black text-black disabled:opacity-40">Gerar produção deste pedido</button><div className="mt-1 text-xs text-white/35">Cria as produções pelas fichas técnicas. O estoque não é baixado agora.</div></>:<div className="space-y-2">{orderProductions.map(p=><div key={p.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.02] p-3"><div><b className="text-sm">{p.recipe_name||"Produção"}</b><div className="text-xs text-white/40">{p.quantity} unidade(s) · {p.stock_consumed?"estoque baixado":"estoque pendente"}</div></div><span className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#d9e5a5]">{p.status==="planejada"?"Planejada":p.status==="em_producao"?"Em produção":p.status==="concluida"?"Concluída":p.status}</span></div>)}</div>}</div><div className="mt-5"><div className="mb-2 text-xs font-black uppercase tracking-[.12em] text-white/35">Atualizar status</div><div className="grid gap-2 sm:grid-cols-2">{[{v:"enviado_whatsapp",l:"Novo / enviado no WhatsApp"},{v:"confirmado",l:"Confirmado"},{v:"pago_recebido",l:"Pagamento recebido"},{v:"em_preparo",l:"Em preparo"},{v:"saiu_entrega",l:"Saiu para entrega"},{v:"entregue",l:"Entregue"},{v:"cancelado",l:"Cancelado"}].map(s=><button key={s.v} onClick={()=>void updateOrderStatus(selectedOrder,s.v)} disabled={busy||selectedOrder.status===s.v} className={"rounded-xl border px-3 py-3 text-left text-xs font-black "+(selectedOrder.status===s.v?"border-[#a7b86a]/40 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.02]")}>{s.l}</button>)}</div></div>
@@ -667,10 +688,10 @@ export default function AdminPage() {
 
       {showNewLead&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><form onSubmit={createLead} className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex items-start justify-between"><div><div className="text-xs text-[#a7b86a]">PROSPECÇÃO B2B</div><h2 className="mt-1 text-2xl font-black">Novo lead</h2><p className="mt-1 text-sm text-white/45">Cadastre a empresa e defina o próximo acompanhamento.</p></div><button type="button" onClick={()=>setShowNewLead(false)}><X/></button></div><div className="mt-5 grid gap-3"><label className="grid gap-1 text-sm font-bold">Empresa *<input required value={leadForm.company} onChange={e=>setLeadForm({...leadForm,company:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Responsável<input value={leadForm.contact_name} onChange={e=>setLeadForm({...leadForm,contact_name:e.target.value})} placeholder="Nome ou deixe em branco" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">E-mail<input type="email" value={leadForm.email} onChange={e=>setLeadForm({...leadForm,email:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Telefone / WhatsApp empresarial<input value={leadForm.whatsapp} onChange={e=>setLeadForm({...leadForm,whatsapp:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Próximo acompanhamento<input type="date" value={leadForm.next_follow_up_at} onChange={e=>setLeadForm({...leadForm,next_follow_up_at:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-1 text-sm font-bold">Observações<textarea rows={3} value={leadForm.notes} onChange={e=>setLeadForm({...leadForm,notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><button disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 font-black text-black disabled:opacity-50">{busy?"Cadastrando...":"Cadastrar empresa"}</button></div></form></div>}
       {selected&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-3 md:items-center"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#10130d] p-6"><div className="flex justify-between"><div><div className="text-xs text-[#a7b86a]">LEAD B2B</div><h2 className="text-2xl font-black">{selected.company}</h2><p className="text-sm text-white/45">{selected.contact_name} · {selected.whatsapp}</p></div><button onClick={()=>setSelected(null)}><X/></button></div><div className="mt-6 grid gap-4"><div className="rounded-xl bg-white/[.035] p-4 text-sm">{selected.email}<br/>{selected.estimated_meals||"Refeições não informadas"} · {selected.frequency||"Frequência não informada"}</div><div className="rounded-xl border border-white/10 p-4"><div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><h3 className="min-w-0 break-words text-base font-black leading-tight">Histórico de contatos por e-mail</h3><span className="shrink-0 self-start rounded-full bg-white/5 px-2.5 py-1 text-xs text-white/55 sm:self-auto">{contactEvents.filter(e=>e.lead_id===selected.id).length} registro(s)</span></div>{contactEvents.filter(e=>e.lead_id===selected.id).length===0?<p className="text-sm text-white/45">Nenhum evento de e-mail registrado para este lead.</p>:<div className="grid gap-3">{contactEvents.filter(e=>e.lead_id===selected.id).map(e=><div key={e.id} className="rounded-lg bg-white/[.035] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-bold">{e.event_type==="delivered"?"Entregue ao servidor":e.event_type==="sent"?"Enviado":e.event_type==="bounced"?"Falhou na entrega":e.event_type==="opened"?"Aberto":e.event_type==="clicked"?"Link clicado":e.event_type==="replied"?"Resposta recebida":e.event_type}</span><time className="text-xs text-white/45">{new Date(e.event_at).toLocaleString("pt-BR")}</time></div><p className="mt-1 text-xs text-white/60">{e.recipient_email}</p><p className="mt-1 text-sm">{e.subject||"Sem assunto registrado"}</p>{e.evidence_note&&<p className="mt-2 text-xs text-white/45">{e.evidence_note}</p>}</div>)}</div>}</div><label className="grid gap-2 text-sm font-bold">Status<select value={selected.status} onChange={e=>setSelected({...selected,status:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal">{statuses.map(s=><option key={s}>{s}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Próximo contato<input type="date" value={selected.next_follow_up_at?.slice(0,10)||""} onChange={e=>setSelected({...selected,next_follow_up_at:e.target.value?`${e.target.value}T12:00:00.000Z`:null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Valor da proposta<input type="number" step="0.01" value={selected.proposal_value??""} onChange={e=>setSelected({...selected,proposal_value:e.target.value?Number(e.target.value):null})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><label className="grid gap-2 text-sm font-bold">Observações internas<textarea rows={4} value={selected.owner_notes||""} onChange={e=>setSelected({...selected,owner_notes:e.target.value})} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-normal"/></label><div className="flex gap-2"><a href={`https://wa.me/${selected.whatsapp.split("").filter(ch=>ch>="0"&&ch<="9").join("")}`} target="_blank" rel="noreferrer" className="rounded-full border border-[#a7b86a]/30 px-4 py-3 text-sm font-black text-[#d9e5a5]"><MessageCircle size={16} className="mr-2 inline"/>WhatsApp</a><button onClick={()=>void saveLead()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar"}</button></div></div></div></div>}
-      {typeof document !== "undefined" && createPortal(<nav className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[9999] rounded-2xl border border-white/10 bg-[#10130d]/95 p-2 shadow-2xl backdrop-blur md:hidden">
+      {typeof document !== "undefined" && createPortal(<nav className="nf-admin-mobile-nav fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[9999] rounded-2xl border border-white/10 bg-[#10130d]/95 p-2 shadow-2xl backdrop-blur md:hidden">
         <div className="grid grid-cols-4 gap-1">
           <button onClick={()=>navigateSection("resumo")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="resumo"?"bg-[#a7b86a] text-black":"text-white/55"}`}><Home size={17}/><span>Início</span></button>
-          <button onClick={()=>navigateSection("pedidos")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
+          <button onClick={()=>{setOrderStatusFilter("all");navigateSection("pedidos");}} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="pedidos"?"bg-[#a7b86a] text-black":"text-white/55"}`}><ShoppingBag size={17}/><span>Pedidos</span></button>
           <button onClick={()=>navigateSection("whatsapp")} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${section==="whatsapp"?"bg-[#a7b86a] text-black":"text-white/55"}`}><MessageCircle size={17}/><span>WhatsApp</span></button>
           <button onClick={()=>setMobileMore(v=>!v)} className={`flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-[10px] font-black ${mobileMore||!["resumo","pedidos","whatsapp"].includes(section)?"bg-[#a7b86a] text-black":"text-white/55"}`}><MoreHorizontal size={17}/><span>Mais</span></button>
         </div>
@@ -681,7 +702,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 gap-2">
             
             
-            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{navigateSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
+            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"embalagens" as Section,label:"Embalagens",Icon:Package},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"configuracoes" as Section,label:"Configurações",Icon:Settings},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{if(id==="pedidos")setOrderStatusFilter("all");navigateSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
           </div>
         </div>
       </div>}
