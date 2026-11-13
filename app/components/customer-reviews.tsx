@@ -8,7 +8,7 @@ const key = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 export default function CustomerReviews() {
   const [stats, setStats] = useState({ count: 0, average: null as number | null, reviews: [] as any[] });
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);\n  const [showAll, setShowAll] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [orderCode, setOrderCode] = useState("");
   const [ratings, setRatings] = useState([0, 0, 0, 0, 0]);
@@ -19,11 +19,13 @@ export default function CustomerReviews() {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    fetch(endpoint, { headers: { apikey: key } })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(setStats).catch(() => {});
-  }, []);
+  async function loadStats() {
+    const response = await fetch(endpoint, { headers: { apikey: key }, cache: "no-store" });
+    if (!response.ok) throw new Error("Não foi possível atualizar as avaliações.");
+    setStats(await response.json());
+  }
+
+  useEffect(() => { void loadStats().catch(() => {}); }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +48,11 @@ export default function CustomerReviews() {
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || "Não foi possível enviar.");
       setStatus(data.message || "Avaliação recebida. Obrigado!");
+      if (data.notification === "sent") setStatus("Avaliação recebida. A gestão também foi avisada pelo WhatsApp.");
+      else if (data.notification === "not_configured") setStatus("Avaliação recebida. A notificação do WhatsApp ainda precisa ser configurada.");
+      else if (data.notification === "failed") setStatus("Avaliação recebida, mas o aviso pelo WhatsApp falhou. A avaliação continua salva no sistema.");
       setCustomerName(""); setOrderCode(""); setRatings([0,0,0,0,0]); setRecommend(null); setComment("");
+      await loadStats().catch(() => {});
     } catch (err) {
       setStatus(err instanceof Error ? err.message : "Erro ao enviar avaliação.");
     } finally { setBusy(false); }
@@ -72,7 +78,10 @@ export default function CustomerReviews() {
           </article>
           <article className="rounded-3xl border border-white/10 bg-[#10130d] p-5">
             <p className="text-[10px] font-black uppercase tracking-[.18em] text-[#f47b0b]">O que nossos clientes dizem</p>
-            {stats.reviews.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">{stats.reviews.slice(0,4).map((r:any) => <div key={r.id} className="rounded-2xl border border-white/10 p-4">{stars(Math.round(r.rating))}{r.comment && <p className="mt-2 text-sm text-white/75">“{r.comment}”</p>}<p className="mt-3 text-xs font-bold text-[#b6d76a]">{r.customer}</p></div>)}</div> : <p className="mt-4 rounded-2xl border border-dashed border-white/10 p-4 text-sm text-white/50">Ainda não há depoimentos publicados. Sua avaliação pode ser a primeira.</p>}
+            {stats.reviews.length ? <>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">{(showAll ? stats.reviews : stats.reviews.slice(0,4)).map((r:any) => <div key={r.id} className="rounded-2xl border border-white/10 p-4">{stars(Math.round(r.rating))}{r.comment && <p className="mt-2 text-sm text-white/75">“{r.comment}”</p>}<p className="mt-3 text-xs font-bold text-[#b6d76a]">{r.customer}</p></div>)}</div>
+              {stats.reviews.length > 4 && <button type="button" onClick={() => setShowAll(v => !v)} className="mt-4 w-full rounded-xl border border-[#86a51d]/40 px-4 py-3 text-xs font-black text-[#c5e27b] hover:bg-[#86a51d]/10">{showAll ? "Mostrar menos" : `Ver todas as ${stats.count} avaliações`}</button>}
+            </> : <p className="mt-4 rounded-2xl border border-dashed border-white/10 p-4 text-sm text-white/50">Ainda não há depoimentos publicados. Sua avaliação pode ser a primeira.</p>}
           </article>
         </div>
         <div className="mt-4 overflow-hidden rounded-3xl border border-[#f47b0b]/30 bg-[#11130e]">
