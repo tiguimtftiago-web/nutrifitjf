@@ -967,3 +967,44 @@ main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid > section { padding:0 !
     padding-left: calc(12px + env(safe-area-inset-left)) !important;
   }
 }
+
+
+/* Correção de largura no mobile: o início deve ocupar todo o viewport. */
+main.nf-admin-root:has(.nf-dashboard) {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip !important;
+}
+main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid > section {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+main.nf-admin-root:has(.nf-dashboard) .nf-dashboard,
+main.nf-admin-root:has(.nf-dashboard) .nf-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 959px) and (orientation: portrait) {
+  main.nf-admin-root:has(.nf-dashboard) > div.mx-auto.grid {
+    padding-left: calc(10px + env(safe-area-inset-left)) !important;
+    padding-right: calc(10px + env(safe-area-inset-right)) !important;
+  }
+  .nf-dashboard {
+    padding: 12px 0 calc(112px + env(safe-area-inset-bottom)) !important;
+  }
+  .nf-action-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
