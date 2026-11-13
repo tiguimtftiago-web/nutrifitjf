@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   CalendarDays, ChefHat, CircleAlert, Coins, Factory, Home, Package, RefreshCw,
   ShoppingBag, ShoppingCart, Truck, Users, Wallet, MessageCircle, Settings, Box, ArrowUpRight
@@ -121,7 +121,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const touchStart=useRef<number|null>(null);
   const pullTriggered=useRef(false);
 
-  async function load(){
+  const load=useCallback(async()=>{
     if(!token)return;
     setLoading(true);
     const req=async(path:string)=>{const r=await fetch(path,{headers:{apikey:KEY,Authorization:"Bearer "+token},cache:"no-store"});if(!r.ok)throw new Error("Falha ao carregar dados complementares");return r.json()};
@@ -135,22 +135,22 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
       setDashboardOrders(o||[]);setProduction(p||[]);setDeliveries(d||[]);setFinance(f||[]);
     }catch{setDashboardOrders(null);setProduction([]);setDeliveries([]);setFinance([])}
     finally{setLoading(false)}
-  }
+  },[token]);
 
-  useEffect(()=>{void load();const id=window.setInterval(()=>void load(),30000);return()=>window.clearInterval(id)},[token]);
+  const refreshAll=useCallback(async()=>{
+    if(refreshing)return;
+    setRefreshing(true);
+    try{await Promise.all([load(),Promise.resolve(onRefresh())])}finally{setRefreshing(false)}
+  },[refreshing,load,onRefresh]);
+
+  useEffect(()=>{void load();const id=window.setInterval(()=>void load(),30000);return()=>window.clearInterval(id)},[load]);
   useEffect(()=>{
     const start=(event:TouchEvent)=>{if(window.scrollY<=2&&event.touches.length===1){touchStart.current=event.touches[0].clientY;pullTriggered.current=false}else touchStart.current=null};
     const move=(event:TouchEvent)=>{if(touchStart.current===null||pullTriggered.current||window.scrollY>2||event.touches.length!==1)return;if(event.touches[0].clientY-touchStart.current>88){pullTriggered.current=true;void refreshAll()}};
     const end=()=>{touchStart.current=null};
     window.addEventListener("touchstart",start,{passive:true});window.addEventListener("touchmove",move,{passive:true});window.addEventListener("touchend",end,{passive:true});
     return()=>{window.removeEventListener("touchstart",start);window.removeEventListener("touchmove",move);window.removeEventListener("touchend",end)};
-  });
-
-  async function refreshAll(){
-    if(refreshing)return;
-    setRefreshing(true);
-    try{await Promise.all([load(),Promise.resolve(onRefresh())])}finally{setRefreshing(false)}
-  }
+  },[refreshAll]);
 
   const sourceOrders=dashboardOrders??orders;
   const now=new Date();
