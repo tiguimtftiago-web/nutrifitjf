@@ -42,7 +42,7 @@ function inventoryImage(item:InventoryItem):InventoryVisual {
   const has=(...terms:string[])=>terms.some(term=>n.includes(normalize(term)));
   // Cada família visual aponta para um produto específico no sprite, sem reutilizar foto de prato pronto.
   if(has("oleo","azeite")) return {column:0,row:0,label:"Garrafa de óleo"};
-  if(has("caixa de envio","caixa papelao","caixa de papelão","caixa transporte")) return {column:2,row:0,label:"Caixa de papelão"};
+  if(has("caixa de envio","caixa papelao","caixa de papelão","caixa transporte")) return {column:1,row:3,label:"Caixa de papelão"};
   if(has("marmita","pote","embalagem","bandeja","retangular","descartavel","descartável")) return {column:1,row:0,label:"Marmita plástica vazia"};
   if(has("mussarela","muçarela","mucarela","queijo")) return {column:2,row:0,label:"Queijo muçarela"};
   if(has("alho")) return {column:3,row:0,label:"Alho"};
@@ -58,7 +58,7 @@ function inventoryImage(item:InventoryItem):InventoryVisual {
   if(has("cenoura")) return {column:2,row:2,label:"Cenoura"};
   if(has("ervilha","grao de bico","grão de bico","milho")) return {column:3,row:2,label:"Ervilhas"};
   if(has("macarrao","macarrão","massa","penne")) return {column:2,row:3,label:"Macarrão"};
-  if(has("tomate")) return {column:1,row:3,label:"Tomate"};
+  if(has("tomate")) return {column:2,row:2,label:"Tomate"};
   if(has("cebola")) return {column:3,row:3,label:"Cebola"};
   if(has("beterraba","chuchu","couve","hortalica","hortaliça","legume","verdura")) return {column:2,row:1,label:"Hortaliças frescas"};
   if(has("leite","laticinio","laticínio")) return {column:3,row:0,label:"Ingrediente lácteo"};
