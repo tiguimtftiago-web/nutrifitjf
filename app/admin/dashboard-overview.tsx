@@ -188,7 +188,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const nextDeliveries=deliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
   const paidFinance=finance.filter(f=>["pago","paid","concluido"].includes(String(f.status||"").toLowerCase())&&new Date(f.paid_at||f.created_at)>=periodStart&&new Date(f.paid_at||f.created_at)<=now);
   const expenses=paidFinance.filter(f=>["despesa","expense"].includes(String(f.type||"").toLowerCase())).reduce((s,f)=>s+Number(f.amount||0),0);
-  const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
+  const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
   const profit=sales-expenses;
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
   const actionNew=sourceOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
