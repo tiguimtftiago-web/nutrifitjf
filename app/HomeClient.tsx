@@ -1159,16 +1159,16 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         `*${index + 1}. ${item.quantity}x ${item.name}*\n   ${item.line} • ${item.weight} • ${money(Number(item.price))} cada\n   💵 ${money(Number(item.price) * Number(item.quantity))}`
       ).join("\n\n") : "";
       const officialSummary = [
-        "🛒 *ITENS DO PEDIDO*",
+        "*ITENS DO PEDIDO*",
         "",
         officialLines,
         "",
         "━━━━━━━━━━━━",
-        "💰 *VALORES CONFIRMADOS PELO SISTEMA*",
+        "*VALORES CONFIRMADOS PELO SISTEMA*",
         `Subtotal: *${money(Number(result.subtotal))}*`,
-        `🎁 Desconto: *-${money(Number(result.discount ?? 0))}*`,
-        `🚚 Frete: *${money(Number(result.delivery_fee))}*`,
-        `💵 *TOTAL OFICIAL: ${money(Number(result.total))}*`,
+        `Desconto: *-${money(Number(result.discount ?? 0))}*`,
+        `Frete: *${money(Number(result.delivery_fee))}*`,
+        `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
         "",
         "",
       ].join("\n");
@@ -2709,13 +2709,13 @@ export default function Home() {
       `${orderStreet.trim()}, nº ${orderNumber.trim()}${orderComplement.trim() ? " · " + orderComplement.trim() : ""}`,
       `${orderNeighborhood.trim()} · ${orderCity.trim()}/${orderState.trim()} · CEP ${orderCep}`,
       ...(orderReference.trim() ? [`Referência: ${orderReference.trim()}`] : []),
-      ...(notesText ? ["", "📝 *OBSERVAÇÕES*", notesText] : []),
+      ...(notesText ? ["", "*OBSERVAÇÕES*", notesText] : []),
       "",
       "*PAGAMENTO: PIX*",
       `Chave: ${PIX_KEY}`,
       "Se preferir cartão, consulte a equipe Nutrifit antes de realizar o pagamento; a opção não está confirmada neste pedido.",
       "",
-      "✅ *Confira os dados e confirme o pedido.*",
+      "*Confira os dados e confirme o pedido.*",
     ].join("\n");
     
     const acquisitionSource = (getConsentedAcquisitionValue("nutrifit_acquisition_source") || (hasAnalyticsConsent() ? getAcquisitionSource() : "direct"));
