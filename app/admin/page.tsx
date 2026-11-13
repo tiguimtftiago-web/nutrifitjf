@@ -382,43 +382,67 @@ export default function AdminPage() {
   }
 
   async function updateOrderStatus(order:Order,status:string){
-    // Evita repetir efeitos colaterais (ex.: automação de compra) ao selecionar o status já salvo.
-    if(order.status===status) return;
-    if(status==="entregue"){const delivered=deliveryRecords.filter(d=>d.order_id===order.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0);const remaining=Math.max(0,Number(order.item_count||0)-delivered);if(remaining>0){setError(`Este pedido ainda tem ${remaining} marmita(s) pendente(s). Registre todas as entregas antes de finalizá-lo.`);return;}}
-    if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal.")) return;
-    setBusy(true); setError("");
+    if(!token||busy)return;
+    if(order.status===status){setError("Este pedido já está nesse status.");return;}
+    if(status==="entregue"){
+      // Revalida no banco para não depender de um histórico de entregas desatualizado no celular.
+      const latestDeliveries=await request(
+        URL+"/rest/v1/delivery_orders?select=id,meal_quantity,status&order_id=eq."+order.id+"&status=eq.entregue",
+        token
+      ).catch(()=>null);
+      if(!Array.isArray(latestDeliveries)){
+        setError("Não foi possível conferir as entregas deste pedido. Atualize a lista e tente novamente.");
+        return;
+      }
+      const delivered=latestDeliveries.reduce((sum:number,d:any)=>sum+Number(d.meal_quantity||0),0);
+      const remaining=Math.max(0,Number(order.item_count||0)-delivered);
+      if(remaining>0){
+        setError(`Ainda faltam ${remaining} marmita(s) para registrar a entrega. Registre as entregas parciais antes de finalizar.`);
+        return;
+      }
+    }
+    if(status==="cancelado" && !window.confirm("Confirma o cancelamento deste pedido? O registro será mantido no histórico e sairá da lista principal."))return;
+    setBusy(true);setError("");
     try{
-      await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});
+      const updated=await request(URL+"/rest/v1/customer_orders?id=eq."+order.id,token,{
+        method:"PATCH",
+        headers:{Prefer:"return=representation"},
+        body:JSON.stringify({status})
+      });
+      if(!Array.isArray(updated)||updated.length!==1){
+        throw new Error("O banco não confirmou a atualização do pedido. Verifique sua permissão administrativa e tente novamente.");
+      }
       setOrders(prev=>prev.map(x=>x.id===order.id?{...x,status}:x));
-      if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)){ await loadOrderRequirements(order.id); await loadOrderProduction(order.id); }
-      if(status==="cancelado") setOrderRequirements([]);
-
-      if(status==="pago_recebido" && order.whatsapp){
+      if(["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(status)){
+        await Promise.all([loadOrderRequirements(order.id),loadOrderProduction(order.id)]);
+      }
+      if(status==="cancelado")setOrderRequirements([]);
+      if(status==="pago_recebido"&&order.whatsapp){
         try{
           const profiles=await request(URL+"/rest/v1/customer_profiles?select=email,name&whatsapp=eq."+encodeURIComponent(order.whatsapp)+"&limit=1",token);
-          const profile=Array.isArray(profiles) ? profiles[0] : null;
+          const profile=Array.isArray(profiles)?profiles[0]:null;
           if(profile?.email){
             await fetch("/api/club-automation",{
               method:"POST",
-              headers:{
-                "Content-Type":"application/json",
-                Authorization:"Bearer "+token,
-              },
+              headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},
               body:JSON.stringify({
                 event:"order.purchased",
                 email:profile.email,
-                firstName:String(profile.name||order.customer_name||"").trim().split(/\\s+/)[0]||"",
-                orderId:order.id,
-              }),
+                firstName:String(profile.name||order.customer_name||"").trim().split(/\s+/)[0]||"",
+                orderId:order.id
+              })
             });
           }
-        }catch(error){ console.error("purchase automation trigger",error); }
+        }catch(error){console.error("purchase automation trigger",error);}
       }
-
-      if(status==="entregue") setSelectedOrder(null);
+      await load(token,true);
+      if(status==="entregue")setSelectedOrder(null);
       else setSelectedOrder(prev=>prev?.id===order.id?{...prev,status}:prev);
-    }catch(e){ console.error(e); setError("Não foi possível atualizar o status do pedido."); }
-    finally{setBusy(false);}
+      setError(status==="entregue"?"Pedido finalizado e atualizado com sucesso.":"Status do pedido atualizado com sucesso.");
+    }catch(e){
+      console.error("updateOrderStatus",e);
+      setError(e instanceof Error?e.message:"Não foi possível atualizar o status do pedido.");
+    }finally{setBusy(false);}
   }
 
   async function saveLead(){
