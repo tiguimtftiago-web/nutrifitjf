@@ -485,6 +485,7 @@ export default function AdminPage() {
       <div className="mx-auto grid max-w-none gap-6 px-4 py-6 pb-24 sm:px-6 md:grid-cols-[250px_minmax(0,1fr)]">
         <aside className="hidden h-fit max-h-[calc(100vh-7rem)] overflow-y-auto rounded-3xl border border-white/10 bg-[#080a08] p-2 md:sticky md:top-24 md:block">
           <a href="/admin/avaliacoes" className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.07] px-4 py-3 text-left text-sm font-black text-[#ffb36b] hover:bg-[#ef7d18]/10"><MessageCircle size={18}/><span><span className="block">Avaliações</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-white/40">Moderar depoimentos</span></span></a>
+          <a href="/admin/embalagens" className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.06] px-4 py-3 text-left text-sm font-black text-[#d9e5a5] hover:bg-[#a7b86a]/10"><Package size={18}/><span><span className="block">Embalagens e materiais</span><span className="mt-0.5 block text-[9px] font-bold uppercase tracking-[.12em] text-white/40">Custos e acondicionamento</span></span></a>
           {nav.map(({id,label,Icon})=><div key={id}>
             {id==="pedidos"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Operação</div>}
             {id==="clientes"&&<div className="px-4 pb-1 pt-3 text-[9px] font-black uppercase tracking-[.18em] text-white/25">Relacionamento</div>}
@@ -501,6 +502,7 @@ export default function AdminPage() {
               </div>
               <button onClick={()=>void load()} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-black"><RefreshCw size={14} className={`inline ${busy?"animate-spin":""}`}/></button>
             </div>
+            <a href="/admin/embalagens" className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.07] px-3 py-2.5 text-xs font-black text-[#d9e5a5]"><Package size={15}/>Embalagens e materiais</a>
           </div>
           {error&&<div className="mb-5 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]">{error}</div>}
 
