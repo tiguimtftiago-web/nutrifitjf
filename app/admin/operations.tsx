@@ -453,7 +453,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     finally{setBusy(false);}
   }
 
-  const receivedForOrder=(orderId:string)=>finance.filter(x=>x.order_id===orderId&&x.type==="receita"&&x.status==="pago").reduce((total,x)=>total+Number(x.amount||0),0);
+  const receivedForOrder=(orderId:string)=>finance.filter(x=>x.order_id===orderId&&x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)).reduce((total,x)=>total+Number(x.amount||0),0);
   async function addFinance(){
     if(!expense.description.trim()||!expense.amount||Number(expense.amount)<=0)return;
     if(expense.status==="pago"&&!expense.paid_at)return;
@@ -596,7 +596,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const balance=paidRevenue-paidExpenseTotal-paidFeeTotal-Math.abs(paidRefunds);
     // Conciliação acumulada por pedido: vários pagamentos parciais somam no mesmo pedido.
     const receiptsByOrder=new Map<string,number>();
-    finance.filter(x=>x.type==="receita"&&x.status==="pago"&&x.order_id).forEach(x=>{
+    finance.filter(x=>x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)&&x.order_id).forEach(x=>{
       const orderId=x.order_id as string;
       receiptsByOrder.set(orderId,(receiptsByOrder.get(orderId)||0)+Number(x.amount||0));
     });
@@ -606,7 +606,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const statusMismatchOrders=customerOrders.filter(order=>inPeriod(order.created_at)&&order.status==="pago_recebido"&&(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
     const statusMismatchValue=statusMismatchOrders.reduce((total,order)=>total+Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)),0);
     // Série temporal usa as mesmas datas de movimento dos indicadores financeiros.
-    const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
+    const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.filter(x=>x.status!=="pago"||Boolean(x.paid_at)).map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
     const chartStart=financePeriod==="all"
       ? new Date(chartRecords.length?Math.min(...chartRecords):now.getTime()-6*86400000)
       : financePeriod==="month"?currentMonthStart:financePeriod==="previous"?previousMonthStart:cutoff;
