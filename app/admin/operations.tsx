@@ -580,8 +580,6 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const expenses=sum(finance.filter(inFinancePeriod),"despesa");
     const fees=sum(finance.filter(inFinancePeriod),"taxa");
     const orderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.total||0),0);
-    const statusMismatchOrders=customerOrders.filter(order=>inPeriod(order.created_at)&&order.status==="pago_recebido"&&(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
-    const statusMismatchValue=statusMismatchOrders.reduce((total,order)=>total+Number(order.total||0),0);
     const missingPaidDate=finance.filter(x=>x.status==="pago"&&!x.paid_at&&x.type!=="cancelado");
     const missingPaidDateTotal=missingPaidDate.reduce((total,x)=>total+Number(x.amount||0),0);
     const confirmedReceipts=finance.filter(x=>inFinancePeriod(x)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
@@ -605,6 +603,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const reconciliationOrders=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado");
     const reconciliationOpen=reconciliationOrders.filter(order=>(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
     const reconciliationOpenValue=reconciliationOpen.reduce((total,order)=>total+Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)),0);
+    const statusMismatchOrders=customerOrders.filter(order=>inPeriod(order.created_at)&&order.status==="pago_recebido"&&(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
+    const statusMismatchValue=statusMismatchOrders.reduce((total,order)=>total+Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)),0);
     // Série temporal usa as mesmas datas de movimento dos indicadores financeiros.
     const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
     const chartStart=financePeriod==="all"
@@ -621,13 +621,13 @@ export default function Operations({section,token,initialCategory}:{section:"est
       chartBuckets[index][key]+=Number(value||0);
     };
     customerOrders.filter(x=>x.status!=="cancelado").forEach(x=>addToChart(x.created_at,x.total,"orders"));
-    finance.filter(x=>x.type==="receita"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"receipts"));
-    finance.filter(x=>x.type==="despesa"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"expenses"));
+    finance.filter(x=>x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)).forEach(x=>addToChart(x.paid_at as string,x.amount,"receipts"));
+    finance.filter(x=>x.type==="despesa"&&x.status==="pago"&&Boolean(x.paid_at)).forEach(x=>addToChart(x.paid_at as string,x.amount,"expenses"));
     const chartMax=Math.max(1,...chartBuckets.flatMap(x=>[x.orders,x.receipts,x.expenses]));
     const chartPoints=(key:"orders"|"receipts"|"expenses")=>chartBuckets.map((item,index)=>({x:34+index*102,y:178-(item[key]/chartMax)*145,value:item[key]}));
     const chartPath=(key:"orders"|"receipts"|"expenses")=>chartPoints(key).map((p,index)=>(index?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
     const chartMoney=(value:number)=>value>=1000?"R$ "+(value/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil":money(value);
-    return <div className="space-y-5">
+    return <div className="space-y-5 pb-36">
       {error&&<div className="flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-3 py-2 text-xs font-black">Fechar</button></div>}
       <Panel title="Financeiro NutriFit">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row">
