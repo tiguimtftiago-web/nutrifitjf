@@ -583,6 +583,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const purchasesTotal=periodPurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
     const purchaseCount=periodPurchases.filter(x=>x.status==="recebida").length;
     const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
+    const pendingReceivables=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type==="receita").reduce((v,x)=>v+Number(x.amount||0),0);
     const paidFinance=finance.filter(x=>inFinancePeriod(x)&&x.status==="pago");
     const paidRevenue=sum(paidFinance,"receita");
     const paidExpenseTotal=sum(paidFinance,"despesa");
@@ -669,8 +670,9 @@ export default function Operations({section,token,initialCategory}:{section:"est
         </div>
         {confirmedReceipts===0&&paidExpenses>0&&<div role="status" className="rounded-2xl border border-[#ef7d18]/35 bg-[#ef7d18]/[.08] p-4 text-sm leading-6 text-[#f1b06e]"><b>Conferência necessária:</b> não há recebimentos financeiros confirmados neste período, mas há despesas pagas. O resultado dos lançamentos pagos ficará negativo até que as receitas reais sejam registradas; isso não significa, por si só, que a conta bancária esteja negativa.</div>}
         <p className="text-xs leading-5 text-white/40">Os indicadores consideram até 1.000 pedidos, 1.000 lançamentos financeiros e 500 compras carregadas. “Pedidos no status pago_recebido” e “Recebimentos confirmados” vêm de fontes diferentes e não devem ser somados; o valor de um pedido não comprova, por si só, o recebimento.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">Contas pendentes lançadas</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Baseado no status dos lançamentos financeiros</div></div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">A pagar (pendente)</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Despesas, taxas e outros lançamentos pendentes</div></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">A receber (pendente)</div><div className="mt-2 text-2xl font-black">{money(pendingReceivables)}</div><div className="mt-1 text-xs text-white/40">Receitas lançadas que ainda não foram confirmadas</div></div>
           <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-sm font-bold text-[#f1b06e]">Conferência necessária</div><p className="mt-2 text-sm leading-6 text-white/70">Compras do estoque e despesas financeiras aparecem em listas separadas até serem conciliadas. Isso evita somar a mesma compra duas vezes. Confira os registros abaixo antes de fechar o caixa.</p></div>
         </div>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-black">Livro financeiro unificado</h3><span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60">{visibleFinance.length} registro(s)</span></div>
