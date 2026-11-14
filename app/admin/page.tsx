@@ -169,7 +169,26 @@ export default function AdminPage() {
     const saved=sessionStorage.getItem("nutrifit_admin_token")||"";
     const savedEmail=sessionStorage.getItem("nutrifit_admin_email")||"";
     if(savedEmail)setEmail(savedEmail);
-    if(saved){setToken(saved);void load(saved);}
+    if(saved){
+      void (async()=>{
+        try {
+          const check=await fetch(`${URL}/rest/v1/rpc/is_admin_user`,{
+            method:"POST",
+            headers:{apikey:KEY,Authorization:`Bearer ${saved}`,"Content-Type":"application/json"},
+            body:"{}",
+            cache:"no-store",
+          });
+          if(!check.ok || (await check.json())!==true) throw new Error("Admin session is not authorized");
+          setToken(saved);
+          await load(saved);
+        } catch {
+          sessionStorage.removeItem("nutrifit_admin_token");
+          sessionStorage.removeItem("nutrifit_admin_email");
+          setToken("");
+          setError("Sessão inválida ou sem autorização administrativa. Entre novamente.");
+        }
+      })();
+    }
   },[]);
 
   useEffect(() => {
