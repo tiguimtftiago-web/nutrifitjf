@@ -21,7 +21,7 @@ type Verification = {
     total_amount: number | null;
     currency: string;
     payment_status: string;
-    document_data: { items: unknown[]; description: string | null };
+    document_data: { items: Array<{description?:string;quantity?:number;unit_price?:number}>; description: string | null };
     pdf_sha256: string;
     signature_type: string;
     signature_status: string;
@@ -120,6 +120,19 @@ export default function ValidateOfficialDocumentPage() {
                 <div className="mt-5 rounded-xl bg-white/[.04] p-4">
                   <p className="mb-1 text-xs text-white/45">Descrição</p>
                   <p className="text-sm">{result.document.document_data.description}</p>
+                </div>
+              )}
+              {result.document.document_data.items?.length > 0 && (
+                <div className="mt-5 rounded-xl bg-white/[.04] p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/45">Itens registrados</p>
+                  <div className="space-y-2">
+                    {result.document.document_data.items.map((item,index) => (
+                      <div key={index} className="flex items-start justify-between gap-3 border-b border-white/10 pb-2 text-sm last:border-0 last:pb-0">
+                        <span>{item.description || "Item"} <span className="text-white/45">· {item.quantity || 0} un.</span></span>
+                        <span className="whitespace-nowrap font-medium">{money((Number(item.quantity)||0)*(Number(item.unit_price)||0))}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
               <div className="mt-6 border-t border-white/10 pt-5">
