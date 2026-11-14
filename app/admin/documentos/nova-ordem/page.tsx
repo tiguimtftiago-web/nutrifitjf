@@ -28,9 +28,9 @@ const initialForm: OrderForm = {
   quantity: "24",
   unit_price: "23,00",
   payment_method: "PIX",
-  payment_status_label: "PAGO",
-  payment_received: "R$ 552,00",
-  payment_date: "14/11/2026",
+  payment_status_label: "PENDENTE",
+  payment_received: "",
+  payment_date: "",
 };
 
 const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -108,8 +108,8 @@ export default function NewOfficialPurchaseOrderPage() {
           payment_status_label: form.payment_status_label,
           payment_received: form.payment_received || money(total),
           payment_date: form.payment_date,
-          payment_status: form.payment_status_label.toUpperCase() === "PAGO" ? "paid" : "not_informed",
-          narrative: `A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento informado como ${form.payment_status_label} via ${form.payment_method}.`,
+          payment_status: form.payment_status_label.trim().toUpperCase() === "PAGO" ? "paid" : form.payment_status_label.trim().toUpperCase() === "PENDENTE" ? "pending" : "not_informed",
+          narrative: `A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento ${form.payment_status_label.trim().toUpperCase() === "PAGO" ? "confirmado" : "pendente"} via ${form.payment_method}.${form.payment_received.trim() ? ` Valor efetivamente recebido: ${form.payment_received}.` : ""}${form.payment_date.trim() ? ` Data do recebimento: ${form.payment_date}.` : ""}`,
         }),
       });
       const result = await response.json();
