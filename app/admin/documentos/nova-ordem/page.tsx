@@ -107,7 +107,7 @@ export default function NewOfficialPurchaseOrderPage() {
           payment_received: form.payment_received || money(total),
           payment_date: form.payment_date,
           payment_status: form.payment_status_label.toUpperCase() === "PAGO" ? "paid" : "not_informed",
-          narrative: `A presente ordem de compra registra a aquisição de ${quantity} (${quantity === 1 ? "uma" : "vinte e quatro"}) marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento informado como ${form.payment_status_label} via ${form.payment_method}.`,
+          narrative: `A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento informado como ${form.payment_status_label} via ${form.payment_method}.`,
         }),
       });
       const result = await response.json();
