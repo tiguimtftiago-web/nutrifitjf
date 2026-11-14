@@ -125,6 +125,11 @@ export default function OfficialDocumentsAdminPage() {
     <main className="min-h-screen bg-[#080a07] px-4 py-8 text-white sm:py-12">
       <div className="mx-auto max-w-3xl">
         <button onClick={() => router.push("/admin")} className="mb-6 inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"><ArrowLeft className="h-4 w-4" /> Voltar ao painel</button>
+        <div className="mb-5 flex flex-wrap gap-3">
+          <button type="button" onClick={() => router.push("/admin/documentos/nova-ordem")} className="inline-flex items-center gap-2 rounded-xl bg-[#ef7d18] px-4 py-3 text-sm font-semibold text-black">
+            <FileCheck2 className="h-4 w-4" /> Gerar ordem com QR Code
+          </button>
+        </div>
         <header className="mb-7 flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-bold tracking-[.2em] text-[#a2a24c]">NUTRIFIT · SEGURANÇA</p>
