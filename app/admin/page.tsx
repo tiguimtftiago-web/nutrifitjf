@@ -210,6 +210,15 @@ export default function AdminPage() {
     try {
       const data=await request(`${URL}/auth/v1/token?grant_type=password`,"",{method:"POST",body:JSON.stringify({email:email.trim().toLowerCase(),password})});
       if(!data?.access_token) throw new Error("Token ausente");
+      const adminCheck = await fetch(`${URL}/rest/v1/rpc/is_admin_user`, {
+        method: "POST",
+        headers: { apikey: KEY, Authorization: `Bearer ${data.access_token}`, "Content-Type": "application/json" },
+        body: "{}",
+        cache: "no-store",
+      });
+      if (!adminCheck.ok || (await adminCheck.json()) !== true) {
+        throw new Error("Esta conta não possui autorização administrativa.");
+      }
       sessionStorage.setItem("nutrifit_admin_token",data.access_token);
       sessionStorage.setItem("nutrifit_admin_email",email.trim().toLowerCase());
       setToken(data.access_token); setPassword(""); await load(data.access_token);
