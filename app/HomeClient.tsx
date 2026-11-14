@@ -2763,6 +2763,12 @@ export default function Home() {
       if (!orderResponse.ok || result.ok !== true) {
         throw new Error(typeof result.error === "string" ? result.error : "Falha ao registrar o pedido.");
       }
+      if (!result.test_order && (typeof result.order_id !== "string" || !result.order_id)) {
+        throw new Error("O servidor não confirmou o número do pedido.");
+      }
+      if (!Array.isArray(result.items) || !Number.isFinite(Number(result.total)) || !Number.isFinite(Number(result.subtotal)) || !Number.isFinite(Number(result.delivery_fee))) {
+        throw new Error("O servidor não retornou os valores oficiais do pedido.");
+      }
 
       if (couponDiscount > 0 && appliedCoupon) {
         setAppliedCoupon(null);
