@@ -21,7 +21,7 @@ type Verification = {
     total_amount: number | null;
     currency: string;
     payment_status: string;
-    document_data: { items: Array<{description?:string;quantity?:number;unit_price?:number}>; description: string | null };
+    document_data: { items: Array<{description?:string;quantity?:number;unit_price?:number}>; description: string | null; public_document_number?: string };
     pdf_sha256: string;
     signature_type: string;
     signature_status: string;
@@ -107,7 +107,7 @@ export default function ValidateOfficialDocumentPage() {
                 </div>
               </div>
               <p className="mb-1 text-xs uppercase tracking-widest text-white/45">{labels[result.document.document_type] || "Documento comercial"}</p>
-              <h1 className="mb-6 text-2xl font-bold">{result.document.document_number}</h1>
+              <h1 className="mb-6 text-2xl font-bold">{result.document.document_data.public_document_number || result.document.document_number}</h1>
               <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div><dt className="text-xs text-white/45">Emitido por</dt><dd className="mt-1 font-medium">NutriFit</dd></div>
                 <div><dt className="text-xs text-white/45">Comprador</dt><dd className="mt-1 font-medium">{result.document.buyer_name}</dd></div>
