@@ -16,7 +16,7 @@ type OrderForm = {
 };
 
 const initialForm: OrderForm = {
-  document_number: "NF-OC-141126-01-R1",
+  document_number: "NF-OC-141126-01-R2",
   emission_date: "14/11/2026",
   buyer_name: "MYSA S/A",
   buyer_tax_id: "38.542.718/0001-82",
@@ -93,7 +93,8 @@ export default function NewOfficialPurchaseOrderPage() {
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "generate_purchase_order",
-          supersedes_code: "NFV-C0FF458296E4",
+          supersedes_code: "NFV-FA05B3155D4D",
+          display_document_number: "NF-OC-141126-01",
           document_number: form.document_number.trim(),
           emission_date: form.emission_date,
           buyer_name: form.buyer_name.trim(),
@@ -108,7 +109,7 @@ export default function NewOfficialPurchaseOrderPage() {
           payment_received: form.payment_received || money(total),
           payment_date: form.payment_date,
           payment_status: form.payment_status_label.toUpperCase() === "PAGO" ? "paid" : "not_informed",
-          narrative: `REVISÃO R1 — Esta ordem substitui a versão anterior validada pelo código NFV-C0FF458296E4. A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento informado como ${form.payment_status_label} via ${form.payment_method}.`,
+          narrative: `A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento informado como ${form.payment_status_label} via ${form.payment_method}.`,
         }),
       });
       const result = await response.json();
