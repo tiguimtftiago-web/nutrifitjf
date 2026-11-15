@@ -1334,12 +1334,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   </div>
                   <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#f47b0b] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
                   <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
-                  {((detailProduct.line === "FIT" && fitNutrition[detailProduct.name]) || (detailProduct.line === "PERFORMANCE" && performanceNutrition[detailProduct.name]) || (detailProduct.line === "SALADAS" && saladsNutrition[detailProduct.name])) && (() => { const n = detailProduct.line === "FIT" ? fitNutrition[detailProduct.name] : detailProduct.line === "PERFORMANCE" ? performanceNutrition[detailProduct.name] : saladsNutrition[detailProduct.name]; return <section className="mt-5 rounded-2xl border border-[#86a51d]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
+                  {getNutritionForProduct(detailProduct) && (() => { const n = getNutritionForProduct(detailProduct)!; return <section className="mt-5 rounded-2xl border border-[#86a51d]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
                     <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#b6d76a]">Informação nutricional</h4><span className="rounded-full bg-[#86a51d]/15 px-2.5 py-1 text-xs font-black text-[#b6d76a]">{n.kcal} kcal</span></div>
                     <p className="mt-1 text-xs text-white/60">Porção de {detailProduct.weight || (detailProduct.line === "SALADAS" ? "350 g" : detailProduct.line === "FIT" ? "350 g" : "450 g")}</p>
                     <div className="mt-3">{nutritionRows(n).map(([label,value]) => <p key={label} className="flex justify-between gap-4 border-b border-white/10 py-2 text-sm"><span className="text-white/75">{label}</span><b className="text-right">{value}</b></p>)}</div>
-                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p>{n.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {n.allergens}</p>}</div>
-                    <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores nutricionais de referência Nutrifit por porção; podem variar conforme ingredientes e preparo.</p>
+                    <div className="mt-3 rounded-xl bg-white/[.04] p-3 text-xs leading-5"><p className="font-bold">Distribuição calórica</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2"><b>Alergênicos:</b> {allergenDisclosure(n.allergens)}</p></div>
+                    <p className="mt-3 text-[10px] leading-relaxed text-white/50">Valores informativos ainda sem rastreabilidade completa por receita; podem variar conforme ingredientes, preparo e porcionamento.</p>
                   </section>; })()}
 
                 </div>
@@ -1970,9 +1970,28 @@ const nutritionRows = (n: NutritionData) => [
   ["Sódio",n.sodium+" mg"],["Colesterol",n.cholesterol+" mg"],["Potássio",n.potassium+" mg"],["Cálcio",n.calcium+" mg"],["Ferro",n.iron+" mg"],["Magnésio",n.magnesium+" mg"],["Zinco",n.zinc+" mg"],["Vitamina A",n.vitaminA+" mcg RAE"],["Vitamina C",n.vitaminC+" mg"],["Vitamina B12",n.b12+" mcg"]
 ];
 
+function findNutritionData(source: Record<string, NutritionData>, productName: string): NutritionData | undefined {
+  const key = Object.keys(source).find((name) => normalizeText(name) === normalizeText(productName));
+  return key ? source[key] : undefined;
+}
+
+function getNutritionForProduct(product: Product): NutritionData | undefined {
+  if (product.line === "FIT") return findNutritionData(fitNutrition, product.name);
+  if (product.line === "PERFORMANCE") return findNutritionData(performanceNutrition, product.name);
+  if (product.line === "SALADAS") return findNutritionData(saladsNutrition, product.name);
+  return undefined;
+}
+
+function allergenDisclosure(value: string): string {
+  const text = value.trim();
+  if (!text || text === "-") return "Não informado. Confirme com a equipe Nutrifit antes de consumir.";
+  if (/confirmar|possível/i.test(text)) return text + ". Confirme com a equipe Nutrifit antes de consumir.";
+  return text + ". Confirme com a equipe sobre possíveis traços por contaminação cruzada.";
+}
+
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
-  const nutrition = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : product.line === "SALADAS" ? saladsNutrition[product.name] : undefined;
+  const nutrition = getNutritionForProduct(product);
   return (
     <>
     <article className="nf-mobile-meal group relative flex flex-col sm:hidden min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] shadow-[0_12px_35px_rgba(0,0,0,.22)]">
@@ -2006,13 +2025,13 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
           <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
         </details>
         {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && <details className="min-w-0 overflow-hidden rounded-xl border border-[#f47b0b]/85 bg-[#11150e] text-left">
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={19} className="shrink-0"/><span>Tabela nutricional</span></summary>
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-center gap-2 px-2 py-3 text-center text-[12px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={19} className="shrink-0"/><span>Estimativa nutricional</span></summary>
           <div className="border-t border-[#f47b0b]/35 p-3 text-xs text-white/85">
             {nutrition ? <>
               <p className="mb-2 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "FIT" || product.line === "SALADAS" ? "350 g" : "450 g")}</p>
               {nutritionRows(nutrition).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/10 py-2"><span>{label}</span><b className="text-right">{value}</b></p>)}
-              <div className="mt-3 rounded-lg bg-white/[.04] p-3"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p></div>
-              {nutrition.allergens && <p className="mt-2"><b>Possíveis alérgenos:</b> {nutrition.allergens}</p>}
+              <div className="mt-3 rounded-lg bg-white/[.04] p-3"><p className="font-bold">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {nutrition.pctProtein} · Carboidratos: {nutrition.pctCarbs} · Gorduras: {nutrition.pctFat}</p><p className="mt-2 text-[10px] leading-relaxed text-white/50">Valores informativos ainda sem rastreabilidade completa por receita; podem variar conforme ingredientes, preparo e porcionamento.</p></div>
+              <p className="mt-2"><b>Alergênicos:</b> {allergenDisclosure(nutrition.allergens)}</p>
             </> : <p className="rounded-lg bg-white/[.04] p-3 leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para evitar divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
           </div>
         </details>}
@@ -2054,15 +2073,15 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                             <div className="border-t border-[#86a51d]/35 p-3 text-xs leading-relaxed text-white/85">{product.description || "Consulte a equipe Nutrifit para confirmar a composição deste prato."}</div>
                           </details>
                           {(product.line === "FIT" || product.line === "PERFORMANCE" || product.line === "SALADAS") && (() => {
-                            const n = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : saladsNutrition[product.name];
+                            const n = getNutritionForProduct(product);
                             return <details className="min-w-0 overflow-hidden rounded-xl border border-[#f47b0b]/85 bg-[#11150e] text-left">
-                              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center gap-1.5 px-2 py-2.5 text-center text-[11px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={17}/><span>Tabela nutricional</span></summary>
+                              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-center gap-1.5 px-2 py-2.5 text-center text-[11px] font-black text-[#ff9a32] [&::-webkit-details-marker]:hidden"><ChartPie size={17}/><span>Estimativa nutricional</span></summary>
                               <div className="border-t border-[#f47b0b]/35 p-2.5 text-[11px] text-white/80">
                                 {n ? <>
                                   <p className="mb-1 font-bold text-white">Nutrifit · porção de {product.weight || (product.line === "SALADAS" || product.line === "FIT" ? "350 g" : "450 g")}</p>
                                   {nutritionRows(n).map(([label, value]) => <p key={label} className="flex justify-between gap-3 border-b border-white/5 py-1"><span>{label}</span><b className="text-right">{value}</b></p>)}
-                                  <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">{product.line === "SALADAS" ? "Distribuição calórica" : "Distribuição calórica estimada"}</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p></div>
-                                  {n.allergens && <p className="mt-2"><b className="text-white">Possíveis alérgenos:</b> {n.allergens}</p>}
+                                  <div className="mt-2 rounded-lg bg-white/[.04] p-2"><p className="font-bold text-white">Distribuição calórica estimada</p><p className="mt-1">Proteínas: {n.pctProtein} · Carboidratos: {n.pctCarbs} · Gorduras: {n.pctFat}</p><p className="mt-2 text-[10px] leading-relaxed text-white/50">Valores informativos ainda sem rastreabilidade completa por receita; podem variar conforme ingredientes, preparo e porcionamento.</p></div>
+                                  <p className="mt-2"><b className="text-white">Alergênicos:</b> {allergenDisclosure(n.allergens)}</p>
                                 </> : <p className="rounded-lg bg-white/[.04] p-3 text-[11px] leading-relaxed text-white/70">A tabela nutricional deste prato está em validação. Para não divulgar valores incorretos, confirme a ficha técnica com a equipe Nutrifit.</p>}
                               </div>
                             </details>;
