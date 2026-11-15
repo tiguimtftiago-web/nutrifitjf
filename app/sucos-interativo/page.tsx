@@ -84,6 +84,7 @@ function JuiceDetails({ name }: { name: string }) {
                 {data.recipe.map(line => <li key={line} className="bg-white/[.025] px-3 py-2 text-[11px] leading-4 text-white/85">{line}</li>)}
               </ul>
               <p className="mt-2 text-[10px] leading-4 text-white/50">Receita-base em desenvolvimento; quantidades e rendimento devem ser confirmados no lote-piloto.</p>
+              <p className="mt-2 text-[10px] leading-4 text-white/50">A lista de ingredientes não substitui a declaração completa de alergênicos. Se houver alergia ou intolerância, confirme a composição e o risco de contato cruzado com a equipe Nutrifit antes de consumir.</p>
             </div>
           )}
           {activeTab === "nutrition" && (
@@ -143,7 +144,7 @@ export default function SucosInterativosPage() {
         const rows = await response.json() as Array<{ name: string; size_grams: number; price: number | string }>;
         const next: Record<string, JuiceCatalogPrice> = {};
         for (const row of rows) {
-          const baseName = row.name.replace(/\\s+—\\s+\\d+\\s*ml$/i, "").trim();
+          const baseName = row.name.replace(/\s+—\s+\d+\s*ml$/i, "").trim();
           const key = baseName === "Suco de Laranja" ? "Laranja" : baseName;
           const grams = Number(row.size_grams);
           const price = Number(row.price);
