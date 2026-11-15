@@ -476,6 +476,7 @@ const comboComplements: ComplementOption[] = [
   { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
   { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
+  { name: "Pernil com Alface e Tomate", category: "SANDUÍCHES", description: "Sanduíche natural de pernil.", price: 13.90, emoji: "🥪" },
   { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
   { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, image: "/images/804546E5-062D-4FAA-8114-94DF7B66A18D.png", emoji: "🥪" },
   { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, image: "/images/mamao.jpg", emoji: "🍊" },
@@ -655,7 +656,11 @@ const getCatalogProductPrice = (
 ): number | null => {
   const line = String(product.line || product.category || "");
   const isSnackBox = normalizeText(line) === "snack box" || normalizeText(product.name).startsWith("nutrifit snack box");
-  const name = isSnackBox ? "Nutrifit Snack Box" : product.name;
+  const productAliases: Record<string, string> = {
+    [normalizeText("Feijoada")]: "Feijoada Fit",
+    [normalizeText("Churrasco Mineiro")]: "Churrasco Fit Mineiro",
+  };
+  const name = isSnackBox ? "Nutrifit Snack Box" : productAliases[normalizeText(product.name)] || product.name;
   const normalizedName = normalizeText(name);
   const normalizedLine = normalizeText(isSnackBox ? "Snack Box" : line);
   const weightMatch = String(product.weight || "").match(/\d+/);
