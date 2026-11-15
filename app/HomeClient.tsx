@@ -91,6 +91,7 @@ type Product = {
   image: string;
   crop?: string;
   comingSoon?: boolean;
+  category?: string;
 };
 
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
@@ -208,33 +209,6 @@ const juiceFlavors: Array<{ name: string; image: string; description: string; in
   { name: "Sun", image: "/images/page-39.jpg", description: "Abacaxi, maracujá, laranja e gengibre em uma mistura tropical e aromática.", ingredients: ["Abacaxi", "Maracujá", "Laranja", "Gengibre"], highlights: ["Tropical e aromático", "Acidez agradável", "Gengibre suave"], line: "SUCOS" },
   { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Duas frutas cítricas em uma combinação de sabor intenso e fresco.", ingredients: ["Laranja", "Acerola", "Água"], highlights: ["Sabor cítrico", "Duas frutas", "Refrescante"], line: "SUCOS" },
 ];
-
-function getJuicePrice(_flavorName: string, size: "300 ml" | "500 ml"): string {
-  return size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
-}
-
-function getJuicePriceNumber(_flavorName: string, size: "300 ml" | "500 ml"): number {
-  return size === "500 ml" ? 12.90 : 9.90;
-}
-
-const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
-  {
-    name: `${flavor.name} — 500 ml`,
-    line: flavor.line,
-    weight: "500 ml",
-    price: getJuicePrice(flavor.name, "500 ml"),
-    description: flavor.description,
-    image: flavor.image,
-  },
-  {
-    name: `${flavor.name} — 300 ml`,
-    line: flavor.line,
-    weight: "300 ml",
-    price: getJuicePrice(flavor.name, "300 ml"),
-    description: flavor.description,
-    image: flavor.image,
-  },
-]);
 
 const juiceIngredientNotes: Record<string, string> = {
   "Laranja": "Fornece carboidratos e pode contribuir com vitamina C; o teor depende da fruta e do preparo.",
@@ -455,45 +429,6 @@ type ComplementOption = {
   image?: string;
   emoji: string;
 };
-
-const comboComplements: ComplementOption[] = [
-  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
-  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
-  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
-  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Energy — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Green — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Pink — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Sun — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-41.jpg", emoji: "🥤" },
-  { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
-  { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
-  { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
-  { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, image: "/images/804546E5-062D-4FAA-8114-94DF7B66A18D.png", emoji: "🥪" },
-  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, image: "/images/mamao.jpg", emoji: "🍊" },
-  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, image: "/images/manga.jpg", emoji: "🥭" },
-  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, image: "/images/abacaxi.jpg", emoji: "🍍" },
-  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: 7.90, image: "/images/melancia.jpg", emoji: "🍉" },
-  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: 8.90, image: "/images/melao.jpg", emoji: "🍈" },
-  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: 9.90, image: "/images/morango.jpg", emoji: "🍓" },
-  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: 9.90, image: "/images/uva-verde.jpg", emoji: "🍇" },
-];
-
-
-const traditionalComplements: Product[] = [
-  { name: "Arroz Branco", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Arroz branco soltinho para completar sua refeição.", image: "" },
-  { name: "Feijão", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Feijão caseiro, preparado para o dia a dia.", image: "" },
-  { name: "Farofa", line: "COMPLEMENTOS", weight: "100 g", price: "R$ 4,00", description: "Farofa para dar aquele toque final à refeição.", image: "" },
-  { name: "Purê de Batata", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Purê cremoso de batata inglesa.", image: "" },
-  { name: "Macarrão", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Macarrão preparado como acompanhamento.", image: "" },
-  { name: "Couve Refogada", line: "COMPLEMENTOS", weight: "150 g", price: "R$ 4,00", description: "Couve refogada como acompanhamento.", image: "" },
-  { name: "Porção de Carne", line: "COMPLEMENTOS", weight: "100 g", price: "R$ 9,90", description: "Porção extra de carne, conforme a disponibilidade do dia.", image: "" },
-];
 
 const DELIVERY_FREE_FROM = 20;
 const MIN_ORDER_VALUE = 50;
