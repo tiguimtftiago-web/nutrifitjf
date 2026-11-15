@@ -406,7 +406,7 @@ function JuiceFlavorCard({
   const catalogState = useCatalogProducts();
   const productName = `${flavor.name} — ${size}`;
   const catalogPrice = getCatalogProductPrice(catalogState.rows, { name: productName, line: flavor.line, weight: size });
-  const price = catalogPrice === null ? "Indisponível" : money(catalogPrice);
+  const price = !catalogState.loaded ? "Carregando preço..." : catalogPrice === null ? "Indisponível" : money(catalogPrice);
   const product: Product = {
     name: productName,
     line: flavor.line,
@@ -624,7 +624,7 @@ const loadCatalogProducts = () => {
   if (!catalogProductsRequest) {
     catalogProductsRequest = fetch(
       SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,category&active=eq.true&order=line.asc,name.asc",
-      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
     ).then(async (response) => {
       if (!response.ok) throw new Error("Não foi possível carregar o catálogo.");
       const rows = await response.json();
@@ -717,7 +717,7 @@ const loadCatalogComboPrices = () => {
   if (!catalogComboPricesRequest) {
     catalogComboPricesRequest = fetch(
       SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
-      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
     ).then(async (response) => {
       if (!response.ok) throw new Error("Não foi possível carregar os preços dos combos.");
       const rows = await response.json();
