@@ -3124,11 +3124,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -3142,30 +3142,28 @@ export default function Home() {
             <div className="space-y-4">
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">1. Escolha o sanduíche</span>
-                <select value={snackSandwich} onChange={(event) => setSnackSandwich(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  <option value="Frango com Alface e Tomate">Frango</option>
-                  <option value="Pernil com Alface e Tomate">Pernil</option>
+                <select value={snackSandwich} disabled={catalogProductState.status !== "ready" || !catalogSandwiches.length} onChange={(event) => setSnackSandwich(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogSandwiches.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
                 </select>
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">2. Escolha o suco · 300 ml</span>
-                <select value={snackJuice} onChange={(event) => setSnackJuice(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  <option value="Suco de Laranja — 300 ml">Laranja</option>
-                  <option value="Abacaxi com Hortelã — 300 ml">Abacaxi com hortelã</option>
+                <select value={snackJuice} disabled={catalogProductState.status !== "ready" || !catalogJuices300.length} onChange={(event) => setSnackJuice(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogJuices300.map((item) => <option key={item.name} value={item.name}>{item.name.replace(" — 300 ml", "")}</option>)}
                 </select>
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">3. Escolha uma fruta</span>
-                <select value={snackFruit} onChange={(event) => setSnackFruit(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  {comboComplements.filter((item) => item.category === "FRUTAS").map((fruit) => <option key={fruit.name} value={fruit.name}>{fruit.name}</option>)}
+                <select value={snackFruit} disabled={catalogProductState.status !== "ready" || !catalogFruits.length} onChange={(event) => setSnackFruit(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogFruits.map((fruit) => <option key={fruit.name} value={fruit.name}>{fruit.name}</option>)}
                 </select>
                 <span className="mt-1.5 block text-xs text-white/45">Opções aproveitadas do catálogo atual de frutas.</span>
               </label>
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
                 <div><div className="text-xs text-white/55">Combo completo</div><div className="text-sm font-bold text-white">Sanduíche + suco + fruta</div></div>
-                <strong className="text-2xl font-black text-[#f47b0b]">R$ 25,00</strong>
+                <strong className="text-2xl font-black text-[#f47b0b]">{catalogSnackBox?.price || "Preço indisponível"}</strong>
               </div>
-              <button type="button" onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99]">Adicionar Snack Box ao pedido</button>
+              <button type="button" disabled={catalogProductState.status !== "ready" || !catalogSnackBox || !catalogSandwiches.length || !catalogJuices300.length || !catalogFruits.length} onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99] disabled:opacity-40">Adicionar Snack Box ao pedido</button>
             </div>
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
               <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Apresentação do Snack Box Nutrifit" className="aspect-[4/3] w-full object-cover" loading="lazy" />
@@ -3244,7 +3242,7 @@ export default function Home() {
                   <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
+                    {([{ size: "500 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
                       <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                         <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
                         <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#f47b0b]" : "text-white"}`}>{option.price}</span>
@@ -3253,7 +3251,7 @@ export default function Home() {
                   </div>
                   <button type="button" onClick={() => {
                     const flavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
-                    const product = juiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
+                    const product = catalogJuiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
                     if (product) addToOrder(product);
                   }} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
                     <ShoppingCart size={20}/> Adicionar ao carrinho
@@ -3282,13 +3280,13 @@ export default function Home() {
               <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
-                {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
+                {([{size:"500 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
                   <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
                     <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=juiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
+              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=catalogJuiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
                 <ShoppingCart size={17}/> Adicionar ao carrinho
               </button>
             </div>
@@ -3565,7 +3563,7 @@ export default function Home() {
                         <div className="flex items-start gap-3">
                           <div className="grid h-[76px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-2xl">
                             {(() => {
-                              const image = [...fit, ...performance, ...salads, ...traditional].find((product) => product.name === item.name)?.image || comboComplements.find((product) => product.name === item.name)?.image;
+                              const image = [...fit, ...performance, ...salads, ...traditional].find((product) => product.name === item.name)?.image || catalogComboComplements.find((product) => product.name === item.name)?.image;
                               return image ? <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{item.line === "SUCOS" ? "🥤" : item.line === "SANDUÍCHES" ? "🥪" : item.line === "FRUTAS" ? "🍓" : "🍱"}</span>;
                             })()}
                           </div>
