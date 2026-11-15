@@ -711,33 +711,41 @@ const comboOptions = [
 
 type CatalogComboPriceMap = Record<string, Record<number, number>>;
 
+let catalogComboPricesRequest: Promise<CatalogComboPriceMap> | null = null;
+
+const loadCatalogComboPrices = () => {
+  if (!catalogComboPricesRequest) {
+    catalogComboPricesRequest = fetch(
+      SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
+      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+    ).then(async (response) => {
+      if (!response.ok) throw new Error("Não foi possível carregar os preços dos combos.");
+      const rows = await response.json();
+      const next: CatalogComboPriceMap = {};
+      for (const row of rows) {
+        const name = String(row.name ?? "").toUpperCase();
+        const quantity = Number(row.quantity);
+        const price = Number(row.price);
+        if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price < 0) continue;
+        next[name] ||= {};
+        next[name][quantity] = price;
+      }
+      return next;
+    }).catch((error) => {
+      catalogComboPricesRequest = null;
+      throw error;
+    });
+  }
+  return catalogComboPricesRequest;
+};
+
 function useCatalogComboPrices(): CatalogComboPriceMap {
   const [prices, setPrices] = useState<CatalogComboPriceMap>({});
   useEffect(() => {
     let active = true;
-    const loadPrices = async () => {
-      try {
-        const response = await fetch(
-          SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
-          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
-        );
-        if (!response.ok) return;
-        const rows = await response.json();
-        const next: CatalogComboPriceMap = {};
-        for (const row of rows) {
-          const name = String(row.name ?? "").toUpperCase();
-          const quantity = Number(row.quantity);
-          const price = Number(row.price);
-          if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price < 0) continue;
-          next[name] ||= {};
-          next[name][quantity] = price;
-        }
-        if (active) setPrices(next);
-      } catch {
-        // Mantém os valores de contingência do cardápio se a consulta falhar.
-      }
-    };
-    void loadPrices();
+    void loadCatalogComboPrices()
+      .then((next) => { if (active) setPrices(next); })
+      .catch(() => {});
     return () => { active = false; };
   }, []);
   return prices;
