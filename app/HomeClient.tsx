@@ -938,10 +938,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
     setDeliveryStatus("loading");
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`, { signal: AbortSignal.timeout(5000) });
       const data = await response.json();
 
-      if (data.erro || !data.bairro) {
+      if (data.erro || !data.bairro ||
+          normalizeText(data.localidade || "") !== normalizeText("Juiz de Fora") ||
+          String(data.uf || "").toUpperCase() !== "MG") {
         setDelivery(null);
         setDeliveryStatus("error");
         return;
@@ -2487,9 +2489,11 @@ export default function Home() {
     if (cleanCep.length !== 8) { setOrderDelivery(null); setOrderDeliveryStatus("error"); return; }
     setOrderDeliveryStatus("loading");
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`, { signal: AbortSignal.timeout(5000) });
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
+      if (normalizeText(data.localidade || "") !== normalizeText("Juiz de Fora") ||
+          String(data.uf || "").toUpperCase() !== "MG") throw new Error("outside-area");
       const zones = await loadDeliveryZones();
       const result = findDelivery(data.bairro, zones);
       if (!result) throw new Error("outside-area");
