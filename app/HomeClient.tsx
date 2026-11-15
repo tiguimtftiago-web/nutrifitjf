@@ -2727,7 +2727,7 @@ export default function Home() {
     if (!customerName.trim()) { setCustomerNameError("Informe seu nome para continuar."); return; }
     if (orderPhoneDigits.length < 10) { setCustomerPhoneError("Informe um WhatsApp válido com DDD."); return; }
     setCustomerNameError(""); setCustomerPhoneError("");
-    if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
+    if (fullOrderSubmitLock.current || !orderItems.length || orderHasUnverifiedPrices || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
 
