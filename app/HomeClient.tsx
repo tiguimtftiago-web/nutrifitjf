@@ -3563,7 +3563,7 @@ export default function Home() {
                         <div className="flex items-start gap-3">
                           <div className="grid h-[76px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-2xl">
                             {(() => {
-                              const image = [...fit, ...performance, ...salads, ...traditional].find((product) => product.name === item.name)?.image || catalogComboComplements.find((product) => product.name === item.name)?.image;
+                              const image = catalogProductState.products.find((product) => product.name === item.name)?.image || catalogComboComplements.find((product) => product.name === item.name)?.image;
                               return image ? <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{item.line === "SUCOS" ? "🥤" : item.line === "SANDUÍCHES" ? "🥪" : item.line === "FRUTAS" ? "🍓" : "🍱"}</span>;
                             })()}
                           </div>
