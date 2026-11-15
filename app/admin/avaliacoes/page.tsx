@@ -11,7 +11,7 @@ type Review = {
   id:string; order_id:string; customer_name:string; food_quality:number;
   ingredient_quality:number; portion_size:number; service:number; delivery:number;
   overall_rating:number; recommend:boolean; comment:string|null;
-  publish_consent:boolean; name_consent:boolean; status:string; created_at:string;
+  publish_consent:boolean; name_consent:boolean; purchase_verified:boolean; status:string; created_at:string;
   whatsapp_notification_status:"not_sent"|"sent"|"failed"|"not_configured";
   whatsapp_sent_at:string|null; whatsapp_notification_error:string|null;
   order?:{order_code:string|null;status:string;total:number;item_count:number;whatsapp:string|null}|null;
@@ -46,6 +46,10 @@ export default function AdminReviewsPage() {
 
   async function moderate(review:Review,status:"approved"|"rejected") {
     if(!token)return;
+    if(status==="approved"&&(!review.purchase_verified||!review.publish_consent)){
+      setError("Esta avaliação não pode ser publicada: é necessário pedido entregue e consentimento de publicação.");
+      return;
+    }
     setBusy(review.id);setError("");
     try {
       const response=await fetch(URL+"/rest/v1/customer_reviews?id=eq."+encodeURIComponent(review.id),{
@@ -76,7 +80,7 @@ export default function AdminReviewsPage() {
   }
 
   const pending=reviews.filter(r=>r.status==="pending");
-  const published=reviews.filter(r=>r.status==="approved");
+  const published=reviews.filter(r=>r.status==="approved"&&r.purchase_verified&&r.publish_consent);
   const critical=reviews.filter(r=>Number(r.overall_rating)<=3 || !r.recommend || [r.food_quality,r.ingredient_quality,r.portion_size,r.service,r.delivery].some(n=>n<=2));
   const filtered=reviews.filter(r=>{const q=search.trim().toLowerCase();const match=!q||[r.customer_name,r.order?.order_code||"",r.comment||""].join(" ").toLowerCase().includes(q);const by=filter==="all"?true:filter==="pending"?r.status==="pending":filter==="critical"?critical.some(x=>x.id===r.id):filter==="positive"?Number(r.overall_rating)>=4&&r.recommend: r.whatsapp_notification_status!=="sent";return match&&by;});
   return <main className="min-h-screen bg-[#080a07] px-4 py-6 text-white sm:px-6">
@@ -96,16 +100,16 @@ export default function AdminReviewsPage() {
       {loading?<div className="mt-8 flex items-center gap-2 text-sm text-white/50"><Loader2 className="animate-spin" size={18}/>Carregando avaliações…</div>:token&&<div className="mt-7 space-y-4">
         <div className="grid gap-3"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar cliente, pedido ou comentário" className="w-full rounded-xl border border-white/10 bg-[#10130d] px-4 py-3 text-sm text-white"/><div className="flex flex-wrap gap-2">{[["all","Todas"],["pending","Pendentes"],["critical","Pontos críticos"],["positive","Positivas"],["whatsapp","WhatsApp pendente"]].map(([v,label])=><button key={v} onClick={()=>setFilter(v as typeof filter)} className={filter===v?"rounded-full bg-[#a7b86a] px-3 py-2 text-xs font-black text-black":"rounded-full border border-white/15 px-3 py-2 text-xs text-white/65"}>{label}</button>)}</div></div>
         {reviews.length===0?<div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">Nenhuma avaliação recebida até agora.</div>:filtered.length===0?<div className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/50">Nenhuma avaliação corresponde a este filtro.</div>:filtered.map(review=><article key={review.id} className="rounded-2xl border border-white/10 bg-[#10130d] p-4 sm:p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-black">{review.customer_name}</p><p className="mt-1 text-[11px] text-white/40">{review.order?.order_code ? `Pedido ${review.order.order_code}` : review.order_id ? "Pedido vinculado (código indisponível)" : "Sem pedido vinculado"} · {new Date(review.created_at).toLocaleString("pt-BR")}</p></div><span className={review.status==="approved"?"rounded-full bg-[#86a51d]/15 px-3 py-1 text-xs text-[#b6d76a]":review.status==="rejected"?"rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-300":"rounded-full bg-[#f47b0b]/15 px-3 py-1 text-xs text-[#ffb36b]"}>{review.status==="approved"?"Publicada":review.status==="rejected"?"Reprovada":"Pendente"}</span></div>
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-black">{review.customer_name}</p><p className="mt-1 text-[11px] text-white/40">{review.order?.order_code ? `Pedido ${review.order.order_code}` : review.order_id ? "Pedido vinculado (código indisponível)" : "Sem pedido vinculado"} · {new Date(review.created_at).toLocaleString("pt-BR")}</p></div><span className={review.status==="approved"?"rounded-full bg-[#86a51d]/15 px-3 py-1 text-xs text-[#b6d76a]":review.status==="rejected"?"rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-300":"rounded-full bg-[#f47b0b]/15 px-3 py-1 text-xs text-[#ffb36b]"}>{review.status==="approved"?(review.purchase_verified&&review.publish_consent?"Publicada":"Aprovada · oculta"):review.status==="rejected"?"Reprovada":"Pendente"}</span></div>
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">{[["Sabor",review.food_quality],["Ingredientes",review.ingredient_quality],["Porção",review.portion_size],["Atendimento",review.service],["Entrega",review.delivery],["Média",Number(review.overall_rating).toFixed(1)]].map(([label,value])=><div key={String(label)} className="rounded-xl bg-white/[.035] p-3"><span className="text-white/45">{label}</span><b className="ml-2 text-[#f5a623]">{value}/5</b></div>)}</div>
           <p className="mt-3 text-xs text-white/55">Pedido: <b className="text-white">{review.order?.order_code||"Não vinculado"}</b> · Situação: <b className="text-white">{review.order?.status||"—"}</b> · Total: <b className="text-white">{review.order?.total!=null?Number(review.order.total).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"—"}</b></p>
           <p className="mt-3 text-xs text-white/55">Recomendaria a Nutrifit: <b className="text-white">{review.recommend?"Sim":"Não"}</b></p>
           {review.comment&&<blockquote className="mt-3 rounded-xl border-l-2 border-[#f47b0b] bg-white/[.025] p-3 text-sm leading-6 text-white/80">“{review.comment}”</blockquote>}
-          <p className="mt-3 text-[11px] text-white/45">Publicação autorizada: {review.publish_consent?"Sim":"Não"} · Exibir nome: {review.name_consent?"Sim":"Não"} · Compra verificada: {review.order_id?"Sim":"Não"}</p>
+          <p className="mt-3 text-[11px] text-white/45">Publicação autorizada: {review.publish_consent?"Sim":"Não"} · Exibir nome: {review.name_consent?"Sim":"Não"} · Compra verificada: {review.purchase_verified?"Sim":"Não"}</p>
           <p className="mt-2 text-xs text-white/55">WhatsApp: <b className={review.whatsapp_notification_status==="sent"?"text-[#b6d76a]":review.whatsapp_notification_status==="failed"?"text-red-300":"text-[#ffb36b]"}>{review.whatsapp_notification_status==="sent"?"Notificação enviada":review.whatsapp_notification_status==="failed"?"Falha no envio":review.whatsapp_notification_status==="not_configured"?"Integração não configurada":"Aguardando envio"}</b>{review.whatsapp_sent_at? ` · ${new Date(review.whatsapp_sent_at).toLocaleString("pt-BR")}`:""}</p>
           {review.whatsapp_notification_error&&<p className="mt-1 break-words text-[10px] text-red-300/80">Detalhe do envio: {review.whatsapp_notification_error}</p>}
           {review.whatsapp_notification_status!=="sent"&&<button disabled={busy===review.id} onClick={()=>resendWhatsApp(review)} className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#f47b0b]/35 px-3 py-2 text-xs font-bold text-[#ffb36b] disabled:opacity-50"><Send size={14}/>{busy===review.id?"Enviando…":"Enviar / reenviar aviso no WhatsApp"}</button>}
-          {review.status==="pending"&&<div className="mt-4 flex flex-wrap gap-2"><button disabled={busy===review.id} onClick={()=>moderate(review,"approved")} className="inline-flex items-center gap-2 rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black disabled:opacity-50"><Check size={15}/>Aprovar publicação</button><button disabled={busy===review.id} onClick={()=>moderate(review,"rejected")} className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-bold text-red-300 disabled:opacity-50"><X size={15}/>Reprovar</button></div>}
+          {review.status==="pending"&&<div className="mt-4 flex flex-wrap gap-2"><button disabled={busy===review.id||!review.purchase_verified||!review.publish_consent} onClick={()=>moderate(review,"approved")} className="inline-flex items-center gap-2 rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black disabled:opacity-50"><Check size={15}/>Aprovar publicação</button><button disabled={busy===review.id} onClick={()=>moderate(review,"rejected")} className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-bold text-red-300 disabled:opacity-50"><X size={15}/>Reprovar</button></div>}
         </article>)}
       </div>}
     </div>
