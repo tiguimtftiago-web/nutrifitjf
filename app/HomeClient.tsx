@@ -403,9 +403,12 @@ function JuiceFlavorCard({
   onAdd: (product: Product) => void;
 }) {
   const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
-  const price = getJuicePrice(flavor.name, size);
+  const catalogState = useCatalogProducts();
+  const productName = `${flavor.name} — ${size}`;
+  const catalogPrice = getCatalogProductPrice(catalogState.rows, { name: productName, line: flavor.line, weight: size });
+  const price = catalogPrice === null ? "Indisponível" : money(catalogPrice);
   const product: Product = {
-    name: `${flavor.name} — ${size}`,
+    name: productName,
     line: flavor.line,
     weight: size,
     price,
@@ -424,8 +427,8 @@ function JuiceFlavorCard({
         <JuiceNutritionDetails flavor={flavor} />
         <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
           {([
-            { value: "500 ml" as const, price: getJuicePrice(flavor.name, "500 ml") },
-            { value: "300 ml" as const, price: getJuicePrice(flavor.name, "300 ml") },
+            { value: "500 ml" as const, price: getCatalogProductPrice(catalogState.rows, { name: `${flavor.name} — 500 ml`, line: flavor.line, weight: "500 ml" }) },
+            { value: "300 ml" as const, price: getCatalogProductPrice(catalogState.rows, { name: `${flavor.name} — 300 ml`, line: flavor.line, weight: "300 ml" }) },
           ]).map((option) => (
             <button
               key={option.value}
@@ -435,11 +438,11 @@ function JuiceFlavorCard({
               className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
             >
               <span className="block text-sm font-black">{option.value}</span>
-              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#f47b0b]" : "text-white/70"}`}>{option.price}</span>
+              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#f47b0b]" : "text-white/70"}`}>{!catalogState.loaded ? "Carregando..." : option.price === null ? "Indisponível" : money(option.price)}</span>
             </button>
           ))}
         </div>
-        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400">
+        <button type="button" disabled={!catalogState.loaded || catalogPrice === null} onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-40">
           Adicionar {size} ao carrinho
         </button>
       </div>
@@ -1681,7 +1684,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 </>
               )}
               <span className="text-white/45">Entrega</span><strong>{deliveryFee === 0 ? "Grátis" : money(deliveryFee)}</strong>
-              <span className="border-t border-white/10 pt-2 font-black">{complementItems.some((item) => item.price === null) ? "Total parcial" : "Total"}</span><strong className="border-t border-white/10 pt-2 text-[#f47b0b]">{money(grandTotal)}</strong>
+              <span className="border-t border-white/10 pt-2 font-black">{hasPendingComplementPrice ? "Total parcial" : "Total"}</span><strong className="border-t border-white/10 pt-2 text-[#f47b0b]">{money(grandTotal)}</strong>
             </div>
           </div>
 
