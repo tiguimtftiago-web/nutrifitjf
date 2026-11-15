@@ -3243,7 +3243,7 @@ export default function Home() {
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {([{ size: "500 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
-                      <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
+                      <button key={option.size} type="button" disabled={catalogProductState.status !== "ready" || option.price === "Indisponível"} aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                         <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
                         <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#f47b0b]" : "text-white"}`}>{option.price}</span>
                       </button>
@@ -3253,7 +3253,7 @@ export default function Home() {
                     const flavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
                     const product = catalogJuiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
                     if (product) addToOrder(product);
-                  }} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
+                  }} disabled={catalogProductState.status !== "ready" || !catalogJuiceProducts.some((item) => item.name === `${juiceFlavors[juiceShowcaseIndex]?.name} — ${selectedJuiceSize}`)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
                     <ShoppingCart size={20}/> Adicionar ao carrinho
                   </button>
                 </div>
@@ -3281,12 +3281,12 @@ export default function Home() {
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
                 {([{size:"500 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
-                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
+                  <button key={option.size} type="button" disabled={catalogProductState.status !== "ready" || option.price === "Indisponível"} aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
                     <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=catalogJuiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
+              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=catalogJuiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} disabled={catalogProductState.status !== "ready" || !catalogJuiceProducts.some((item) => item.name === `${juiceFlavors[juiceShowcaseIndex]?.name} — ${selectedJuiceSize}`)} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
                 <ShoppingCart size={17}/> Adicionar ao carrinho
               </button>
             </div>
@@ -3318,7 +3318,7 @@ export default function Home() {
             ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#86a51d"],
             ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#f47b0b"],
           ] as const).map(([category, icon, title, subtitle, accent]) => {
-            const items = comboComplements.filter((item) => item.category === category);
+            const items = catalogComboComplements.filter((item) => item.category === category);
             return (
               <details id={category === "SANDUÍCHES" ? "sanduiches" : undefined} key={category} className="group scroll-mt-24 overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
