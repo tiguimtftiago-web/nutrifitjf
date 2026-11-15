@@ -1,25 +1,107 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
+const allowedOrigins = new Set([
+  "https://nutrifitjf.com.br",
+  "https://www.nutrifitjf.com.br",
+  "https://utrifit-site.vercel.app",
+  "http://localhost:3000",
+]);
+const corsHeaders = (origin: string) => ({
+  ...(origin && allowedOrigins.has(origin) ? { "Access-Control-Allow-Origin": origin } : {}),
+  "Vary": "Origin",
   "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
-};
-const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: cors });
+});
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function consumeOrderRateLimit(
+  url: string,
+  headers: Record<string, string>,
+  identifierHash: string,
+  scope: string,
+  windowSeconds: number,
+  maxRequests: number,
+): Promise<boolean> {
+  const response = await fetch(url + "/rest/v1/rpc/consume_public_order_rate_limit", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      p_identifier_hash: identifierHash,
+      p_scope: scope,
+      p_window_seconds: windowSeconds,
+      p_max_requests: maxRequests,
+    }),
+  });
+  if (!response.ok) throw new Error("Rate-limit service unavailable: " + await response.text());
+  return await response.json() === true;
+}
+
+async function enforcePublicOrderRateLimit(
+  req: Request,
+  url: string,
+  headers: Record<string, string>,
+  route: "customer-order" | "combo-order",
+  whatsapp: string,
+): Promise<boolean> {
+  const ip = req.headers.get("cf-connecting-ip")?.trim() ||
+    req.headers.get("x-real-ip")?.trim() ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
+  const phone = whatsapp.replace(/\D/g, "");
+  const checks: Array<{ hash: string; scope: string; window: number; max: number }> = [];
+  if (ip) {
+    const hash = await sha256Hex("ip:" + ip);
+    checks.push(
+      { hash, scope: route + ":ip", window: 600, max: 12 },
+      { hash, scope: route + ":ip", window: 86400, max: 60 },
+    );
+  }
+  if (phone.length >= 10) {
+    const hash = await sha256Hex("phone:" + phone);
+    checks.push(
+      { hash, scope: route + ":phone", window: 600, max: 5 },
+      { hash, scope: route + ":phone", window: 86400, max: 20 },
+    );
+  }
+  if (!checks.length) return false;
+  for (const check of checks) {
+    const allowed = await consumeOrderRateLimit(url, headers, check.hash, check.scope, check.window, check.max);
+    if (!allowed) return false;
+  }
+  return true;
+}
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (req.method !== "POST") return reply(405, { error: "Método não permitido." });
+  const origin = req.headers.get("origin") ?? "";
+  const originAllowed = !origin || allowedOrigins.has(origin);
+  const respond = (status: number, body: unknown) =>
+    new Response(JSON.stringify(body), { status, headers: corsHeaders(origin) });
+  if (req.method === "OPTIONS")
+    return new Response("ok", { status: originAllowed ? 200 : 403, headers: corsHeaders(origin) });
+  if (!originAllowed) return respond(403, { error: "Origem não autorizada." });
+  if (req.method !== "POST") return respond(405, { error: "Método não permitido." });
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!url || !key) return reply(500, { error: "Configuração do servidor incompleta." });
+  if (!url || !key) return respond(500, { error: "Configuração do servidor incompleta." });
   const headers = { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" };
 
   try {
     const body = await req.json();
     const customerName = String(body.customer_name ?? "").trim().slice(0, 120);
     const whatsapp = String(body.whatsapp ?? "").replace(/\D/g, "").slice(0, 20);
+    if (whatsapp.length < 10) return respond(400, { error: "Informe um WhatsApp válido." });
+    let rateAllowed = false;
+    try {
+      rateAllowed = await enforcePublicOrderRateLimit(req, url, headers, "customer-order", whatsapp);
+    } catch (rateError) {
+      console.error("customer order rate-limit check failed", rateError);
+      return respond(503, { error: "Não foi possível validar a proteção do pedido. Tente novamente." });
+    }
+    if (!rateAllowed) return respond(429, { error: "Muitas tentativas de pedido. Aguarde alguns minutos e tente novamente." });
     const email = String(body.email ?? "").trim().toLowerCase().slice(0, 254);
     const clubIdentityType = body.club_identity_type === "email" ? "email" : "whatsapp";
     const itemsInput = Array.isArray(body.items) ? body.items : [];
@@ -31,7 +113,7 @@ Deno.serve(async (req: Request) => {
     const addressReference = String(body.address_reference ?? "").trim().slice(0, 250);
     if (!customerName || whatsapp.length < 10 || !itemsInput.length || itemsInput.length > 60 ||
         !street || !addressNumber || !city || state.length !== 2)
-      return reply(400, { error: "Dados do pedido ou endereço incompletos." });
+      return respond(400, { error: "Dados do pedido ou endereço incompletos." });
 
     const items = itemsInput.map((item: Record<string, unknown>) => ({
       name: String(item.name ?? "").trim(), line: String(item.line ?? "").trim(),
@@ -39,13 +121,13 @@ Deno.serve(async (req: Request) => {
     }));
     if (items.some((i: {name:string;line:string;weight:string;quantity:number}) =>
       !i.name || !i.line || !Number.isInteger(i.quantity) || i.quantity < 1 || i.quantity > 100))
-      return reply(400, { error: "Itens ou quantidades inválidos." });
+      return respond(400, { error: "Itens ou quantidades inválidos." });
 
     const catalogResponse = await fetch(
       url + "/rest/v1/catalog_products?select=name,line,size_grams,price,category,active&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)",
       { headers },
     );
-    if (!catalogResponse.ok) return reply(502, { error: "Não foi possível conferir o catálogo." });
+    if (!catalogResponse.ok) return respond(502, { error: "Não foi possível conferir o catálogo." });
     const catalog = await catalogResponse.json();
     const normalizeProduct = (value: unknown) => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/[^a-z0-9]/g, "");
 const catalogNameAliases: Record<string, string> = {
@@ -78,7 +160,7 @@ const catalogNameAliases: Record<string, string> = {
       const [line, qtyText] = key.split(":");
       const planQuantity = Number(qtyText);
       if (![30, 60].includes(planQuantity) || count !== planQuantity)
-        return reply(400, { error: "A quantidade de refeições do plano mensal não corresponde ao plano selecionado." });
+        return respond(400, { error: "A quantidade de refeições do plano mensal não corresponde ao plano selecionado." });
     }
 
     const resolvedPlanPrices = new Map<string, number>();
@@ -90,11 +172,11 @@ const catalogNameAliases: Record<string, string> = {
           encodeURIComponent("PLANO " + line) + "&quantity=eq." + planQuantity + "&limit=1",
         { headers },
       );
-      if (!priceResponse.ok) return reply(502, { error: "Não foi possível consultar o preço do plano mensal." });
+      if (!priceResponse.ok) return respond(502, { error: "Não foi possível consultar o preço do plano mensal." });
       const priceRows = await priceResponse.json();
       const planPrice = Number(priceRows?.[0]?.price);
       if (!priceRows?.length || !Number.isFinite(planPrice) || planPrice <= 0)
-        return reply(400, { error: "Preço do plano mensal indisponível. Entre em contato com a Nutrifit." });
+        return respond(400, { error: "Preço do plano mensal indisponível. Entre em contato com a Nutrifit." });
       resolvedPlanPrices.set(key, Math.round(planPrice * 100));
     }
 
@@ -110,9 +192,9 @@ const catalogNameAliases: Record<string, string> = {
           Number(p.size_grams) === planWeights[meta.line] &&
           normalizeProduct(p.category) === "marmita"
         );
-        if (!match) return reply(400, { error: "Prato indisponível ou não conferido no catálogo: " + meta.baseName });
+        if (!match) return respond(400, { error: "Prato indisponível ou não conferido no catálogo: " + meta.baseName });
         const planTotalCents = resolvedPlanPrices.get(meta.line + ":" + meta.planQuantity);
-        if (planTotalCents === undefined) return reply(400, { error: "Preço do plano mensal indisponível." });
+        if (planTotalCents === undefined) return respond(400, { error: "Preço do plano mensal indisponível." });
         const priceCents = Math.round(planTotalCents / meta.planQuantity);
         subtotalCents += priceCents * item.quantity;
         pricedItems.push({
@@ -131,31 +213,31 @@ const catalogNameAliases: Record<string, string> = {
         normalizeProduct(p.line) === normalizeProduct(item.line) &&
         (item.weight ? (String(p.size_grams ?? "") === item.weight.replace(/\D/g, "") || String(p.size_grams ?? "") === "") : true)
       );
-      if (!match) return reply(400, { error: "Produto indisponível ou não conferido no catálogo: " + item.name });
+      if (!match) return respond(400, { error: "Produto indisponível ou não conferido no catálogo: " + item.name });
       const priceCents = Math.round(Number(match.price) * 100);
       subtotalCents += priceCents * item.quantity;
       pricedItems.push({ name: item.name, line: String(match.line), weight: item.weight, price: priceCents / 100, quantity: item.quantity });
     }
-    if (subtotalCents < 5000) return reply(400, { error: "O pedido mínimo é de R$ 50,00 em produtos. O frete é calculado à parte." });
-    if (subtotalCents > 50000000) return reply(400, { error: "Valor do pedido inválido." });
+    if (subtotalCents < 5000) return respond(400, { error: "O pedido mínimo é de R$ 50,00 em produtos. O frete é calculado à parte." });
+    if (subtotalCents > 50000000) return respond(400, { error: "Valor do pedido inválido." });
 
     const itemCount = items.reduce((sum: number, i: {quantity:number}) => sum + i.quantity, 0);
     const cep = String(body.cep ?? "").replace(/\D/g, "").slice(0, 8);
-    if (cep.length !== 8) return reply(400, { error: "Informe um CEP válido para entrega." });
+    if (cep.length !== 8) return respond(400, { error: "Informe um CEP válido para entrega." });
     let address: Record<string, unknown>;
     try {
       const addressResponse = await fetch("https://viacep.com.br/ws/" + cep + "/json/", { signal: AbortSignal.timeout(5000) });
-      if (!addressResponse.ok) return reply(400, { error: "Não foi possível validar o CEP. Tente novamente." });
+      if (!addressResponse.ok) return respond(400, { error: "Não foi possível validar o CEP. Tente novamente." });
       address = await addressResponse.json();
     } catch {
-      return reply(502, { error: "Não foi possível validar o CEP agora." });
+      return respond(502, { error: "Não foi possível validar o CEP agora." });
     }
     if (address.erro || String(address.localidade ?? "").toLocaleLowerCase("pt-BR") !== "juiz de fora" ||
         String(address.uf ?? "").toUpperCase() !== "MG")
-      return reply(400, { error: "A entrega está disponível somente para CEPs de Juiz de Fora/MG." });
+      return respond(400, { error: "A entrega está disponível somente para CEPs de Juiz de Fora/MG." });
     const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     if (normalize(city) !== normalize(String(address.localidade ?? "")) || state !== String(address.uf ?? "").toUpperCase())
-      return reply(400, { error: "Cidade e estado não correspondem ao CEP informado. Confira o endereço." });
+      return respond(400, { error: "Cidade e estado não correspondem ao CEP informado. Confira o endereço." });
     const neighborhood = String(address.bairro ?? "").trim();
     const zone1 = "Monte Castelo|Carlos Chagas|Cerâmica|Francisco Bernardino|Fábrica|Esplanada|São Dimas|Centenário|Mariano Procópio|Jardim Glória|Morro da Glória|Santa Catarina|Santa Helena|Democrata|Vale do Ipê|Jardim Paineiras|Jardim Santa Helena|Poço Rico|Vitorino Braga|Nossa Senhora Aparecida";
     const zone2 = "Centro|Boa Vista|Granbery|Bom Pastor|São Mateus|Alto dos Passos|Teixeiras|Bairu|Bonfim|Botanágua|Cesário Alvim|Grajaú|Manoel Honório|Linhares|Marumbi|Progresso|Santa Rita|Santa Cândida|São Benedito|São Bernardo|Santa Terezinha|Eldorado|Jardim Bom Clima|Granjas Betânia|Jardim Emaús|Parque Independência|Grama|Jardim Natal|Nova Era|Benfica|Nova Benfica|Milho Branco|Industrial|Jóquei Clube|Barbosa Lage|Santa Cruz|Represa|Jardim dos Alfineiros|Bandeirantes|Parque Guarani|Nossa Senhora das Graças|Quintas das Avenidas|Santa Paula";
@@ -165,7 +247,7 @@ const catalogNameAliases: Record<string, string> = {
     const feeFor = (list: string) => list.split("|").some((name) => normalize(name) === n);
     let expectedFee: number | null = feeFor(zone1) ? 5 : feeFor(zone2) ? 7 : feeFor(zone3) ? 10 : feeFor(zone4) ? 13 : null;
     if (expectedFee === null)
-      return reply(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
+      return respond(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
     const deliveryCents = itemCount >= 20 ? 0 : Math.round((expectedFee as number) * 100);
     const discountCode = String(body.coupon_code ?? "").trim().toUpperCase();
     let discountCents = 0;
@@ -178,14 +260,14 @@ const catalogNameAliases: Record<string, string> = {
         url + "/rest/v1/coupons?select=code,discount_type,discount_value,minimum_order_value,max_uses,uses_count,starts_at,expires_at,active&active=eq.true&code=ilike." + encodeURIComponent(discountCode) + "&limit=1",
         { headers },
       );
-      if (!couponResp.ok) return reply(502, { error: "Não foi possível validar o cupom." });
+      if (!couponResp.ok) return respond(502, { error: "Não foi possível validar o cupom." });
       const coupons = await couponResp.json();
       const c = coupons[0];
       const now = Date.now();
       if (!c || (c.starts_at && Date.parse(c.starts_at) > now) || (c.expires_at && Date.parse(c.expires_at) < now) ||
           (c.max_uses !== null && Number(c.uses_count) >= Number(c.max_uses)) ||
           subtotalCents < Math.round(Number(c.minimum_order_value || 0) * 100))
-        return reply(400, { error: "Cupom inválido, expirado ou não atende ao pedido mínimo." });
+        return respond(400, { error: "Cupom inválido, expirado ou não atende ao pedido mínimo." });
       const value = Number(c.discount_value || 0);
       discountCents = c.discount_type === "percentage" || c.discount_type === "percent"
         ? Math.round(subtotalCents * value / 100) : Math.round(value * 100);
@@ -193,7 +275,7 @@ const catalogNameAliases: Record<string, string> = {
       redeemedCoupon = String(c.code);
     } else if (body.club_welcome_discount === true) {
       if (clubIdentityType === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-        return reply(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
+        return respond(400, { error: "Informe o mesmo e-mail usado no cadastro do Clube Nutrifit." });
       const identityFilter = clubIdentityType === "email"
         ? "email=eq." + encodeURIComponent(email)
         : "whatsapp=eq." + encodeURIComponent(whatsapp);
@@ -201,11 +283,11 @@ const catalogNameAliases: Record<string, string> = {
         url + "/rest/v1/customer_profiles?select=id,nutrifit_club_member,coupon_used&" + identityFilter + "&limit=1",
         { headers },
       );
-      if (!profileResp.ok) return reply(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
+      if (!profileResp.ok) return respond(502, { error: "Não foi possível validar o benefício do Clube Nutrifit." });
       const profiles = await profileResp.json();
       const profile = profiles[0];
       if (profile?.nutrifit_club_member !== true || profile?.coupon_used !== false || !profile?.id) {
-        return reply(409, { error: "O benefício de boas-vindas não está disponível para este cadastro ou já foi utilizado." });
+        return respond(409, { error: "O benefício de boas-vindas não está disponível para este cadastro ou já foi utilizado." });
       }
       discountCents = Math.min(1000, subtotalCents);
       redeemClub = true;
@@ -240,18 +322,18 @@ const catalogNameAliases: Record<string, string> = {
       if (!atomicResponse.ok) {
         const errorText = await atomicResponse.text();
         console.error("atomic Clube order failed", errorText);
-        return reply(409, { error: "O benefício do Clube não pôde ser confirmado. Nenhum pedido com desconto foi registrado. Atualize os dados e tente novamente." });
+        return respond(409, { error: "O benefício do Clube não pôde ser confirmado. Nenhum pedido com desconto foi registrado. Atualize os dados e tente novamente." });
       }
       const atomicResult = await atomicResponse.json();
       savedOrderId = atomicResult?.id ?? null;
-      if (!savedOrderId) return reply(502, { error: "O pedido não retornou uma confirmação válida. Entre em contato com a Nutrifit antes de tentar novamente." });
+      if (!savedOrderId) return respond(502, { error: "O pedido não retornou uma confirmação válida. Entre em contato com a Nutrifit antes de tentar novamente." });
     } else {
       const insertResponse = await fetch(url + "/rest/v1/customer_orders", {
         method: "POST", headers: { ...headers, Prefer: "return=representation" }, body: JSON.stringify(payload),
       });
       if (!insertResponse.ok) {
         console.error("customer order insert failed", await insertResponse.text());
-        return reply(502, { error: "Não foi possível registrar o pedido. O WhatsApp continua disponível." });
+        return respond(502, { error: "Não foi possível registrar o pedido. O WhatsApp continua disponível." });
       }
       const saved = await insertResponse.json();
       savedOrderId = saved?.[0]?.id ?? null;
@@ -266,7 +348,7 @@ const catalogNameAliases: Record<string, string> = {
       ? await fetch(url + "/rest/v1/customer_orders?select=order_code&id=eq." + encodeURIComponent(savedOrderId) + "&limit=1", { headers })
       : null;
     const codeRows = codeResponse?.ok ? await codeResponse.json() : [];
-    return reply(200, {
+    return respond(200, {
       ok: true, order_id: savedOrderId, order_code: codeRows?.[0]?.order_code ?? null,
       subtotal: payload.subtotal, discount: payload.discount,
       delivery_fee: payload.delivery_fee, total: payload.total,
@@ -274,6 +356,6 @@ const catalogNameAliases: Record<string, string> = {
     });
   } catch (error) {
     console.error("create-customer-order error", error);
-    return reply(400, { error: "Não foi possível processar os dados do pedido." });
+    return respond(400, { error: "Não foi possível processar os dados do pedido." });
   }
 });
