@@ -6,9 +6,6 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
 };
-const TEST_PHONE_SUFFIX = "32999180713";
-const isTestPhone = (value: unknown) => String(value ?? "").replace(/\D/g, "").endsWith(TEST_PHONE_SUFFIX);
-
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: cors });
 
@@ -191,7 +188,8 @@ const catalogNameAliases: Record<string, string> = {
       const fee = feeForNeighborhood(neighborhood);
       if (fee === null) return reply(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
       deliveryCents = fee * 100;
-    } else if (mode === "delivery" && cep.length === 8) {
+    } else if (mode === "delivery") {
+      if (cep.length !== 8) return reply(400, { error: "Informe um CEP válido para calcular a entrega." });
       let address: Record<string, unknown>;
       try {
         const response = await fetch("https://viacep.com.br/ws/" + cep + "/json/", { signal: AbortSignal.timeout(5000) });
@@ -203,6 +201,13 @@ const catalogNameAliases: Record<string, string> = {
       if (address.erro || normalize(address.localidade) !== normalize("Juiz de Fora") || String(address.uf ?? "").toUpperCase() !== "MG")
         return reply(400, { error: "A entrega está disponível somente para CEPs de Juiz de Fora/MG." });
       neighborhood = String(address.bairro ?? "").trim();
+    }
+
+    if (mode === "delivery") {
+      if (normalize(city) !== normalize("Juiz de Fora") || state !== "MG")
+        return reply(400, { error: "Cidade e estado não correspondem à área de entrega da Nutrifit." });
+      if (feeForNeighborhood(neighborhood) === null)
+        return reply(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
     }
 
     const subtotalCents = baseCents + premiumCents + complementCents;
@@ -232,15 +237,6 @@ const catalogNameAliases: Record<string, string> = {
       acquisition_medium: body.acquisition_medium ? String(body.acquisition_medium).slice(0, 120) : null,
       acquisition_content: body.acquisition_content ? String(body.acquisition_content).slice(0, 200) : null,
     };
-    // Pedidos do número de teste são validados e calculados, mas não entram em customer_orders,
-    // evitando registros no painel administrativo, financeiro, estoque e métricas comerciais.
-    if (isTestPhone(whatsapp)) {
-      return reply(200, {
-        ok: true, test_order: true, order_id: null, subtotal: payload.subtotal,
-        delivery_fee: payload.delivery_fee, total: payload.total, items: pricedItems,
-      });
-    }
-
     const insertResponse = await fetch(url + "/rest/v1/customer_orders", {
       method: "POST", headers: { ...headers, Prefer: "return=representation" }, body: JSON.stringify(payload),
     });
