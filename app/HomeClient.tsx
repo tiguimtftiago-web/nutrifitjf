@@ -1489,7 +1489,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
                 <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#86a51d]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-busy={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
@@ -2463,6 +2463,12 @@ export default function Home() {
   const calculateOrderDelivery = async (cepValue?: string) => {
     const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
     if (cleanCep.length !== 8) { setOrderDelivery(null); setOrderDeliveryStatus("error"); return; }
+    if (deliveryFeeState.status !== "ready") {
+      setOrderDelivery(null);
+      setDeliveryNotice("Carregando a tabela oficial de entrega. Aguarde alguns segundos e tente novamente.");
+      setOrderDeliveryStatus("error");
+      return;
+    }
     setOrderDeliveryStatus("loading");
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
@@ -3105,7 +3111,7 @@ export default function Home() {
           </div>
           <div className="flex min-w-0 gap-2">
             <input value={orderCep} onChange={(event) => handleOrderCepChange(event.target.value)} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
-            <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
+            <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading" || deliveryFeeState.status !== "ready"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
           </div>
           {orderDelivery && orderDeliveryStatus === "idle" && (
             <div className="sm:col-span-2 rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/[.08] px-4 py-3 text-sm">
@@ -3123,11 +3129,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
