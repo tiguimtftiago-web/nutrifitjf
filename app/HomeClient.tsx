@@ -2389,6 +2389,7 @@ export default function Home() {
   const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const catalogProductState = useCatalogProducts();
+  const catalogComboPrices = useCatalogComboPrices();
   const [catalogPriceNotice, setCatalogPriceNotice] = useState("");
   const [snackSandwich, setSnackSandwich] = useState("Frango com Alface e Tomate");
   const [snackJuice, setSnackJuice] = useState("Suco de Laranja — 300 ml");
@@ -2434,6 +2435,19 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!cartHydrated || !catalogProductState.loaded) return;
+    setOrderItems((current) => current.map((item) => {
+      if (item.line.startsWith("PLANO")) {
+        const planQuantity = Number(item.name.match(/Plano (\\d+)/i)?.[1] || 0);
+        const planTotal = catalogComboPrices[item.line]?.[planQuantity];
+        return !planQuantity || planTotal === undefined ? item : { ...item, price: planTotal / planQuantity };
+      }
+      const catalogPrice = getCatalogProductPrice(catalogProductState.rows, item);
+      return catalogPrice === null ? item : { ...item, price: catalogPrice };
+    }));
+  }, [cartHydrated, catalogProductState.loaded, catalogProductState.rows, catalogComboPrices]);
+
+  useEffect(() => {
     if (!cartHydrated) return;
     try {
       if (orderItems.length) window.localStorage.setItem("nutrifit_cart", JSON.stringify(orderItems));
@@ -2465,8 +2479,10 @@ export default function Home() {
       const next = [...current];
       for (const item of items) {
         const found = next.find((existing) => existing.name === item.name);
-        if (found) found.quantity += item.quantity;
-        else next.push(item);
+        if (found) {
+          found.quantity += item.quantity;
+          found.price = item.price;
+        } else next.push(item);
       }
       return next;
     });
@@ -2532,6 +2548,13 @@ export default function Home() {
       window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
     }
   }, []);
+  const orderHasUnverifiedPrices = orderItems.some((item) => {
+    if (item.line.startsWith("PLANO")) {
+      const planQuantity = Number(item.name.match(/Plano (\\d+)/i)?.[1] || 0);
+      return !planQuantity || catalogComboPrices[item.line]?.[planQuantity] === undefined;
+    }
+    return getCatalogProductPrice(catalogProductState.rows, item) === null;
+  });
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
@@ -2548,7 +2571,7 @@ export default function Home() {
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
-  const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
+  const canFinalizeOrder = Boolean(orderItems.length && !orderHasUnverifiedPrices && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async (cepValue?: string) => {
     const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
@@ -3838,6 +3861,7 @@ export default function Home() {
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
                 {catalogPriceNotice && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">{catalogPriceNotice}</div>}
+                {orderHasUnverifiedPrices && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Há item sem preço confirmado no catálogo atual. Atualize a página ou remova e adicione novamente o item antes de finalizar.</div>}
                 {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
