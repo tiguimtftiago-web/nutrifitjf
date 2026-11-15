@@ -2401,6 +2401,16 @@ export default function Home() {
     const catalogPrice = getCatalogProductPrice(catalogProductState.rows, { name: `${flavorName} — ${size}`, line: "SUCOS", weight: size });
     return catalogPrice === null ? "Indisponível" : money(catalogPrice);
   };
+  const selectedJuiceCatalogPrice = getCatalogProductPrice(catalogProductState.rows, {
+    name: `${juiceFlavors[juiceShowcaseIndex]?.name || ""} — ${selectedJuiceSize}`,
+    line: "SUCOS",
+    weight: selectedJuiceSize,
+  });
+  const snackBoxCatalogPrice = getCatalogProductPrice(catalogProductState.rows, {
+    name: "Nutrifit Snack Box",
+    line: "Snack Box",
+    weight: "1 kit",
+  });
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -3254,9 +3264,9 @@ export default function Home() {
               </label>
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
                 <div><div className="text-xs text-white/55">Combo completo</div><div className="text-sm font-bold text-white">Sanduíche + suco + fruta</div></div>
-                <strong className="text-2xl font-black text-[#f47b0b]">R$ 25,00</strong>
+                <strong className="text-2xl font-black text-[#f47b0b]">{!catalogProductState.loaded ? "Carregando..." : snackBoxCatalogPrice === null ? "Indisponível" : money(snackBoxCatalogPrice)}</strong>
               </div>
-              <button type="button" onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99]">Adicionar Snack Box ao pedido</button>
+              <button type="button" disabled={!catalogProductState.loaded || snackBoxCatalogPrice === null} onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40">Adicionar Snack Box ao pedido</button>
             </div>
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
               <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Apresentação do Snack Box Nutrifit" className="aspect-[4/3] w-full object-cover" loading="lazy" />
@@ -3342,11 +3352,11 @@ export default function Home() {
                       </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => {
+                  <button type="button" disabled={!catalogProductState.loaded || selectedJuiceCatalogPrice === null} onClick={() => {
                     const flavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
                     const product = juiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
                     if (product) addToOrder(product);
-                  }} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
+                  }} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40 sm:text-base">
                     <ShoppingCart size={20}/> Adicionar ao carrinho
                   </button>
                 </div>
@@ -3379,7 +3389,7 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=juiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
+              <button type="button" disabled={!catalogProductState.loaded || selectedJuiceCatalogPrice === null} onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=juiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40 sm:text-sm">
                 <ShoppingCart size={17}/> Adicionar ao carrinho
               </button>
             </div>
