@@ -372,20 +372,17 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
 function JuiceFlavorCard({
   flavor,
   onAdd,
+  catalogProducts,
+  catalogReady,
 }: {
   flavor: { name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string };
   onAdd: (product: Product) => void;
+  catalogProducts: Product[];
+  catalogReady: boolean;
 }) {
   const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
-  const price = getJuicePrice(flavor.name, size);
-  const product: Product = {
-    name: `${flavor.name} — ${size}`,
-    line: flavor.line,
-    weight: size,
-    price,
-    description: flavor.description,
-    image: flavor.image,
-  };
+  const findProduct = (value: "500 ml" | "300 ml") => catalogProducts.find((product) => product.name === `${flavor.name} — ${value}`);
+  const product = findProduct(size);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
@@ -397,23 +394,24 @@ function JuiceFlavorCard({
         <p className="mt-1 text-xs text-white/45">{flavor.description}</p>
         <JuiceNutritionDetails flavor={flavor} />
         <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
-          {([
-            { value: "500 ml" as const, price: getJuicePrice(flavor.name, "500 ml") },
-            { value: "300 ml" as const, price: getJuicePrice(flavor.name, "300 ml") },
-          ]).map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              aria-pressed={size === option.value}
-              onClick={() => setSize(option.value)}
-              className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
-            >
-              <span className="block text-sm font-black">{option.value}</span>
-              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#f47b0b]" : "text-white/70"}`}>{option.price}</span>
-            </button>
-          ))}
+          {(["500 ml", "300 ml"] as const).map((value) => {
+            const catalogProduct = findProduct(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                disabled={!catalogReady || !catalogProduct}
+                aria-pressed={size === value}
+                onClick={() => setSize(value)}
+                className={`rounded-xl border px-3 py-3 text-left transition disabled:opacity-40 ${size === value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
+              >
+                <span className="block text-sm font-black">{value}</span>
+                <span className={`mt-1 block text-sm font-black ${size === value ? "text-[#f47b0b]" : "text-white/70"}`}>{catalogProduct?.price || "Indisponível"}</span>
+              </button>
+            );
+          })}
         </div>
-        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400">
+        <button type="button" disabled={!catalogReady || !product} onClick={() => { if (product) onAdd(product); }} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400 disabled:opacity-40">
           Adicionar {size} ao carrinho
         </button>
       </div>
@@ -622,21 +620,37 @@ function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus 
     const loadProducts = async () => {
       try {
         const response = await fetch(
-          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada)&order=sort_order.asc,name.asc",
+          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)&order=sort_order.asc,name.asc",
           { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
         );
-        if (!response.ok) throw new Error("Não foi possível carregar o cardápio.");
+        if (!response.ok) throw new Error("Não foi possível carregar o catálogo.");
         const rows = await response.json() as CatalogProductRow[];
         const products = rows
-          .filter((row) => ["marmita", "salada"].includes(row.category) && row.name && row.line && Number(row.price) > 0 && row.image_url)
-          .map((row) => ({
-            name: row.name,
-            line: String(row.line).toUpperCase(),
-            weight: row.size_grams ? `${row.size_grams} g` : "",
-            price: money(Number(row.price)),
-            description: row.description || "",
-            image: row.image_url || "",
-          }));
+          .filter((row) => row.name && row.line && Number(row.price) > 0)
+          .map((row) => {
+            const category = row.category;
+            const line = category === "marmita" || category === "salada"
+              ? String(row.line).toUpperCase()
+              : category === "suco" ? "SUCOS"
+              : category === "sanduiche" ? "SANDUÍCHES"
+              : category === "fruta" ? "FRUTAS"
+              : String(row.line).toUpperCase();
+            const weight = category === "suco" && row.size_grams
+              ? `${row.size_grams} ml`
+              : category === "sanduiche" ? "1 un"
+              : category === "fruta" ? "porção"
+              : category === "complemento" && row.line === "Snack Box" ? "1 kit"
+              : row.size_grams ? `${row.size_grams} g` : "porção";
+            return {
+              name: row.name,
+              line,
+              weight,
+              price: money(Number(row.price)),
+              description: row.description || "",
+              image: row.image_url || "",
+              category,
+            };
+          });
         if (!products.length) throw new Error("O catálogo não retornou produtos ativos válidos.");
         if (active) setState({ products, status: "ready" });
       } catch {
