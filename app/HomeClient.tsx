@@ -1,8 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import CustomerReviews from "./components/customer-reviews";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+
+const CustomerReviews = dynamic(() => import("./components/customer-reviews"), {
+  ssr: false,
+  loading: () => <div className="min-h-24 rounded-2xl bg-white/[.03] animate-pulse" aria-label="Carregando avaliações" />,
+});
 import { track } from "@vercel/analytics";
 import { ArrowRight, Check, MessageCircle, Salad, ChartPie, ShoppingBag, MapPin, Truck, Building2, HelpCircle, Plus, Minus, RotateCcw, Loader2, Search, UserRound, ShoppingCart, ChevronDown, ChevronUp, X, Apple, Dumbbell, ClipboardCheck, ChefHat, Stethoscope, Leaf, HeartPulse, FlaskConical, Menu, Share2 } from "lucide-react";
 
@@ -1399,7 +1404,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               <div className="mt-3 rounded-3xl border border-white/10 bg-white/[.025] p-4">
                 {category === "FRUTAS" && (
                   <div className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black">
-                    <img src="/images/frutas-picadas-header.jpg" alt="Frutas picadas Nutrifit" className="mx-auto block h-auto max-h-56 w-full object-contain object-center" />
+                    <img src="/images/frutas-picadas-header.jpg" loading="lazy" decoding="async" alt="Frutas picadas Nutrifit" className="mx-auto block h-auto max-h-56 w-full object-contain object-center" />
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-3">
@@ -1417,7 +1422,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                     return (
                       <div key={item.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0d100c] p-3">
                         {item.image ? (
-                          <img src={item.image} alt={item.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                          <img src={item.image} loading="lazy" decoding="async" alt={item.name} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
                         ) : (
                           <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#171d10] text-2xl">{item.emoji}</div>
                         )}
@@ -3223,7 +3228,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1500px] px-2 py-3 sm:px-5 sm:py-6 lg:px-7">
           <div className="overflow-hidden rounded-2xl border border-white/15 bg-black shadow-[0_24px_90px_rgba(0,0,0,.55)]">
           <div className="relative isolate min-h-[440px] overflow-hidden bg-black sm:min-h-[590px] lg:min-h-[720px]">
-            <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute inset-0 -z-20 h-full w-full object-cover object-center brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
+            <img key={juiceShowcaseIndex} src={juiceFlavors[juiceShowcaseIndex]?.image || "/images/page-42.jpg"} loading="lazy" decoding="async" alt={`Suco Nutrifit ${juiceFlavors[juiceShowcaseIndex]?.name || "Laranja"}`} className="absolute inset-0 -z-20 h-full w-full object-cover object-center brightness-[1.12] contrast-[1.05] saturate-[1.2] transition-opacity duration-500 lg:brightness-100 lg:contrast-100 lg:saturate-100"/>
             <div className="absolute inset-0 -z-10 bg-black/5 lg:bg-black/35"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/40 via-black/15 to-transparent lg:from-black/65 lg:via-black/15 lg:to-black/90"/>
             <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/5 via-transparent to-black/30"/>
@@ -3910,7 +3915,7 @@ export default function Home() {
               <summary className="flex min-h-[88px] cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-7 [&::-webkit-details-marker]:hidden"><span className="flex min-w-0 items-center gap-3"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#86a51d]/15 text-2xl" aria-hidden="true">🔥</span><span><span className="block text-xs font-black uppercase tracking-[.16em] text-[#a8c957]">01 • Na hora de comer</span><span className="mt-1 block text-xl font-black sm:text-2xl">Modo de preparo 🍽️</span></span></span><ChevronDown size={22} className="shrink-0 text-[#a8c957] transition-transform duration-200 group-open:rotate-180"/></summary><div className="border-t border-white/10 px-5 pb-5 pt-4 sm:px-7 sm:pb-7">
               <p className="mt-4 text-sm leading-6 text-white/65">Retire a refeição do congelador e siga a orientação de descongelamento e aquecimento indicada na embalagem.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/10 bg-black/25 p-4"><img src="/images/microondas-realista.svg" alt="Forno de micro-ondas" className="h-10 w-12 object-contain" /><h4 className="mt-2 font-black">Micro-ondas</h4><p className="mt-1 text-xs leading-5 text-white/60">Use somente recipiente próprio para micro-ondas. Faça a abertura indicada na embalagem, se aplicável, e aqueça conforme as instruções do produto.</p></div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-4"><img src="/images/microondas-realista.svg" loading="lazy" decoding="async" alt="Forno de micro-ondas" className="h-10 w-12 object-contain" /><h4 className="mt-2 font-black">Micro-ondas</h4><p className="mt-1 text-xs leading-5 text-white/60">Use somente recipiente próprio para micro-ondas. Faça a abertura indicada na embalagem, se aplicável, e aqueça conforme as instruções do produto.</p></div>
                 <div className="rounded-2xl border border-white/10 bg-black/25 p-4"><span className="text-2xl" aria-hidden="true">♨️</span><h4 className="mt-2 font-black">Banho-maria</h4><p className="mt-1 text-xs leading-5 text-white/60">Transfira para recipiente adequado, se a embalagem não for própria para esse método, e aqueça até ficar bem quente por completo.</p></div>
               </div>
               <p className="mt-4 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-xs leading-5 text-[#ffd09e]">⏱️ O tempo de aquecimento varia conforme o peso da marmita, o equipamento e a temperatura inicial. Siga o rótulo do seu produto.</p>
