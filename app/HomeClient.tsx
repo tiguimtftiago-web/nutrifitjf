@@ -752,10 +752,10 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const catalogComboPrices = useCatalogComboPrices();
   const option = monthlyPlanOptions[lineIndex];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
-  const unitPrice = totalPrice / quantity;
-  const unitPriceCents = Math.round(totalPrice * 100 / quantity);
-  const totalSavings = option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
+  const catalogPrice = catalogComboPrices["PLANO " + option.line]?.[quantity];
+  const totalPrice = catalogPrice ?? 0;
+  const unitPrice = catalogPrice === undefined ? 0 : catalogPrice / quantity;
+  const totalSavings = null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
@@ -784,7 +784,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   };
 
   const addToCart = () => {
-    if (total !== quantity) return;
+    if (total !== quantity || catalogPrice === undefined) return;
     const items: OrderItem[] = option.products
       .filter((product) => selected[product.name])
       .map((product) => ({
@@ -806,11 +806,10 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
           <div className="min-w-0 flex-1">
             <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
             <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-            <span className="mt-0.5 block text-xs text-white/45">{money(unitPrice)} por marmita</span>
-            {totalSavings !== null && totalSavings > 0 && <span className="mt-1 block text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa de R$ 23,97/un.</span>}
+            <span className="mt-0.5 block text-xs text-white/45">{catalogPrice === undefined ? "Preço indisponível" : money(unitPrice) + " por marmita"}</span>
           </div>
           <div className="shrink-0 text-right">
-            <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
+            <span className="block text-lg font-black text-[#f47b0b]">{catalogPrice === undefined ? "Preço indisponível" : money(totalPrice)}</span>
             <span className="mt-0.5 block text-[10px] text-white/45">total do plano</span>
           </div>
         </div>
@@ -836,8 +835,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
             <div className="mt-1 flex items-end justify-between gap-3">
               <div>
                 <div className="text-base font-black">{quantity} marmitas • {itemLineLabel(option.line)}</div>
-                <div className="mt-1 text-xs text-white/45">{money(unitPrice)} por marmita</div>
-                {totalSavings !== null && totalSavings > 0 && <div className="mt-1 text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa</div>}
+                <div className="mt-1 text-xs text-white/45">{catalogPrice === undefined ? "Preço indisponível" : money(unitPrice) + " por marmita"}</div>
               </div>
               <div className="text-right text-lg font-black text-[#f47b0b]">{money(totalPrice)}</div>
             </div>
@@ -910,7 +908,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               {remaining > 0 && <span>Faltam {remaining}</span>}
               {remaining === 0 && <span className="text-[#86a51d]">Plano completo ✓</span>}
             </div>
-            <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
+            <button type="button" onClick={addToCart} disabled={total !== quantity || catalogPrice === undefined} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
               Adicionar plano ao pedido <ShoppingBag size={18} />
             </button>
             <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
@@ -2664,7 +2662,7 @@ export default function Home() {
     ...comboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
     ...comboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
     ...comboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
-  ].filter((item) => item.price !== null && !orderItems.some((ordered) => ordered.name === item.name));
+  ].filter((item) => getComplementCatalogPrice(catalogProductState.rows, item) !== null && !orderItems.some((ordered) => ordered.name === item.name));
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
   const shareVisualOrder = async () => {
