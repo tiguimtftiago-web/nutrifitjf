@@ -1048,7 +1048,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       deliveryMode === "pickup"
         ? [
             "RETIRADA NA NUTRIFIT",
-            "Rua Enéas Mascarenhas, nº 94/103",
+            "Rua Enéas Mascarenhas, nº 94/304",
             "Monte Castelo — Juiz de Fora/MG",
           ].join("\n")
         : [
@@ -1534,7 +1534,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           {deliveryMode === "pickup" ? (
             <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4">
               <div className="font-black">📍 Retirada na Nutrifit</div>
-              <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/103 • Monte Castelo • Juiz de Fora/MG</div>
+              <div className="mt-1 text-sm leading-6 text-white/55">Rua Enéas Mascarenhas, 94/304 • Monte Castelo • Juiz de Fora/MG</div>
             </div>
           ) : (
             <>
@@ -2954,7 +2954,7 @@ export default function Home() {
     setComboLineIndex(lineIndex >= 0 ? lineIndex : 0);
     setComboOpen(true);
     if (line) trackClick("combo_builder_start", line);
-    window.setTimeout(() => document.getElementById("combo-montar")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    window.setTimeout(() => document.getElementById("combos")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const openTopComboBuilder = () => {
@@ -3100,11 +3100,13 @@ export default function Home() {
         </div>
       </section>
 
+      <div id="combos" className="scroll-mt-24">
       <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
       <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
       <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+      </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
         <div className="rounded-[1.5rem] border border-[#f47b0b]/35 bg-gradient-to-br from-[#17130d] via-[#0d100c] to-[#10150b] p-4 sm:p-6">
@@ -3150,7 +3152,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-label="Atalhos nutricionais" className="mobile-home-only border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:hidden">
+      <section id="plano-alimentar" aria-label="Atalhos nutricionais" className="border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:px-5 sm:py-4">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
           <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#86a51d]/40 bg-[#86a51d]/[.06] p-3">
             <ClipboardCheck size={22} className="text-[#86a51d]" />
@@ -3843,7 +3845,7 @@ export default function Home() {
             <p className="mt-1 text-xs leading-5 text-white/50">Pedidos realizados até 00h: entrega no dia seguinte.</p>
             <p className="text-xs leading-5 text-white/50">Entregas todos os dias, a partir das 11h.</p>
             <p className="text-xs leading-5 text-white/50">Pedido mínimo: R$ 50,00 em produtos, sem incluir o frete.</p>
-            <p className="mt-2 text-xs leading-5 text-white/65">Retirada: Rua Enéas Mascarenhas, nº 94/103 • Monte Castelo • Juiz de Fora/MG.</p>
+            <p className="mt-2 text-xs leading-5 text-white/65">Retirada: Rua Enéas Mascarenhas, nº 94/304 • Monte Castelo • Juiz de Fora/MG.</p>
           </div>
           <button type="button" onClick={() => setOrderOpen(true)} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#86a51d]/40 px-4 py-2 text-xs font-black text-[#b6d76a]">Calcular pelo CEP <ArrowRight size={14}/></button>
         </div>
