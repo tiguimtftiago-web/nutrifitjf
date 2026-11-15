@@ -1170,7 +1170,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       }
     } else if (action === "toggle-complement-category") {
       const category = element.dataset.category;
-      if (category) setComplementCategory((current) => current === category ? null : category);
+      if (category === "SUCOS" || category === "SANDUÍCHES" || category === "FRUTAS") {
+        setComplementCategory((current) => current === category ? null : category);
+      }
     } else if (action === "remove-complement") removeComplement(element.dataset.name || "");
     else if (action === "add-complement") addComplement(element.dataset.name || "");
     else if (action === "delivery") chooseDeliveryMode("delivery");
