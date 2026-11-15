@@ -235,20 +235,28 @@ const catalogNameAliases: Record<string, string> = {
     if (address.erro || String(address.localidade ?? "").toLocaleLowerCase("pt-BR") !== "juiz de fora" ||
         String(address.uf ?? "").toUpperCase() !== "MG")
       return respond(400, { error: "A entrega está disponível somente para CEPs de Juiz de Fora/MG." });
-    const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
     if (normalize(city) !== normalize(String(address.localidade ?? "")) || state !== String(address.uf ?? "").toUpperCase())
       return respond(400, { error: "Cidade e estado não correspondem ao CEP informado. Confira o endereço." });
     const neighborhood = String(address.bairro ?? "").trim();
-    const zone1 = "Monte Castelo|Carlos Chagas|Cerâmica|Francisco Bernardino|Fábrica|Esplanada|São Dimas|Centenário|Mariano Procópio|Jardim Glória|Morro da Glória|Santa Catarina|Santa Helena|Democrata|Vale do Ipê|Jardim Paineiras|Jardim Santa Helena|Poço Rico|Vitorino Braga|Nossa Senhora Aparecida";
-    const zone2 = "Centro|Boa Vista|Granbery|Bom Pastor|São Mateus|Alto dos Passos|Teixeiras|Bairu|Bonfim|Botanágua|Cesário Alvim|Grajaú|Manoel Honório|Linhares|Marumbi|Progresso|Santa Rita|Santa Cândida|São Benedito|São Bernardo|Santa Terezinha|Eldorado|Jardim Bom Clima|Granjas Betânia|Jardim Emaús|Parque Independência|Grama|Jardim Natal|Nova Era|Benfica|Nova Benfica|Milho Branco|Industrial|Jóquei Clube|Barbosa Lage|Santa Cruz|Represa|Jardim dos Alfineiros|Bandeirantes|Parque Guarani|Nossa Senhora das Graças|Quintas das Avenidas|Santa Paula";
-    const zone3 = "São Pedro|Aeroporto|Borboleta|Cruzeiro Santo Antônio|Martelos|Morro do Imperador|Nova Califórnia|Novo Horizonte|Serro Azul|Portal da Torre|Caiçaras|Marilândia|Santos Dumont|Alto dos Pinheiros|Adolfo Vireque|Bosque do Imperador|Granville|Viña Del Mar|Vina Del Mar|Nova Germânia|Parque das Águas|Spinaville|Via do Sol|Residencial Alvim|Dom Bosco|Cascatinha|Graminha|Ipiranga|Sagrado Coração de Jesus|Salvaterra|Santa Efigênia|Santa Luzia|Santa Cecília|Bomba de Fogo|Jardim Laranjeiras|Cruzeiro do Sul|Barão do Retiro|Floresta|Nossa Senhora de Lourdes|Santo Antônio|Vila Furtado de Menezes|Vila Ideal|Vila Olavo Costa|Costa Carvalho|Jardim Gaúcho|São Geraldo|Previdenciários|Jardim América|Bela Aurora|Estrela Sul|Jardim Casablanca|Nossa Senhora de Fátima";
-    const zone4 = "Barreira do Triunfo|Filgueiras|Granjas Bethel|Vale dos Bandeirantes|Paula Lima|Remonta|Vila Esperança|Jardim Europa|Jardim Olímpia|Cidade do Sol|Cidade Jardim|Fontesville|Fontesville II|Igrejinha|Parque das Palmeiras|Parque das Torres|Parque Guadalajara|Parque Guarua|Parque Imperial|Parque Jardim da Serra|Parque Serra Verde|Jardim da Serra|Chalés do Imperador|Chalés do Algarve|Colinas do Imperador|Mandala|Portal do Aeroporto|Morada do Serro|Bosque Imperial|Conjunto Flamboyants|São Clemente|São Lucas|Santana|Neo Residencial|Spinaville II|Mirante|Cidade Universitária|Três Moinhos|Terras Altas|Retiro|Pedras Preciosas|Jardim Esperança|Jardim do Sol|Santos Anjos|Vila Alpina|São Sebastião|Aracy|Jardim das Flores|Solidariedade|Granjas Primavera|Granjas Santo Antônio|Guaruá|Granjas do Bosque|Vivendas da Serra|Vivendas das Fontes|Vale Verde|Serra D'Água|Serra Dagua|Tupã|Tiguera|Spina Ville II|Vila Ozanan";
-    const n = normalize(neighborhood);
-    const feeFor = (list: string) => list.split("|").some((name) => normalize(name) === n);
-    let expectedFee: number | null = feeFor(zone1) ? 5 : feeFor(zone2) ? 7 : feeFor(zone3) ? 10 : feeFor(zone4) ? 13 : null;
-    if (expectedFee === null)
+    const deliveryFeeResponse = await fetch(
+      url + "/rest/v1/delivery_neighborhood_fees?select=neighborhood,normalized_name,zone_number,delivery_fee&active=eq.true",
+      { headers },
+    );
+    if (!deliveryFeeResponse.ok)
+      return respond(502, { error: "Não foi possível consultar as taxas de entrega." });
+    const deliveryFeeRows = await deliveryFeeResponse.json();
+    const normalizedNeighborhood = normalize(neighborhood);
+    const deliveryMatch = deliveryFeeRows.find((row: Record<string, unknown>) =>
+      String(row.normalized_name ?? "") === normalizedNeighborhood ||
+      normalize(String(row.neighborhood ?? "")) === normalizedNeighborhood
+    );
+    if (!deliveryMatch)
       return respond(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
-    const deliveryCents = itemCount >= 20 ? 0 : Math.round((expectedFee as number) * 100);
+    const expectedFee = Number(deliveryMatch.delivery_fee);
+    if (!Number.isFinite(expectedFee) || expectedFee <= 0)
+      return respond(502, { error: "A taxa de entrega cadastrada é inválida. Entre em contato com a Nutrifit." });
+    const deliveryCents = itemCount >= 20 ? 0 : Math.round(expectedFee * 100);
     const discountCode = String(body.coupon_code ?? "").trim().toUpperCase();
     let discountCents = 0;
     let redeemedCoupon: string | null = null;
