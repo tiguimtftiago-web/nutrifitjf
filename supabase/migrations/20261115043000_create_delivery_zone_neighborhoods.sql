@@ -8,7 +8,7 @@ create table public.delivery_zone_neighborhoods (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint delivery_zone_neighborhoods_normalized_name_check
-    check (normalized_name = lower(unaccent(normalized_name)) and char_length(trim(normalized_name)) between 1 and 120)
+    check (char_length(trim(normalized_name)) between 1 and 120)
 );
 
 comment on table public.delivery_zone_neighborhoods is
