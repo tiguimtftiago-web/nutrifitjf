@@ -197,17 +197,6 @@ const naturalJuices = [
   ["Abacaxi com Hortelã","/images/page-44.jpg"],
 ];
 
-const customerProofData = {
-  averageRating: null as number | null, // PREENCHER somente após apurar avaliações reais
-  reviewCount: null as number | null, // PREENCHER com a quantidade confirmada
-  testimonials: [
-    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
-    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
-    { rating: null as number | null, quote: "", customer: "", photo: "" }, // PREENCHER com depoimento e foto autorizados
-  ],
-};
-
-
 const juiceFlavors: Array<{ name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string }> = [
   { name: "Suco de Laranja", image: "/images/page-42.jpg", description: "Clássico cítrico, com sabor fresco de laranja natural.", ingredients: ["Laranja natural"], highlights: ["Sabor cítrico", "Feito com fruta", "Refrescante"], line: "SUCOS" },
   { name: "Green", image: "/images/page-37.jpg", description: "Maçã, pepino, limão, gengibre e hortelã em uma combinação cítrica e herbal.", ingredients: ["Maçã", "Pepino", "Limão", "Gengibre", "Hortelã", "Água"], highlights: ["Notas cítricas", "Toque de hortelã", "Perfil refrescante"], line: "SUCOS" },
