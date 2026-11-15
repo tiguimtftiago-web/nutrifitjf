@@ -1493,6 +1493,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
+              {deliveryFeeStatus === "loading" && <p className="mt-3 text-xs text-white/55">Carregando a tabela oficial de bairros e taxas...</p>}
+              {deliveryFeeStatus === "error" && <p role="alert" className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar as taxas oficiais de entrega. O pedido com entrega está temporariamente indisponível.</p>}
               {quantity >= DELIVERY_FREE_FROM ? (
                 <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm">
                   <div className="font-black text-[#b6d76a]">🚚 Frete grátis</div>
@@ -3113,6 +3115,8 @@ export default function Home() {
             <input value={orderCep} onChange={(event) => handleOrderCepChange(event.target.value)} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
             <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading" || deliveryFeeState.status !== "ready"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
           </div>
+          {deliveryFeeState.status === "loading" && <p className="sm:col-span-2 text-xs text-white/55">Carregando a tabela oficial de bairros e taxas...</p>}
+          {deliveryFeeState.status === "error" && <p role="alert" className="sm:col-span-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar as taxas oficiais de entrega. O checkout com entrega está temporariamente indisponível.</p>}
           {orderDelivery && orderDeliveryStatus === "idle" && (
             <div className="sm:col-span-2 rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/[.08] px-4 py-3 text-sm">
               <div className="font-bold text-[#c5df78]">{orderDelivery.neighborhood} • {orderDelivery.zone} • {orderFreeDelivery ? "Grátis" : money(orderDelivery.fee)}</div>
