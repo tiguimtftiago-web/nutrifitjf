@@ -628,52 +628,99 @@ const itemLineLabel = (line: string) => {
 
 
 const comboOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
-  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
+  { line: "FIT", weight: "350 g", products: fit },
+  { line: "PERFORMANCE", weight: "450 g", products: performance },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional },
 ] as const;
 
 type CatalogComboPriceMap = Record<string, Record<number, number>>;
+type CatalogLoadStatus = "loading" | "ready" | "error";
+type CatalogComboPriceState = { prices: CatalogComboPriceMap; status: CatalogLoadStatus };
+type CatalogProductRow = {
+  name: string;
+  line: string | null;
+  size_grams: number | null;
+  price: number | string;
+  description: string | null;
+  image_url: string | null;
+  category: string;
+  sort_order: number;
+};
 
-function useCatalogComboPrices(): CatalogComboPriceMap {
-  const [prices, setPrices] = useState<CatalogComboPriceMap>({});
+function useCatalogComboPrices(): CatalogComboPriceState {
+  const [state, setState] = useState<CatalogComboPriceState>({ prices: {}, status: "loading" });
   useEffect(() => {
     let active = true;
     const loadPrices = async () => {
       try {
         const response = await fetch(
           SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true",
-          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
         );
-        if (!response.ok) return;
+        if (!response.ok) throw new Error("Não foi possível carregar os preços dos combos.");
         const rows = await response.json();
         const next: CatalogComboPriceMap = {};
         for (const row of rows) {
-          const name = String(row.name ?? "").toUpperCase();
+          const name = String(row.name ?? "").trim().toUpperCase();
           const quantity = Number(row.quantity);
           const price = Number(row.price);
-          if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price < 0) continue;
+          if (!name || !Number.isInteger(quantity) || !Number.isFinite(price) || price <= 0) continue;
           next[name] ||= {};
           next[name][quantity] = price;
         }
-        if (active) setPrices(next);
+        if (!Object.keys(next).length) throw new Error("O catálogo de combos não retornou preços válidos.");
+        if (active) setState({ prices: next, status: "ready" });
       } catch {
-        // Mantém os valores de contingência do cardápio se a consulta falhar.
+        if (active) setState({ prices: {}, status: "error" });
       }
     };
     void loadPrices();
     return () => { active = false; };
   }, []);
-  return prices;
+  return state;
+}
+
+function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus } {
+  const [state, setState] = useState<{ products: Product[]; status: CatalogLoadStatus }>({ products: [], status: "loading" });
+  useEffect(() => {
+    let active = true;
+    const loadProducts = async () => {
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada)&order=sort_order.asc,name.asc",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("Não foi possível carregar o cardápio.");
+        const rows = await response.json() as CatalogProductRow[];
+        const products = rows
+          .filter((row) => ["marmita", "salada"].includes(row.category) && row.name && row.line && Number(row.price) > 0 && row.image_url)
+          .map((row) => ({
+            name: row.name,
+            line: String(row.line).toUpperCase(),
+            weight: row.size_grams ? `${row.size_grams} g` : "",
+            price: money(Number(row.price)),
+            description: row.description || "",
+            image: row.image_url || "",
+          }));
+        if (!products.length) throw new Error("O catálogo não retornou produtos ativos válidos.");
+        if (active) setState({ products, status: "ready" });
+      } catch {
+        if (active) setState({ products: [], status: "error" });
+      }
+    };
+    void loadProducts();
+    return () => { active = false; };
+  }, []);
+  return state;
 }
 
 const monthlyPlanOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
-  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 792,00", 60: "R$ 1.584,00" } },
+  { line: "FIT", weight: "350 g", products: fit },
+  { line: "PERFORMANCE", weight: "450 g", products: performance },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional },
 ] as const;
 
-function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => void }) {
+function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, catalogComboStatus, catalogStatus }: { onAddPlan: (items: OrderItem[]) => void; productsByLine: Record<string, Product[]>; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; catalogStatus: CatalogLoadStatus }) {
   const [lineIndex, setLineIndex] = useState(0);
   const [quantity, setQuantity] = useState<30 | 60>(30);
   const [selected, setSelected] = useState<Record<string, number>>({});
@@ -681,13 +728,16 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   const [detailQuantity, setDetailQuantity] = useState(1);
   const [planOpen, setPlanOpen] = useState(false);
   const [flavorsOpen, setFlavorsOpen] = useState(false);
-  const catalogComboPrices = useCatalogComboPrices();
   const option = monthlyPlanOptions[lineIndex];
+  const products = productsByLine[option.line] || [];
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
-  const totalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity] ?? parseMoney(option.prices[quantity]);
-  const unitPrice = totalPrice / quantity;
+  const catalogTotalPrice = catalogComboPrices["PLANO " + option.line]?.[quantity];
+  const priceReady = catalogComboStatus === "ready" && catalogStatus === "ready" && catalogTotalPrice !== undefined && products.length > 0;
+  const totalPrice = catalogTotalPrice ?? 0;
+  const unitPrice = priceReady ? totalPrice / quantity : 0;
   const unitPriceCents = Math.round(totalPrice * 100 / quantity);
-  const totalSavings = option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
+  const baseUnitPriceCents = products.length ? Math.min(...products.map((product) => Math.round(parseMoney(product.price) * 100))) : 0;
+  const totalSavings = priceReady && option.line === "FIT" ? Math.max(0, (baseUnitPriceCents - unitPriceCents) * quantity / 100) : null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
@@ -716,8 +766,8 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   };
 
   const addToCart = () => {
-    if (total !== quantity) return;
-    const items: OrderItem[] = option.products
+    if (!priceReady || total !== quantity) return;
+    const items: OrderItem[] = products
       .filter((product) => selected[product.name])
       .map((product) => ({
         name: product.name + ` — Plano ${quantity}`,
@@ -738,11 +788,11 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
           <div className="min-w-0 flex-1">
             <span className="block text-[10px] font-black uppercase tracking-[.2em] text-[#86a51d]">Plano mensal</span>
             <span className="mt-1 block text-base font-black sm:text-lg">{quantity} marmitas • {itemLineLabel(option.line)}</span>
-            <span className="mt-0.5 block text-xs text-white/45">{money(unitPrice)} por marmita</span>
+            <span className="mt-0.5 block text-xs text-white/45">{priceReady ? money(unitPrice) : "Preço indisponível" } por marmita</span>
             {totalSavings !== null && totalSavings > 0 && <span className="mt-1 block text-xs font-black text-[#b6d76a]">Economize {money(totalSavings)} vs. compra avulsa de R$ 23,97/un.</span>}
           </div>
           <div className="shrink-0 text-right">
-            <span className="block text-lg font-black text-[#f47b0b]">{money(totalPrice)}</span>
+            <span className="block text-lg font-black text-[#f47b0b]">{priceReady ? money(totalPrice) : "Preço indisponível"}</span>
             <span className="mt-0.5 block text-[10px] text-white/45">total do plano</span>
           </div>
         </div>
@@ -806,7 +856,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
 
           {flavorsOpen && (
             <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
-              {option.products.map((product) => (
+              {products.map((product) => (
                 <div key={product.name} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-2.5 sm:block sm:p-3">
                   <img src={product.image} alt={product.name} className={`h-16 w-16 shrink-0 rounded-xl sm:mb-2 sm:h-24 sm:w-full ${product.line === "FIT" && product.name === "Tilápia Fit com Arroz Branco e Legumes" ? "object-contain object-center" : "object-cover"}`} loading="eager" decoding="async" fetchPriority="high" />
                   <div className="min-w-0 flex-1 sm:min-h-[3.5rem] text-sm font-black leading-tight">{product.name}</div>
@@ -842,7 +892,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
               {remaining > 0 && <span>Faltam {remaining}</span>}
               {remaining === 0 && <span className="text-[#86a51d]">Plano completo ✓</span>}
             </div>
-            <button type="button" onClick={addToCart} disabled={total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
+            <button type="button" onClick={addToCart} disabled={!priceReady || total !== quantity} className="sticky bottom-3 z-20 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#b5cf5f] px-5 py-4 text-base font-black text-black shadow-2xl transition hover:scale-[1.01] disabled:opacity-35 sm:static sm:shadow-none">
               Adicionar plano ao pedido <ShoppingBag size={18} />
             </button>
             <div className="mt-2 text-center text-[11px] text-white/35">O plano entra no mesmo carrinho das marmitas, saladas e sucos.</div>
@@ -853,7 +903,7 @@ function MonthlyPlanBuilder({ onAddPlan }: { onAddPlan: (items: OrderItem[]) => 
   );
 }
 
-function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
@@ -879,17 +929,13 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
-  const catalogComboPrices = useCatalogComboPrices();
+  const products = productsOverride;
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
-  const price = catalogPrice !== undefined
-    ? money(catalogPrice)
-    : option.line === "TRADICIONAL" && quantity >= 30
-      ? money(792 + Math.max(0, quantity - 30) * 26.4)
-      : (option.prices as Record<number, string>)[quantity];
-  const subtotal = parseMoney(price);
+  const priceReady = catalogComboReady && catalogProductsReady && catalogPrice !== undefined && products.length > 0;
+  const subtotal = catalogPrice ?? 0;
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
-  const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
+  const premiumExtra = products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
@@ -929,7 +975,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   };
 
   const addProduct = (name: string) => {
-    if (total >= quantity) return;
+    if (!catalogProductsReady || total >= quantity) return;
     setSelected((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
   };
 
@@ -1018,13 +1064,13 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   };
 
   const sendOrder = async () => {
-    if (orderSubmitLock.current || total !== quantity || !deliveryReady || !customerReady) return;
+    if (orderSubmitLock.current || !priceReady || total !== quantity || !deliveryReady || !customerReady) return;
     orderSubmitLock.current = true;
     trackClick("combo_order_click", `${option.line}-${quantity}`);
 
     setPaymentStatus("loading");
 
-    const items = option.products
+    const items = products
       .filter((product) => selected[product.name])
       .map((product, i) => {
         const qty = selected[product.name];
@@ -1113,7 +1159,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           whatsapp: normalizedPhone,
           line: option.line,
           combo_quantity: quantity,
-          items: option.products
+          items: products
             .filter((product) => selected[product.name])
             .map((product) => ({
               name: product.name,
@@ -1233,7 +1279,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
           <div className="text-right">
             <div className="text-xs text-white/45">{total === quantity ? "Combo completo ✓" : `Faltam ${quantity - total}`}</div>
-            <div className="mt-1 text-lg font-black text-[#f47b0b]">{money(grandTotal)}</div>
+            <div className="mt-1 text-lg font-black text-[#f47b0b]">{priceReady ? money(grandTotal) : "Preço indisponível"}</div>
           </div>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
@@ -1271,7 +1317,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                     <p className="mt-1 text-sm text-white/65">{description}</p>
                     <div className="mt-3 border-t border-white/10 pt-3">
                       <div className="text-xs text-white/50">Combos a partir de</div>
-                      <div className="mt-0.5 text-xl font-black text-[#f47b0b]">{item.prices[5]}</div>
+                      <div className="mt-0.5 text-xl font-black text-[#f47b0b]">{catalogComboPrices[item.line]?.[5] !== undefined ? money(catalogComboPrices[item.line][5]) : (catalogComboReady ? "Indisponível" : "Carregando...")}</div>
                     </div>
                     <div className={`mt-3 flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black ${lineIndex === index ? "bg-[#86a51d] text-black" : "border border-white/15 text-white"}`}>
                       {lineIndex === index ? "Linha selecionada" : "Escolher esta linha"} <ArrowRight size={16}/>
@@ -1294,17 +1340,17 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             </div>
             {option.line === "TRADICIONAL" && (
               <div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-3">
-                <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (R$ 26,40 por unidade adicional)
+                <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (preço conforme tabela oficial)
                   <div className="mt-2 flex gap-2">
-                    <input type="number" min={31} max={300} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#86a51d]" />
-                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 300) changeQuantity(value); }} className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
+                    <input type="number" min={31} max={100} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#86a51d]" />
+                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 100) changeQuantity(value); }} className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
                   </div>
                 </label>
               </div>
             )}
           </div>
 
-          <button type="button" onClick={() => setStep(2)} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(134,165,29,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
+          <button type="button" onClick={() => setStep(2)} disabled={!priceReady} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] disabled:opacity-40 px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(134,165,29,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
             Escolher sabores <ArrowRight size={18} />
           </button>
           <div className="mt-2 text-center text-[10px] font-bold text-white/30">Você poderá alterar a linha e a quantidade antes de confirmar.</div>
@@ -1320,7 +1366,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           {total !== quantity ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {option.products.map((product) => (
+            {products.map((product) => (
               <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45">
                 <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
                   {product.crop ? (
@@ -2120,7 +2166,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
+function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus }) {
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2192,10 +2238,11 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <h3 className="text-base font-black">Escolha a quantidade do combo</h3>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {([5, 7, 10, 20] as const).map((quantity) => {
-                  const price = (lineCombo.prices as Record<number, string>)[quantity];
-                  const unitPrice = parseMoney(price) / quantity;
+                  const priceValue = catalogComboPrices[lineCombo.line]?.[quantity];
+                  const price = priceValue !== undefined ? money(priceValue) : null;
+                  const unitPrice = priceValue !== undefined ? priceValue / quantity : 0;
                   return (
-                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#f47b0b]">
+                    <button key={quantity} type="button" disabled={priceValue === undefined || catalogComboStatus !== "ready"} onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#f47b0b]">
                       <span className="block text-sm font-black">{quantity} marmitas</span>
                       <span className="mt-1 block text-xl font-black text-[#c8dc36]">{price}</span>
                       <span className="mt-0.5 block text-xs text-white/60">{money(unitPrice)} cada</span>
@@ -2211,17 +2258,20 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div>
                   <div className="text-xs font-black uppercase tracking-wider text-[#86a51d]">Combo selecionado</div>
-                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {(lineCombo.prices as Record<number, string>)[selectedComboQuantity]}</div>
+                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {catalogComboPrices[lineCombo.line]?.[selectedComboQuantity] !== undefined ? money(catalogComboPrices[lineCombo.line][selectedComboQuantity]) : "Preço indisponível"}</div>
                 </div>
                 <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
-              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} />
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
             </div>
           )}
         </div>
       )}
 
       <div id={`nf-line-options-${id}`} className={expanded && (!isMealLine || purchaseMode === "individual") ? "block" : "hidden sm:block"}>
+        {catalogStatus === "loading" && <p className="rounded-xl border border-white/10 p-4 text-sm text-white/60">Carregando cardápio e preços oficiais...</p>}
+        {catalogStatus === "error" && <p role="alert" className="rounded-xl border border-red-500/30 p-4 text-sm text-red-200">Não foi possível carregar o cardápio. A compra está temporariamente indisponível para evitar valores incorretos.</p>}
+        {catalogStatus === "ready" && products.length === 0 && <p className="rounded-xl border border-white/10 p-4 text-sm text-white/60">Não há produtos ativos nesta linha no momento.</p>}
         <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {visibleProducts.map((product) => (
           <div key={product.name} className={!expanded && visibleProducts.indexOf(product) === 2 ? "hidden lg:block" : ""}>
@@ -2293,6 +2343,18 @@ export default function Home() {
   const [snackFruit, setSnackFruit] = useState("Mamão");
 
   const [cartHydrated, setCartHydrated] = useState(false);
+  const catalogProductState = useCatalogProducts();
+  const catalogComboState = useCatalogComboPrices();
+  const catalogProductsByLine: Record<string, Product[]> = {
+    FIT: catalogProductState.products.filter((product) => product.line === "FIT"),
+    PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE"),
+    TRADICIONAL: catalogProductState.products.filter((product) => product.line === "TRADICIONAL"),
+    SALADAS: catalogProductState.products.filter((product) => product.line === "SALADAS"),
+  };
+  const catalogFit = catalogProductsByLine.FIT;
+  const catalogPerformance = catalogProductsByLine.PERFORMANCE;
+  const catalogTraditional = catalogProductsByLine.TRADICIONAL;
+  const catalogSalads = catalogProductsByLine.SALADAS;
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -3090,11 +3152,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -3370,7 +3432,7 @@ export default function Home() {
             <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl md:text-4xl">Organize suas refeições do mês</h2>
             <p className="mt-3 leading-6 text-white/50">Escolha 30 ou 60 marmitas e combine seus sabores favoritos dentro da mesma linha. Mais praticidade para planejar sua alimentação e manter sua rotina organizada.</p>
           </div>
-          <MonthlyPlanBuilder onAddPlan={addPlanToOrder} />
+          <MonthlyPlanBuilder onAddPlan={addPlanToOrder} productsByLine={catalogProductsByLine} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} catalogStatus={catalogProductState.status} />
         </div>
       </section>
 
