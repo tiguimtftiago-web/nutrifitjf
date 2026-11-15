@@ -1144,6 +1144,69 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
   const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
   const comboRootRef = useRef<HTMLDivElement>(null);
+  const comboActionRef = useRef<(element: HTMLElement) => void>(() => {});
+  comboActionRef.current = (element) => {
+    const action = element.dataset.comboAction;
+    if (action === "reset") reset();
+    else if (action === "step") {
+      const target = Number(element.dataset.step);
+      if (Number.isInteger(target) && target >= 1 && target <= 5) setStep(target as 1 | 2 | 3 | 4 | 5);
+    } else if (action === "line") changeLine(Number(element.dataset.index));
+    else if (action === "quantity") changeQuantity(Number(element.dataset.value));
+    else if (action === "custom-quantity") {
+      const value = Math.floor(Number(customQuantity));
+      if (value >= 31 && value <= 100) changeQuantity(value);
+    } else if (action === "open-detail") {
+      const product = products.find((item) => item.name === element.dataset.product);
+      if (product) { setDetailProduct(product); setDetailQuantity(1); }
+    } else if (action === "clear-selection") setSelected({});
+    else if (action === "close-detail") setDetailProduct(null);
+    else if (action === "detail-minus") setDetailQuantity((value) => Math.max(1, value - 1));
+    else if (action === "detail-plus") setDetailQuantity((value) => Math.min(quantity - total, value + 1));
+    else if (action === "add-detail") {
+      if (detailProduct) {
+        setSelected((current) => ({ ...current, [detailProduct.name]: (current[detailProduct.name] || 0) + detailQuantity }));
+        setDetailProduct(null);
+      }
+    } else if (action === "toggle-complement-category") {
+      const category = element.dataset.category;
+      if (category) setComplementCategory((current) => current === category ? null : category);
+    } else if (action === "remove-complement") removeComplement(element.dataset.name || "");
+    else if (action === "add-complement") addComplement(element.dataset.name || "");
+    else if (action === "delivery") chooseDeliveryMode("delivery");
+    else if (action === "pickup") chooseDeliveryMode("pickup");
+    else if (action === "calculate-delivery") void calculateDelivery();
+    else if (action === "send-order") void sendOrder();
+  };
+
+  useEffect(() => {
+    const root = comboRootRef.current;
+    if (!root) return;
+    let lastTouch = 0;
+    const findAction = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return null;
+      return target.closest<HTMLElement>("[data-combo-action]");
+    };
+    const onTouchEnd = (event: TouchEvent) => {
+      const element = findAction(event);
+      if (!element || element.hasAttribute("disabled")) return;
+      lastTouch = Date.now();
+      comboActionRef.current(element);
+    };
+    const onClick = (event: MouseEvent) => {
+      const element = findAction(event);
+      if (!element || element.hasAttribute("disabled")) return;
+      if (Date.now() - lastTouch < 800) return;
+      comboActionRef.current(element);
+    };
+    root.addEventListener("touchend", onTouchEnd, { passive: true });
+    root.addEventListener("click", onClick);
+    return () => {
+      root.removeEventListener("touchend", onTouchEnd);
+      root.removeEventListener("click", onClick);
+    };
+  }, []);
 
   useEffect(() => {
     if (!autoScroll) return;
@@ -1161,7 +1224,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           <h3 className="mt-1 text-xl font-black leading-tight sm:mt-1.5 sm:text-2xl md:text-4xl">Monte seu combo</h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-white/50 sm:mt-1.5 sm:text-sm sm:leading-6">Você só precisa seguir os 5 passos. No celular, avance quando terminar cada etapa.</p>
         </div>
-        <button type="button" onClick={reset} className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
+        <button type="button" data-combo-action="reset" className="shrink-0 rounded-full border border-white/10 bg-white/5 p-2.5 text-white/55" aria-label="Limpar combo"><RotateCcw size={16} /></button>
       </div>
 
       <div className="sticky top-[64px] z-30 mt-3 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2.5 shadow-xl backdrop-blur-xl sm:static sm:mt-5 sm:bg-white/[.025] sm:p-3.5 sm:shadow-none">
@@ -1171,7 +1234,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             const done = step > n;
             const active = step === n;
             return (
-              <button key={number} type="button" onClick={() => n <= step && setStep(n)} className="min-w-0 text-center" disabled={n > step}>
+              <button key={number} type="button" data-combo-action="step" data-step={n} className="min-w-0 text-center" disabled={n > step}>
                 <div className={`mx-auto grid h-8 w-8 place-items-center rounded-full text-xs font-black ${done || active ? "bg-[#86a51d] text-black" : "bg-white/10 text-white/35"}`}>
                   {done ? <Check size={14} strokeWidth={3} /> : number}
                 </div>
@@ -1214,7 +1277,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   : "/images/pernil-acebolado-batata-real.jpg";
               const description = index === 0 ? "Leve e equilibrada" : index === 1 ? "Mais proteína e energia" : "Sabor caseiro";
               return (
-                <button key={item.line} type="button" onClick={() => changeLine(index)} aria-pressed={lineIndex === index} className={`touch-manipulation relative z-10 w-full min-w-0 overflow-hidden rounded-2xl border text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f47b0b] ${lineIndex === index ? "border-[#86a51d] bg-[#86a51d]/10 ring-1 ring-[#86a51d]/35" : "border-white/10 bg-white/[.025]"}`}>
+                <button key={item.line} type="button" data-combo-action="line" data-index={index} aria-pressed={lineIndex === index} className={`touch-manipulation relative z-10 w-full min-w-0 overflow-hidden rounded-2xl border text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f47b0b] ${lineIndex === index ? "border-[#86a51d] bg-[#86a51d]/10 ring-1 ring-[#86a51d]/35" : "border-white/10 bg-white/[.025]"}`}>
                   <div className="relative h-44 overflow-hidden bg-[#171a14] sm:h-36">
                     <img src={image} alt={`Sugestão de refeição da linha ${item.line.toLowerCase()}`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     <span className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[10px] font-black tracking-wider ${index === 2 ? "bg-[#f47b0b] text-black" : "bg-[#86a51d] text-black"}`}>{item.line}</span>
@@ -1243,7 +1306,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="text-sm font-black text-white/75">Quantas marmitas?</div>
             <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:gap-2">
               {([...([5, 7, 10, 14, 20] as const), ...(option.line === "TRADICIONAL" ? [30] : [])]).map((value) => (
-                <button key={value} type="button" onClick={() => changeQuantity(value)} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#86a51d] bg-[#86a51d] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
+                <button key={value} type="button" data-combo-action="quantity" data-value={value} className={`touch-manipulation relative z-10 min-w-0 rounded-2xl border px-1.5 py-3.5 text-center text-sm font-black transition ${quantity === value ? "border-[#86a51d] bg-[#86a51d] text-black" : "border-white/10 bg-white/5 text-white/70"}`}>
                   <span className="block text-base sm:text-sm">{value}</span>
                   <span className={`mt-0.5 block truncate text-[8px] font-normal ${quantity === value ? "text-black/60" : "text-white/35"}`}>marmitas</span>
                 </button>
@@ -1254,14 +1317,14 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (preço conforme tabela oficial)
                   <div className="mt-2 flex gap-2">
                     <input type="number" min={31} max={100} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#86a51d]" />
-                    <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 100) changeQuantity(value); }} className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
+                    <button type="button" data-combo-action="custom-quantity" className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
                   </div>
                 </label>
               </div>
             )}
           </div>
 
-          <button type="button" onClick={() => setStep(2)} disabled={!priceReady} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] disabled:opacity-40 px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(134,165,29,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
+          <button type="button" data-combo-action="step" data-step={2} disabled={!priceReady} className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] disabled:opacity-40 px-5 py-3 font-black text-black shadow-[0_10px_30px_rgba(134,165,29,.16)] active:scale-[.99] sm:mt-6 sm:min-h-14 sm:px-6 sm:py-4">
             Escolher sabores <ArrowRight size={18} />
           </button>
           <div className="mt-2 text-center text-[10px] font-bold text-white/30">Você poderá alterar a linha e a quantidade antes de confirmar.</div>
@@ -1278,7 +1341,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           {total !== quantity ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {products.map((product) => (
-              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45">
+              <button key={product.name} type="button" data-combo-action="open-detail" data-product={product.name} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45">
                 <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
                   {product.crop ? (
                     <div role="img" aria-label={product.name} className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
@@ -1307,15 +1370,15 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               <div className="font-black text-[#b6d76a]">✓ {quantity} marmitas escolhidas</div>
               <div className="mt-1 text-sm text-white/55">{Object.entries(selected).filter(([, qty]) => qty > 0).map(([name, qty]) => `${qty}x ${name}`).join(" • ")}</div>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                <button type="button" onClick={() => setSelected({})} className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2.5 text-xs font-bold text-[#ef9b55] underline-offset-4 hover:bg-white/5">Alterar seleção</button>
-                <button type="button" onClick={() => setStep(3)} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:brightness-110">Continuar para complementos <ArrowRight size={15} /></button>
+                <button type="button" data-combo-action="clear-selection" className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/15 px-4 py-2.5 text-xs font-bold text-[#ef9b55] underline-offset-4 hover:bg-white/5">Alterar seleção</button>
+                <button type="button" data-combo-action="step" data-step={3} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-2.5 text-xs font-black text-black transition hover:brightness-110">Continuar para complementos <ArrowRight size={15} /></button>
               </div>
             </div>
           )}
           {detailProduct && total !== quantity && (
             <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/85 p-0 backdrop-blur-sm sm:items-center sm:p-5" role="dialog" aria-modal="true" aria-label={detailProduct.name}>
               <div className="relative max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-[1.6rem] border border-white/10 bg-[#080a07] sm:rounded-[1.6rem]">
-                <button type="button" onClick={() => setDetailProduct(null)} aria-label="Fechar detalhes do prato" className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-2xl text-white">×</button>
+                <button type="button" data-combo-action="close-detail" aria-label="Fechar detalhes do prato" className="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-black/70 text-2xl text-white">×</button>
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
                   {detailProduct.crop ? (
                     <div role="img" aria-label={detailProduct.name} className="absolute inset-0 bg-cover bg-no-repeat" style={{ backgroundImage: `url(${detailProduct.image})`, backgroundSize: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: detailProduct.name === "Tilápia Fit com Arroz Branco e Legumes" && detailProduct.line === "FIT" ? "center" : detailProduct.crop, backgroundRepeat: "no-repeat" }} />
@@ -1328,11 +1391,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                   <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#86a51d] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#f47b0b]">{detailProduct.price}</span></div>
                   <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
                   <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
-                    <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
+                    <button type="button" data-combo-action="detail-minus" disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
                     <span className="min-w-6 text-center text-xl font-black">{detailQuantity}</span>
-                    <button type="button" onClick={() => setDetailQuantity(v => Math.min(quantity-total,v+1))} disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#f47b0b] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
+                    <button type="button" data-combo-action="detail-plus" disabled={detailQuantity >= quantity-total} className="grid h-12 w-12 place-items-center rounded-full bg-[#f47b0b] text-black disabled:opacity-30" aria-label="Aumentar quantidade"><Plus size={18}/></button>
                   </div>
-                  <button type="button" onClick={() => { setSelected(prev => ({...prev, [detailProduct.name]: (prev[detailProduct.name] || 0) + detailQuantity})); setDetailProduct(null); }} className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#f47b0b] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
+                  <button type="button" data-combo-action="add-detail" className="mt-4 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#f47b0b] px-5 py-4 text-base font-black text-black"><ShoppingBag size={19}/> Adicionar ao combo</button>
                   <p className="mt-3 text-center text-xs text-white/40">Escolha a quantidade e adicione este prato ao seu combo.</p>
                   {getNutritionForProduct(detailProduct) && (() => { const n = getNutritionForProduct(detailProduct)!; return <section className="mt-5 rounded-2xl border border-[#86a51d]/30 bg-[#10140d] p-4 text-white" aria-label="Ficha nutricional">
                     <div className="flex items-center justify-between gap-3"><h4 className="text-base font-black text-[#b6d76a]">Informação nutricional</h4><span className="rounded-full bg-[#86a51d]/15 px-2.5 py-1 text-xs font-black text-[#b6d76a]">{n.kcal} kcal</span></div>
@@ -1348,8 +1411,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           )}
 
           <div className="sticky top-[138px] z-20 mt-4 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(1)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => total === quantity && setStep(3)} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
+            <button type="button" data-combo-action="step" data-step={1} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" data-combo-action="step" data-step={3} disabled={total !== quantity} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
               Continuar <ArrowRight size={17} />
             </button>
           </div>
@@ -1376,7 +1439,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 <button
                   key={category}
                   type="button"
-                  onClick={() => setComplementCategory((current) => current === category ? null : category)}
+                  data-combo-action="toggle-complement-category" data-category={category}
                   className={`touch-manipulation rounded-2xl border p-3 text-left transition ${active ? "border-[#f47b0b] bg-[#f47b0b]/10" : "border-white/10 bg-white/[.025]"}`}
                   aria-expanded={active}
                 >
@@ -1427,9 +1490,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                           <div className="mt-1 text-xs font-black text-[#f47b0b]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5">
-                          {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
+                          {qty > 0 && <button type="button" data-combo-action="remove-complement" data-name={item.name} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
                           {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
-                          <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black"><Plus size={15} /></button>
+                          <button type="button" data-combo-action="add-complement" data-name={item.name} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black"><Plus size={15} /></button>
                         </div>
                       </div>
                     );
@@ -1449,8 +1512,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           )}
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(2)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={() => setStep(4)} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">
+            <button type="button" data-combo-action="step" data-step={2} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" data-combo-action="step" data-step={4} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black">
               Continuar <ArrowRight size={17} />
             </button>
           </div>
@@ -1465,12 +1528,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
 
           <div className="grid gap-2.5 sm:grid-cols-2">
-            <button type="button" onClick={() => chooseDeliveryMode("delivery")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "delivery" ? "border-[#86a51d] bg-[#86a51d]/10" : "border-white/10 bg-white/[.025]"}`}>
+            <button type="button" data-combo-action="delivery" className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "delivery" ? "border-[#86a51d] bg-[#86a51d]/10" : "border-white/10 bg-white/[.025]"}`}>
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#86a51d]/15 text-[#b6d76a]"><Truck size={23} /></div>
               <div className="mt-3 text-lg font-black">Receber em casa</div>
               <div className="mt-1 text-sm text-white/50">Digite seu CEP para calcular a entrega.</div>
             </button>
-            <button type="button" onClick={() => chooseDeliveryMode("pickup")} className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "pickup" ? "border-[#f47b0b] bg-[#f47b0b]/10" : "border-white/10 bg-white/[.025]"}`}>
+            <button type="button" data-combo-action="pickup" className={`touch-manipulation rounded-3xl border-2 p-5 text-left transition ${deliveryMode === "pickup" ? "border-[#f47b0b] bg-[#f47b0b]/10" : "border-white/10 bg-white/[.025]"}`}>
               <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#f47b0b]/15 text-[#ef9b55]"><MapPin size={23} /></div>
               <div className="mt-3 text-lg font-black">Retirar na Nutrifit</div>
               <div className="mt-1 text-sm text-white/50">Sem taxa de entrega.</div>
@@ -1486,7 +1549,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
                 <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#86a51d]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-busy={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                <button type="button" data-combo-action="calculate-delivery" disabled={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-busy={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
@@ -1538,8 +1601,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#080a07]/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl backdrop-blur-xl sm:sticky sm:bottom-2 sm:mt-5 sm:rounded-2xl sm:border sm:bg-[#0b0e09]/95 sm:p-2">
             <div className="mx-auto flex w-full max-w-3xl gap-2">
-              <button type="button" onClick={() => setStep(3)} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-              <button type="button" onClick={() => deliveryReady && setStep(5)} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
+              <button type="button" data-combo-action="step" data-step={3} className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+              <button type="button" data-combo-action="step" data-step={5} disabled={!deliveryReady} className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3.5 font-black text-black disabled:opacity-30">
                 Continuar <ArrowRight size={17} />
               </button>
             </div>
@@ -1587,8 +1650,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           </div>
 
           <div className="sticky bottom-2 z-20 mt-5 flex gap-2 rounded-2xl border border-white/10 bg-[#0b0e09]/95 p-2 shadow-2xl backdrop-blur-xl">
-            <button type="button" onClick={() => setStep(4)} aria-label="Voltar para os dados do pedido" className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
-            <button type="button" onClick={sendOrder} disabled={!canPay} aria-busy={paymentStatus === "loading"} aria-label="Finalizar pedido no WhatsApp" className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
+            <button type="button" data-combo-action="step" data-step={4} aria-label="Voltar para os dados do pedido" className="inline-flex flex-1 items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 font-bold text-white/70">Voltar</button>
+            <button type="button" data-combo-action="send-order" disabled={!canPay} aria-busy={paymentStatus === "loading"} aria-label="Finalizar pedido no WhatsApp" className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full bg-[#f47b0b] px-5 py-3.5 font-black text-black disabled:cursor-not-allowed disabled:opacity-30">
               {paymentStatus === "loading" ? <><Loader2 size={17} className="animate-spin" /> Enviando...</> : <><ShoppingBag size={17} /> Finalizar no WhatsApp</>}
             </button>
           </div>
