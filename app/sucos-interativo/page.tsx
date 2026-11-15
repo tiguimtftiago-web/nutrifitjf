@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Leaf, MessageCircle, ShieldCheck, ShoppingCart } from "lucide-react";
 
@@ -44,7 +44,7 @@ function JuiceDetails({ name }: { name: string }) {
   const tabs = [
     { id: "info" as const, label: "Informações" },
     { id: "ingredients" as const, label: "Ingredientes" },
-    { id: "nutrition" as const, label: "Nutricional" },
+    { id: "nutrition" as const, label: "Estimativa" },
     { id: "benefits" as const, label: "Benefícios" }
   ];
   return (
@@ -83,17 +83,17 @@ function JuiceDetails({ name }: { name: string }) {
               <ul className="mt-2 divide-y divide-white/10 overflow-hidden rounded-lg border border-white/10">
                 {data.recipe.map(line => <li key={line} className="bg-white/[.025] px-3 py-2 text-[11px] leading-4 text-white/85">{line}</li>)}
               </ul>
-              <p className="mt-2 text-[10px] leading-4 text-white/50">Receita e composição conforme ficha técnica oficial da Nutrifit.</p>
+              <p className="mt-2 text-[10px] leading-4 text-white/50">Receita-base em desenvolvimento; quantidades e rendimento devem ser confirmados no lote-piloto.</p>
             </div>
           )}
           {activeTab === "nutrition" && (
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Informação nutricional</p>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#ef7d18]">Estimativa nutricional</p>
               <div className="mt-2 overflow-hidden rounded-lg border border-white/10">
                 <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-white/[.07] px-2.5 py-2 text-[9px] font-black uppercase text-white/75"><span>Nutriente</span><span className="text-right">300 ml</span><span className="text-right">500 ml</span></div>
                 {nutrients.map(([label, unit, value], i) => <div key={label} className={"grid grid-cols-[1fr_auto_auto] gap-2 px-2.5 py-2 text-[10px] " + (i % 2 === 0 ? "bg-white/[.04]" : "")}><span className="text-white/85">{label}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value*0.6)} {unit}</span><span className="text-right font-bold text-[#a7b86a]">{fmt(value)} {unit}</span></div>)}
               </div>
-              <p className="mt-2 text-[9px] leading-4 text-white/50">Valores apresentados conforme a composição nutricional definida para cada receita Nutrifit. Os dados estão organizados por volume de 300 ml e 500 ml.</p>
+              <p className="mt-2 text-[9px] leading-4 text-white/50">Valores preliminares estimados a partir da receita-base de 500 ml e escalados proporcionalmente para 300 ml; ainda dependem de validação de lote-piloto. Podem variar conforme matéria-prima e rendimento.</p>
             </div>
           )}
           {activeTab === "benefits" && (
@@ -115,17 +115,60 @@ function JuiceDetails({ name }: { name: string }) {
   );
 }
 
+type JuiceCatalogPrice = { [size: number]: number };
 const sizes = [
-  { label: "500 ml", price: "R$ 12,90" },
-  { label: "300 ml", price: "R$ 9,90" },
+  { label: "500 ml", grams: 500 },
+  { label: "300 ml", grams: 300 },
 ] as const;
+const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
+const formatBRL = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function SucosInterativosPage() {
   const [active, setActive] = useState(0);
   const [size, setSize] = useState<"300 ml" | "500 ml">("500 ml");
+  const [juiceCatalog, setJuiceCatalog] = useState<Record<string, JuiceCatalogPrice>>({});
+  const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
   const juice = juices[active];
-  const price = size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
-  const orderText = encodeURIComponent(`Olá, Nutrifit! Quero pedir ${juice.name}, ${size}, por ${price}.`);
+
+  useEffect(() => {
+    let activeRequest = true;
+    const loadJuiceCatalog = async () => {
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/catalog_products?select=name,size_grams,price&active=eq.true&category=eq.suco&order=name.asc",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("Catálogo de sucos indisponível");
+        const rows = await response.json() as Array<{ name: string; size_grams: number; price: number | string }>;
+        const next: Record<string, JuiceCatalogPrice> = {};
+        for (const row of rows) {
+          const baseName = row.name.replace(/\\s+—\\s+\\d+\\s*ml$/i, "").trim();
+          const key = baseName === "Suco de Laranja" ? "Laranja" : baseName;
+          const grams = Number(row.size_grams);
+          const price = Number(row.price);
+          if (!key || ![300, 500].includes(grams) || !Number.isFinite(price) || price <= 0) continue;
+          next[key] = { ...(next[key] ?? {}), [grams]: price };
+        }
+        if (!Object.keys(next).length) throw new Error("Nenhum suco ativo no catálogo");
+        if (activeRequest) {
+          setJuiceCatalog(next);
+          setCatalogStatus("ready");
+        }
+      } catch {
+        if (activeRequest) setCatalogStatus("error");
+      }
+    };
+    void loadJuiceCatalog();
+    return () => { activeRequest = false; };
+  }, []);
+
+  const sizeGrams = size === "500 ml" ? 500 : 300;
+  const priceValue = juiceCatalog[juice.name]?.[sizeGrams] ?? null;
+  const price = priceValue === null ? null : formatBRL(priceValue);
+  const orderText = encodeURIComponent(price
+    ? `Olá, Nutrifit! Quero pedir ${juice.name}, ${size}, por ${price}.`
+    : `Olá, Nutrifit! Quero consultar a disponibilidade e o preço de ${juice.name}, ${size}.`);
   const whatsapp = `https://wa.me/5532998030038?text=${orderText}`;
 
   function choose(index: number) {
@@ -177,13 +220,18 @@ export default function SucosInterativosPage() {
               <p className="mt-3 text-sm leading-6 text-white/65">{juice.description} Escolha o tamanho para adicionar ao pedido.</p>
               <JuiceDetails name={juice.name} />
               <div className="mt-6 space-y-3">
-                {sizes.map(option => <button key={option.label} type="button" onClick={() => setSize(option.label)} aria-pressed={size === option.label} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-4 text-left transition ${size === option.label ? "border-[#ef7d18] bg-[#ef7d18]/15 shadow-[0_0_20px_rgba(239,125,24,.10)]" : "border-white/15 bg-black hover:border-white/35"}`}>
-                  <span><span className="block text-sm font-black">{option.label}</span><span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-white/45">Selecionar tamanho</span></span>
-                  <span className="text-lg font-black text-[#ef7d18]">{option.price}</span>
-                </button>)}
+                {sizes.map(option => {
+                  const optionPrice = juiceCatalog[juice.name]?.[option.grams];
+                  return <button key={option.label} type="button" disabled={catalogStatus !== "ready" || optionPrice === undefined} onClick={() => setSize(option.label)} aria-pressed={size === option.label} className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${size === option.label ? "border-[#ef7d18] bg-[#ef7d18]/15 shadow-[0_0_20px_rgba(239,125,24,.10)]" : "border-white/15 bg-black hover:border-white/35"}`}>
+                    <span><span className="block text-sm font-black">{option.label}</span><span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-white/45">Selecionar tamanho</span></span>
+                    <span className="text-lg font-black text-[#ef7d18]">{optionPrice === undefined ? "Indisponível" : formatBRL(optionPrice)}</span>
+                  </button>;
+                })}
               </div>
-              <p className="mt-3 text-xs text-white/45">Selecionado: {size} • {price}</p>
-              <a href={whatsapp} target="_blank" rel="noreferrer" className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-center text-sm font-black text-black transition hover:bg-orange-400"><MessageCircle size={17}/> Pedir agora</a>
+              {catalogStatus === "loading" && <p className="mt-3 text-xs text-white/45">Carregando preços oficiais do catálogo...</p>}
+              {catalogStatus === "error" && <p role="alert" className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar o preço deste suco. Consulte a equipe antes de finalizar.</p>}
+              <p className="mt-3 text-xs text-white/45">Selecionado: {size} • {price ?? "Preço indisponível"}</p>
+              <a href={whatsapp} target="_blank" rel="noreferrer" className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ef7d18] px-4 py-3 text-center text-sm font-black text-black transition hover:bg-orange-400"><MessageCircle size={17}/> {price ? "Pedir agora" : "Consultar no WhatsApp"}</a>
             </aside>
           </div>
 
