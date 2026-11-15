@@ -2324,18 +2324,19 @@ export default function Home() {
   const catalogTraditional = catalogProductsByLine.TRADICIONAL;
   const catalogSalads = catalogProductsByLine.SALADAS;
   const getOrderItemCatalogPrice = (item: OrderItem): number | null => {
-    if (item.line.startsWith("PLANO")) {
+    const itemLine = item.line.trim().toUpperCase();
+    if (itemLine.startsWith("PLANO")) {
       const planQuantity = Number(item.name.match(/Plano (\d+)/i)?.[1] || 0);
-      const planTotal = catalogComboState.prices[item.line]?.[planQuantity];
+      const planTotal = catalogComboState.prices[itemLine]?.[planQuantity];
       return planQuantity > 0 && planTotal !== undefined ? planTotal / planQuantity : null;
     }
-    const isSnackBox = item.line.trim().toUpperCase() === "SNACK BOX" || item.name.trim().toLowerCase().startsWith("nutrifit snack box");
+    const isSnackBox = itemLine === "SNACK BOX" || item.name.trim().toLowerCase().startsWith("nutrifit snack box");
     const aliases: Record<string, string> = {
       "feijoada": "Feijoada Fit",
       "churrasco mineiro": "Churrasco Fit Mineiro",
     };
     const name = isSnackBox ? "Nutrifit Snack Box" : aliases[item.name.trim().toLowerCase()] || item.name;
-    const line = isSnackBox ? "SNACK BOX" : item.line.trim().toUpperCase();
+    const line = isSnackBox ? "SNACK BOX" : itemLine;
     const product = catalogProductState.products.find((candidate) =>
       candidate.name.trim().toLowerCase() === name.trim().toLowerCase() &&
       candidate.line.trim().toUpperCase() === line
