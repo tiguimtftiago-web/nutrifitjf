@@ -2121,7 +2121,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                 <span className="text-[19px] font-black leading-none text-[#f47b0b]">{priceLabel}</span>
               </div>
             </div>
-            <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}` className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
+            <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
         </div>
       </div>
@@ -2196,7 +2196,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                         </div>
         <div className="mt-auto flex items-center gap-1.5 pt-2.5">
           <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#f47b0b] sm:text-xl">{priceLabel}</div>
-          <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}` className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
+          <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
