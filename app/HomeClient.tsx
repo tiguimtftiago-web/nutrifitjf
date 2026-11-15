@@ -2438,7 +2438,7 @@ export default function Home() {
     if (!cartHydrated || !catalogProductState.loaded) return;
     setOrderItems((current) => current.map((item) => {
       if (item.line.startsWith("PLANO")) {
-        const planQuantity = Number(item.name.match(/Plano (\\d+)/i)?.[1] || 0);
+        const planQuantity = Number(item.name.match(/Plano (\d+)/i)?.[1] || 0);
         const planTotal = catalogComboPrices[item.line]?.[planQuantity];
         return !planQuantity || planTotal === undefined ? item : { ...item, price: planTotal / planQuantity };
       }
@@ -2550,7 +2550,7 @@ export default function Home() {
   }, []);
   const orderHasUnverifiedPrices = orderItems.some((item) => {
     if (item.line.startsWith("PLANO")) {
-      const planQuantity = Number(item.name.match(/Plano (\\d+)/i)?.[1] || 0);
+      const planQuantity = Number(item.name.match(/Plano (\d+)/i)?.[1] || 0);
       return !planQuantity || catalogComboPrices[item.line]?.[planQuantity] === undefined;
     }
     return getCatalogProductPrice(catalogProductState.rows, item) === null;
