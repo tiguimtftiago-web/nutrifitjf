@@ -12,7 +12,7 @@ const sections = [
   {
     title: "1. Identificação",
     paragraphs: [
-      "Este site é operado pela Nutrifit, CNPJ 64.776.469/0001-08, com endereço em Rua Enéas Mascarenhas, nº 94, Monte Castelo, Juiz de Fora/MG.",
+      "Este site é operado pela Nutrifit, CNPJ 64.776.469/0001-08, com endereço em Rua Enéas Mascarenhas, nº 94/304, bairro Monte Castelo, Juiz de Fora/MG.",
       "Contato: NutriFit.cozinhajf@gmail.com e WhatsApp (32) 99803-0038.",
     ],
   },

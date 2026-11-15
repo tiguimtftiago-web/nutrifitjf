@@ -4,6 +4,13 @@ export const metadata: Metadata = {
   title: "Nutrifit Admin",
   description: "Painel administrativo Nutrifit",
   manifest: "/admin-manifest.webmanifest",
+  robots: {
+    index: false,
+    follow: false,
+    noarchive: true,
+    nosnippet: true,
+    googleBot: { index: false, follow: false, noimageindex: true },
+  },
   icons: {
     icon: [
       { url: "/apple-touch-icon.png?v=1", sizes: "180x180", type: "image/png" },
