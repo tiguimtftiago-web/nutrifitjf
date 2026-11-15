@@ -852,7 +852,7 @@ function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, cat
   );
 }
 
-function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, complementsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; complementsOverride: ComplementOption[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
@@ -879,6 +879,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
   const products = productsOverride;
+  const complements = complementsOverride;
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
   const priceReady = catalogComboReady && catalogProductsReady && catalogPrice !== undefined && products.length > 0;
@@ -887,7 +888,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const premiumExtra = products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
-  const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
+  const complementItems = complements.filter((item) => selectedComplements[item.name]);
   const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
   const grandTotal = comboTotal + deliveryFee + complementTotal;
 
@@ -1403,7 +1404,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="grid grid-cols-3 gap-2.5">
             {(["SUCOS","SANDUÍCHES","FRUTAS"] as const).map((category) => {
-              const items = comboComplements.filter((item) => item.category === category);
+              const items = complements.filter((item) => item.category === category);
               const labels = {
                 SUCOS: { title: "Sucos", icon: "🥤", text: "Naturais e funcionais" },
                 SANDUÍCHES: { title: "Sanduíches", icon: "🥪", text: "Leves e práticos" },
@@ -1431,7 +1432,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           {complementCategory && (() => {
             const category = complementCategory;
-            const items = comboComplements.filter((item) => item.category === category);
+            const items = complements.filter((item) => item.category === category);
             const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
             return (
               <div className="mt-3 rounded-3xl border border-white/10 bg-white/[.025] p-4">
@@ -2115,7 +2116,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus }) {
+function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus, comboComplements, traditionalComplements }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; comboComplements: ComplementOption[]; traditionalComplements: Product[] }) {
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2211,7 +2212,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd,
                 </div>
                 <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
-              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} complementsOverride={comboComplements} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
             </div>
           )}
         </div>
@@ -2295,11 +2296,29 @@ export default function Home() {
   const catalogProductState = useCatalogProducts();
   const catalogComboState = useCatalogComboPrices();
   const catalogProductsByLine: Record<string, Product[]> = {
-    FIT: catalogProductState.products.filter((product) => product.line === "FIT"),
-    PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE"),
-    TRADICIONAL: catalogProductState.products.filter((product) => product.line === "TRADICIONAL"),
-    SALADAS: catalogProductState.products.filter((product) => product.line === "SALADAS"),
+    FIT: catalogProductState.products.filter((product) => product.line === "FIT" && product.category === "marmita"),
+    PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE" && product.category === "marmita"),
+    TRADICIONAL: catalogProductState.products.filter((product) => product.line === "TRADICIONAL" && product.category === "marmita"),
+    SALADAS: catalogProductState.products.filter((product) => product.line === "SALADAS" && product.category === "salada"),
   };
+  const catalogComboComplements: ComplementOption[] = catalogProductState.products
+    .filter((product) => ["suco", "sanduiche", "fruta"].includes(product.category || ""))
+    .map((product) => ({
+      name: product.name,
+      category: product.category === "suco" ? "SUCOS" : product.category === "sanduiche" ? "SANDUÍCHES" : "FRUTAS",
+      description: product.description,
+      price: parseMoney(product.price),
+      image: product.image || undefined,
+      emoji: product.category === "suco" ? "🥤" : product.category === "sanduiche" ? "🥪" : "🍓",
+    }));
+  const catalogTraditionalComplements = catalogProductState.products.filter((product) => product.category === "complemento" && product.line === "COMPLEMENTOS");
+  const catalogSnackBox = catalogProductState.products.find((product) => product.category === "complemento" && product.line === "SNACK BOX");
+  const catalogJuiceProducts = catalogProductState.products.filter((product) => product.category === "suco");
+  const catalogSandwiches = catalogComboComplements.filter((product) => product.category === "SANDUÍCHES");
+  const catalogJuices300 = catalogJuiceProducts.filter((product) => product.weight === "300 ml");
+  const catalogFruits = catalogComboComplements.filter((product) => product.category === "FRUTAS");
+  const getCatalogJuicePrice = (flavorName: string, size: "300 ml" | "500 ml") =>
+    catalogJuiceProducts.find((product) => product.name === `${flavorName} — ${size}`)?.price || "Indisponível";
   const catalogFit = catalogProductsByLine.FIT;
   const catalogPerformance = catalogProductsByLine.PERFORMANCE;
   const catalogTraditional = catalogProductsByLine.TRADICIONAL;
@@ -2542,11 +2561,15 @@ export default function Home() {
     setOrderOpen(true);
   };
   const addSnackBoxToOrder = () => {
+    if (catalogProductState.status !== "ready" || !catalogSnackBox ||
+        !catalogSandwiches.some((item) => item.name === snackSandwich) ||
+        !catalogJuices300.some((item) => item.name === snackJuice) ||
+        !catalogFruits.some((item) => item.name === snackFruit)) return;
     const configuredName = "Nutrifit Snack Box — " + snackSandwich + " — " + snackJuice + " — " + snackFruit;
     setOrderItems((current) => {
       const found = current.find((item) => item.name === configuredName);
       if (found) return current.map((item) => item.name === configuredName ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: 25, quantity: 1 }];
+      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: parseMoney(catalogSnackBox.price), quantity: 1 }];
     });
     setOrderOpen(true);
   };
@@ -2561,9 +2584,9 @@ export default function Home() {
     setOrderOpen(true);
   };
   const cartSuggestions = [
-    ...comboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
-    ...comboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
-    ...comboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
+    ...catalogComboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
+    ...catalogComboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
+    ...catalogComboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
   ].filter((item) => item.price !== null && !orderItems.some((ordered) => ordered.name === item.name));
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
@@ -2818,7 +2841,7 @@ export default function Home() {
       setOrderCaptureError(true);
     }
   };
-  const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
+  const searchableProducts = catalogProductState.products;
   const searchResults = searchTerm.trim()
     ? searchableProducts.filter((product, index, list) =>
         list.findIndex((item) => item.name === product.name) === index &&
