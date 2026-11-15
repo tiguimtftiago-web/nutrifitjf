@@ -736,7 +736,8 @@ function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, cat
   const totalPrice = catalogTotalPrice ?? 0;
   const unitPrice = priceReady ? totalPrice / quantity : 0;
   const unitPriceCents = Math.round(totalPrice * 100 / quantity);
-  const totalSavings = priceReady && option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
+  const baseUnitPriceCents = products.length ? Math.min(...products.map((product) => Math.round(parseMoney(product.price) * 100))) : 0;
+  const totalSavings = priceReady && option.line === "FIT" ? Math.max(0, (baseUnitPriceCents - unitPriceCents) * quantity / 100) : null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
