@@ -6,9 +6,6 @@ const cors = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
 };
-const TEST_PHONE_SUFFIX = "32999180713";
-const isTestPhone = (value: unknown) => String(value ?? "").replace(/\D/g, "").endsWith(TEST_PHONE_SUFFIX);
-
 const reply = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: cors });
 
 Deno.serve(async (req: Request) => {
@@ -157,6 +154,8 @@ const catalogNameAliases: Record<string, string> = {
         String(address.uf ?? "").toUpperCase() !== "MG")
       return reply(400, { error: "A entrega está disponível somente para CEPs de Juiz de Fora/MG." });
     const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    if (normalize(city) !== normalize(String(address.localidade ?? "")) || state !== String(address.uf ?? "").toUpperCase())
+      return reply(400, { error: "Cidade e estado não correspondem ao CEP informado. Confira o endereço." });
     const neighborhood = String(address.bairro ?? "").trim();
     const zone1 = "Monte Castelo|Carlos Chagas|Cerâmica|Francisco Bernardino|Fábrica|Esplanada|São Dimas|Centenário|Mariano Procópio|Jardim Glória|Morro da Glória|Santa Catarina|Santa Helena|Democrata|Vale do Ipê|Jardim Paineiras|Jardim Santa Helena|Poço Rico|Vitorino Braga|Nossa Senhora Aparecida";
     const zone2 = "Centro|Boa Vista|Granbery|Bom Pastor|São Mateus|Alto dos Passos|Teixeiras|Bairu|Bonfim|Botanágua|Cesário Alvim|Grajaú|Manoel Honório|Linhares|Marumbi|Progresso|Santa Rita|Santa Cândida|São Benedito|São Bernardo|Santa Terezinha|Eldorado|Jardim Bom Clima|Granjas Betânia|Jardim Emaús|Parque Independência|Grama|Jardim Natal|Nova Era|Benfica|Nova Benfica|Milho Branco|Industrial|Jóquei Clube|Barbosa Lage|Santa Cruz|Represa|Jardim dos Alfineiros|Bandeirantes|Parque Guarani|Nossa Senhora das Graças|Quintas das Avenidas|Santa Paula";
@@ -165,7 +164,7 @@ const catalogNameAliases: Record<string, string> = {
     const n = normalize(neighborhood);
     const feeFor = (list: string) => list.split("|").some((name) => normalize(name) === n);
     let expectedFee: number | null = feeFor(zone1) ? 5 : feeFor(zone2) ? 7 : feeFor(zone3) ? 10 : feeFor(zone4) ? 13 : null;
-    if (itemCount < 20 && expectedFee === null)
+    if (expectedFee === null)
       return reply(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
     const deliveryCents = itemCount >= 20 ? 0 : Math.round((expectedFee as number) * 100);
     const discountCode = String(body.coupon_code ?? "").trim().toUpperCase();
@@ -227,17 +226,6 @@ const catalogNameAliases: Record<string, string> = {
       acquisition_medium: body.acquisition_medium ? String(body.acquisition_medium).slice(0, 120) : null,
       acquisition_content: body.acquisition_content ? String(body.acquisition_content).slice(0, 200) : null,
     };
-    // Pedidos do número de teste são validados e calculados, mas não entram em customer_orders,
-    // evitando registros no painel administrativo, financeiro, estoque e métricas comerciais.
-    if (isTestPhone(whatsapp)) {
-      return reply(200, {
-        ok: true, test_order: true, order_id: null,
-        subtotal: subtotalCents / 100, discount: discountCents / 100,
-        delivery_fee: deliveryCents / 100, total: totalCents / 100,
-        items: pricedItems,
-      });
-    }
-
     let savedOrderId: string | null = null;
     if (redeemClub) {
       const atomicResponse = await fetch(url + "/rest/v1/rpc/create_customer_order_with_clube_welcome_coupon", {
