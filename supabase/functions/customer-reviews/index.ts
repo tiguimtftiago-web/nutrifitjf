@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
   if (req.method === "GET") {
     const { data, error } = await db.from("customer_reviews")
       .select("id,customer_name,overall_rating,comment,name_consent,created_at")
-      .eq("status", "approved").eq("publish_consent", true)
+      .eq("status", "approved").eq("publish_consent", true).eq("purchase_verified", true)
       .order("created_at", { ascending: false }).limit(50);
     if (error) return reply({ error: "Não foi possível carregar as avaliações." }, 500);
     const all = data ?? [];
@@ -121,21 +121,17 @@ Deno.serve(async (req) => {
   const keys = ["food_quality", "ingredient_quality", "portion_size", "service", "delivery"] as const;
   if (customerName.length < 2)
     return reply({ error: "Informe seu nome para identificar a avaliação." }, 400);
-  if (orderCode && !/^NF-[A-F0-9]{6}$/.test(orderCode))
-    return reply({ error: "Confira o código Nutrifit. Exemplo: NF-7K4P9." }, 400);
+  if (!/^NF-[A-F0-9]{6}$/.test(orderCode))
+    return reply({ error: "Informe um código válido de pedido Nutrifit. Exemplo: NF-A3B7C9." }, 400);
   if (!keys.every(key => validRating(body[key])))
     return reply({ error: "Marque todas as avaliações de 1 a 5 estrelas." }, 400);
   if (typeof body.recommend !== "boolean")
     return reply({ error: "Responda se recomendaria a Nutrifit." }, 400);
 
-  let verifiedOrder: { id: string; status: string } | null = null;
-  if (orderCode) {
-    const { data: order, error: lookupError } = await db.from("customer_orders")
-      .select("id,status").eq("order_code", orderCode).maybeSingle();
-    if (lookupError || !order || order.status !== "entregue")
-      return reply({ error: "Não encontramos um pedido entregue com esse código. Você também pode enviar sua avaliação sem ele." }, 403);
-    verifiedOrder = order;
-  }
+  const { data: verifiedOrder, error: lookupError } = await db.from("customer_orders")
+    .select("id,status").eq("order_code", orderCode).maybeSingle();
+  if (lookupError || !verifiedOrder || verifiedOrder.status !== "entregue")
+    return reply({ error: "Código não encontrado ou pedido ainda não entregue. Confira o código e tente novamente após a entrega." }, 403);
 
   const reviewComment = typeof body.comment === "string" ? body.comment.trim().slice(0, 1200) || null : null;
   const ratings = {
@@ -144,8 +140,8 @@ Deno.serve(async (req) => {
   };
   const overall = Object.values(ratings).reduce((sum, rating) => sum + rating, 0) / 5;
   const { data: inserted, error } = await db.from("customer_reviews").insert({
-    order_id: verifiedOrder?.id ?? null, customer_name: customerName,
-    purchase_verified: Boolean(verifiedOrder),
+    order_id: verifiedOrder.id, customer_name: customerName,
+    purchase_verified: true,
     ...ratings,
     recommend: body.recommend,
     comment: reviewComment,

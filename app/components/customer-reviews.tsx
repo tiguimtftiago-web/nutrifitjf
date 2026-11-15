@@ -30,6 +30,11 @@ export default function CustomerReviews() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const normalizedOrderCode = orderCode.trim().toUpperCase();
+    if (!/^NF-[A-F0-9]{6}$/.test(normalizedOrderCode)) {
+      setStatus("Informe o código do pedido no formato NF-A3B7C9. Só aceitamos pedidos entregues.");
+      return;
+    }
     if (ratings.some(n => n < 1) || recommend === null) {
       setStatus("Preencha todas as estrelas e responda à pergunta de recomendação.");
       return;
@@ -40,7 +45,7 @@ export default function CustomerReviews() {
         method: "POST",
         headers: { apikey: key, "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_name: customerName.trim(), order_code: orderCode.trim().toUpperCase() || null,
+          customer_name: customerName.trim(), order_code: normalizedOrderCode,
           food_quality: ratings[0], ingredient_quality: ratings[1],
           portion_size: ratings[2], service: ratings[3], delivery: ratings[4],
           recommend, comment, publish_consent: publish, name_consent: showName
@@ -93,7 +98,7 @@ export default function CustomerReviews() {
           {open && <form onSubmit={submit} className="border-t border-white/10 px-5 pb-6 pt-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-xs font-bold text-white/75">Seu nome<input required value={customerName} onChange={e=>setCustomerName(e.target.value)} maxLength={120} placeholder="Como podemos chamar você?" className="mt-2 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-3 text-sm text-white" /></label>
-              <label className="text-xs font-bold text-white/75">Código do pedido (opcional)<input value={orderCode} onChange={e=>setOrderCode(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,9))} placeholder="NF-A3B7C9" className="mt-2 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-3 text-sm uppercase text-white" /><span className="mt-1 block text-[10px] font-normal text-white/40">Se tiver o código, sua compra será identificada como verificada. Você pode avaliar sem ele.</span></label>
+              <label className="text-xs font-bold text-white/75">Código do pedido (obrigatório)<input required value={orderCode} onChange={e=>setOrderCode(e.target.value.toUpperCase().replace(/[^A-F0-9-]/g,"").slice(0,9))} pattern="NF-[A-F0-9]{6}" maxLength={9} placeholder="NF-A3B7C9" title="Informe o código no formato NF-A3B7C9" className="mt-2 w-full rounded-xl border border-white/15 bg-black/40 px-3 py-3 text-sm uppercase text-white" /><span className="mt-1 block text-[10px] font-normal text-white/40">Informe o código recebido após o pedido. A avaliação só é aceita quando o pedido estiver entregue.</span></label>
             </div>
             <p className="mt-5 text-sm font-black text-white">Dê sua nota de 1 a 5 estrelas</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">{criteria.map((label,i)=><div key={label} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/[.025] px-3 py-2"><span className="text-xs text-white/75">{label}</span>{stars(ratings[i],n=>setRatings(old=>old.map((v,j)=>j===i?n:v)))}</div>)}</div>
@@ -102,7 +107,7 @@ export default function CustomerReviews() {
             <div className="mt-4 space-y-2 text-xs leading-5 text-white/65"><label className="flex gap-2"><input type="checkbox" checked={publish} onChange={e=>{setPublish(e.target.checked);if(!e.target.checked)setShowName(false);}} />Autorizo a publicação do meu comentário após análise, inclusive de forma anônima.</label><label className="flex gap-2"><input type="checkbox" disabled={!publish} checked={showName} onChange={e=>setShowName(e.target.checked)} />Autorizo também a exibição do meu nome.</label></div>
             {status && <p role="status" className="mt-4 rounded-xl bg-white/5 p-3 text-sm text-white">{status}</p>}
             <button disabled={busy} className="mt-5 w-full rounded-xl bg-[#f47b0b] px-5 py-3 text-sm font-black text-black disabled:opacity-60">{busy?"Enviando…":"Enviar minha avaliação"}</button>
-            <p className="mt-3 text-center text-[10px] text-white/35">O código do pedido é opcional. Avaliações passam por aprovação antes da publicação.</p>
+            <p className="mt-3 text-center text-[10px] text-white/35">É obrigatório informar um código válido de pedido entregue. Todas as avaliações passam por aprovação antes da publicação.</p>
           </form>}
         </div>
       </div>
