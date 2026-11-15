@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import AnalyticsConsent from "./components/AnalyticsConsent";
 import "./globals.css";
-import "./area/charts.css";
 
 const siteUrl = "https://www.nutrifitjf.com.br";
 
