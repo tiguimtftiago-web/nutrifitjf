@@ -464,74 +464,6 @@ type SavedDelivery = {
 const DELIVERY_STORAGE_KEY = "nutrifit_delivery_quote_v1";
 const DELIVERY_STORAGE_TTL = 24 * 60 * 60 * 1000;
 
-const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] }> = [
-  {
-    zone: "Zona 1",
-    fee: 5,
-    neighborhoods: [
-      // Base Monte Castelo + eixo norte imediato
-      "Monte Castelo","Carlos Chagas","Cerâmica","Francisco Bernardino","Fábrica","Esplanada",
-      "São Dimas","Centenário","Mariano Procópio","Jardim Glória","Morro da Glória",
-      "Santa Catarina","Santa Helena","Democrata","Vale do Ipê","Jardim Paineiras",
-      "Jardim Santa Helena","Poço Rico","Vitorino Braga","Nossa Senhora Aparecida"
-    ],
-  },
-  {
-    zone: "Zona 2",
-    fee: 7,
-    neighborhoods: [
-      // Eixos central, leste e norte ainda próximos da base
-      "Centro","Boa Vista","Granbery","Bom Pastor","São Mateus","Alto dos Passos",
-      "Teixeiras","Bairu","Bonfim","Botanágua","Cesário Alvim","Grajaú","Manoel Honório",
-      "Linhares","Marumbi","Progresso","Santa Rita","Santa Cândida","São Benedito",
-      "São Bernardo","Santa Terezinha","Eldorado","Jardim Bom Clima",
-      "Granjas Betânia","Jardim Emaús","Parque Independência","Grama","Jardim Natal",
-      "Nova Era","Benfica","Nova Benfica","Milho Branco","Industrial","Jóquei Clube",
-      "Barbosa Lage","Santa Cruz","Represa","Jardim dos Alfineiros","Bandeirantes",
-      "Parque Guarani","Nossa Senhora das Graças","Quintas das Avenidas","Santa Paula"
-    ],
-  },
-  {
-    zone: "Zona 3",
-    fee: 10,
-    neighborhoods: [
-      // Cidade Alta/Oeste + Sul/Sudeste
-      "São Pedro","Aeroporto","Borboleta","Cruzeiro Santo Antônio","Martelos",
-      "Morro do Imperador","Nova Califórnia","Novo Horizonte","Serro Azul",
-      "Portal da Torre","Caiçaras","Marilândia","Santos Dumont","Alto dos Pinheiros",
-      "Adolfo Vireque","Bosque do Imperador","Granville","Viña Del Mar","Vina Del Mar",
-      "Nova Germânia","Parque das Águas","Spinaville","Via do Sol","Residencial Alvim",
-      "Dom Bosco","Cascatinha","Graminha","Ipiranga","Sagrado Coração de Jesus",
-      "Salvaterra","Santa Efigênia","Santa Luzia","Santa Cecília","Bomba de Fogo",
-      "Jardim Laranjeiras","Cruzeiro do Sul","Barão do Retiro","Floresta",
-      "Nossa Senhora de Lourdes","Santo Antônio","Vila Furtado de Menezes","Vila Ideal",
-      "Vila Olavo Costa","Costa Carvalho","Jardim Gaúcho","São Geraldo","Previdenciários",
-      "Jardim América","Bela Aurora","Estrela Sul","Jardim Casablanca","Nossa Senhora de Fátima"
-    ],
-  },
-  {
-    zone: "Zona 4",
-    fee: 13,
-    neighborhoods: [
-      // Áreas mais afastadas / periferia / localidades com maior deslocamento
-      "Barreira do Triunfo","Filgueiras","Granjas Bethel","Vale dos Bandeirantes",
-      "Paula Lima","Remonta","Vila Esperança","Jardim Europa","Jardim Olímpia",
-      "Cidade do Sol","Cidade Jardim","Fontesville","Fontesville II","Igrejinha",
-      "Parque das Palmeiras","Parque das Torres","Parque Guadalajara","Parque Guarua",
-      "Parque Imperial","Parque Jardim da Serra","Parque Serra Verde","Jardim da Serra",
-      "Chalés do Imperador","Chalés do Algarve","Colinas do Imperador","Mandala",
-      "Portal do Aeroporto","Morada do Serro","Bosque Imperial","Conjunto Flamboyants",
-      "São Clemente","São Lucas","Santana","Neo Residencial","Spinaville II",
-      "Mirante","Cidade Universitária","Três Moinhos",
-      "Terras Altas","Retiro","Pedras Preciosas","Jardim Esperança","Jardim do Sol",
-      "Santos Anjos","Vila Alpina","São Sebastião","Aracy","Jardim das Flores",
-      "Solidariedade","Granjas Primavera","Granjas Santo Antônio","Guaruá","Granjas do Bosque",
-      "Vivendas da Serra","Vivendas das Fontes","Vale Verde","Serra D'Água","Serra Dagua",
-      "Tupã","Tiguera","Parque Serra Verde","Spina Ville II","Vila Ozanan"
-    ],
-  },
-];
-
 const normalizeText = (value: string) =>
   value
     .normalize("NFD")
@@ -539,12 +471,39 @@ const normalizeText = (value: string) =>
     .toLowerCase()
     .trim();
 
-const findDelivery = (neighborhood: string): DeliveryResult | null => {
+type DeliveryZoneRow = {
+  normalized_name: string;
+  neighborhood: string;
+  zone: string;
+  fee: number | string;
+};
+
+let deliveryZonesRequest: Promise<DeliveryZoneRow[]> | null = null;
+
+const loadDeliveryZones = () => {
+  if (!deliveryZonesRequest) {
+    deliveryZonesRequest = fetch(
+      SUPABASE_URL + "/rest/v1/delivery_zone_neighborhoods?select=normalized_name,neighborhood,zone,fee&active=eq.true",
+      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
+    ).then(async (response) => {
+      if (!response.ok) throw new Error("delivery-zones");
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error("delivery-zones");
+      return rows as DeliveryZoneRow[];
+    }).catch((error) => {
+      deliveryZonesRequest = null;
+      throw error;
+    });
+  }
+  return deliveryZonesRequest;
+};
+
+const findDelivery = (neighborhood: string, zones: DeliveryZoneRow[]): DeliveryResult | null => {
   const normalized = normalizeText(neighborhood);
-  const match = deliveryZones.find((item) =>
-    item.neighborhoods.some((name) => normalizeText(name) === normalized)
-  );
-  return match ? { zone: match.zone, fee: match.fee, neighborhood } : null;
+  const match = zones.find((item) => item.normalized_name === normalized);
+  if (!match) return null;
+  const fee = Number(match.fee);
+  return Number.isFinite(fee) && fee >= 0 ? { zone: match.zone, fee, neighborhood } : null;
 };
 
 const money = (value: number) =>
@@ -977,12 +936,6 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       return;
     }
 
-    if (quantity >= DELIVERY_FREE_FROM) {
-      setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: "" });
-      setDeliveryStatus("idle");
-      return;
-    }
-
     setDeliveryStatus("loading");
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
@@ -998,7 +951,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       setDeliveryNeighborhood(data.bairro || "");
       setDeliveryCity(data.localidade || "");
       setDeliveryState(data.uf || "");
-      const result = findDelivery(data.bairro);
+      const zones = await loadDeliveryZones();
+      const result = findDelivery(data.bairro, zones);
       if (!result) {
         setDelivery(null);
         setDeliveryStatus("error");
@@ -1537,7 +1491,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               ) : delivery ? (
                 <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4">
                   <div className="font-black text-[#b6d76a]">📍 {delivery.neighborhood}</div>
-                  <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#f47b0b]">{money(delivery.fee)}</span></div>
+                  <div className="mt-1 text-sm text-white/55">{delivery.zone} • Entrega <span className="font-black text-[#f47b0b]">{quantity >= DELIVERY_FREE_FROM ? "Grátis" : money(delivery.fee)}</span></div>
                 </div>
               ) : deliveryStatus === "error" ? (
                 <div className="mt-4 rounded-2xl border border-[#f47b0b]/30 bg-[#17120c] p-4 text-sm text-white/65">Não conseguimos identificar a área de entrega. Confira o CEP ou fale com a Nutrifit.</div>
@@ -2455,26 +2409,59 @@ export default function Home() {
   const [orderDeliveryStatus, setOrderDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [deliveryNotice, setDeliveryNotice] = useState("");
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(DELIVERY_STORAGE_KEY);
-      if (!raw) return;
-      const saved = JSON.parse(raw) as SavedDelivery;
-      const valid = saved && /^\d{8}$/.test(saved.cep) && Number.isFinite(saved.savedAt) &&
-        Date.now() - saved.savedAt <= DELIVERY_STORAGE_TTL &&
-        typeof saved.neighborhood === "string" && typeof saved.zone === "string" &&
-        Number.isFinite(saved.fee);
-      if (!valid) { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); return; }
-      setOrderCep(formatCepInput(saved.cep));
-      setOrderStreet(saved.street || "");
-      setOrderNeighborhood(saved.neighborhood);
-      setOrderCity(saved.city || "");
-      setOrderState(saved.state || "");
-      setOrderDelivery({ zone: saved.zone, fee: saved.fee, neighborhood: saved.neighborhood });
-      setOrderDeliveryStatus("idle");
-      setDeliveryNotice("Frete salvo para o seu pedido");
-    } catch {
-      window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
-    }
+    let active = true;
+    const restoreSavedDelivery = async () => {
+      try {
+        const raw = window.localStorage.getItem(DELIVERY_STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw) as SavedDelivery;
+        const valid = saved && /^\d{8}$/.test(saved.cep) && Number.isFinite(saved.savedAt) &&
+          Date.now() - saved.savedAt <= DELIVERY_STORAGE_TTL;
+        if (!valid) { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); return; }
+
+        setOrderCep(formatCepInput(saved.cep));
+        const [addressResponse, zones] = await Promise.all([
+          fetch(`https://viacep.com.br/ws/${saved.cep}/json/`, { signal: AbortSignal.timeout(5000) }),
+          loadDeliveryZones(),
+        ]);
+        if (!addressResponse.ok) throw new Error("delivery-revalidation");
+        const address = await addressResponse.json();
+        if (address.erro || !address.bairro ||
+            normalizeText(address.localidade || "") !== normalizeText("Juiz de Fora") ||
+            String(address.uf || "").toUpperCase() !== "MG") throw new Error("outside-area");
+        const current = findDelivery(String(address.bairro), zones);
+        if (!current) throw new Error("outside-area");
+        if (!active) return;
+
+        const refreshed: SavedDelivery = {
+          cep: saved.cep,
+          street: String(address.logradouro || ""),
+          neighborhood: String(address.bairro),
+          city: String(address.localidade || ""),
+          state: String(address.uf || ""),
+          zone: current.zone,
+          fee: current.fee,
+          savedAt: Date.now(),
+        };
+        window.localStorage.setItem(DELIVERY_STORAGE_KEY, JSON.stringify(refreshed));
+        setOrderStreet(refreshed.street);
+        setOrderNeighborhood(refreshed.neighborhood);
+        setOrderCity(refreshed.city);
+        setOrderState(refreshed.state);
+        setOrderDelivery(current);
+        setOrderDeliveryStatus("idle");
+        setDeliveryNotice("Frete atualizado conforme a tabela vigente");
+      } catch (error) {
+        if (!active) return;
+        setOrderDelivery(null);
+        setOrderDeliveryStatus("error");
+        setDeliveryNotice(error instanceof Error && error.message === "outside-area"
+          ? "O endereço salvo não está mais na área de entrega. Informe outro CEP."
+          : "Não foi possível revalidar o frete salvo. Informe o CEP novamente.");
+      }
+    };
+    void restoreSavedDelivery();
+    return () => { active = false; };
   }, []);
   const orderHasUnverifiedPrices = orderItems.some((item) => getOrderItemCatalogPrice(item) === null);
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -2503,7 +2490,8 @@ export default function Home() {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
-      const result = findDelivery(data.bairro);
+      const zones = await loadDeliveryZones();
+      const result = findDelivery(data.bairro, zones);
       if (!result) throw new Error("outside-area");
       const saved: SavedDelivery = {
         cep: cleanCep,
@@ -2529,7 +2517,9 @@ export default function Home() {
       setOrderDelivery(null);
       setDeliveryNotice(error instanceof Error && error.message === "outside-area"
         ? "Ainda não atendemos esse endereço. Fale com nossa equipe para consultar uma alternativa."
-        : "Não conseguimos localizar esse CEP. Confira os números e tente novamente.");
+        : error instanceof Error && error.message === "delivery-zones"
+          ? "Não foi possível consultar a tabela de entrega. Tente novamente em instantes."
+          : "Não conseguimos localizar esse CEP. Confira os números e tente novamente.");
       try { window.localStorage.removeItem(DELIVERY_STORAGE_KEY); } catch {}
       setOrderDeliveryStatus("error");
     }
