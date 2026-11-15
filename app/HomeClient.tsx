@@ -461,9 +461,6 @@ type SavedDelivery = {
   savedAt: number;
 };
 
-const DELIVERY_STORAGE_KEY = "nutrifit_delivery_quote_v1";
-const DELIVERY_STORAGE_TTL = 24 * 60 * 60 * 1000;
-
 type DeliveryFeeRow = {
   neighborhood: string;
   normalized_name: string;
