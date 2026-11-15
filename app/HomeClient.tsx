@@ -606,6 +606,74 @@ const normalizeText = (value: string) =>
     .toLowerCase()
     .trim();
 
+type CatalogProductRow = {
+  name: string;
+  line: string;
+  size_grams: number | null;
+  price: number | string;
+  category: string;
+};
+
+let catalogProductsRequest: Promise<CatalogProductRow[]> | null = null;
+
+const loadCatalogProducts = () => {
+  if (!catalogProductsRequest) {
+    catalogProductsRequest = fetch(
+      SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,category&active=eq.true&order=line.asc,name.asc",
+      { headers: { apikey: SUPABASE_PUBLISHABLE_KEY } },
+    ).then(async (response) => {
+      if (!response.ok) throw new Error("Não foi possível carregar o catálogo.");
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error("Resposta inválida do catálogo.");
+      return rows as CatalogProductRow[];
+    }).catch((error) => {
+      catalogProductsRequest = null;
+      throw error;
+    });
+  }
+  return catalogProductsRequest;
+};
+
+function useCatalogProducts() {
+  const [state, setState] = useState<{ rows: CatalogProductRow[]; loaded: boolean }>({ rows: [], loaded: false });
+  useEffect(() => {
+    let active = true;
+    void loadCatalogProducts()
+      .then((rows) => { if (active) setState({ rows, loaded: true }); })
+      .catch(() => { if (active) setState({ rows: [], loaded: true }); });
+    return () => { active = false; };
+  }, []);
+  return state;
+}
+
+const getCatalogProductPrice = (
+  rows: CatalogProductRow[],
+  product: { name: string; line?: string; category?: string; weight?: string },
+): number | null => {
+  const line = String(product.line || product.category || "");
+  const isSnackBox = normalizeText(line) === "snack box" || normalizeText(product.name).startsWith("nutrifit snack box");
+  const name = isSnackBox ? "Nutrifit Snack Box" : product.name;
+  const normalizedName = normalizeText(name);
+  const normalizedLine = normalizeText(isSnackBox ? "Snack Box" : line);
+  const weightMatch = String(product.weight || "").match(/\d+/);
+  const weight = weightMatch ? Number(weightMatch[0]) : null;
+  const match = rows.find((row) =>
+    normalizeText(row.name) === normalizedName &&
+    normalizeText(row.line) === normalizedLine &&
+    (row.size_grams === null || weight === null || Number(row.size_grams) === weight)
+  );
+  if (!match) return null;
+  const price = Number(match.price);
+  return Number.isFinite(price) && price >= 0 ? price : null;
+};
+
+const getComplementCatalogPrice = (rows: CatalogProductRow[], item: ComplementOption): number | null => {
+  const weight = item.name.includes("300 ml") ? "300 ml"
+    : item.name.includes("500 ml") ? "500 ml"
+      : item.category === "FRUTAS" ? "200 g" : "1 un";
+  return getCatalogProductPrice(rows, { name: item.name, line: item.category, weight });
+};
+
 const findDelivery = (neighborhood: string): DeliveryResult | null => {
   const normalized = normalizeText(neighborhood);
   const match = deliveryZones.find((item) =>
@@ -879,24 +947,30 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
+  const catalogProductsState = useCatalogProducts();
   const catalogComboPrices = useCatalogComboPrices();
+  const getMealPriceLabel = (product: Product) => {
+    if (!catalogProductsState.loaded) return "Carregando preço...";
+    const currentPrice = getCatalogProductPrice(catalogProductsState.rows, product);
+    return currentPrice === null ? "Indisponível" : money(currentPrice);
+  };
+  const isMealAvailable = (product: Product) => catalogProductsState.loaded && getCatalogProductPrice(catalogProductsState.rows, product) !== null;
+  const getComplementPrice = (item: ComplementOption) => getComplementCatalogPrice(catalogProductsState.rows, item);
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
-  const price = catalogPrice !== undefined
-    ? money(catalogPrice)
-    : option.line === "TRADICIONAL" && quantity >= 30
-      ? money(792 + Math.max(0, quantity - 30) * 26.4)
-      : (option.prices as Record<number, string>)[quantity];
-  const subtotal = parseMoney(price);
+  const price = catalogPrice === undefined ? "Preço indisponível" : money(catalogPrice);
+  const subtotal = catalogPrice ?? 0;
   const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
   const premiumExtra = option.products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
-  const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
+  const complementTotal = complementItems.reduce((sum, item) => sum + (getComplementPrice(item) ?? 0) * (selectedComplements[item.name] || 0), 0);
   const grandTotal = comboTotal + deliveryFee + complementTotal;
 
   const addComplement = (name: string) => {
+    const item = comboComplements.find((candidate) => candidate.name === name);
+    if (!item || !catalogProductsState.loaded || getComplementPrice(item) === null) return;
     setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
   };
 
@@ -1065,7 +1139,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "COMPLEMENTOS",
         ...complementItems.map((item) => {
           const qty = selectedComplements[item.name] || 0;
-          const total = item.price === null ? "preço a confirmar" : money((item.price ?? 0) * qty);
+          const catalogPrice = getComplementPrice(item);
+          const total = catalogPrice === null ? "preço indisponível" : money(catalogPrice * qty);
           return `- ${qty}x ${item.name} | ${total}`;
         }),
       ] : []),
@@ -1184,8 +1259,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const deliveryReady = deliveryMode === "pickup" || (Boolean(delivery) && Boolean(deliveryStreet.trim() && deliveryNumber.trim() && deliveryNeighborhood.trim() && deliveryCity.trim() && deliveryState.trim()));
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
-  const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
-  const canPay = total === quantity && deliveryReady && customerReady && paymentStatus !== "loading";
+  const hasPendingComplementPrice = complementItems.some((item) => getComplementPrice(item) === null);
+  const canPay = total === quantity && deliveryReady && customerReady && catalogPrice !== undefined && !hasPendingComplementPrice && paymentStatus !== "loading";
   const comboRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1321,7 +1396,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           {total !== quantity ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {option.products.map((product) => (
-              <button key={product.name} type="button" onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45">
+              <button key={product.name} type="button" disabled={!isMealAvailable(product)} onClick={() => { setDetailProduct(product); setDetailQuantity(1); }} className="nf-mobile-meal group relative min-w-0 w-full overflow-hidden rounded-[1.25rem] border border-white/15 bg-[#0d100c] text-left shadow-[0_12px_35px_rgba(0,0,0,.22)] transition hover:border-[#86a51d]/45 disabled:cursor-not-allowed disabled:opacity-40">
                 <div className="relative aspect-[1.55/1] w-full overflow-hidden bg-black">
                   {product.crop ? (
                     <div role="img" aria-label={product.name} className="absolute inset-0 bg-cover bg-no-repeat brightness-[1.08] contrast-[1.06] saturate-[1.06]" style={{ backgroundImage: `url(${product.image})`, backgroundSize: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "contain" : "400% 200%", backgroundPosition: product.name === "Tilápia Fit com Arroz Branco e Legumes" && product.line === "FIT" ? "center" : product.crop, backgroundRepeat: "no-repeat" }} />
@@ -1335,7 +1410,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                         <p className="mt-1 line-clamp-1 text-[12px] leading-tight text-white/80">{product.description}</p>
                         <div className="mt-2.5 flex flex-wrap items-center gap-2">
                           <span className="rounded-full border border-[#86a51d] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "FIT"} {product.weight}</span>
-                          <span className="text-[19px] font-black leading-none text-[#f47b0b]">{product.price}</span>
+                          <span className="text-[19px] font-black leading-none text-[#f47b0b]">{getMealPriceLabel(product)}</span>
                         </div>
                       </div>
                       <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg"><Plus size={18} strokeWidth={3} /> Adicionar</span>
@@ -1368,7 +1443,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                 </div>
                 <div className="p-5">
                   <h3 className="text-2xl font-black leading-tight">{detailProduct.name}</h3>
-                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#86a51d] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#f47b0b]">{detailProduct.price}</span></div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3"><span className="rounded-full border border-[#86a51d] px-3 py-1.5 text-sm font-black text-[#c8dc73]">{detailProduct.line || "FIT"} {detailProduct.weight}</span><span className="text-2xl font-black text-[#f47b0b]">{getMealPriceLabel(detailProduct)}</span></div>
                   <p className="mt-3 text-sm leading-6 text-white/70">{detailProduct.description}</p>
                   <div className="mt-5 flex items-center justify-center gap-6 rounded-full border border-white/15 bg-white/[.03] p-2">
                     <button type="button" onClick={() => setDetailQuantity(v => Math.max(1,v-1))} disabled={detailQuantity<=1} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 disabled:opacity-30" aria-label="Diminuir quantidade"><Minus size={18}/></button>
@@ -1467,12 +1542,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
                         <div className="min-w-0 flex-1">
                           <div className="break-words text-sm font-black leading-tight">{item.name}</div>
                           <div className="mt-1 text-[11px] leading-4 text-white/40">{item.description}</div>
-                          <div className="mt-1 text-xs font-black text-[#f47b0b]">{item.price === null ? "Preço a confirmar" : money(item.price)}</div>
+                          <div className="mt-1 text-xs font-black text-[#f47b0b]">{getComplementPrice(item) === null ? "Indisponível" : money(getComplementPrice(item) as number)}</div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5">
                           {qty > 0 && <button type="button" onClick={() => removeComplement(item.name)} aria-label={`Remover ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5"><Minus size={14} /></button>}
                           {qty > 0 && <span className="w-4 text-center text-sm font-black">{qty}</span>}
-                          <button type="button" onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black"><Plus size={15} /></button>
+                          <button type="button" disabled={!catalogProductsState.loaded || getComplementPrice(item) === null} onClick={() => addComplement(item.name)} aria-label={`Adicionar ${item.name}`} className="grid h-9 w-9 place-items-center rounded-full bg-[#86a51d] text-black disabled:cursor-not-allowed disabled:opacity-40"><Plus size={15} /></button>
                         </div>
                       </div>
                     );
@@ -2013,6 +2088,10 @@ const nutritionRows = (n: NutritionData) => [
 
 // Mobile line sections show two cards first, with a full-width view-all action below.
 function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) {
+  const catalogState = useCatalogProducts();
+  const catalogPrice = getCatalogProductPrice(catalogState.rows, product);
+  const priceLabel = !catalogState.loaded ? "Carregando preço..." : catalogPrice === null ? "Indisponível" : money(catalogPrice);
+  const canAdd = catalogState.loaded && catalogPrice !== null;
   const nutrition = product.line === "FIT" ? fitNutrition[product.name] : product.line === "PERFORMANCE" ? performanceNutrition[product.name] : product.line === "SALADAS" ? saladsNutrition[product.name] : undefined;
   return (
     <>
@@ -2033,10 +2112,10 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
               <h3 className="text-[17px] font-black leading-tight text-white drop-shadow-md">{product.name}</h3>
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <span className="rounded-full border border-[#86a51d] bg-black/60 px-2.5 py-1 text-[10px] font-black text-[#c8dc73]">{product.line || "NUTRIFIT"} {product.weight ? product.weight : ""}</span>
-                <span className="text-[19px] font-black leading-none text-[#f47b0b]">{product.price}</span>
+                <span className="text-[19px] font-black leading-none text-[#f47b0b]">{priceLabel}</span>
               </div>
             </div>
-            <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
+            <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}` className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-3.5 py-2.5 text-xs font-black text-black shadow-lg active:scale-95"><Plus size={18} strokeWidth={3} /> Adicionar</button>
           </div>
         </div>
       </div>
@@ -2110,8 +2189,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
                           })()}
                         </div>
         <div className="mt-auto flex items-center gap-1.5 pt-2.5">
-          <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#f47b0b] sm:text-xl">{product.price}</div>
-          <button type="button" onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}`} className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
+          <div className="shrink-0 whitespace-nowrap text-[13px] font-black leading-none text-[#f47b0b] sm:text-xl">{priceLabel}</div>
+          <button type="button" disabled={!canAdd} onClick={() => onAdd(product)} aria-label={`Adicionar ${product.name}` className="ml-auto inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-[#86a51d] px-3 py-2 text-[10px] font-black text-black sm:min-h-11 sm:px-4 sm:py-2.5 sm:text-sm">
             <Plus size={15} strokeWidth={3} /> Adicionar
           </button>
         </div>
@@ -2121,6 +2200,8 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
   );
 }
 function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void }) {
+  const catalogState = useCatalogProducts();
+  const catalogComboPrices = useCatalogComboPrices();
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2192,13 +2273,14 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <h3 className="text-base font-black">Escolha a quantidade do combo</h3>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {([5, 7, 10, 20] as const).map((quantity) => {
-                  const price = (lineCombo.prices as Record<number, string>)[quantity];
-                  const unitPrice = parseMoney(price) / quantity;
+                  const catalogPrice = catalogComboPrices[lineCombo.line]?.[quantity];
+                  const price = catalogPrice === undefined ? "Preço indisponível" : money(catalogPrice);
+                  const unitPrice = catalogPrice === undefined ? null : catalogPrice / quantity;
                   return (
-                    <button key={quantity} type="button" onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#f47b0b]">
+                    <button key={quantity} type="button" disabled={catalogPrice === undefined} onClick={() => setSelectedComboQuantity(quantity)} className="rounded-2xl border border-white/15 bg-[#11140e] p-3 text-left transition active:scale-[.99] hover:border-[#f47b0b] disabled:cursor-not-allowed disabled:opacity-40">
                       <span className="block text-sm font-black">{quantity} marmitas</span>
                       <span className="mt-1 block text-xl font-black text-[#c8dc36]">{price}</span>
-                      <span className="mt-0.5 block text-xs text-white/60">{money(unitPrice)} cada</span>
+                      <span className="mt-0.5 block text-xs text-white/60">{unitPrice === null ? "Preço indisponível" : money(unitPrice) + " cada"}</span>
                     </button>
                   );
                 })}
@@ -2211,7 +2293,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div>
                   <div className="text-xs font-black uppercase tracking-wider text-[#86a51d]">Combo selecionado</div>
-                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {(lineCombo.prices as Record<number, string>)[selectedComboQuantity]}</div>
+                  <div className="mt-0.5 text-sm font-black">{selectedComboQuantity} marmitas • {catalogComboPrices[lineCombo.line]?.[selectedComboQuantity] === undefined ? "Preço indisponível" : money(catalogComboPrices[lineCombo.line][selectedComboQuantity])}</div>
                 </div>
                 <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
@@ -2238,7 +2320,10 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
             <p className="mt-1.5 text-sm text-white/45">Adicione um acompanhamento ou uma porção extra sem sair da Linha Tradicional.</p>
           </div>
           <div className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-2 md:grid-cols-4">
-            {traditionalComplements.map((item) => (
+            {traditionalComplements.map((item) => {
+              const complementPrice = getCatalogProductPrice(catalogState.rows, item);
+              const canAddComplement = catalogState.loaded && complementPrice !== null;
+              return (
               <article key={item.name} className="bg-[#0d100c] p-3.5 sm:p-4">
                 <div className="grid min-h-[118px] content-between">
                   <div>
@@ -2249,12 +2334,13 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd 
                     <div className="mt-1 text-[10px] font-bold uppercase tracking-[.12em] text-white/30">{item.weight}</div>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-2">
-                    <span className="text-base font-black text-[#f47b0b]">{item.price}</span>
-                    <button type="button" onClick={() => onAdd(item)} aria-label={"Adicionar " + item.name} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#86a51d] text-black transition hover:scale-105"><Plus size={17} strokeWidth={3} /></button>
+                    <span className="text-base font-black text-[#f47b0b]">{!catalogState.loaded ? "Carregando..." : complementPrice === null ? "Indisponível" : money(complementPrice)}</span>
+                    <button type="button" disabled={!canAddComplement} onClick={() => onAdd(item)} aria-label={"Adicionar " + item.name} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#86a51d] text-black transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} strokeWidth={3} /></button>
                   </div>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
           <div className="flex items-center gap-2 border-t border-white/10 bg-black/15 px-4 py-3 text-[11px] font-bold text-white/35 sm:px-5">
             <ChefHat size={15} className="shrink-0 text-[#f47b0b]" />
@@ -2288,11 +2374,19 @@ export default function Home() {
   const [comboLineIndex, setComboLineIndex] = useState(0);
   const [topComboOpen, setTopComboOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const catalogProductState = useCatalogProducts();
+  const [catalogPriceNotice, setCatalogPriceNotice] = useState("");
   const [snackSandwich, setSnackSandwich] = useState("Frango com Alface e Tomate");
   const [snackJuice, setSnackJuice] = useState("Suco de Laranja — 300 ml");
   const [snackFruit, setSnackFruit] = useState("Mamão");
 
   const [cartHydrated, setCartHydrated] = useState(false);
+
+  const getJuiceCatalogPriceLabel = (flavorName: string, size: "300 ml" | "500 ml") => {
+    if (!catalogProductState.loaded) return "Carregando preço...";
+    const catalogPrice = getCatalogProductPrice(catalogProductState.rows, { name: `${flavorName} — ${size}`, line: "SUCOS", weight: size });
+    return catalogPrice === null ? "Indisponível" : money(catalogPrice);
+  };
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -2523,29 +2617,46 @@ export default function Home() {
   };
 
   const addToOrder = (product: Product) => {
+    const catalogPrice = getCatalogProductPrice(catalogProductState.rows, product);
+    if (!catalogProductState.loaded || catalogPrice === null) {
+      setCatalogPriceNotice("Não foi possível confirmar o preço deste produto no catálogo. Atualize a página e tente novamente.");
+      return;
+    }
+    setCatalogPriceNotice("");
     setOrderItems((current) => {
       const found = current.find((item) => item.name === product.name);
-      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { name: product.name, line: product.line, weight: product.weight, price: parseMoney(product.price), quantity: 1 }];
+      if (found) return current.map((item) => item.name === product.name ? { ...item, price: catalogPrice, quantity: item.quantity + 1 } : item);
+      return [...current, { name: product.name, line: product.line, weight: product.weight, price: catalogPrice, quantity: 1 }];
     });
     setOrderOpen(true);
   };
   const addSnackBoxToOrder = () => {
     const configuredName = "Nutrifit Snack Box — " + snackSandwich + " — " + snackJuice + " — " + snackFruit;
+    const catalogPrice = getCatalogProductPrice(catalogProductState.rows, { name: configuredName, line: "Snack Box", weight: "1 kit" });
+    if (!catalogProductState.loaded || catalogPrice === null) {
+      setCatalogPriceNotice("O preço do Snack Box não está disponível no catálogo neste momento.");
+      return;
+    }
+    setCatalogPriceNotice("");
     setOrderItems((current) => {
       const found = current.find((item) => item.name === configuredName);
-      if (found) return current.map((item) => item.name === configuredName ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: 25, quantity: 1 }];
+      if (found) return current.map((item) => item.name === configuredName ? { ...item, price: catalogPrice, quantity: item.quantity + 1 } : item);
+      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: catalogPrice, quantity: 1 }];
     });
     setOrderOpen(true);
   };
   const addComplementToOrder = (product: ComplementOption) => {
-    if (product.price === null) return;
-    const weight = product.name.includes("300 ml") ? "300 ml" : product.name.includes("500 ml") ? "500 ml" : product.category === "SANDUÍCHES" ? "1 un" : "porção";
+    const weight = product.name.includes("300 ml") ? "300 ml" : product.name.includes("500 ml") ? "500 ml" : product.category === "FRUTAS" ? "200 g" : "1 un";
+    const catalogPrice = getCatalogProductPrice(catalogProductState.rows, { name: product.name, line: product.category, weight });
+    if (!catalogProductState.loaded || catalogPrice === null) {
+      setCatalogPriceNotice("O preço deste complemento não está disponível no catálogo neste momento.");
+      return;
+    }
+    setCatalogPriceNotice("");
     setOrderItems((current) => {
       const found = current.find((item) => item.name === product.name);
-      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { name: product.name, line: product.category, weight, price: product.price as number, quantity: 1 }];
+      if (found) return current.map((item) => item.name === product.name ? { ...item, price: catalogPrice, quantity: item.quantity + 1 } : item);
+      return [...current, { name: product.name, line: product.category, weight, price: catalogPrice, quantity: 1 }];
     });
     setOrderOpen(true);
   };
@@ -3090,11 +3201,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g para o seu dia a dia. Unidade R$ 23,97." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas de 350 g para o seu dia a dia." products={fit} featuredNames={["Patinho com Abóbora","Frango Grelhado com Mix de Legumes"]} onAdd={addToOrder} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Frango R$ 27,90 • Bovina R$ 29,90." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Opções de R$ 26,90 a R$ 29,90." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • R$ 21,90." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Refeições de 450 g para maior aporte de proteína e energia." products={performance} featuredNames={[performance[0]?.name || "", performance[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Refeições de 500 g com sabor caseiro." products={traditional} featuredNames={[traditional[0]?.name || "", traditional[1]?.name || ""]} onAdd={addToOrder} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas frescas para completar sua rotina." products={salads} featuredNames={[salads[0]?.name || "", salads[1]?.name || ""]} onAdd={addToOrder} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -3210,7 +3321,7 @@ export default function Home() {
                   <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
+                    {([{ size: "500 ml" as const, price: getJuiceCatalogPriceLabel(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuiceCatalogPriceLabel(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
                       <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                         <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
                         <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#f47b0b]" : "text-white"}`}>{option.price}</span>
@@ -3248,7 +3359,7 @@ export default function Home() {
               <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
-                {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
+                {([{size:"500 ml" as const,price:getJuiceCatalogPriceLabel(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuiceCatalogPriceLabel(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
                   <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
                     <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
@@ -3321,7 +3432,11 @@ export default function Home() {
                   {category === "FRUTAS" && (
                     <div className="border-b border-white/10 bg-[#12150f] px-4 py-2.5 text-[11px] font-bold text-white/45">200 g por porção</div>
                   )}
-                  {items.map((item) => (
+                  {items.map((item) => {
+                    const itemWeight = category === "FRUTAS" ? "200 g" : "1 un";
+                    const catalogPrice = getCatalogProductPrice(catalogProductState.rows, { name: item.name, line: category, weight: itemWeight });
+                    const canAddItem = catalogProductState.loaded && catalogPrice !== null;
+                    return (
                     <div key={item.name} className="flex items-center justify-between gap-3 border-b border-white/5 p-3.5 last:border-b-0">
                       <div className="flex min-w-0 items-center gap-3">
                         {item.image ? (
@@ -3336,21 +3451,23 @@ export default function Home() {
                       </div>
                       <button
                         type="button"
+                        disabled={!canAddItem}
                         aria-label={`Adicionar ${item.name}`}
                         onClick={() => addToOrder({
                           name: item.name,
                           line: category,
                           weight: category === "FRUTAS" ? "200 g" : "100–120 g",
-                          price: money(item.price ?? 0),
+                          price: catalogPrice === null ? "R$ 0,00" : money(catalogPrice),
                           description: item.description,
                           image: item.image || ""
                         })}
-                        className="shrink-0 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#f47b0b] hover:text-black sm:px-3.5 sm:text-[11px]"
+                        className="shrink-0 rounded-full border border-[#f47b0b]/40 bg-[#f47b0b]/10 px-3 py-2 text-[10px] font-black text-[#ff9a4b] transition hover:bg-[#f47b0b] hover:text-black disabled:cursor-not-allowed disabled:opacity-40 sm:px-3.5 sm:text-[11px]"
                       >
-                        {money(item.price ?? 0)}
+                        {!catalogProductState.loaded ? "Carregando..." : catalogPrice === null ? "Indisponível" : money(catalogPrice)}
                       </button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </details>
             );
@@ -3642,7 +3759,7 @@ export default function Home() {
                             </div>
                             <div className="p-3">
                               <h4 className="line-clamp-2 min-h-10 text-xs font-bold leading-5">{suggestion.name}</h4>
-                              <div className="mt-1 text-sm font-black text-[#86a51d]">{money(suggestion.price as number)}</div>
+                              <div className="mt-1 text-sm font-black text-[#86a51d]">{getComplementCatalogPrice(catalogProductState.rows, suggestion) === null ? "Indisponível" : money(getComplementCatalogPrice(catalogProductState.rows, suggestion) as number)}</div>
                               <button type="button" onClick={() => addComplementToOrder(suggestion)} className="mt-2 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-full bg-[#f47b0b] px-2 py-2 text-xs font-black text-black transition hover:bg-[#ff963b]">
                                 <Plus size={14} /> Adicionar
                               </button>
@@ -3696,6 +3813,7 @@ export default function Home() {
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
+                {catalogPriceNotice && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">{catalogPriceNotice}</div>}
                 {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
@@ -3722,7 +3840,7 @@ export default function Home() {
                   <button key={product.name} type="button" onClick={() => openSearchResult(product)} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 text-left hover:border-[#86a51d]/40">
                     <span className="min-w-0">
                       <span className="block break-words font-black">{product.name}</span>
-                      <span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {product.price}</span>
+                      <span className="mt-1 block text-xs text-white/40">{product.line} • {product.weight} • {getCatalogProductPrice(catalogProductState.rows, product) === null ? "Indisponível" : money(getCatalogProductPrice(catalogProductState.rows, product) as number)}</span>
                     </span>
                     <ArrowRight size={18} className="shrink-0 text-[#86a51d]" />
                   </button>
