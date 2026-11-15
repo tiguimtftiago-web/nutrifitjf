@@ -628,9 +628,9 @@ const itemLineLabel = (line: string) => {
 
 
 const comboOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 5: "R$ 117,00", 7: "R$ 164,00", 10: "R$ 235,00", 14: "R$ 328,00", 20: "R$ 459,00" } },
-  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 5: "R$ 139,90", 7: "R$ 194,90", 10: "R$ 274,90", 14: "R$ 384,90", 20: "R$ 539,90" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 5: "R$ 141,90", 7: "R$ 196,90", 10: "R$ 278,00", 14: "R$ 383,90", 20: "R$ 538,00" } },
+  { line: "FIT", weight: "350 g", products: fit },
+  { line: "PERFORMANCE", weight: "450 g", products: performance },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional },
 ] as const;
 
 type CatalogComboPriceMap = Record<string, Record<number, number>>;
@@ -715,9 +715,9 @@ function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus 
 }
 
 const monthlyPlanOptions = [
-  { line: "FIT", weight: "350 g", products: fit, prices: { 30: "R$ 688,50", 60: "R$ 1.377,00" } },
-  { line: "PERFORMANCE", weight: "450 g", products: performance, prices: { 30: "R$ 810,00", 60: "R$ 1.620,00" } },
-  { line: "TRADICIONAL", weight: "500 g", products: traditional, prices: { 30: "R$ 792,00", 60: "R$ 1.584,00" } },
+  { line: "FIT", weight: "350 g", products: fit },
+  { line: "PERFORMANCE", weight: "450 g", products: performance },
+  { line: "TRADICIONAL", weight: "500 g", products: traditional },
 ] as const;
 
 function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, catalogComboStatus, catalogStatus }: { onAddPlan: (items: OrderItem[]) => void; productsByLine: Record<string, Product[]>; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; catalogStatus: CatalogLoadStatus }) {
@@ -736,7 +736,7 @@ function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, cat
   const totalPrice = catalogTotalPrice ?? 0;
   const unitPrice = priceReady ? totalPrice / quantity : 0;
   const unitPriceCents = Math.round(totalPrice * 100 / quantity);
-  const totalSavings = option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
+  const totalSavings = priceReady && option.line === "FIT" ? Math.max(0, (2397 - unitPriceCents) * quantity / 100) : null;
   const remaining = quantity - total;
 
   const changeLine = (index: number) => {
