@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Nutrifit | Acesso",
   description: "Acesse o painel administrativo ou a loja Nutrifit.",
+  robots: { index: false, follow: false },
   appleWebApp: { capable: true, title: "Nutrifit", statusBarStyle: "black-translucent" },
   icons: {
     icon: [
