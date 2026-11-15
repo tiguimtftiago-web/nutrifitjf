@@ -75,6 +75,30 @@ async function enforcePublicOrderRateLimit(
   return true;
 }
 
+const normalizeNeighborhood = (value: string) =>
+  value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+async function getDeliveryZone(
+  url: string,
+  headers: Record<string, string>,
+  neighborhood: string,
+): Promise<{ zone: string; fee: number } | null> {
+  const normalized = normalizeNeighborhood(neighborhood);
+  if (!normalized) return null;
+  const response = await fetch(
+    url + "/rest/v1/delivery_zone_neighborhoods?select=zone,fee&normalized_name=eq." +
+      encodeURIComponent(normalized) + "&active=eq.true&limit=1",
+    { headers, signal: AbortSignal.timeout(5000) },
+  );
+  if (!response.ok) throw new Error("Delivery zone lookup unavailable: " + await response.text());
+  const rows = await response.json();
+  const row = Array.isArray(rows) ? rows[0] : null;
+  if (!row) return null;
+  const fee = Number(row.fee);
+  if (!Number.isFinite(fee) || fee < 0) return null;
+  return { zone: String(row.zone), fee };
+}
+
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
   const originAllowed = !origin || allowedOrigins.has(origin);
@@ -239,16 +263,16 @@ const catalogNameAliases: Record<string, string> = {
     if (normalize(city) !== normalize(String(address.localidade ?? "")) || state !== String(address.uf ?? "").toUpperCase())
       return respond(400, { error: "Cidade e estado não correspondem ao CEP informado. Confira o endereço." });
     const neighborhood = String(address.bairro ?? "").trim();
-    const zone1 = "Monte Castelo|Carlos Chagas|Cerâmica|Francisco Bernardino|Fábrica|Esplanada|São Dimas|Centenário|Mariano Procópio|Jardim Glória|Morro da Glória|Santa Catarina|Santa Helena|Democrata|Vale do Ipê|Jardim Paineiras|Jardim Santa Helena|Poço Rico|Vitorino Braga|Nossa Senhora Aparecida";
-    const zone2 = "Centro|Boa Vista|Granbery|Bom Pastor|São Mateus|Alto dos Passos|Teixeiras|Bairu|Bonfim|Botanágua|Cesário Alvim|Grajaú|Manoel Honório|Linhares|Marumbi|Progresso|Santa Rita|Santa Cândida|São Benedito|São Bernardo|Santa Terezinha|Eldorado|Jardim Bom Clima|Granjas Betânia|Jardim Emaús|Parque Independência|Grama|Jardim Natal|Nova Era|Benfica|Nova Benfica|Milho Branco|Industrial|Jóquei Clube|Barbosa Lage|Santa Cruz|Represa|Jardim dos Alfineiros|Bandeirantes|Parque Guarani|Nossa Senhora das Graças|Quintas das Avenidas|Santa Paula";
-    const zone3 = "São Pedro|Aeroporto|Borboleta|Cruzeiro Santo Antônio|Martelos|Morro do Imperador|Nova Califórnia|Novo Horizonte|Serro Azul|Portal da Torre|Caiçaras|Marilândia|Santos Dumont|Alto dos Pinheiros|Adolfo Vireque|Bosque do Imperador|Granville|Viña Del Mar|Vina Del Mar|Nova Germânia|Parque das Águas|Spinaville|Via do Sol|Residencial Alvim|Dom Bosco|Cascatinha|Graminha|Ipiranga|Sagrado Coração de Jesus|Salvaterra|Santa Efigênia|Santa Luzia|Santa Cecília|Bomba de Fogo|Jardim Laranjeiras|Cruzeiro do Sul|Barão do Retiro|Floresta|Nossa Senhora de Lourdes|Santo Antônio|Vila Furtado de Menezes|Vila Ideal|Vila Olavo Costa|Costa Carvalho|Jardim Gaúcho|São Geraldo|Previdenciários|Jardim América|Bela Aurora|Estrela Sul|Jardim Casablanca|Nossa Senhora de Fátima";
-    const zone4 = "Barreira do Triunfo|Filgueiras|Granjas Bethel|Vale dos Bandeirantes|Paula Lima|Remonta|Vila Esperança|Jardim Europa|Jardim Olímpia|Cidade do Sol|Cidade Jardim|Fontesville|Fontesville II|Igrejinha|Parque das Palmeiras|Parque das Torres|Parque Guadalajara|Parque Guarua|Parque Imperial|Parque Jardim da Serra|Parque Serra Verde|Jardim da Serra|Chalés do Imperador|Chalés do Algarve|Colinas do Imperador|Mandala|Portal do Aeroporto|Morada do Serro|Bosque Imperial|Conjunto Flamboyants|São Clemente|São Lucas|Santana|Neo Residencial|Spinaville II|Mirante|Cidade Universitária|Três Moinhos|Terras Altas|Retiro|Pedras Preciosas|Jardim Esperança|Jardim do Sol|Santos Anjos|Vila Alpina|São Sebastião|Aracy|Jardim das Flores|Solidariedade|Granjas Primavera|Granjas Santo Antônio|Guaruá|Granjas do Bosque|Vivendas da Serra|Vivendas das Fontes|Vale Verde|Serra D'Água|Serra Dagua|Tupã|Tiguera|Spina Ville II|Vila Ozanan";
-    const n = normalize(neighborhood);
-    const feeFor = (list: string) => list.split("|").some((name) => normalize(name) === n);
-    let expectedFee: number | null = feeFor(zone1) ? 5 : feeFor(zone2) ? 7 : feeFor(zone3) ? 10 : feeFor(zone4) ? 13 : null;
-    if (expectedFee === null)
+    let deliveryZone: { zone: string; fee: number } | null;
+    try {
+      deliveryZone = await getDeliveryZone(url, headers, neighborhood);
+    } catch (deliveryError) {
+      console.error("customer order delivery-zone lookup failed", deliveryError);
+      return respond(503, { error: "Não foi possível consultar a taxa de entrega agora. Tente novamente." });
+    }
+    if (!deliveryZone)
       return respond(400, { error: "Bairro não localizado na área de entrega. Confirme a taxa pelo WhatsApp." });
-    const deliveryCents = itemCount >= 20 ? 0 : Math.round((expectedFee as number) * 100);
+    const deliveryCents = itemCount >= 20 ? 0 : Math.round(deliveryZone.fee * 100);
     const discountCode = String(body.coupon_code ?? "").trim().toUpperCase();
     let discountCents = 0;
     let redeemedCoupon: string | null = null;
