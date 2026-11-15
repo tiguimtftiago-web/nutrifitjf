@@ -2323,6 +2323,28 @@ export default function Home() {
   const catalogPerformance = catalogProductsByLine.PERFORMANCE;
   const catalogTraditional = catalogProductsByLine.TRADICIONAL;
   const catalogSalads = catalogProductsByLine.SALADAS;
+  const getOrderItemCatalogPrice = (item: OrderItem): number | null => {
+    const itemLine = item.line.trim().toUpperCase();
+    if (itemLine.startsWith("PLANO")) {
+      const planQuantity = Number(item.name.match(/Plano (\d+)/i)?.[1] || 0);
+      const planTotal = catalogComboState.prices[itemLine]?.[planQuantity];
+      return planQuantity > 0 && planTotal !== undefined ? planTotal / planQuantity : null;
+    }
+    const isSnackBox = itemLine === "SNACK BOX" || item.name.trim().toLowerCase().startsWith("nutrifit snack box");
+    const aliases: Record<string, string> = {
+      "feijoada": "Feijoada Fit",
+      "churrasco mineiro": "Churrasco Fit Mineiro",
+    };
+    const name = isSnackBox ? "Nutrifit Snack Box" : aliases[item.name.trim().toLowerCase()] || item.name;
+    const line = isSnackBox ? "SNACK BOX" : itemLine;
+    const product = catalogProductState.products.find((candidate) =>
+      candidate.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+      candidate.line.trim().toUpperCase() === line
+    );
+    if (!product) return null;
+    const price = parseMoney(product.price);
+    return Number.isFinite(price) && price > 0 ? price : null;
+  };
 
   const bannerSlides = [
     { image: "/images/nutrifit-banner-1-fit.png", eyebrow: "Nutrifit • Juiz de Fora", title: "Marmitas fitness, sabor e praticidade para sua rotina.", text: "Escolha suas refeições, monte seu pedido e receba em casa.", cta: "Ver cardápio", href: "#cardapio", source: "banner_cardapio" },
@@ -2344,6 +2366,14 @@ export default function Home() {
     } catch {}
     setCartHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!cartHydrated) return;
+    setOrderItems((current) => current.map((item) => {
+      const catalogPrice = getOrderItemCatalogPrice(item);
+      return catalogPrice === null ? item : { ...item, price: catalogPrice };
+    }));
+  }, [cartHydrated, catalogProductState.status, catalogProductState.products, catalogComboState.status, catalogComboState.prices]);
 
   useEffect(() => {
     if (!cartHydrated) return;
@@ -2377,8 +2407,10 @@ export default function Home() {
       const next = [...current];
       for (const item of items) {
         const found = next.find((existing) => existing.name === item.name);
-        if (found) found.quantity += item.quantity;
-        else next.push(item);
+        if (found) {
+          found.quantity += item.quantity;
+          found.price = item.price;
+        } else next.push(item);
       }
       return next;
     });
@@ -2444,6 +2476,7 @@ export default function Home() {
       window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
     }
   }, []);
+  const orderHasUnverifiedPrices = orderItems.some((item) => getOrderItemCatalogPrice(item) === null);
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
   const orderFreeDelivery = orderCount >= DELIVERY_FREE_FROM;
@@ -2460,7 +2493,7 @@ export default function Home() {
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
-  const canFinalizeOrder = Boolean(orderItems.length && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
+  const canFinalizeOrder = Boolean(orderItems.length && !orderHasUnverifiedPrices && orderSubtotal >= MIN_ORDER_VALUE && orderCustomerReady && orderDeliveryReady);
 
   const calculateOrderDelivery = async (cepValue?: string) => {
     const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
@@ -2555,7 +2588,7 @@ export default function Home() {
   const addToOrder = (product: Product) => {
     setOrderItems((current) => {
       const found = current.find((item) => item.name === product.name);
-      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
+      if (found) return current.map((item) => item.name === product.name ? { ...item, price: parseMoney(product.price), quantity: item.quantity + 1 } : item);
       return [...current, { name: product.name, line: product.line, weight: product.weight, price: parseMoney(product.price), quantity: 1 }];
     });
     setOrderOpen(true);
@@ -2568,7 +2601,7 @@ export default function Home() {
     const configuredName = "Nutrifit Snack Box — " + snackSandwich + " — " + snackJuice + " — " + snackFruit;
     setOrderItems((current) => {
       const found = current.find((item) => item.name === configuredName);
-      if (found) return current.map((item) => item.name === configuredName ? { ...item, quantity: item.quantity + 1 } : item);
+      if (found) return current.map((item) => item.name === configuredName ? { ...item, price: parseMoney(catalogSnackBox.price), quantity: item.quantity + 1 } : item);
       return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: parseMoney(catalogSnackBox.price), quantity: 1 }];
     });
     setOrderOpen(true);
@@ -2578,7 +2611,7 @@ export default function Home() {
     const weight = product.name.includes("300 ml") ? "300 ml" : product.name.includes("500 ml") ? "500 ml" : product.category === "SANDUÍCHES" ? "1 un" : "porção";
     setOrderItems((current) => {
       const found = current.find((item) => item.name === product.name);
-      if (found) return current.map((item) => item.name === product.name ? { ...item, quantity: item.quantity + 1 } : item);
+      if (found) return current.map((item) => item.name === product.name ? { ...item, price: product.price as number, quantity: item.quantity + 1 } : item);
       return [...current, { name: product.name, line: product.category, weight, price: product.price as number, quantity: 1 }];
     });
     setOrderOpen(true);
@@ -2695,7 +2728,7 @@ export default function Home() {
     if (!customerName.trim()) { setCustomerNameError("Informe seu nome para continuar."); return; }
     if (orderPhoneDigits.length < 10) { setCustomerPhoneError("Informe um WhatsApp válido com DDD."); return; }
     setCustomerNameError(""); setCustomerPhoneError("");
-    if (fullOrderSubmitLock.current || !orderItems.length || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
+    if (fullOrderSubmitLock.current || !orderItems.length || orderHasUnverifiedPrices || orderSubtotal < MIN_ORDER_VALUE || !orderCustomerReady || !orderDeliveryReady) return;
     fullOrderSubmitLock.current = true;
     setFullOrderSubmitting(true);
 
@@ -3728,6 +3761,7 @@ export default function Home() {
                 <button type="button" onClick={sendFullOrder} disabled={!canFinalizeOrder || fullOrderSubmitting} aria-busy={fullOrderSubmitting} aria-label="Finalizar pedido no WhatsApp" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#86a51d] px-5 py-3 font-black text-black transition disabled:cursor-not-allowed disabled:opacity-30 sm:mt-3 sm:min-h-14 sm:py-4">
                   {fullOrderSubmitting ? <><Loader2 size={18} className="animate-spin" /> Enviando pedido...</> : <>Finalizar no WhatsApp <ArrowRight size={18} /></>}
                 </button>
+                {orderHasUnverifiedPrices && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Um ou mais itens do carrinho não têm preço confirmado no catálogo atual. Atualize o cardápio ou remova e adicione novamente o item antes de finalizar.</div>}
                 {orderCaptureError && <div role="alert" className="mt-3 rounded-xl border border-[#f47b0b]/30 bg-[#f47b0b]/10 p-3 text-center text-xs leading-5 text-[#ffd2a6]">Não conseguimos confirmar o registro automático. A mensagem foi aberta no WhatsApp; seu carrinho foi mantido. Confirme os itens e aguarde a Nutrifit antes de pagar.</div>}
                 {!orderCustomerReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Informe nome e WhatsApp válido para finalizar.</div>}
                 {orderCustomerReady && !orderDeliveryReady && <div className="mt-2 text-center text-xs text-[#ef9b55]">Calcule a entrega pelo CEP para continuar.</div>}
