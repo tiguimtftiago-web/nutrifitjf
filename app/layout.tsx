@@ -86,7 +86,7 @@ const structuredData = {
   servesCuisine: ["Marmitas fitness", "Alimentação saudável", "Comida brasileira"],
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Rua Enéas Mascarenhas",
+    streetAddress: "Rua Enéas Mascarenhas, nº 94/304",
     addressLocality: "Juiz de Fora",
     addressRegion: "MG",
     addressCountry: "BR",
