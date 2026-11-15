@@ -1,33 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Send, X, ArrowRight, MapPin, ShoppingBag, UserRound } from "lucide-react";
 
 type Msg = { role: "assistant" | "user"; text: string };
 
-const fit = [
-  ["Patinho com Abóbora", "R$ 23,97"],
-  ["Patinho com Batata-Doce", "R$ 23,97"],
-  ["Patinho com Legumes na Manteiga", "R$ 23,97"],
-  ["Frango Grelhado com Mix de Legumes", "R$ 23,97"],
-  ["Carne Acebolada com Legumes", "R$ 23,97"],
-  ["Frango ao Molho de Ervas com Legumes", "R$ 23,97"],
-  ["Lombo Suíno com Legumes Assados", "R$ 23,97"],
-  ["Pernil Acebolado com Batata Inglesa", "R$ 23,97"],
-  ["Frango com Purê de Batata Inglesa", "R$ 23,97"],
-  ["Frango ao Molho de Mostarda com Batata", "R$ 23,97"],
-  ["Escondidinho de Patinho Fit", "R$ 23,97"],
-  ["Frango Empanado Assado com Arroz Integral", "R$ 23,97"],
-  ["Pernil Desfiado ao Molho com Arroz Integral", "R$ 23,97"],
-] as const;
+type FitProduct = { name: string; price: number };
+type FitCombo = { quantity: number; price: number };
 
-const combos = [
-  ["5 marmitas", "R$ 117,00"],
-  ["7 marmitas", "R$ 164,00"],
-  ["10 marmitas", "R$ 235,00"],
-  ["14 marmitas", "R$ 328,00"],
-] as const;
+const SUPABASE_URL = "https://xdllpyqrbofszvallzxf.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
+const formatBRL = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 const wa = (text: string) =>
   `https://wa.me/5532998030038?text=${encodeURIComponent(text)}`;
@@ -42,11 +26,44 @@ export default function AssistenteNutrifitPage() {
   ]);
   const [input, setInput] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [fit, setFit] = useState<FitProduct[]>([]);
+  const [combos, setCombos] = useState<FitCombo[]>([]);
+  const [catalogStatus, setCatalogStatus] = useState<"loading" | "ready" | "error">("loading");
+
+  useEffect(() => {
+    let active = true;
+    const loadCatalog = async () => {
+      try {
+        const headers = { apikey: SUPABASE_PUBLISHABLE_KEY };
+        const [productsResponse, combosResponse] = await Promise.all([
+          fetch(SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,category&active=eq.true&category=eq.marmita&line=eq.Fit&order=name.asc", { headers, cache: "no-store" }),
+          fetch(SUPABASE_URL + "/rest/v1/catalog_combos?select=name,quantity,price&active=eq.true&name=eq.FIT&order=quantity.asc", { headers, cache: "no-store" }),
+        ]);
+        if (!productsResponse.ok || !combosResponse.ok) throw new Error("Catálogo indisponível");
+        const products = await productsResponse.json() as Array<{ name: string; price: number | string; size_grams: number }>;
+        const comboRows = await combosResponse.json() as Array<{ quantity: number; price: number | string }>;
+        const fitProducts = products.filter((item) => Number(item.size_grams) === 350 && Number(item.price) > 0)
+          .map((item) => ({ name: item.name, price: Number(item.price) }));
+        const fitCombos = comboRows.filter((item) => Number(item.quantity) > 0 && Number(item.price) > 0)
+          .map((item) => ({ quantity: Number(item.quantity), price: Number(item.price) }));
+        if (!fitProducts.length || !fitCombos.length) throw new Error("Catálogo incompleto");
+        if (active) {
+          setFit(fitProducts);
+          setCombos(fitCombos);
+          setCatalogStatus("ready");
+        }
+      } catch {
+        if (active) setCatalogStatus("error");
+      }
+    };
+    void loadCatalog();
+    return () => { active = false; };
+  }, []);
 
   const total = useMemo(() => selected.reduce((sum, name) => {
-    const item = fit.find(([n]) => n === name);
-    return sum + (item ? 23.97 : 0);
-  }, 0), [selected]);
+    const item = fit.find((product) => product.name === name);
+    return sum + (item?.price ?? 0);
+  }, 0), [selected, fit]);
 
   const reply = (text: string) => setMessages((m) => [...m, { role: "user", text }]);
 
@@ -63,11 +80,17 @@ export default function AssistenteNutrifitPage() {
     const normalized = value.toLowerCase();
     let answer = "Posso ajudar com marmitas, combos, preços, entrega em Juiz de Fora ou encaminhar você para o WhatsApp. Escolha uma opção abaixo.";
     if (normalized.includes("10") && normalized.includes("marmita")) {
-      answer = "Perfeito. O combo Fit de 10 marmitas custa R$ 235,00. Você pode escolher as marmitas e variar os sabores.";
+      const combo = combos.find((item) => item.quantity === 10);
+      answer = combo
+        ? `Perfeito. O combo Fit de 10 marmitas custa ${formatBRL(combo.price)}. Você pode escolher os sabores e variar o pedido.`
+        : "Não encontrei um preço ativo para esse combo. Consulte a equipe Nutrifit pelo WhatsApp.";
     } else if (normalized.includes("entrega") || normalized.includes("juiz")) {
       answer = "A Nutrifit atende Juiz de Fora. Posso te orientar sobre a entrega ou encaminhar você para o WhatsApp para confirmar o endereço.";
     } else if (normalized.includes("preço") || normalized.includes("preco")) {
-      answer = "Na Linha Fit 350 g, as marmitas mostradas aqui estão em R$ 23,97 cada. Também temos combos com desconto.";
+      const unitPrices = [...new Set(fit.map((item) => item.price))];
+      answer = unitPrices.length === 1
+        ? `As marmitas Fit 350 g custam ${formatBRL(unitPrices[0])} cada. Também temos combos com valores cadastrados no catálogo.`
+        : "Os preços variam conforme o prato. Veja os valores atualizados na lista de opções abaixo.";
     } else if (normalized.includes("frango")) {
       answer = "Temos várias opções de frango na Linha Fit. Toque em “Ver opções” para escolher.";
     }
@@ -80,7 +103,8 @@ export default function AssistenteNutrifitPage() {
 
   const openWhatsApp = () => {
     const list = selected.length ? selected.join(", ") : "Quero ajuda para escolher minhas marmitas";
-    window.open(wa(`Olá Nutrifit! Quero finalizar meu pedido. ${list}. Total parcial: R$ ${total.toFixed(2).replace(".", ",")}.`), "_blank");
+    if (catalogStatus !== "ready") return;
+    window.open(wa(`Olá Nutrifit! Quero finalizar meu pedido. ${list}. Total parcial: ${formatBRL(total)}.`), "_blank");
   };
 
   return (
@@ -150,11 +174,13 @@ export default function AssistenteNutrifitPage() {
 
               {messages.some((m) => m.text.includes("opções da Linha Fit")) && (
                 <div className="space-y-2">
-                  {fit.map(([name, price]) => (
-                    <button key={name} onClick={() => add(name)} className={`w-full rounded-2xl border px-3 py-3 text-left ${selected.includes(name) ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}>
+                  {catalogStatus === "loading" && <p className="rounded-xl border border-white/10 p-3 text-xs text-white/55">Carregando cardápio e preços oficiais...</p>}
+                  {catalogStatus === "error" && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar o catálogo. Tente novamente mais tarde ou fale com a equipe.</p>}
+                  {catalogStatus === "ready" && fit.map((item) => (
+                    <button key={item.name} onClick={() => add(item.name)} className={`w-full rounded-2xl border px-3 py-3 text-left ${selected.includes(item.name) ? "border-[#ef7d18] bg-[#ef7d18]/10" : "border-white/10 bg-white/[.025]"}`}>
                       <div className="flex items-center justify-between gap-3">
-                        <div><div className="text-sm font-black">{name}</div><div className="mt-0.5 text-xs text-white/40">Fit • 350 g</div></div>
-                        <div className="text-xs font-black text-[#ef7d18]">{price}</div>
+                        <div><div className="text-sm font-black">{item.name}</div><div className="mt-0.5 text-xs text-white/40">Fit • 350 g</div></div>
+                        <div className="text-xs font-black text-[#ef7d18]">{formatBRL(item.price)}</div>
                       </div>
                     </button>
                   ))}
@@ -166,7 +192,7 @@ export default function AssistenteNutrifitPage() {
                   <div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Seu pedido</div>
                   <div className="mt-2 text-sm text-white/65">{selected.length} marmita(s) selecionada(s)</div>
                   <div className="mt-1 text-lg font-black">R$ {total.toFixed(2).replace(".", ",")}</div>
-                  <button onClick={openWhatsApp} aria-label="Falar com a equipe Nutrifit pelo WhatsApp" className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-4 py-3 font-black text-black">
+                  <button disabled={catalogStatus !== "ready"} onClick={openWhatsApp} aria-label="Falar com a equipe Nutrifit pelo WhatsApp" className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#a7b86a] px-4 py-3 font-black text-black disabled:cursor-not-allowed disabled:opacity-50">
                     Finalizar no WhatsApp <MessageCircle size={16} />
                   </button>
                 </div>
