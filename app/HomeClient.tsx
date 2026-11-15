@@ -461,91 +461,50 @@ type SavedDelivery = {
   savedAt: number;
 };
 
-const DELIVERY_STORAGE_KEY = "nutrifit_delivery_quote_v1";
-const DELIVERY_STORAGE_TTL = 24 * 60 * 60 * 1000;
-
-const deliveryZones: Array<{ zone: string; fee: number; neighborhoods: string[] }> = [
-  {
-    zone: "Zona 1",
-    fee: 5,
-    neighborhoods: [
-      // Base Monte Castelo + eixo norte imediato
-      "Monte Castelo","Carlos Chagas","Cerâmica","Francisco Bernardino","Fábrica","Esplanada",
-      "São Dimas","Centenário","Mariano Procópio","Jardim Glória","Morro da Glória",
-      "Santa Catarina","Santa Helena","Democrata","Vale do Ipê","Jardim Paineiras",
-      "Jardim Santa Helena","Poço Rico","Vitorino Braga","Nossa Senhora Aparecida"
-    ],
-  },
-  {
-    zone: "Zona 2",
-    fee: 7,
-    neighborhoods: [
-      // Eixos central, leste e norte ainda próximos da base
-      "Centro","Boa Vista","Granbery","Bom Pastor","São Mateus","Alto dos Passos",
-      "Teixeiras","Bairu","Bonfim","Botanágua","Cesário Alvim","Grajaú","Manoel Honório",
-      "Linhares","Marumbi","Progresso","Santa Rita","Santa Cândida","São Benedito",
-      "São Bernardo","Santa Terezinha","Eldorado","Jardim Bom Clima",
-      "Granjas Betânia","Jardim Emaús","Parque Independência","Grama","Jardim Natal",
-      "Nova Era","Benfica","Nova Benfica","Milho Branco","Industrial","Jóquei Clube",
-      "Barbosa Lage","Santa Cruz","Represa","Jardim dos Alfineiros","Bandeirantes",
-      "Parque Guarani","Nossa Senhora das Graças","Quintas das Avenidas","Santa Paula"
-    ],
-  },
-  {
-    zone: "Zona 3",
-    fee: 10,
-    neighborhoods: [
-      // Cidade Alta/Oeste + Sul/Sudeste
-      "São Pedro","Aeroporto","Borboleta","Cruzeiro Santo Antônio","Martelos",
-      "Morro do Imperador","Nova Califórnia","Novo Horizonte","Serro Azul",
-      "Portal da Torre","Caiçaras","Marilândia","Santos Dumont","Alto dos Pinheiros",
-      "Adolfo Vireque","Bosque do Imperador","Granville","Viña Del Mar","Vina Del Mar",
-      "Nova Germânia","Parque das Águas","Spinaville","Via do Sol","Residencial Alvim",
-      "Dom Bosco","Cascatinha","Graminha","Ipiranga","Sagrado Coração de Jesus",
-      "Salvaterra","Santa Efigênia","Santa Luzia","Santa Cecília","Bomba de Fogo",
-      "Jardim Laranjeiras","Cruzeiro do Sul","Barão do Retiro","Floresta",
-      "Nossa Senhora de Lourdes","Santo Antônio","Vila Furtado de Menezes","Vila Ideal",
-      "Vila Olavo Costa","Costa Carvalho","Jardim Gaúcho","São Geraldo","Previdenciários",
-      "Jardim América","Bela Aurora","Estrela Sul","Jardim Casablanca","Nossa Senhora de Fátima"
-    ],
-  },
-  {
-    zone: "Zona 4",
-    fee: 13,
-    neighborhoods: [
-      // Áreas mais afastadas / periferia / localidades com maior deslocamento
-      "Barreira do Triunfo","Filgueiras","Granjas Bethel","Vale dos Bandeirantes",
-      "Paula Lima","Remonta","Vila Esperança","Jardim Europa","Jardim Olímpia",
-      "Cidade do Sol","Cidade Jardim","Fontesville","Fontesville II","Igrejinha",
-      "Parque das Palmeiras","Parque das Torres","Parque Guadalajara","Parque Guarua",
-      "Parque Imperial","Parque Jardim da Serra","Parque Serra Verde","Jardim da Serra",
-      "Chalés do Imperador","Chalés do Algarve","Colinas do Imperador","Mandala",
-      "Portal do Aeroporto","Morada do Serro","Bosque Imperial","Conjunto Flamboyants",
-      "São Clemente","São Lucas","Santana","Neo Residencial","Spinaville II",
-      "Mirante","Cidade Universitária","Três Moinhos",
-      "Terras Altas","Retiro","Pedras Preciosas","Jardim Esperança","Jardim do Sol",
-      "Santos Anjos","Vila Alpina","São Sebastião","Aracy","Jardim das Flores",
-      "Solidariedade","Granjas Primavera","Granjas Santo Antônio","Guaruá","Granjas do Bosque",
-      "Vivendas da Serra","Vivendas das Fontes","Vale Verde","Serra D'Água","Serra Dagua",
-      "Tupã","Tiguera","Parque Serra Verde","Spina Ville II","Vila Ozanan"
-    ],
-  },
-];
+type DeliveryFeeRow = {
+  neighborhood: string;
+  normalized_name: string;
+  zone_number: number;
+  delivery_fee: number | string;
+};
+type DeliveryFeeState = { fees: DeliveryFeeRow[]; status: "loading" | "ready" | "error" };
 
 const normalizeText = (value: string) =>
-  value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
+  value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
-const findDelivery = (neighborhood: string): DeliveryResult | null => {
+function useDeliveryFees(): DeliveryFeeState {
+  const [state, setState] = useState<DeliveryFeeState>({ fees: [], status: "loading" });
+  useEffect(() => {
+    let active = true;
+    const loadFees = async () => {
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/delivery_neighborhood_fees?select=neighborhood,normalized_name,zone_number,delivery_fee&active=eq.true&order=zone_number.asc,neighborhood.asc",
+          { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("Não foi possível carregar as taxas de entrega.");
+        const rows = await response.json() as DeliveryFeeRow[];
+        const fees = rows.filter((row) => row.neighborhood && row.normalized_name && Number(row.zone_number) >= 1 && Number(row.zone_number) <= 4 && Number(row.delivery_fee) > 0);
+        if (!fees.length) throw new Error("A tabela de entrega está vazia.");
+        if (active) setState({ fees, status: "ready" });
+      } catch {
+        if (active) setState({ fees: [], status: "error" });
+      }
+    };
+    void loadFees();
+    return () => { active = false; };
+  }, []);
+  return state;
+}
+
+const findDelivery = (neighborhood: string, fees: DeliveryFeeRow[]): DeliveryResult | null => {
   const normalized = normalizeText(neighborhood);
-  const match = deliveryZones.find((item) =>
-    item.neighborhoods.some((name) => normalizeText(name) === normalized)
-  );
-  return match ? { zone: match.zone, fee: match.fee, neighborhood } : null;
+  const match = fees.find((item) => item.normalized_name === normalized || normalizeText(item.neighborhood) === normalized);
+  return match ? { zone: `Zona ${match.zone_number}`, fee: Number(match.delivery_fee), neighborhood } : null;
 };
+
+const DELIVERY_STORAGE_KEY = "nutrifit_delivery_quote_v2";
+const DELIVERY_STORAGE_TTL = 24 * 60 * 60 * 1000;
 
 const money = (value: number) =>
   value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -852,7 +811,7 @@ function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, cat
   );
 }
 
-function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, complementsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; complementsOverride: ComplementOption[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, complementsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady, deliveryFees, deliveryFeeStatus }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; complementsOverride: ComplementOption[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean; deliveryFees: DeliveryFeeRow[]; deliveryFeeStatus: DeliveryFeeState["status"] }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
@@ -977,9 +936,9 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       return;
     }
 
-    if (quantity >= DELIVERY_FREE_FROM) {
-      setDelivery({ zone: "Frete grátis", fee: 0, neighborhood: "" });
-      setDeliveryStatus("idle");
+    if (deliveryFeeStatus !== "ready") {
+      setDelivery(null);
+      setDeliveryStatus("error");
       return;
     }
 
@@ -988,7 +947,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
 
-      if (data.erro || !data.bairro) {
+      if (data.erro || !data.bairro || normalizeText(String(data.localidade || "")) !== normalizeText("Juiz de Fora") || String(data.uf || "").toUpperCase() !== "MG") {
         setDelivery(null);
         setDeliveryStatus("error");
         return;
@@ -998,14 +957,16 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       setDeliveryNeighborhood(data.bairro || "");
       setDeliveryCity(data.localidade || "");
       setDeliveryState(data.uf || "");
-      const result = findDelivery(data.bairro);
+      const result = findDelivery(data.bairro, deliveryFees);
       if (!result) {
         setDelivery(null);
         setDeliveryStatus("error");
         return;
       }
 
-      setDelivery(result);
+      setDelivery(quantity >= DELIVERY_FREE_FROM
+        ? { ...result, zone: "Frete grátis • " + result.zone, fee: 0 }
+        : result);
       setDeliveryStatus("idle");
     } catch {
       setDelivery(null);
@@ -1177,7 +1138,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     }
   };
 
-  const deliveryReady = deliveryMode === "pickup" || (Boolean(delivery) && Boolean(deliveryStreet.trim() && deliveryNumber.trim() && deliveryNeighborhood.trim() && deliveryCity.trim() && deliveryState.trim()));
+  const deliveryReady = deliveryMode === "pickup" || (deliveryFeeStatus === "ready" && Boolean(delivery) && Boolean(deliveryStreet.trim() && deliveryNumber.trim() && deliveryNeighborhood.trim() && deliveryCity.trim() && deliveryState.trim()));
   const normalizedPhone = customerPhone.replace(/\D/g, "");
   const customerReady = Boolean(customerName.trim() && normalizedPhone.length >= 10);
   const hasPendingComplementPrice = complementItems.some((item) => item.price === null);
@@ -1525,10 +1486,12 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <>
               <div className="mt-4 flex flex-col gap-2.5 sm:flex-row">
                 <input value={cep} onChange={(event) => { setCep(formatCepInput(event.target.value)); setDelivery(null); setDeliveryStatus("idle"); }} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para calcular a entrega" className="w-full rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-bold outline-none focus:border-[#86a51d]" />
-                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading"} aria-busy={deliveryStatus === "loading"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
+                <button type="button" onClick={() => void calculateDelivery()} disabled={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-busy={deliveryStatus === "loading" || deliveryFeeStatus !== "ready"} aria-label="Calcular taxa de entrega pelo CEP" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3.5 text-sm font-black text-black disabled:opacity-60">
                   {deliveryStatus === "loading" ? <><Loader2 size={16} className="animate-spin" /> Calculando...</> : "Calcular entrega"}
                 </button>
               </div>
+              {deliveryFeeStatus === "loading" && <p className="mt-3 text-xs text-white/55">Carregando a tabela oficial de bairros e taxas...</p>}
+              {deliveryFeeStatus === "error" && <p role="alert" className="mt-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar as taxas oficiais de entrega. O pedido com entrega está temporariamente indisponível.</p>}
               {quantity >= DELIVERY_FREE_FROM ? (
                 <div className="mt-4 rounded-2xl border border-[#86a51d]/30 bg-[#86a51d]/10 p-4 text-sm">
                   <div className="font-black text-[#b6d76a]">🚚 Frete grátis</div>
@@ -2116,7 +2079,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus, comboComplements, traditionalComplements }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; comboComplements: ComplementOption[]; traditionalComplements: Product[] }) {
+function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus, comboComplements, traditionalComplements, deliveryFees, deliveryFeeStatus }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; comboComplements: ComplementOption[]; traditionalComplements: Product[]; deliveryFees: DeliveryFeeRow[]; deliveryFeeStatus: DeliveryFeeState["status"] }) {
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2212,7 +2175,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd,
                 </div>
                 <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
-              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} complementsOverride={comboComplements} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} complementsOverride={comboComplements} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} deliveryFees={deliveryFees} deliveryFeeStatus={deliveryFeeStatus} />
             </div>
           )}
         </div>
@@ -2295,6 +2258,7 @@ export default function Home() {
   const [cartHydrated, setCartHydrated] = useState(false);
   const catalogProductState = useCatalogProducts();
   const catalogComboState = useCatalogComboPrices();
+  const deliveryFeeState = useDeliveryFees();
   const catalogProductsByLine: Record<string, Product[]> = {
     FIT: catalogProductState.products.filter((product) => product.line === "FIT" && product.category === "marmita"),
     PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE" && product.category === "marmita"),
@@ -2498,12 +2462,19 @@ export default function Home() {
   const calculateOrderDelivery = async (cepValue?: string) => {
     const cleanCep = (cepValue ?? orderCep).replace(/\D/g, "");
     if (cleanCep.length !== 8) { setOrderDelivery(null); setOrderDeliveryStatus("error"); return; }
+    if (deliveryFeeState.status !== "ready") {
+      setOrderDelivery(null);
+      setDeliveryNotice("Carregando a tabela oficial de entrega. Aguarde alguns segundos e tente novamente.");
+      setOrderDeliveryStatus("error");
+      return;
+    }
     setOrderDeliveryStatus("loading");
     try {
       const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
       const data = await response.json();
       if (data.erro || !data.bairro) throw new Error("CEP");
-      const result = findDelivery(data.bairro);
+      if (deliveryFeeState.status !== "ready" || normalizeText(String(data.localidade || "")) !== normalizeText("Juiz de Fora") || String(data.uf || "").toUpperCase() !== "MG") throw new Error("outside-area");
+      const result = findDelivery(data.bairro, deliveryFeeState.fees);
       if (!result) throw new Error("outside-area");
       const saved: SavedDelivery = {
         cep: cleanCep,
@@ -3139,8 +3110,10 @@ export default function Home() {
           </div>
           <div className="flex min-w-0 gap-2">
             <input value={orderCep} onChange={(event) => handleOrderCepChange(event.target.value)} inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" aria-label="CEP para consultar frete na página inicial" className="min-w-0 flex-1 rounded-full border border-white/15 bg-black/30 px-4 py-3 text-base font-bold outline-none focus:border-[#86a51d] sm:w-40 sm:flex-none sm:text-sm" />
-            <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
+            <button type="button" onClick={() => void calculateOrderDelivery()} disabled={orderDeliveryStatus === "loading" || deliveryFeeState.status !== "ready"} className="shrink-0 rounded-full bg-[#b6d76a] px-4 py-3 text-xs font-black text-black transition enabled:bg-[#b6d76a] disabled:opacity-35">Ver frete</button>
           </div>
+          {deliveryFeeState.status === "loading" && <p className="sm:col-span-2 text-xs text-white/55">Carregando a tabela oficial de bairros e taxas...</p>}
+          {deliveryFeeState.status === "error" && <p role="alert" className="sm:col-span-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">Não foi possível carregar as taxas oficiais de entrega. O checkout com entrega está temporariamente indisponível.</p>}
           {orderDelivery && orderDeliveryStatus === "idle" && (
             <div className="sm:col-span-2 rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/[.08] px-4 py-3 text-sm">
               <div className="font-bold text-[#c5df78]">{orderDelivery.neighborhood} • {orderDelivery.zone} • {orderFreeDelivery ? "Grátis" : money(orderDelivery.fee)}</div>
@@ -3157,11 +3130,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} deliveryFees={deliveryFeeState.fees} deliveryFeeStatus={deliveryFeeState.status} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
