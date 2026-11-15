@@ -91,6 +91,7 @@ type Product = {
   image: string;
   crop?: string;
   comingSoon?: boolean;
+  category?: string;
 };
 
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
@@ -208,33 +209,6 @@ const juiceFlavors: Array<{ name: string; image: string; description: string; in
   { name: "Sun", image: "/images/page-39.jpg", description: "Abacaxi, maracujá, laranja e gengibre em uma mistura tropical e aromática.", ingredients: ["Abacaxi", "Maracujá", "Laranja", "Gengibre"], highlights: ["Tropical e aromático", "Acidez agradável", "Gengibre suave"], line: "SUCOS" },
   { name: "Laranja com Acerola", image: "/images/page-43.jpg", description: "Duas frutas cítricas em uma combinação de sabor intenso e fresco.", ingredients: ["Laranja", "Acerola", "Água"], highlights: ["Sabor cítrico", "Duas frutas", "Refrescante"], line: "SUCOS" },
 ];
-
-function getJuicePrice(_flavorName: string, size: "300 ml" | "500 ml"): string {
-  return size === "500 ml" ? "R$ 12,90" : "R$ 9,90";
-}
-
-function getJuicePriceNumber(_flavorName: string, size: "300 ml" | "500 ml"): number {
-  return size === "500 ml" ? 12.90 : 9.90;
-}
-
-const juiceProducts: Product[] = juiceFlavors.flatMap((flavor) => [
-  {
-    name: `${flavor.name} — 500 ml`,
-    line: flavor.line,
-    weight: "500 ml",
-    price: getJuicePrice(flavor.name, "500 ml"),
-    description: flavor.description,
-    image: flavor.image,
-  },
-  {
-    name: `${flavor.name} — 300 ml`,
-    line: flavor.line,
-    weight: "300 ml",
-    price: getJuicePrice(flavor.name, "300 ml"),
-    description: flavor.description,
-    image: flavor.image,
-  },
-]);
 
 const juiceIngredientNotes: Record<string, string> = {
   "Laranja": "Fornece carboidratos e pode contribuir com vitamina C; o teor depende da fruta e do preparo.",
@@ -398,20 +372,17 @@ function JuiceNutritionDetails({ flavor, compact = false }: {
 function JuiceFlavorCard({
   flavor,
   onAdd,
+  catalogProducts,
+  catalogReady,
 }: {
   flavor: { name: string; image: string; description: string; ingredients: string[]; highlights: string[]; line: string };
   onAdd: (product: Product) => void;
+  catalogProducts: Product[];
+  catalogReady: boolean;
 }) {
   const [size, setSize] = useState<"500 ml" | "300 ml">("500 ml");
-  const price = getJuicePrice(flavor.name, size);
-  const product: Product = {
-    name: `${flavor.name} — ${size}`,
-    line: flavor.line,
-    weight: size,
-    price,
-    description: flavor.description,
-    image: flavor.image,
-  };
+  const findProduct = (value: "500 ml" | "300 ml") => catalogProducts.find((product) => product.name === `${flavor.name} — ${value}`);
+  const product = findProduct(size);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
@@ -423,23 +394,24 @@ function JuiceFlavorCard({
         <p className="mt-1 text-xs text-white/45">{flavor.description}</p>
         <JuiceNutritionDetails flavor={flavor} />
         <div className="mt-4 grid grid-cols-2 gap-2" aria-label={`Escolha o tamanho do suco ${flavor.name}`}>
-          {([
-            { value: "500 ml" as const, price: getJuicePrice(flavor.name, "500 ml") },
-            { value: "300 ml" as const, price: getJuicePrice(flavor.name, "300 ml") },
-          ]).map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              aria-pressed={size === option.value}
-              onClick={() => setSize(option.value)}
-              className={`rounded-xl border px-3 py-3 text-left transition ${size === option.value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
-            >
-              <span className="block text-sm font-black">{option.value}</span>
-              <span className={`mt-1 block text-sm font-black ${size === option.value ? "text-[#f47b0b]" : "text-white/70"}`}>{option.price}</span>
-            </button>
-          ))}
+          {(["500 ml", "300 ml"] as const).map((value) => {
+            const catalogProduct = findProduct(value);
+            return (
+              <button
+                key={value}
+                type="button"
+                disabled={!catalogReady || !catalogProduct}
+                aria-pressed={size === value}
+                onClick={() => setSize(value)}
+                className={`rounded-xl border px-3 py-3 text-left transition disabled:opacity-40 ${size === value ? "border-[#f47b0b] bg-[#f47b0b]/15" : "border-white/10 bg-white/[.03]"}`}
+              >
+                <span className="block text-sm font-black">{value}</span>
+                <span className={`mt-1 block text-sm font-black ${size === value ? "text-[#f47b0b]" : "text-white/70"}`}>{catalogProduct?.price || "Indisponível"}</span>
+              </button>
+            );
+          })}
         </div>
-        <button type="button" onClick={() => onAdd(product)} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400">
+        <button type="button" disabled={!catalogReady || !product} onClick={() => { if (product) onAdd(product); }} className="mt-3 w-full rounded-full bg-[#f47b0b] px-4 py-3 font-black text-black transition hover:bg-orange-400 disabled:opacity-40">
           Adicionar {size} ao carrinho
         </button>
       </div>
@@ -455,45 +427,6 @@ type ComplementOption = {
   image?: string;
   emoji: string;
 };
-
-const comboComplements: ComplementOption[] = [
-  { name: "Suco de Laranja — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-42.jpg", emoji: "🥤" },
-  { name: "Laranja com Acerola — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-43.jpg", emoji: "🥤" },
-  { name: "Abacaxi com Hortelã — 500 ml", category: "SUCOS", description: "Natural e refrescante.", price: 12.90, image: "/images/page-44.jpg", emoji: "🥤" },
-  { name: "Energy — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Energy — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-36.jpg", emoji: "🥤" },
-  { name: "Green — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Green — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-37.jpg", emoji: "🥤" },
-  { name: "Pink — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Pink — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-38.jpg", emoji: "🥤" },
-  { name: "Sun — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Sun — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-39.jpg", emoji: "🥤" },
-  { name: "Purple — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Purple — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-40.jpg", emoji: "🥤" },
-  { name: "Glow — 500 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 12.90, image: "/images/page-41.jpg", emoji: "🥤" },
-  { name: "Glow — 300 ml", category: "SUCOS", description: "Suco funcional Nutrifit.", price: 9.90, image: "/images/page-41.jpg", emoji: "🥤" },
-  { name: "Frango com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, frango, alface e tomate.", price: 12.90, image: "/images/sanduiche-frango-nutrifit.jpg", emoji: "🥪" },
-  { name: "Carne Desfiada com Alface e Tomate", category: "SANDUÍCHES", description: "Pão integral, carne desfiada, alface e tomate.", price: 13.90, image: "/images/sanduiche-carne-desfiada-nutrifit.jpg", emoji: "🥪" },
-  { name: "Sanduíche Natural de Atum", category: "SANDUÍCHES", description: "Pão integral, atum, tomate, alface, cebola roxa e alho-poró.", price: 13.90, image: "/images/804546E5-062D-4FAA-8114-94DF7B66A18D.png", emoji: "🥪" },
-  { name: "Mamão", category: "FRUTAS", description: "Mamão fresco em pedaços.", price: 8.90, image: "/images/mamao.jpg", emoji: "🍊" },
-  { name: "Manga", category: "FRUTAS", description: "Manga fresca em pedaços.", price: 8.90, image: "/images/manga.jpg", emoji: "🥭" },
-  { name: "Abacaxi", category: "FRUTAS", description: "Abacaxi fresco em pedaços.", price: 8.90, image: "/images/abacaxi.jpg", emoji: "🍍" },
-  { name: "Melancia", category: "FRUTAS", description: "Melancia fresca em pedaços.", price: 7.90, image: "/images/melancia.jpg", emoji: "🍉" },
-  { name: "Melão", category: "FRUTAS", description: "Melão fresco em pedaços.", price: 8.90, image: "/images/melao.jpg", emoji: "🍈" },
-  { name: "Morango", category: "FRUTAS", description: "Morangos frescos.", price: 9.90, image: "/images/morango.jpg", emoji: "🍓" },
-  { name: "Uva Verde", category: "FRUTAS", description: "Uva verde fresca sem sementes.", price: 9.90, image: "/images/uva-verde.jpg", emoji: "🍇" },
-];
-
-
-const traditionalComplements: Product[] = [
-  { name: "Arroz Branco", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Arroz branco soltinho para completar sua refeição.", image: "" },
-  { name: "Feijão", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Feijão caseiro, preparado para o dia a dia.", image: "" },
-  { name: "Farofa", line: "COMPLEMENTOS", weight: "100 g", price: "R$ 4,00", description: "Farofa para dar aquele toque final à refeição.", image: "" },
-  { name: "Purê de Batata", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Purê cremoso de batata inglesa.", image: "" },
-  { name: "Macarrão", line: "COMPLEMENTOS", weight: "200 g", price: "R$ 5,00", description: "Macarrão preparado como acompanhamento.", image: "" },
-  { name: "Couve Refogada", line: "COMPLEMENTOS", weight: "150 g", price: "R$ 4,00", description: "Couve refogada como acompanhamento.", image: "" },
-  { name: "Porção de Carne", line: "COMPLEMENTOS", weight: "100 g", price: "R$ 9,90", description: "Porção extra de carne, conforme a disponibilidade do dia.", image: "" },
-];
 
 const DELIVERY_FREE_FROM = 20;
 const MIN_ORDER_VALUE = 50;
@@ -687,21 +620,37 @@ function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus 
     const loadProducts = async () => {
       try {
         const response = await fetch(
-          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada)&order=sort_order.asc,name.asc",
+          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)&order=sort_order.asc,name.asc",
           { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
         );
-        if (!response.ok) throw new Error("Não foi possível carregar o cardápio.");
+        if (!response.ok) throw new Error("Não foi possível carregar o catálogo.");
         const rows = await response.json() as CatalogProductRow[];
         const products = rows
-          .filter((row) => ["marmita", "salada"].includes(row.category) && row.name && row.line && Number(row.price) > 0 && row.image_url)
-          .map((row) => ({
-            name: row.name,
-            line: String(row.line).toUpperCase(),
-            weight: row.size_grams ? `${row.size_grams} g` : "",
-            price: money(Number(row.price)),
-            description: row.description || "",
-            image: row.image_url || "",
-          }));
+          .filter((row) => row.name && row.line && Number(row.price) > 0)
+          .map((row) => {
+            const category = row.category;
+            const line = category === "marmita" || category === "salada"
+              ? String(row.line).toUpperCase()
+              : category === "suco" ? "SUCOS"
+              : category === "sanduiche" ? "SANDUÍCHES"
+              : category === "fruta" ? "FRUTAS"
+              : String(row.line).toUpperCase();
+            const weight = category === "suco" && row.size_grams
+              ? `${row.size_grams} ml`
+              : category === "sanduiche" ? "1 un"
+              : category === "fruta" ? "porção"
+              : category === "complemento" && row.line === "Snack Box" ? "1 kit"
+              : row.size_grams ? `${row.size_grams} g` : "porção";
+            return {
+              name: row.name,
+              line,
+              weight,
+              price: money(Number(row.price)),
+              description: row.description || "",
+              image: row.image_url || "",
+              category,
+            };
+          });
         if (!products.length) throw new Error("O catálogo não retornou produtos ativos válidos.");
         if (active) setState({ products, status: "ready" });
       } catch {
@@ -903,7 +852,7 @@ function MonthlyPlanBuilder({ onAddPlan, productsByLine, catalogComboPrices, cat
   );
 }
 
-function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
+function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, autoScroll = true, productsOverride, complementsOverride, catalogProductsReady, catalogComboPrices, catalogComboReady }: { initialLine?: number; initialQuantity?: number; initialStep?: 1 | 2 | 3 | 4 | 5; autoScroll?: boolean; productsOverride: Product[]; complementsOverride: ComplementOption[]; catalogProductsReady: boolean; catalogComboPrices: CatalogComboPriceMap; catalogComboReady: boolean }) {
   const [lineIndex, setLineIndex] = useState(initialLine);
   const [quantity, setQuantity] = useState<number>(initialQuantity);
   const [customQuantity, setCustomQuantity] = useState("31");
@@ -930,6 +879,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
   const option = comboOptions[lineIndex];
   const products = productsOverride;
+  const complements = complementsOverride;
   const total = Object.values(selected).reduce((sum, value) => sum + value, 0);
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
   const priceReady = catalogComboReady && catalogProductsReady && catalogPrice !== undefined && products.length > 0;
@@ -938,7 +888,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const premiumExtra = products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
-  const complementItems = comboComplements.filter((item) => selectedComplements[item.name]);
+  const complementItems = complements.filter((item) => selectedComplements[item.name]);
   const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
   const grandTotal = comboTotal + deliveryFee + complementTotal;
 
@@ -1454,7 +1404,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           <div className="grid grid-cols-3 gap-2.5">
             {(["SUCOS","SANDUÍCHES","FRUTAS"] as const).map((category) => {
-              const items = comboComplements.filter((item) => item.category === category);
+              const items = complements.filter((item) => item.category === category);
               const labels = {
                 SUCOS: { title: "Sucos", icon: "🥤", text: "Naturais e funcionais" },
                 SANDUÍCHES: { title: "Sanduíches", icon: "🥪", text: "Leves e práticos" },
@@ -1482,7 +1432,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
 
           {complementCategory && (() => {
             const category = complementCategory;
-            const items = comboComplements.filter((item) => item.category === category);
+            const items = complements.filter((item) => item.category === category);
             const labels = { SUCOS: "🥤 Sucos naturais", SANDUÍCHES: "🥪 Sanduíches naturais", FRUTAS: "🍓 Frutas picadas" };
             return (
               <div className="mt-3 rounded-3xl border border-white/10 bg-white/[.025] p-4">
@@ -2166,7 +2116,7 @@ function ProductCard({ product, onAdd }: { product: Product; onAdd: (product: Pr
     </>
   );
 }
-function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus }) {
+function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd, catalogStatus, catalogComboPrices, catalogComboStatus, comboComplements, traditionalComplements }: { id:string; eyebrow:string; title:string; subtitle:string; products:Product[]; featuredNames: string[]; onAdd: (product: Product) => void; catalogStatus: CatalogLoadStatus; catalogComboPrices: CatalogComboPriceMap; catalogComboStatus: CatalogLoadStatus; comboComplements: ComplementOption[]; traditionalComplements: Product[] }) {
   const [expanded, setExpanded] = useState(false);
   const [purchaseMode, setPurchaseMode] = useState<"combo" | "individual">("individual");
   const [selectedComboQuantity, setSelectedComboQuantity] = useState<number | null>(null);
@@ -2262,7 +2212,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd,
                 </div>
                 <button type="button" onClick={() => setSelectedComboQuantity(null)} className="text-xs font-black text-[#f47b0b] underline underline-offset-4">Alterar</button>
               </div>
-              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
+              <ComboBuilder key={`${id}-${selectedComboQuantity}`} initialLine={comboLineIndex} initialQuantity={selectedComboQuantity} initialStep={2} autoScroll={false} productsOverride={products} complementsOverride={comboComplements} catalogProductsReady={catalogStatus === "ready"} catalogComboPrices={catalogComboPrices} catalogComboReady={catalogComboStatus === "ready"} />
             </div>
           )}
         </div>
@@ -2346,11 +2296,29 @@ export default function Home() {
   const catalogProductState = useCatalogProducts();
   const catalogComboState = useCatalogComboPrices();
   const catalogProductsByLine: Record<string, Product[]> = {
-    FIT: catalogProductState.products.filter((product) => product.line === "FIT"),
-    PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE"),
-    TRADICIONAL: catalogProductState.products.filter((product) => product.line === "TRADICIONAL"),
-    SALADAS: catalogProductState.products.filter((product) => product.line === "SALADAS"),
+    FIT: catalogProductState.products.filter((product) => product.line === "FIT" && product.category === "marmita"),
+    PERFORMANCE: catalogProductState.products.filter((product) => product.line === "PERFORMANCE" && product.category === "marmita"),
+    TRADICIONAL: catalogProductState.products.filter((product) => product.line === "TRADICIONAL" && product.category === "marmita"),
+    SALADAS: catalogProductState.products.filter((product) => product.line === "SALADAS" && product.category === "salada"),
   };
+  const catalogComboComplements: ComplementOption[] = catalogProductState.products
+    .filter((product) => ["suco", "sanduiche", "fruta"].includes(product.category || ""))
+    .map((product) => ({
+      name: product.name,
+      category: product.category === "suco" ? "SUCOS" : product.category === "sanduiche" ? "SANDUÍCHES" : "FRUTAS",
+      description: product.description,
+      price: parseMoney(product.price),
+      image: product.image || undefined,
+      emoji: product.category === "suco" ? "🥤" : product.category === "sanduiche" ? "🥪" : "🍓",
+    }));
+  const catalogTraditionalComplements = catalogProductState.products.filter((product) => product.category === "complemento" && product.line === "COMPLEMENTOS");
+  const catalogSnackBox = catalogProductState.products.find((product) => product.category === "complemento" && product.line === "SNACK BOX");
+  const catalogJuiceProducts = catalogProductState.products.filter((product) => product.category === "suco");
+  const catalogSandwiches = catalogComboComplements.filter((product) => product.category === "SANDUÍCHES");
+  const catalogJuices300 = catalogJuiceProducts.filter((product) => product.weight === "300 ml");
+  const catalogFruits = catalogComboComplements.filter((product) => product.category === "FRUTAS");
+  const getCatalogJuicePrice = (flavorName: string, size: "300 ml" | "500 ml") =>
+    catalogJuiceProducts.find((product) => product.name === `${flavorName} — ${size}`)?.price || "Indisponível";
   const catalogFit = catalogProductsByLine.FIT;
   const catalogPerformance = catalogProductsByLine.PERFORMANCE;
   const catalogTraditional = catalogProductsByLine.TRADICIONAL;
@@ -2593,11 +2561,15 @@ export default function Home() {
     setOrderOpen(true);
   };
   const addSnackBoxToOrder = () => {
+    if (catalogProductState.status !== "ready" || !catalogSnackBox ||
+        !catalogSandwiches.some((item) => item.name === snackSandwich) ||
+        !catalogJuices300.some((item) => item.name === snackJuice) ||
+        !catalogFruits.some((item) => item.name === snackFruit)) return;
     const configuredName = "Nutrifit Snack Box — " + snackSandwich + " — " + snackJuice + " — " + snackFruit;
     setOrderItems((current) => {
       const found = current.find((item) => item.name === configuredName);
       if (found) return current.map((item) => item.name === configuredName ? { ...item, quantity: item.quantity + 1 } : item);
-      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: 25, quantity: 1 }];
+      return [...current, { name: configuredName, line: "Snack Box", weight: "1 kit", price: parseMoney(catalogSnackBox.price), quantity: 1 }];
     });
     setOrderOpen(true);
   };
@@ -2612,9 +2584,9 @@ export default function Home() {
     setOrderOpen(true);
   };
   const cartSuggestions = [
-    ...comboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
-    ...comboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
-    ...comboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
+    ...catalogComboComplements.filter((item) => item.category === "SUCOS").slice(0, 3),
+    ...catalogComboComplements.filter((item) => item.category === "SANDUÍCHES").slice(0, 2),
+    ...catalogComboComplements.filter((item) => item.category === "FRUTAS").slice(0, 3),
   ].filter((item) => item.price !== null && !orderItems.some((ordered) => ordered.name === item.name));
   const changeOrderQty = (name: string, delta: number) => setOrderItems((items) => items.map((item) => item.name === name ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
   const removeOrderItem = (name: string) => setOrderItems((items) => items.filter((item) => item.name !== name));
@@ -2869,7 +2841,7 @@ export default function Home() {
       setOrderCaptureError(true);
     }
   };
-  const searchableProducts = [...fit, ...performance, ...salads, ...traditional, ...juiceProducts];
+  const searchableProducts = catalogProductState.products;
   const searchResults = searchTerm.trim()
     ? searchableProducts.filter((product, index, list) =>
         list.findIndex((item) => item.name === product.name) === index &&
@@ -3152,11 +3124,11 @@ export default function Home() {
       </section>
 
       <div id="combos" className="scroll-mt-24">
-      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="cardapio" eyebrow="Saudável, equilibrada, leve" title="Linha Fit • 350 g" subtitle="Marmitas 350 g • preços atualizados pelo catálogo Nutrifit." products={catalogFit} featuredNames={["Patinho com Abóbora","Frango grelhado com mix de legumes"]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
 
-      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
-      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
-      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} />
+      <Section id="performance" eyebrow="Alta proteína e energia" title="Linha Performance • 450 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogPerformance} featuredNames={[catalogPerformance[0]?.name || "", catalogPerformance[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="tradicional" eyebrow="Sabor caseiro" title="Linha Tradicional • 500 g" subtitle="Preços atualizados pelo catálogo Nutrifit." products={catalogTraditional} featuredNames={[catalogTraditional[0]?.name || "", catalogTraditional[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
+      <Section id="saladas" eyebrow="Frescor, leveza e nutrição" title="Linha Saladas • 350 g" subtitle="Saladas vendidas por unidade • preços atualizados pelo catálogo." products={catalogSalads} featuredNames={[catalogSalads[0]?.name || "", catalogSalads[1]?.name || ""]} onAdd={addToOrder} catalogStatus={catalogProductState.status} catalogComboPrices={catalogComboState.prices} catalogComboStatus={catalogComboState.status} comboComplements={catalogComboComplements} traditionalComplements={catalogTraditionalComplements} />
       </div>
 
       <section id="snack-box" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-7 sm:px-5 sm:py-9 md:px-8">
@@ -3170,30 +3142,28 @@ export default function Home() {
             <div className="space-y-4">
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">1. Escolha o sanduíche</span>
-                <select value={snackSandwich} onChange={(event) => setSnackSandwich(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  <option value="Frango com Alface e Tomate">Frango</option>
-                  <option value="Pernil com Alface e Tomate">Pernil</option>
+                <select value={snackSandwich} disabled={catalogProductState.status !== "ready" || !catalogSandwiches.length} onChange={(event) => setSnackSandwich(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogSandwiches.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
                 </select>
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">2. Escolha o suco · 300 ml</span>
-                <select value={snackJuice} onChange={(event) => setSnackJuice(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  <option value="Suco de Laranja — 300 ml">Laranja</option>
-                  <option value="Abacaxi com Hortelã — 300 ml">Abacaxi com hortelã</option>
+                <select value={snackJuice} disabled={catalogProductState.status !== "ready" || !catalogJuices300.length} onChange={(event) => setSnackJuice(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogJuices300.map((item) => <option key={item.name} value={item.name}>{item.name.replace(" — 300 ml", "")}</option>)}
                 </select>
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-black text-white">3. Escolha uma fruta</span>
-                <select value={snackFruit} onChange={(event) => setSnackFruit(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d]">
-                  {comboComplements.filter((item) => item.category === "FRUTAS").map((fruit) => <option key={fruit.name} value={fruit.name}>{fruit.name}</option>)}
+                <select value={snackFruit} disabled={catalogProductState.status !== "ready" || !catalogFruits.length} onChange={(event) => setSnackFruit(event.target.value)} className="w-full rounded-xl border border-white/15 bg-[#080a08] px-3 py-3 text-sm font-semibold text-white outline-none focus:border-[#86a51d] disabled:opacity-40">
+                  {catalogFruits.map((fruit) => <option key={fruit.name} value={fruit.name}>{fruit.name}</option>)}
                 </select>
                 <span className="mt-1.5 block text-xs text-white/45">Opções aproveitadas do catálogo atual de frutas.</span>
               </label>
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#86a51d]/25 bg-black/25 px-4 py-3">
                 <div><div className="text-xs text-white/55">Combo completo</div><div className="text-sm font-bold text-white">Sanduíche + suco + fruta</div></div>
-                <strong className="text-2xl font-black text-[#f47b0b]">R$ 25,00</strong>
+                <strong className="text-2xl font-black text-[#f47b0b]">{catalogSnackBox?.price || "Preço indisponível"}</strong>
               </div>
-              <button type="button" onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99]">Adicionar Snack Box ao pedido</button>
+              <button type="button" disabled={catalogProductState.status !== "ready" || !catalogSnackBox || !catalogSandwiches.length || !catalogJuices300.length || !catalogFruits.length} onClick={addSnackBoxToOrder} className="w-full rounded-full bg-[#f47b0b] px-5 py-3.5 text-sm font-black text-black transition hover:bg-orange-400 active:scale-[.99] disabled:opacity-40">Adicionar Snack Box ao pedido</button>
             </div>
             <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
               <img src="/images/sanduiche-frango-nutrifit.jpg" alt="Apresentação do Snack Box Nutrifit" className="aspect-[4/3] w-full object-cover" loading="lazy" />
@@ -3272,8 +3242,8 @@ export default function Home() {
                   <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
                   <p className="mt-4 text-[10px] font-black uppercase tracking-wider text-white sm:text-xs">Escolha o tamanho</p>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    {([{ size: "500 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
-                      <button key={option.size} type="button" aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
+                    {([{ size: "500 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "500 ml") }, { size: "300 ml" as const, price: getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name || "", "300 ml") }]).map((option) => (
+                      <button key={option.size} type="button" disabled={catalogProductState.status !== "ready" || option.price === "Indisponível"} aria-pressed={selectedJuiceSize === option.size} onClick={() => setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-2 text-center backdrop-blur-sm transition ${selectedJuiceSize === option.size ? "border-[#f47b0b] bg-[#251407]/90 shadow-[0_0_14px_rgba(239,125,24,.24)]" : "border-white/35 bg-black/65 hover:border-white/60"}`}>
                         <span className="block text-xs font-black text-white sm:text-sm">{option.size}</span>
                         <span className={`mt-0.5 block text-base font-black sm:text-lg ${selectedJuiceSize === option.size ? "text-[#f47b0b]" : "text-white"}`}>{option.price}</span>
                       </button>
@@ -3281,9 +3251,9 @@ export default function Home() {
                   </div>
                   <button type="button" onClick={() => {
                     const flavor = juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0];
-                    const product = juiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
+                    const product = catalogJuiceProducts.find((item) => item.name === `${flavor.name} — ${selectedJuiceSize}`);
                     if (product) addToOrder(product);
-                  }} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
+                  }} disabled={catalogProductState.status !== "ready" || !catalogJuiceProducts.some((item) => item.name === `${juiceFlavors[juiceShowcaseIndex]?.name} — ${selectedJuiceSize}`)} className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-4 py-3 text-sm font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-base">
                     <ShoppingCart size={20}/> Adicionar ao carrinho
                   </button>
                 </div>
@@ -3310,13 +3280,13 @@ export default function Home() {
               <JuiceNutritionDetails flavor={juiceFlavors[juiceShowcaseIndex] || juiceFlavors[0]} compact />
               <p className="mt-2.5 text-[10px] font-black uppercase tracking-[.16em] text-white">Escolha o tamanho</p>
               <div className="mt-1.5 grid grid-cols-2 gap-2">
-                {([{size:"500 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
-                  <button key={option.size} type="button" aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
+                {([{size:"500 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","500 ml")},{size:"300 ml" as const,price:getCatalogJuicePrice(juiceFlavors[juiceShowcaseIndex]?.name||"","300 ml")}]).map(option=>(
+                  <button key={option.size} type="button" disabled={catalogProductState.status !== "ready" || option.price === "Indisponível"} aria-pressed={selectedJuiceSize===option.size} onClick={()=>setSelectedJuiceSize(option.size)} className={`rounded-xl border-2 px-2 py-1.5 text-center shadow-[0_2px_12px_rgba(0,0,0,.2)] transition ${selectedJuiceSize===option.size?"border-[#f47b0b] bg-[#251407]/75":"border-white/40 bg-black/25"}`}>
                     <span className="block text-[10px] font-black text-white sm:text-xs">{option.size}</span><span className={`mt-0.5 block text-sm font-black sm:text-base ${selectedJuiceSize===option.size?"text-[#f47b0b]":"text-white"}`}>{option.price}</span>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=juiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
+              <button type="button" onClick={()=>{const flavor=juiceFlavors[juiceShowcaseIndex]||juiceFlavors[0];const product=catalogJuiceProducts.find(item=>item.name===`${flavor.name} — ${selectedJuiceSize}`);if(product)addToOrder(product);}} disabled={catalogProductState.status !== "ready" || !catalogJuiceProducts.some((item) => item.name === `${juiceFlavors[juiceShowcaseIndex]?.name} — ${selectedJuiceSize}`)} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-full bg-[#ff650b] px-3 py-2.5 text-xs font-black text-white shadow-lg transition hover:bg-[#ff7b22] active:scale-[.99] sm:text-sm">
                 <ShoppingCart size={17}/> Adicionar ao carrinho
               </button>
             </div>
@@ -3348,7 +3318,7 @@ export default function Home() {
             ["SANDUÍCHES","🥪","Sanduíches Fit","Práticos e proteicos.","#86a51d"],
             ["FRUTAS","🍓","Frutas Picadas","Frescas e prontas.","#f47b0b"],
           ] as const).map(([category, icon, title, subtitle, accent]) => {
-            const items = comboComplements.filter((item) => item.category === category);
+            const items = catalogComboComplements.filter((item) => item.category === category);
             return (
               <details id={category === "SANDUÍCHES" ? "sanduiches" : undefined} key={category} className="group scroll-mt-24 overflow-hidden rounded-[1.35rem] border border-white/10 bg-[#0d100c]">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 touch-manipulation [&::-webkit-details-marker]:hidden">
@@ -3593,7 +3563,7 @@ export default function Home() {
                         <div className="flex items-start gap-3">
                           <div className="grid h-[76px] w-[76px] shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-2xl">
                             {(() => {
-                              const image = [...fit, ...performance, ...salads, ...traditional].find((product) => product.name === item.name)?.image || comboComplements.find((product) => product.name === item.name)?.image;
+                              const image = catalogProductState.products.find((product) => product.name === item.name)?.image || catalogComboComplements.find((product) => product.name === item.name)?.image;
                               return image ? <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span>{item.line === "SUCOS" ? "🥤" : item.line === "SANDUÍCHES" ? "🥪" : item.line === "FRUTAS" ? "🍓" : "🍱"}</span>;
                             })()}
                           </div>
