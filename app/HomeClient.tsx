@@ -1383,7 +1383,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             </div>
             {option.line === "TRADICIONAL" && (
               <div className="mt-3 rounded-2xl border border-white/10 bg-white/[.025] p-3">
-                <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (R$ 26,40 por unidade adicional)
+                <label className="block text-xs font-bold text-white/55">Mais de 30 marmitas (preço calculado pela tabela oficial de combos)
                   <div className="mt-2 flex gap-2">
                     <input type="number" min={31} max={300} value={customQuantity} onChange={(event) => setCustomQuantity(event.target.value)} aria-label="Quantidade personalizada de marmitas Tradicional" className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white outline-none focus:border-[#86a51d]" />
                     <button type="button" onClick={() => { const value = Math.floor(Number(customQuantity)); if (value >= 31 && value <= 300) changeQuantity(value); }} className="rounded-xl bg-[#86a51d] px-4 py-2.5 text-xs font-black text-black">Confirmar quantidade</button>
