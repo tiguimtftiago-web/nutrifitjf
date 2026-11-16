@@ -160,6 +160,8 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const previousStart=new Date(periodStart);previousStart.setDate(previousStart.getDate()-period);
   const commercialOrders=sourceOrders.filter(o=>!isInternalTestOrder(o));
   const validOrders=commercialOrders.filter(o=>!cancelled(o.status));
+  const commercialOrderIds=new Set(commercialOrders.map(o=>o.id));
+  const commercialDeliveries=deliveries.filter(d=>!d.order_id||commercialOrderIds.has(d.order_id));
   const currentOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=periodStart&&d<=now});
   const previousOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=previousStart&&d<periodStart});
   const sales=currentOrders.reduce((s,o)=>s+Number(o.total||0),0);
@@ -188,7 +190,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const todayBatches=production.filter(p=>dateKey(new Date(p.produced_at||p.created_at))===dateKey(today)&&!cancelled(p.status));
   const planned=todayBatches.reduce((s,p)=>s+Number(p.quantity||0),0);
   const produced=todayBatches.filter(p=>["concluida","concluido","finalizada","finalizado"].includes(String(p.status||"").toLowerCase())).reduce((s,p)=>s+Number(p.quantity||0),0);
-  const nextDeliveries=deliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
+  const nextDeliveries=commercialDeliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
   const paidFinance=finance.filter(f=>["pago","paid","concluido"].includes(String(f.status||"").toLowerCase())&&new Date(f.paid_at||f.created_at)>=periodStart&&new Date(f.paid_at||f.created_at)<=now);
   const expenses=paidFinance.filter(f=>["despesa","expense"].includes(String(f.type||"").toLowerCase())).reduce((s,f)=>s+Number(f.amount||0),0);
   const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
@@ -196,7 +198,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
   const actionNew=commercialOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
   const actionDelivery=commercialOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
-  const pendingDeliveryByOrder=commercialOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:deliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
+  const pendingDeliveryByOrder=commercialOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:commercialDeliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
   const pendingMealCount=pendingDeliveryByOrder.reduce((sum,x)=>sum+x.remaining,0);
   const startLabel=periodStart.toLocaleDateString("pt-BR");
   const endLabel=now.toLocaleDateString("pt-BR");
