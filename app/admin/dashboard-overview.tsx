@@ -157,7 +157,8 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const today=new Date(now);today.setHours(0,0,0,0);
   const periodStart=new Date(today);periodStart.setDate(periodStart.getDate()-(period-1));
   const previousStart=new Date(periodStart);previousStart.setDate(previousStart.getDate()-period);
-  const validOrders=sourceOrders.filter(o=>!cancelled(o.status));
+  const commercialOrders=sourceOrders.filter(o=>!isInternalTestOrder(o));
+  const validOrders=commercialOrders.filter(o=>!cancelled(o.status));
   const currentOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=periodStart&&d<=now});
   const previousOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=previousStart&&d<periodStart});
   const sales=currentOrders.reduce((s,o)=>s+Number(o.total||0),0);
@@ -192,9 +193,9 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
   const profit=sales-expenses;
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
-  const actionNew=sourceOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
-  const actionDelivery=sourceOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
-  const pendingDeliveryByOrder=sourceOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:deliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
+  const actionNew=commercialOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
+  const actionDelivery=commercialOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
+  const pendingDeliveryByOrder=commercialOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:deliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
   const pendingMealCount=pendingDeliveryByOrder.reduce((sum,x)=>sum+x.remaining,0);
   const startLabel=periodStart.toLocaleDateString("pt-BR");
   const endLabel=now.toLocaleDateString("pt-BR");
@@ -252,7 +253,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
 
       <section className="nf-kpis" aria-label="Indicadores do período">
         <article className="nf-kpi orange"><div className="nf-kpi-top"><span>Vendas por pedidos</span><ShoppingBag size={19}/></div><strong>{money(sales)}</strong><Variation value={pctChange(sales,previousSales)}/></article>
-        <article className="nf-kpi green"><div className="nf-kpi-top"><span>Pedidos</span><ShoppingCart size={19}/></div><strong>{currentOrders.length}</strong><Variation value={pctChange(currentOrders.length,previousOrders.length)}/></article>
+        <article className="nf-kpi green"><div className="nf-kpi-top"><span>Pedidos no período</span><ShoppingCart size={19}/></div><strong>{currentOrders.length}</strong><Variation value={pctChange(currentOrders.length,previousOrders.length)}/></article>
         <article className="nf-kpi blue"><div className="nf-kpi-top"><span>Clientes ativos</span><Users size={19}/></div><strong>{activeCustomers}</strong><small className="nf-variation neutral">Com pedidos no período</small></article>
         <article className="nf-kpi yellow"><div className="nf-kpi-top"><span>Ticket médio</span><Coins size={19}/></div><strong>{money(avg)}</strong><small className="nf-variation neutral">Por pedido no período</small></article>
       </section>
