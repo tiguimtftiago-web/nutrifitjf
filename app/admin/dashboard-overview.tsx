@@ -19,6 +19,7 @@ type DailyPoint = { date:Date; label:string; revenue:number; orders:number };
 const URL=process.env.NEXT_PUBLIC_SUPABASE_URL||"https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||"sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 const money=(v:number)=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const isInternalTestOrder=(order:Pick<Order,"customer_name">)=>/\bteste\s+interno\b/i.test(String(order.customer_name||""));
 const dateKey=(d:Date)=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 const cancelled=(s:string)=>["cancelado","cancelada","canceled","cancelled"].includes(String(s||"").toLowerCase());
 const statusOf=(s:string)=>{
