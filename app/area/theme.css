@@ -67,3 +67,132 @@
 .nf-goal-status.paused{background:#F1E8D8!important;color:#766F64!important}
 .nf-goal-message{color:#65783C!important}.nf-goal-message.error,.wt-error{color:#B5472D!important}
 @media(max-width:560px){.nf-topbar{background:#FBF7EFEE!important}.nf-mobile-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}}
+
+
+/* Redesign estrutural — desktop, tablet e mobile */
+.nf-shell{overflow-x:clip!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+.nf-shell .nf-layout{
+  width:min(100% - 40px,1360px)!important;max-width:1360px!important;
+  margin:0 auto!important;padding:28px 0 0!important;
+  display:grid!important;grid-template-columns:224px minmax(0,1fr)!important;gap:28px!important;
+  align-items:start!important;
+}
+.nf-shell .nf-sidebar{
+  display:flex!important;position:sticky!important;top:18px!important;height:calc(100dvh - 36px)!important;
+  min-height:560px!important;padding:18px 12px!important;border:1px solid #E7DCCB!important;
+  border-radius:18px!important;background:#FBF7EF!important;
+}
+.nf-shell .nf-content{min-width:0!important;width:100%!important;max-width:100%!important}
+.nf-shell .nf-welcome{margin:0 0 22px!important;align-items:center!important}
+.nf-shell .nf-welcome h1{font-size:clamp(28px,3vw,40px)!important;line-height:1.12!important}
+.nf-shell .nf-section-heading{margin:24px 0 14px!important}
+.nf-shell .nf-section-heading h2{font-size:clamp(19px,2vw,25px)!important}
+.nf-shell .nf-panel,.nf-shell .nf-tab-panel{border-radius:18px!important;padding:clamp(16px,2vw,24px)!important}
+.nf-shell .nf-home-panorama{padding:clamp(16px,2vw,24px)!important;background:#FFFCF6!important;border-color:#E7DCCB!important;box-shadow:0 8px 26px rgba(79,57,31,.055)!important}
+.nf-shell .nf-home-panorama-head h3{color:#292923!important;font-size:clamp(17px,2vw,22px)!important}
+.nf-shell .nf-home-rings{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:clamp(10px,2vw,22px)!important}
+.nf-shell .nf-home-ring{padding:10px 8px!important;border:1px solid #E7DCCB!important;border-radius:14px!important;background:#FFFDF8!important}
+.nf-shell .nf-home-ring svg{width:min(100%,128px)!important}
+.nf-shell .nf-home-ring-copy strong{color:#292923!important}
+.nf-shell .nf-home-ring-copy small,.nf-shell .nf-home-ring>b,.nf-shell .nf-home-ring-target{color:#766F64!important}
+.nf-shell .nf-home-ring .track{stroke:#EDE2D2!important}
+.nf-shell .nf-home-stats{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+.nf-shell .nf-home-stats article{background:#FFFDF8!important;border-color:#E7DCCB!important;padding:14px!important}
+.nf-shell .nf-home-stats article>span,.nf-shell .nf-home-stats article>span svg{color:#766F64!important}
+.nf-shell .nf-home-stats strong{color:#292923!important;font-size:clamp(18px,2vw,24px)!important}
+.nf-shell .nf-home-stats a,.nf-shell .nf-home-stats button{color:#B85D13!important}
+.nf-shell .nf-home-macros{gap:10px!important}
+.nf-shell .nf-home-macros>div{background:#F8F1E6!important;border-color:#E7DCCB!important}
+.nf-shell .nf-home-macros span{color:#766F64!important}
+.nf-shell .nf-home-macros b{color:#292923!important}
+.nf-shell .nf-dashboard-goals{background:#FFFDF8!important;border-color:#E7DCCB!important}
+.nf-shell .nf-dashboard-goals>b,.nf-shell .nf-dashboard-goals>a{color:#292923!important}
+.nf-shell .nf-dashboard-goals>a small{color:#B85D13!important}
+
+/* Gráficos: área útil fluida, rótulos legíveis e sem estourar o cartão */
+.nf-shell .wt-chart-card,.nf-shell .nf-daily-goals,.nf-shell .nf-chart-ring,
+.nf-shell .nf-training-week,.nf-shell .nf-macro-layout{
+  background:#FFFDF8!important;border-color:#E7DCCB!important;color:#292923!important;
+}
+.nf-shell .wt-chart{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:150px!important;overflow:visible!important}
+.nf-shell .wt-chart-head b,.nf-shell .wt-history-head h4{color:#292923!important}
+.nf-shell .wt-chart-head small,.nf-shell .wt-axis-label,.nf-shell .wt-history li small{fill:#766F64!important;color:#766F64!important}
+.nf-shell .wt-history ul{padding:0!important;margin:0!important;list-style:none!important}
+.nf-shell .wt-history li{display:flex!important;justify-content:space-between!important;gap:12px!important;align-items:center!important;padding:12px 2px!important;border-bottom:1px solid #E7DCCB!important}
+.nf-shell .nf-ring-track,.nf-shell .nf-macro-track{stroke:#EDE2D2!important}
+.nf-shell .nf-ring-copy strong,.nf-shell .nf-macro-center strong{color:#292923!important}
+.nf-shell .nf-ring-copy span,.nf-shell .nf-ring-copy small,.nf-shell .nf-macro-center small{color:#766F64!important}
+.nf-shell .nf-progress-track,.nf-shell .nf-goal-track{background:#EDE2D2!important}
+.nf-shell .nf-training-stats article,.nf-shell .nf-goals-overview>div,
+.nf-shell .nf-dashboard-data-grid article{background:#FFFDF8!important;border-color:#E7DCCB!important}
+.nf-shell .nf-training-stats strong,.nf-shell .nf-goals-overview strong,
+.nf-shell .nf-dashboard-data-grid strong{color:#292923!important}
+.nf-shell .nf-training-week{gap:clamp(5px,1.2vw,12px)!important}
+.nf-shell .nf-training-bar-track{background:#F0E7D9!important}
+.nf-shell .nf-training-day b,.nf-shell .nf-training-day small{color:#766F64!important}
+.nf-shell .nf-meal-row,.nf-shell .nf-training-row{border-color:#E7DCCB!important}
+.nf-shell .nf-meal-row b,.nf-shell .nf-training-row b,.nf-shell .nf-training-row li{color:#292923!important}
+.nf-shell .nf-meal-row small,.nf-shell .nf-meal-row p,.nf-shell .nf-training-row small,.nf-shell .nf-training-row p,.nf-shell .nf-training-row li span{color:#766F64!important}
+
+/* Formulários e tabelas responsivos e consistentes */
+.nf-shell .wt-form,.nf-shell .nf-meal-form,.nf-shell .nf-training-form,.nf-shell .nf-goal-form{
+  background:#F8F1E6!important;border:1px solid #E7DCCB!important;border-radius:14px!important;
+}
+.nf-shell .wt-form label,.nf-shell .nf-meal-form label,.nf-shell .nf-training-form label,.nf-shell .nf-goal-form label{color:#655D52!important}
+.nf-shell .wt-form input,.nf-shell .nf-meal-form input,.nf-shell .nf-meal-form select,
+.nf-shell .nf-training-form input,.nf-shell .nf-training-form select,
+.nf-shell .nf-goal-form input,.nf-shell .nf-goal-form select,.nf-shell .nf-goal-form textarea{
+  background:#FFFDF8!important;color:#292923!important;border-color:#DCCDB9!important;
+}
+.nf-shell table{width:100%!important;border-collapse:collapse!important;font-size:13px!important}
+.nf-shell th,.nf-shell td{padding:11px 12px!important;text-align:left!important;border-bottom:1px solid #E7DCCB!important}
+.nf-shell th{color:#766F64!important;font-size:10px!important;letter-spacing:.06em!important;text-transform:uppercase!important}
+.nf-shell td{color:#292923!important}
+.nf-shell .nf-error,.nf-shell [role="alert"]{overflow-wrap:anywhere!important}
+
+@media(max-width:1050px){
+  .nf-shell .nf-layout{width:min(100% - 32px,900px)!important;grid-template-columns:1fr!important;gap:0!important;padding-top:22px!important}
+  .nf-shell .nf-sidebar{display:none!important}
+  .nf-shell .nf-home-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:640px){
+  .nf-shell{padding-bottom:calc(84px + env(safe-area-inset-bottom))!important}
+  .nf-shell .nf-layout{width:100%!important;padding:16px 14px 0!important}
+  .nf-shell .nf-welcome{align-items:flex-start!important;gap:9px!important}
+  .nf-shell .nf-welcome h1{font-size:29px!important}
+  .nf-shell .nf-home-panorama{padding:14px!important;border-radius:15px!important}
+  .nf-shell .nf-home-rings{gap:6px!important}
+  .nf-shell .nf-home-ring{padding:9px 4px!important}
+  .nf-shell .nf-home-ring svg{width:min(100%,92px)!important}
+  .nf-shell .nf-home-ring-copy{margin-top:-62px!important;height:52px!important}
+  .nf-shell .nf-home-ring-copy strong{font-size:17px!important}
+  .nf-shell .nf-home-ring>b{font-size:9px!important;margin-top:6px!important}
+  .nf-shell .nf-home-ring-target{font-size:8px!important;text-align:center!important}
+  .nf-shell .nf-home-stats{gap:7px!important;margin-top:12px!important}
+  .nf-shell .nf-home-stats article{padding:10px!important}
+  .nf-shell .nf-home-stats article>span{font-size:7px!important;letter-spacing:.35px!important}
+  .nf-shell .nf-home-stats strong{font-size:19px!important}
+  .nf-shell .nf-home-macros{gap:6px!important;margin-top:9px!important}
+  .nf-shell .nf-home-macros>div{padding:9px 6px!important}
+  .nf-shell .nf-home-macros span{font-size:8px!important}
+  .nf-shell .nf-home-macros b{font-size:11px!important}
+  .nf-shell .nf-tab-panel{padding:15px!important}
+  .nf-shell .wt-summary{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  .nf-shell .wt-summary>div{padding:9px 7px!important}
+  .nf-shell .wt-summary small{font-size:7px!important;line-height:1.35!important}
+  .nf-shell .wt-summary strong{font-size:14px!important}
+  .nf-shell .wt-chart-card{padding:11px!important}
+  .nf-shell .nf-training-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .nf-shell .nf-dashboard-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .nf-shell .nf-meal-fields,.nf-shell .nf-training-fields,.nf-shell .nf-goal-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .nf-shell .nf-exercise-fields{grid-template-columns:minmax(0,1fr) repeat(3,minmax(42px,.45fr))!important}
+  .nf-shell .nf-mobile-nav{min-height:72px!important}
+  .nf-shell .nf-mobile-nav button{font-size:9px!important}
+}
+@media(max-width:360px){
+  .nf-shell .nf-home-rings{gap:4px!important}
+  .nf-shell .nf-home-ring-copy strong{font-size:15px!important}
+  .nf-shell .nf-home-ring>b{font-size:8px!important}
+  .nf-shell .nf-training-stats strong{font-size:16px!important}
+  .nf-shell .nf-meal-fields,.nf-shell .nf-training-fields,.nf-shell .nf-goal-fields{grid-template-columns:1fr!important}
+}
