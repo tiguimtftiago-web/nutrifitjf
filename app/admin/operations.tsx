@@ -7,10 +7,10 @@ const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_
 
 type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; active:boolean; sku:string|null; description:string|null; image_url:string|null; };
 type ComboPrice = { id:string; name:string; quantity:number; price:number; active:boolean; notes:string|null; };
-type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
+type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; due_date:string|null; order_id:string|null; supplier_id:string|null; notes:string|null; };
 type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
-type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
+type CustomerOrder = { id:string; order_code:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
@@ -33,6 +33,7 @@ async function req(path:string, token:string, init:RequestInit={}) {
   return text?JSON.parse(text):null;
 }
 const money=(v:number)=>"R$ "+Number(v||0).toFixed(2).replace(".",",");
+const localDateInput=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;};
 const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 outline-none";
 
 type InventoryVisual = { column:number; row:number; label:string };
@@ -78,7 +79,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [finance,setFinance]=useState<Finance[]>([]);
   const [inventoryPurchases,setInventoryPurchases]=useState<InventoryPurchase[]>([]);
   const [financeSearch,setFinanceSearch]=useState("");
-  const [financePeriod,setFinancePeriod]=useState("30");
+  const [financePeriod,setFinancePeriod]=useState("all");
+  const [financeView,setFinanceView]=useState<"all"|"retroativos"|"no_dia">("all");
   const [deliveries,setDeliveries]=useState<Delivery[]>([]);
   const [production,setProduction]=useState<Production[]>([]);
   const [customerOrders,setCustomerOrders]=useState<CustomerOrder[]>([]);
@@ -107,7 +109,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [error,setError]=useState("");
   const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});
   const [editingProduct,setEditingProduct]=useState<Product|null>(null);
-  const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});
+  const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix",status:"pago",paid_at:localDateInput(),due_date:"",order_id:""});
   const [coupon,setCoupon]=useState({code:"",description:"",discount_type:"percent",discount_value:"",minimum_order_value:"0"});
 
   async function load(background=false){
@@ -115,7 +117,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     try{
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
-        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
@@ -126,7 +128,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
-        req(URL+"/rest/v1/customer_orders?select=id,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
+        req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=1000",token),
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token)
       ]);
       setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);
@@ -451,12 +453,16 @@ export default function Operations({section,token,initialCategory}:{section:"est
     finally{setBusy(false);}
   }
 
+  const receivedForOrder=(orderId:string)=>finance.filter(x=>x.order_id===orderId&&x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)).reduce((total,x)=>total+Number(x.amount||0),0);
   async function addFinance(){
-    if(!expense.description.trim()||!expense.amount)return;
+    if(!expense.description.trim()||!expense.amount||Number(expense.amount)<=0)return;
+    if(expense.status==="pago"&&!expense.paid_at)return;
+    if(expense.type==="receita"&&expense.status==="pago"&&expense.order_id){const order=customerOrders.find(item=>item.id===expense.order_id);if(order){const remaining=Number(order.total||0)-receivedForOrder(order.id);if(Number(expense.amount)>remaining+0.01&&!window.confirm(`Este recebimento supera em ${money(Number(expense.amount)-Math.max(0,remaining))} o valor ainda não conciliado do pedido. Deseja registrar mesmo assim?`))return;}}
     setBusy(true);
     try{
-      await req(URL+"/rest/v1/financial_transactions",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({type:expense.type,category:expense.category,description:expense.description.trim(),amount:Number(expense.amount),payment_method:expense.payment_method,status:"pago",paid_at:new Date().toISOString()})});
-      setExpense({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});await load();
+      const paidAt=expense.status==="pago"?new Date(`${expense.paid_at}T12:00:00`).toISOString():null;
+      await req(URL+"/rest/v1/financial_transactions",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({type:expense.type,category:expense.category,description:expense.description.trim(),amount:Number(expense.amount),payment_method:expense.payment_method,status:expense.status,paid_at:paidAt,due_date:expense.status==="pendente"&&expense.due_date?expense.due_date:null,order_id:expense.type==="receita"&&expense.order_id?expense.order_id:null})});
+      setExpense({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix",status:"pago",paid_at:localDateInput(),due_date:"",order_id:""});await load();
     }catch{setError("Não foi possível registrar o lançamento.");}finally{setBusy(false);}
   }
   async function toggleCoupon(c:Coupon){
@@ -541,66 +547,100 @@ export default function Operations({section,token,initialCategory}:{section:"est
   </Panel></div>;
   if(section==="financeiro") {
     const now=new Date();
+    const currentMonthStart=new Date(now.getFullYear(),now.getMonth(),1);
+    const nextMonthStart=new Date(now.getFullYear(),now.getMonth()+1,1);
+    const previousMonthStart=new Date(now.getFullYear(),now.getMonth()-1,1);
     const cutoff=new Date(now);
     cutoff.setDate(cutoff.getDate()-(financePeriod==="all"?36500:Number(financePeriod)));
-    const inPeriod=(date:string)=>financePeriod==="all"||new Date(date)>=cutoff;
-    // Para lançamentos pagos, o período deve considerar a data efetiva do pagamento.
-    // Lançamentos ainda pendentes continuam usando a data em que foram registrados.
+    const inPeriod=(date:string)=>{
+      const value=new Date(date);
+      if(!Number.isFinite(value.getTime()))return false;
+      if(financePeriod==="all")return true;
+      if(financePeriod==="month")return value>=currentMonthStart&&value<nextMonthStart;
+      if(financePeriod==="previous")return value>=previousMonthStart&&value<currentMonthStart;
+      return value>=cutoff&&value<=now;
+    };
+    // Recebimentos e despesas pagas usam a data efetiva do movimento; pendências usam o cadastro.
     const financeDate=(x:Finance)=>x.status==="pago"?(x.paid_at||x.created_at):x.created_at;
-    const inFinancePeriod=(x:Finance)=>inPeriod(financeDate(x));
-    const visibleFinance=finance.filter(x=>inFinancePeriod(x)&&[x.description,x.category,x.type,x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
+    // Pagamentos sem paid_at permanecem visíveis para conferência, mas não entram em totais pagos nem no gráfico.
+    const inFinancePeriod=(x:Finance)=>!(x.status==="pago"&&!x.paid_at)&&inPeriod(financeDate(x));
+    const orderById=new Map(customerOrders.map(order=>[order.id,order]));
+    const isRetroactive=(x:Finance)=>Boolean(x.status==="pago"&&x.paid_at&&new Date(x.created_at).getTime()-new Date(x.paid_at).getTime()>86400000);
+    const visibleFinance=finance.filter(x=>{
+      const order=x.order_id?orderById.get(x.order_id):undefined;
+      const matchesView=financeView==="all"||(financeView==="retroativos"?isRetroactive(x):!isRetroactive(x));
+      const searchText=[x.description,x.category,x.type,x.status,x.payment_method||"",x.notes||"",order?.order_code||"",order?.customer_name||""].join(" ").toLowerCase();
+      // Registros pagos sem data efetiva ficam visíveis pela data de cadastro para correção manual.
+      return inPeriod(financeDate(x))&&matchesView&&searchText.includes(financeSearch.toLowerCase());
+    });
     const visiblePurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at)&&[x.invoice_number||"",x.notes||"",x.suppliers?.name||"",x.status].join(" ").toLowerCase().includes(financeSearch.toLowerCase()));
     const periodPurchases=inventoryPurchases.filter(x=>inPeriod(x.created_at));
     const sum=(rows:Finance[],type:string)=>rows.filter(x=>x.type===type&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.amount||0),0);
-    const revenue=sum(finance.filter(x=>inPeriod(x.created_at)), "receita");
-    const expenses=sum(finance.filter(x=>inPeriod(x.created_at)), "despesa");
-    const fees=sum(finance.filter(x=>inPeriod(x.created_at)), "taxa");
+    const revenue=sum(finance.filter(inFinancePeriod),"receita");
+    const expenses=sum(finance.filter(inFinancePeriod),"despesa");
+    const fees=sum(finance.filter(inFinancePeriod),"taxa");
     const orderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado").reduce((v,x)=>v+Number(x.total||0),0);
-    const paidOrderTotal=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status==="pago_recebido").reduce((v,x)=>v+Number(x.total||0),0);
+    const missingPaidDate=finance.filter(x=>x.status==="pago"&&!x.paid_at&&x.type!=="cancelado");
+    const missingPaidDateTotal=missingPaidDate.reduce((total,x)=>total+Number(x.amount||0),0);
     const confirmedReceipts=finance.filter(x=>inFinancePeriod(x)&&x.type==="receita"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
-    const paidExpenses=finance.filter(x=>inFinancePeriod(x)&&x.type==="despesa"&&x.status==="pago").reduce((v,x)=>v+Number(x.amount||0),0);
+    const paidExpenses=finance.filter(x=>inFinancePeriod(x)&&x.type==="despesa"&&x.status==="pago"&&Boolean(x.paid_at)).reduce((v,x)=>v+Number(x.amount||0),0);
     const purchasesTotal=periodPurchases.filter(x=>x.status==="recebida").reduce((v,x)=>v+Number(x.total_cost||0),0);
     const purchaseCount=periodPurchases.filter(x=>x.status==="recebida").length;
     const pending=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type!=="receita").reduce((v,x)=>v+Number(x.amount||0),0);
-    const paidFinance=finance.filter(x=>inFinancePeriod(x)&&x.status==="pago");
+    const pendingReceivables=finance.filter(x=>inPeriod(x.created_at)&&x.status==="pendente"&&x.type==="receita").reduce((v,x)=>v+Number(x.amount||0),0);
+    const paidFinance=finance.filter(x=>inFinancePeriod(x)&&x.status==="pago"&&Boolean(x.paid_at));
     const paidRevenue=sum(paidFinance,"receita");
     const paidExpenseTotal=sum(paidFinance,"despesa");
     const paidFeeTotal=sum(paidFinance,"taxa");
     const paidRefunds=sum(paidFinance,"estorno");
-    // Estornos reduzem o caixa, independentemente do sinal usado no lançamento.
     const balance=paidRevenue-paidExpenseTotal-paidFeeTotal-Math.abs(paidRefunds);
-    // Série temporal calculada com os mesmos filtros e regras de data dos indicadores.
-    const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
+    // Conciliação acumulada por pedido: vários pagamentos parciais somam no mesmo pedido.
+    const receiptsByOrder=new Map<string,number>();
+    finance.filter(x=>x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)&&x.order_id).forEach(x=>{
+      const orderId=x.order_id as string;
+      receiptsByOrder.set(orderId,(receiptsByOrder.get(orderId)||0)+Number(x.amount||0));
+    });
+    const reconciliationOrders=customerOrders.filter(x=>inPeriod(x.created_at)&&x.status!=="cancelado");
+    const reconciliationOpen=reconciliationOrders.filter(order=>(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
+    const reconciliationOpenValue=reconciliationOpen.reduce((total,order)=>total+Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)),0);
+    const statusMismatchOrders=customerOrders.filter(order=>inPeriod(order.created_at)&&order.status==="pago_recebido"&&(receiptsByOrder.get(order.id)||0)<Number(order.total||0)-0.01);
+    const statusMismatchValue=statusMismatchOrders.reduce((total,order)=>total+Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)),0);
+    // Série temporal usa as mesmas datas de movimento dos indicadores financeiros.
+    const chartRecords=[...customerOrders.map(x=>x.created_at),...finance.filter(x=>x.status!=="pago"||Boolean(x.paid_at)).map(x=>financeDate(x))].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);
     const chartStart=financePeriod==="all"
       ? new Date(chartRecords.length?Math.min(...chartRecords):now.getTime()-6*86400000)
-      : new Date(cutoff);
-    const chartSpan=Math.max(7*86400000,now.getTime()-chartStart.getTime()+1);
+      : financePeriod==="month"?currentMonthStart:financePeriod==="previous"?previousMonthStart:cutoff;
+    const chartEnd=financePeriod==="previous"?currentMonthStart.getTime()-1:now.getTime();
+    const chartSpan=Math.max(7*86400000,chartEnd-chartStart.getTime()+1);
     const chartBucketMs=chartSpan/7;
     const chartBuckets=Array.from({length:7},(_,i)=>({label:new Date(chartStart.getTime()+Math.min(chartSpan-1,(i+1)*chartBucketMs-1)).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),orders:0,receipts:0,expenses:0}));
     const addToChart=(date:string,value:number,key:"orders"|"receipts"|"expenses")=>{
       const time=new Date(date).getTime();
-      if(!Number.isFinite(time)||time<chartStart.getTime()||time>now.getTime())return;
+      if(!Number.isFinite(time)||time<chartStart.getTime()||time>chartEnd)return;
       const index=Math.min(6,Math.max(0,Math.floor((time-chartStart.getTime())/chartBucketMs)));
       chartBuckets[index][key]+=Number(value||0);
     };
     customerOrders.filter(x=>x.status!=="cancelado").forEach(x=>addToChart(x.created_at,x.total,"orders"));
-    finance.filter(x=>x.type==="receita"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"receipts"));
-    finance.filter(x=>x.type==="despesa"&&x.status==="pago").forEach(x=>addToChart(financeDate(x),x.amount,"expenses"));
+    finance.filter(x=>x.type==="receita"&&x.status==="pago"&&Boolean(x.paid_at)).forEach(x=>addToChart(x.paid_at as string,x.amount,"receipts"));
+    finance.filter(x=>x.type==="despesa"&&x.status==="pago"&&Boolean(x.paid_at)).forEach(x=>addToChart(x.paid_at as string,x.amount,"expenses"));
     const chartMax=Math.max(1,...chartBuckets.flatMap(x=>[x.orders,x.receipts,x.expenses]));
     const chartPoints=(key:"orders"|"receipts"|"expenses")=>chartBuckets.map((item,index)=>({x:34+index*102,y:178-(item[key]/chartMax)*145,value:item[key]}));
     const chartPath=(key:"orders"|"receipts"|"expenses")=>chartPoints(key).map((p,index)=>(index?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");
     const chartMoney=(value:number)=>value>=1000?"R$ "+(value/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil":money(value);
-    return <div className="space-y-5">
+    return <div className="space-y-5 pb-36">
       {error&&<div className="flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-3 py-2 text-xs font-black">Fechar</button></div>}
       <Panel title="Financeiro NutriFit">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row">
-          <input value={financeSearch} onChange={e=>setFinanceSearch(e.target.value)} placeholder="Buscar descrição, fornecedor ou categoria..." className={input}/>
-          <select value={financePeriod} onChange={e=>setFinancePeriod(e.target.value)} className={input+" sm:max-w-[220px]"}><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o histórico</option></select>
+          <input value={financeSearch} onChange={e=>setFinanceSearch(e.target.value)} placeholder="Buscar descrição, cliente, pedido ou categoria..." className={input}/>
+          <select value={financePeriod} onChange={e=>setFinancePeriod(e.target.value)} className={input+" sm:max-w-[220px]"}><option value="month">Mês atual</option><option value="previous">Mês anterior</option><option value="7">Últimos 7 dias</option><option value="30">Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o histórico</option></select>
+        </div>
+        <div className="mb-5 flex flex-wrap gap-2" aria-label="Separar lançamentos retroativos e atuais">
+          {[{id:"all" as const,label:"Todos os lançamentos"},{id:"retroativos" as const,label:"Lançamentos retroativos"},{id:"no_dia" as const,label:"Não retroativos"}].map(option=><button key={option.id} type="button" onClick={()=>setFinanceView(option.id)} className={"rounded-full border px-4 py-2 text-xs font-black transition "+(financeView===option.id?"border-[#a7b86a]/50 bg-[#a7b86a]/15 text-[#d9e5a5]":"border-white/10 bg-white/[.025] text-white/55")}>{option.label}</button>)}
         </div>
         <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 bg-[#11150e] p-4 sm:p-5" aria-label="Evolução financeira no período">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div><h3 className="text-base font-black text-white sm:text-lg">Evolução financeira</h3><p className="mt-1 text-xs text-white/45">Comparativo dos valores ao longo do período selecionado</p></div>
-            <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] font-semibold text-white/55">{financePeriod==="all"?"Todo o histórico":"Últimos "+financePeriod+" dias"}</span>
+            <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] font-semibold text-white/55">{financePeriod==="all"?"Todo o histórico":financePeriod==="month"?"Mês atual":financePeriod==="previous"?"Mês anterior":"Últimos "+financePeriod+" dias"}</span>
           </div>
           <div className="mb-3 flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-semibold text-white/65">
             <span className="inline-flex items-center gap-2"><i className="h-2.5 w-2.5 rounded-full bg-[#ef7d18]"/>Pedidos registrados</span>
@@ -626,28 +666,55 @@ export default function Operations({section,token,initialCategory}:{section:"est
         </section>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Valor dos pedidos não cancelados</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(orderTotal)}</div><div className="mt-2 text-xs text-white/40">Pedidos registrados, não dinheiro recebido</div></div>
-          <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Pedidos no status pago_recebido</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(paidOrderTotal)}</div><div className="mt-2 text-xs text-white/50">Somente pedidos neste status; não inclui entregues</div></div>
+          <div className={"min-w-0 rounded-2xl border p-5 sm:p-6 "+(statusMismatchOrders.length?"border-[#ef7d18]/30 bg-[#21170f]":"border-[#b2bf78]/30 bg-[#1a1d12]")}><div className="text-sm font-bold text-[#f1b06e]">Pedidos com status a conferir</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{statusMismatchOrders.length} pedido(s)</div><div className="mt-2 text-xs text-white/50">{money(statusMismatchValue)} marcados como pagos, mas sem recebimento integral conciliado</div></div>
+          <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Receitas lançadas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(revenue)}</div><div className="mt-2 text-xs text-white/40">Pagas pela data do recebimento; pendentes pela data do registro</div></div>
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Recebimentos confirmados</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(confirmedReceipts)}</div><div className="mt-2 text-xs text-white/40">Lançamentos de receita com status pago</div></div>
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas pagas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(paidExpenses)}</div><div className="mt-2 text-xs text-white/40">Somente despesas com status pago</div></div>
           <div className="min-w-0 rounded-2xl border border-white/10 bg-[#151711] p-5 sm:p-6"><div className="text-sm font-bold text-white/55">Despesas e taxas lançadas</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(expenses+fees)}</div><div className="mt-2 text-xs text-white/40">Todos os lançamentos não cancelados</div></div>
           <div className={"min-w-0 rounded-2xl border p-5 sm:p-6 "+(balance<0?"border-[#ef7d18]/30 bg-[#21170f]":"border-white/10 bg-[#151711]")}><div className="text-sm font-bold text-white/55">Resultado dos lançamentos pagos</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(balance)}</div><div className="mt-2 text-xs text-white/40">Somente lançamentos financeiros com status pago; não equivale ao saldo bancário</div></div>
           <div className="min-w-0 rounded-2xl border border-[#b2bf78]/30 bg-[#1a1d12] p-5 sm:p-6"><div className="text-sm font-bold text-[#b2bf78]">Compras recebidas no estoque</div><div className="mt-3 break-words text-3xl font-black tracking-tight text-white sm:text-4xl">{money(purchasesTotal)}</div><div className="mt-2 text-xs text-white/50">{purchaseCount} compra(s) registrada(s) no período</div></div>
         </div>
+        {missingPaidDate.length>0&&<div role="status" className="rounded-2xl border border-[#ef7d18]/35 bg-[#ef7d18]/[.08] p-4 text-sm leading-6 text-[#f1b06e]"><b>Pagamentos sem data efetiva:</b> {missingPaidDate.length} lançamento(s), total de {money(missingPaidDateTotal)}, estão marcados como pagos, mas não possuem data de pagamento. Eles foram excluídos dos totais de caixa até a conferência. Não alteramos esses registros automaticamente.</div>}
         {confirmedReceipts===0&&paidExpenses>0&&<div role="status" className="rounded-2xl border border-[#ef7d18]/35 bg-[#ef7d18]/[.08] p-4 text-sm leading-6 text-[#f1b06e]"><b>Conferência necessária:</b> não há recebimentos financeiros confirmados neste período, mas há despesas pagas. O resultado dos lançamentos pagos ficará negativo até que as receitas reais sejam registradas; isso não significa, por si só, que a conta bancária esteja negativa.</div>}
-        <p className="text-xs leading-5 text-white/40">Os indicadores consideram até 200 pedidos, 500 lançamentos financeiros e 500 compras carregadas. “Pedidos no status pago_recebido” e “Recebimentos confirmados” vêm de fontes diferentes e não devem ser somados; o valor de um pedido não comprova, por si só, o recebimento.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">Contas pendentes lançadas</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Baseado no status dos lançamentos financeiros</div></div>
+        <p className="text-xs leading-5 text-white/40">Os indicadores consideram até 1.000 pedidos, 1.000 lançamentos financeiros e 500 compras carregadas. “Pedidos no status pago_recebido” e “Recebimentos confirmados” vêm de fontes diferentes e não devem ser somados; o valor de um pedido não comprova, por si só, o recebimento.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">A pagar (pendente)</div><div className="mt-2 text-2xl font-black">{money(pending)}</div><div className="mt-1 text-xs text-white/40">Despesas, taxas e outros lançamentos pendentes</div></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-sm font-bold text-white/60">A receber (pendente)</div><div className="mt-2 text-2xl font-black">{money(pendingReceivables)}</div><div className="mt-1 text-xs text-white/40">Receitas lançadas que ainda não foram confirmadas</div></div>
           <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-sm font-bold text-[#f1b06e]">Conferência necessária</div><p className="mt-2 text-sm leading-6 text-white/70">Compras do estoque e despesas financeiras aparecem em listas separadas até serem conciliadas. Isso evita somar a mesma compra duas vezes. Confira os registros abaixo antes de fechar o caixa.</p></div>
         </div>
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-black">Lançamentos financeiros</h3><span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60">{visibleFinance.length} registro(s)</span></div>
-        <div className="mt-3 overflow-x-auto rounded-2xl border border-white/10"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Tipo / categoria</th><th className="p-4">Descrição</th><th className="p-4">Valor</th><th className="p-4">Status</th></tr></thead><tbody>{visibleFinance.map(x=><tr key={x.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4">{new Date(financeDate(x)).toLocaleDateString("pt-BR")}</td><td className="p-4"><div className="font-bold">{x.type}</div><div className="mt-1 text-xs text-white/45">{x.category}</div></td><td className="max-w-[320px] whitespace-normal break-words p-4">{x.description}</td><td className="whitespace-nowrap p-4 font-black">{money(x.amount)}</td><td className="p-4"><span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold">{x.status}</span></td></tr>)}</tbody></table>{visibleFinance.length===0&&<div className="p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-black">Livro financeiro unificado</h3><span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60">{visibleFinance.length} registro(s)</span></div>
+        <p className="mt-2 text-xs leading-5 text-white/40">A data do movimento é a data efetiva do pagamento. “Registrado no site” mostra quando o lançamento foi incluído. Um lançamento é marcado como retroativo quando foi cadastrado mais de 24 horas depois do pagamento.</p>
+        <div className="mt-3 space-y-3 md:hidden">{visibleFinance.map(x=>{const linkedOrder=x.order_id?orderById.get(x.order_id):undefined;const noEffectiveDate=x.status==="pago"&&!x.paid_at;return <article key={x.id} className="min-w-0 rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-xs text-white/45">{noEffectiveDate?"Data efetiva não informada":new Date(financeDate(x)).toLocaleDateString("pt-BR")}</div><div className="mt-1 break-words font-black">{linkedOrder?.order_code||(x.order_id?"Pedido vinculado":"Lançamento avulso")}</div><div className="mt-1 break-words text-sm text-white/60">{linkedOrder?.customer_name||x.description}</div></div><div className="shrink-0 text-right"><div className="text-base font-black">{money(x.amount)}</div><span className={"mt-1 inline-flex rounded-full px-2 py-1 text-[10px] font-bold "+(noEffectiveDate?"bg-[#ef7d18]/15 text-[#ffb36b]":"bg-white/10 text-white/65")}>{noEffectiveDate?"Conferir data":x.status}</span></div></div><div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/10 pt-3 text-xs"><div><span className="text-white/40">Registrado</span><div className="mt-1">{new Date(x.created_at).toLocaleDateString("pt-BR")}</div></div><div><span className="text-white/40">Tipo / categoria</span><div className="mt-1 break-words">{x.type} · {x.category}</div></div><div><span className="text-white/40">Forma</span><div className="mt-1">{x.payment_method||"—"}</div></div><div><span className="text-white/40">Retroativo</span><div className="mt-1">{isRetroactive(x)?"Sim":"Não"}</div></div></div>{x.due_date&&<div className="mt-2 text-xs text-white/45">Vencimento: {new Date(x.due_date+"T12:00:00").toLocaleDateString("pt-BR")}</div>}{x.notes&&<p className="mt-2 break-words text-xs text-white/45">{x.notes}</p>}</article>})}{visibleFinance.length===0&&<div className="rounded-2xl border border-white/10 p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
+        <div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block"><table className="w-full min-w-[1040px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Movimento / registro</th><th className="p-4">Origem / pedido</th><th className="p-4">Tipo / categoria</th><th className="p-4">Descrição</th><th className="p-4">Forma</th><th className="p-4">Valor</th><th className="p-4">Status</th></tr></thead><tbody>{visibleFinance.map(x=>{const linkedOrder=x.order_id?orderById.get(x.order_id):undefined;const noEffectiveDate=x.status==="pago"&&!x.paid_at;return <tr key={x.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4"><div>{noEffectiveDate?"Data não informada":new Date(financeDate(x)).toLocaleDateString("pt-BR")}</div><div className="mt-1 text-[10px] text-white/40">Registrado: {new Date(x.created_at).toLocaleDateString("pt-BR")}</div>{x.due_date&&<div className="mt-1 text-[10px] text-white/40">Vencimento: {new Date(x.due_date+"T12:00:00").toLocaleDateString("pt-BR")}</div>}<span className={"mt-2 inline-flex rounded-full border px-2 py-1 text-[10px] font-bold "+(noEffectiveDate?"border-[#ef7d18]/30 bg-[#ef7d18]/10 text-[#ffb36b]":isRetroactive(x)?"border-[#ef7d18]/30 bg-[#ef7d18]/10 text-[#ffb36b]":"border-white/10 text-white/45")}>{noEffectiveDate?"Conferir data":isRetroactive(x)?"Retroativo":"Não retroativo"}</span></td><td className="p-4"><div className="font-bold">{linkedOrder?.order_code|| (x.order_id?"Pedido vinculado":"Lançamento avulso")}</div><div className="mt-1 text-xs text-white/45">{linkedOrder?.customer_name||"Sem cliente vinculado"}</div></td><td className="p-4"><div className="font-bold">{x.type}</div><div className="mt-1 text-xs text-white/45">{x.category}</div></td><td className="max-w-[280px] whitespace-normal break-words p-4">{x.description}{x.notes&&<div className="mt-1 text-xs text-white/40">{x.notes}</div>}</td><td className="p-4">{x.payment_method||"—"}</td><td className="whitespace-nowrap p-4 font-black">{money(x.amount)}</td><td className="p-4"><span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold">{x.status}</span></td></tr>})}</tbody></table>{visibleFinance.length===0&&<div className="p-6 text-sm text-white/50">Nenhum lançamento encontrado com esses filtros.</div>}</div>
+      </Panel>
+      <Panel title="Conciliação de pedidos e recebimentos">
+        <p className="mb-4 text-sm leading-6 text-white/55">Aqui aparecem os pedidos e a soma dos recebimentos financeiros efetivamente vinculados a cada um. Pagamentos parciais são somados. A ausência de lançamento significa pendência de conferência, não confirmação de inadimplência. Esta conciliação usa o histórico completo de pagamentos vinculados.</p>
+        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xs text-white/45">Pedidos no período</div><div className="mt-2 text-2xl font-black">{reconciliationOrders.length}</div></div>
+          <div className="rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-4"><div className="text-xs text-[#f1b06e]">Pedidos para conferir</div><div className="mt-2 text-2xl font-black">{reconciliationOpen.length}</div></div>
+          <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="text-xs text-white/45">Valor sem conciliação</div><div className="mt-2 text-2xl font-black">{money(reconciliationOpenValue)}</div></div>
+        </div>
+        <div className="space-y-3 md:hidden">{reconciliationOrders.map(order=>{const received=receiptsByOrder.get(order.id)||0;const reconciled=received>=Number(order.total||0)-0.01;const partial=received>0&&!reconciled;return <article key={order.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div><div className="font-black">{order.order_code||"Pedido sem código"}</div><div className="mt-1 text-sm text-white/55">{order.customer_name||"Cliente não informado"}</div><div className="mt-1 text-xs text-white/35">{new Date(order.created_at).toLocaleDateString("pt-BR")}</div></div><span className={"rounded-full px-2.5 py-1 text-[10px] font-bold "+(reconciled?"bg-[#a7b86a]/15 text-[#d9e5a5]":partial?"bg-[#ef7d18]/15 text-[#ffb36b]":"bg-white/10 text-white/55")}>{reconciled?"Conciliado":partial?"Parcial":"Conferir"}</span></div><div className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><div className="text-xs text-white/40">Valor do pedido</div><b>{money(order.total)}</b></div><div><div className="text-xs text-white/40">Recebido vinculado</div><b>{money(received)}</b></div></div></article>})}</div>
+        <div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Pedido / cliente</th><th className="p-4">Valor do pedido</th><th className="p-4">Recebido vinculado</th><th className="p-4">Conciliação</th></tr></thead><tbody>{reconciliationOrders.map(order=>{const received=receiptsByOrder.get(order.id)||0;const reconciled=received>=Number(order.total||0)-0.01;const partial=received>0&&!reconciled;return <tr key={order.id} className="border-t border-white/10"><td className="whitespace-nowrap p-4">{new Date(order.created_at).toLocaleDateString("pt-BR")}</td><td className="p-4"><div className="font-bold">{order.order_code||"Pedido sem código"}</div><div className="text-xs text-white/45">{order.customer_name||"Cliente não informado"}</div></td><td className="p-4 font-black">{money(order.total)}</td><td className="p-4 font-black">{money(received)}</td><td className="p-4"><span className={"rounded-full px-3 py-1 text-xs font-bold "+(reconciled?"bg-[#a7b86a]/15 text-[#d9e5a5]":partial?"bg-[#ef7d18]/15 text-[#ffb36b]":"bg-white/10 text-white/55")}>{reconciled?"Conciliado":partial?"Parcial":"Conferir"}</span></td></tr>})}</tbody></table>{reconciliationOrders.length===0&&<div className="p-6 text-sm text-white/50">Nenhum pedido neste período.</div>}</div>
+        {statusMismatchOrders.length>0&&<div className="mb-4 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.06] p-4"><div className="font-black text-[#f1b06e]">Pedidos marcados como pagos sem conciliação integral</div><p className="mt-2 text-sm leading-6 text-white/65">O status do pedido não substitui o registro do recebimento. Confira os pagamentos vinculados antes de alterar o status do pedido.</p><div className="mt-3 space-y-2">{statusMismatchOrders.map(order=><div key={order.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2 text-sm"><div><b>{order.order_code||"Pedido sem código"}</b><div className="text-xs text-white/45">{order.customer_name||"Cliente não informado"} · recebido {money(receiptsByOrder.get(order.id)||0)} de {money(order.total)}</div></div><span className="font-black text-[#f1b06e]">Falta {money(Math.max(0,Number(order.total||0)-(receiptsByOrder.get(order.id)||0)))}</span></div>)}</div></div>}
       </Panel>
       <Panel title="Compras registradas no estoque">
         <p className="mb-4 text-sm leading-6 text-white/55">Este histórico mostra as compras recebidas e os valores registrados na entrada de estoque. Elas ficam separadas do total de despesas até existir conciliação segura com o financeiro.</p>
         <div className="space-y-3 md:hidden">{visiblePurchases.map(x=><article key={x.id} className="min-w-0 rounded-2xl border border-white/10 bg-white/[.025] p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="text-xs font-semibold text-white/45">{new Date(x.created_at).toLocaleDateString("pt-BR")}</div><h3 className="mt-1 break-words text-base font-black leading-snug">{x.suppliers?.name||"Fornecedor não vinculado"}</h3></div><span className={"shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold "+(x.status==="recebida"?"bg-[#b2bf78]/15 text-[#cbd69b]":x.status==="cancelada"?"bg-red-500/10 text-red-300":"bg-white/10 text-white/60")}>{x.status}</span></div><div className="mt-3 grid grid-cols-2 gap-3"><div className="min-w-0"><div className="text-[10px] font-bold uppercase tracking-wider text-white/40">Documento</div><div className="mt-1 break-words text-sm">{x.invoice_number||"Sem número de documento"}</div></div><div><div className="text-[10px] font-bold uppercase tracking-wider text-white/40">Itens</div><div className="mt-1 text-sm font-semibold">{x.inventory_purchase_items?.length??"—"}</div></div><div className="col-span-2 border-t border-white/10 pt-3"><div className="text-[10px] font-bold uppercase tracking-wider text-white/40">Total da compra</div><div className="mt-1 text-xl font-black text-[#d9e5a5]">{money(x.total_cost)}</div></div></div>{x.notes&&<details className="mt-3 border-t border-white/10 pt-3"><summary className="cursor-pointer list-none text-sm font-bold text-[#b2bf78]">Ver detalhes da compra <span aria-hidden="true">▾</span></summary><p className="mt-2 whitespace-pre-wrap break-words text-xs leading-5 text-white/60">{x.notes}</p></details>}</article>)}{visiblePurchases.length===0&&<div className="rounded-2xl border border-white/10 p-6 text-sm text-white/50">Nenhuma compra encontrada com esses filtros.</div>}</div><div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-white/[.04] text-white/55"><tr><th className="p-4">Data</th><th className="p-4">Fornecedor</th><th className="p-4">Documento / observações</th><th className="p-4">Itens</th><th className="p-4">Total</th><th className="p-4">Situação</th></tr></thead><tbody>{visiblePurchases.map(x=><tr key={x.id} className="border-t border-white/10 align-top"><td className="whitespace-nowrap p-4">{new Date(x.created_at).toLocaleDateString("pt-BR")}</td><td className="p-4 font-bold">{x.suppliers?.name||"Fornecedor não vinculado"}</td><td className="max-w-[360px] whitespace-normal break-words p-4"><div>{x.invoice_number||"Sem número de documento"}</div>{x.notes&&<details className="mt-2"><summary className="cursor-pointer text-xs font-bold text-[#b2bf78]">Ver detalhes da compra</summary><p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-white/55">{x.notes}</p></details>}</td><td className="p-4">{x.inventory_purchase_items?.length??"—"}</td><td className="whitespace-nowrap p-4 font-black">{money(x.total_cost)}</td><td className="p-4"><span className={"inline-flex rounded-full px-3 py-1 text-xs font-bold "+(x.status==="recebida"?"bg-[#b2bf78]/15 text-[#cbd69b]":x.status==="cancelada"?"bg-red-500/10 text-red-300":"bg-white/10 text-white/60")}>{x.status}</span></td></tr>)}</tbody></table>{visiblePurchases.length===0&&<div className="p-6 text-sm text-white/50">Nenhuma compra encontrada com esses filtros.</div>}</div>
       </Panel>
       <Panel title="Novo lançamento financeiro">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"><select value={expense.type} onChange={e=>setExpense({...expense,type:e.target.value})} className={input}><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="taxa">Taxa</option><option value="estorno">Estorno</option></select><input value={expense.category} onChange={e=>setExpense({...expense,category:e.target.value})} placeholder="Categoria" className={input}/><input value={expense.description} onChange={e=>setExpense({...expense,description:e.target.value})} placeholder="Descrição" className={input}/><input type="number" step="0.01" value={expense.amount} onChange={e=>setExpense({...expense,amount:e.target.value})} placeholder="Valor" className={input}/><button onClick={()=>void addFinance()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black disabled:opacity-50">{busy?"Salvando...":"Lançar"}</button></div>
+        <p className="mb-4 text-sm leading-6 text-white/50">Registre recebimentos integrais ou parciais, despesas, taxas e estornos. Ao escolher um pedido em uma receita, o lançamento fica vinculado a ele e entra na conciliação.</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <select value={expense.type} onChange={e=>setExpense({...expense,type:e.target.value,order_id:e.target.value==="receita"?expense.order_id:""})} className={input}><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="taxa">Taxa</option><option value="estorno">Estorno</option></select>
+          <input value={expense.category} onChange={e=>setExpense({...expense,category:e.target.value})} placeholder="Categoria" className={input}/>
+          <input value={expense.description} onChange={e=>setExpense({...expense,description:e.target.value})} placeholder="Descrição" className={input}/>
+          <input type="number" min="0.01" step="0.01" value={expense.amount} onChange={e=>setExpense({...expense,amount:e.target.value})} placeholder="Valor" className={input}/>
+          <select value={expense.payment_method} onChange={e=>setExpense({...expense,payment_method:e.target.value})} className={input}><option value="Pix">PIX</option><option value="Cartão">Cartão</option><option value="Dinheiro">Dinheiro</option><option value="Transferência">Transferência</option><option value="Outro">Outro</option></select>
+          <select value={expense.status} onChange={e=>setExpense({...expense,status:e.target.value})} className={input}><option value="pago">Pago</option><option value="pendente">Pendente</option></select>
+          {expense.status==="pago"?<label className="grid gap-1 text-xs font-bold text-white/55">Data efetiva do pagamento<input type="date" value={expense.paid_at} onChange={e=>setExpense({...expense,paid_at:e.target.value})} className={input}/></label>:<label className="grid gap-1 text-xs font-bold text-white/55">Vencimento (opcional)<input type="date" value={expense.due_date} onChange={e=>setExpense({...expense,due_date:e.target.value})} className={input}/></label>}
+          {expense.type==="receita"&&<div className="grid gap-2"><label className="text-xs font-bold text-white/55">Vincular a pedido (opcional)<select value={expense.order_id} onChange={e=>setExpense({...expense,order_id:e.target.value})} className={input}><option value="">Receita avulsa</option>{customerOrders.filter(order=>order.status!=="cancelado").map(order=><option key={order.id} value={order.id}>{order.order_code||"Pedido"} · {order.customer_name||"Cliente"} · {money(order.total)}</option>)}</select></label>{expense.order_id&&(()=>{const linked=customerOrders.find(order=>order.id===expense.order_id);const received=receivedForOrder(expense.order_id);return linked?<div className="rounded-xl border border-[#a7b86a]/20 bg-[#a7b86a]/[.06] p-3 text-xs leading-5 text-white/65">Pedido {linked.order_code||""}: total {money(linked.total)} · já recebido {money(received)} · diferença para conciliar {money(Math.max(0,Number(linked.total||0)-received))}. Você pode registrar pagamentos parciais em lançamentos separados.</div>:null;})()}</div>}
+          <button onClick={()=>void addFinance()} disabled={busy} className="rounded-full bg-[#ef7d18] px-5 py-3 text-sm font-black text-black disabled:opacity-50">{busy?"Salvando...":"Lançar"}</button>
+        </div>
       </Panel>
     </div>;
   }
