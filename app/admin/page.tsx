@@ -40,7 +40,7 @@ async function request(path:string, token:string, init:RequestInit={}) {
 }
 
 const money = (v:number) => `R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
-const isInternalTestOrder = (order:Pick<Order,"customer_name">) => /\\bteste\\s+interno\\b/i.test(String(order.customer_name||""));
+const isInternalTestOrder = (order:Pick<Order,"customer_name">) => /\bteste\s+interno\b/i.test(String(order.customer_name||""));
 
 function orderStatusStyle(status:string) {
   const labelByStatus:Record<string,string> = {
