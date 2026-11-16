@@ -12,7 +12,7 @@ type OrderForm = {
   document_number: string; emission_date: string; buyer_name: string; buyer_tax_id: string;
   buyer_address: string; buyer_cep: string; requester: string; reference: string;
   description: string; quantity: string; unit_price: string; payment_method: string;
-  payment_status_label: string; payment_received: string; payment_date: string;
+  payment_status_label: string; payment_received: string; payment_date: string; supersedes_code: string;
 };
 
 const initialForm: OrderForm = {
@@ -31,6 +31,7 @@ const initialForm: OrderForm = {
   payment_status_label: "PENDENTE",
   payment_received: "",
   payment_date: "",
+  supersedes_code: "",
 };
 
 const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -93,8 +94,8 @@ export default function NewOfficialPurchaseOrderPage() {
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "generate_purchase_order",
-          supersedes_code: "NFV-FA05B3155D4D",
-          display_document_number: "NF-OC-141126-01",
+          ...(form.supersedes_code.trim() ? { supersedes_code: form.supersedes_code.trim().toUpperCase() } : {}),
+          display_document_number: form.document_number.trim().replace(/-R\\d+$/i, ""),
           document_number: form.document_number.trim(),
           emission_date: form.emission_date,
           buyer_name: form.buyer_name.trim(),
@@ -106,13 +107,13 @@ export default function NewOfficialPurchaseOrderPage() {
           items: [{ description: form.description, quantity, unit_price: unitPrice }],
           payment_method: form.payment_method,
           payment_status_label: form.payment_status_label,
-          payment_received: form.payment_received || money(total),
+          payment_received: form.payment_received.trim() || (form.payment_status_label.trim().toUpperCase() === "PAGO" ? money(total) : ""),
           payment_date: form.payment_date,
           payment_status: form.payment_status_label.trim().toUpperCase() === "PAGO" ? "paid" : form.payment_status_label.trim().toUpperCase() === "PENDENTE" ? "pending" : "not_informed",
           narrative: `A presente ordem de compra registra a aquisição de ${quantity} marmitas personalizadas da Linha FIT, no valor total de ${money(total)}, com pagamento ${form.payment_status_label.trim().toUpperCase() === "PAGO" ? "confirmado" : "pendente"} via ${form.payment_method}.${form.payment_received.trim() ? ` Valor efetivamente recebido: ${form.payment_received}.` : ""}${form.payment_date.trim() ? ` Data do recebimento: ${form.payment_date}.` : ""}`,
         }),
       });
-      const result = await response.json();
+      const result = await response.json().catch(() => ({ error: `Servidor respondeu HTTP ${response.status} sem JSON válido.` }));
       if (!response.ok) throw new Error(result.error || "Falha ao gerar a ordem.");
       setVerificationUrl(result.verification_url);
       setHash(result.sha256);
@@ -166,7 +167,8 @@ export default function NewOfficialPurchaseOrderPage() {
             <div className="flex items-center gap-2 rounded-xl border border-[#6eaa67]/25 bg-[#6eaa67]/10 p-3 text-sm text-[#b9e6b1]"><ShieldCheck className="h-5 w-5"/> Administrador autenticado: {email}</div>
             <section className="rounded-2xl border border-white/10 bg-[#11140f] p-5">
               <h2 className="mb-4 font-semibold">Identificação da ordem</h2>
-              <div className="grid gap-4 sm:grid-cols-2">{field("Número do documento","document_number")}{field("Data de emissão","emission_date")}</div>
+              <div className="grid gap-4 sm:grid-cols-2">{field("Número do documento","document_number")}{field("Data de emissão","emission_date")}{field("Código da versão anterior (opcional)","supersedes_code")}</div>
+              <p className="mt-3 text-xs text-white/45">Preencha o código NFV-... somente quando esta ordem substituir formalmente uma versão anterior. O sistema não presumirá mais uma versão antiga automaticamente.</p>
             </section>
             <section className="rounded-2xl border border-white/10 bg-[#11140f] p-5">
               <h2 className="mb-4 font-semibold">Dados do comprador</h2>
