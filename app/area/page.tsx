@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import "./theme.css";
 
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
