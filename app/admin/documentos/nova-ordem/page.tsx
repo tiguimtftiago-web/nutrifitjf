@@ -16,8 +16,8 @@ type OrderForm = {
 };
 
 const initialForm: OrderForm = {
-  document_number: "NF-OC-141126-01-R2",
-  emission_date: "14/11/2026",
+  document_number: "NF-OC-141126-01-R3",
+  emission_date: "16/11/2026",
   buyer_name: "MYSA S/A",
   buyer_tax_id: "38.542.718/0001-82",
   buyer_address: "Av. Francisco Bernardino, nº 115, Loja LJ, Centro, Juiz de Fora/MG",
@@ -28,10 +28,10 @@ const initialForm: OrderForm = {
   quantity: "24",
   unit_price: "23,00",
   payment_method: "PIX",
-  payment_status_label: "PENDENTE",
-  payment_received: "",
-  payment_date: "",
-  supersedes_code: "",
+  payment_status_label: "PAGO",
+  payment_received: "R$ 552,00",
+  payment_date: "16/11/2026",
+  supersedes_code: "NFV-B59D32798688",
 };
 
 const money = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
