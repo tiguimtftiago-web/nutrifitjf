@@ -95,7 +95,7 @@ export default function NewOfficialPurchaseOrderPage() {
         body: JSON.stringify({
           action: "generate_purchase_order",
           ...(form.supersedes_code.trim() ? { supersedes_code: form.supersedes_code.trim().toUpperCase() } : {}),
-          display_document_number: form.document_number.trim().replace(/-R\\d+$/i, ""),
+          display_document_number: form.document_number.trim().replace(/-R\d+$/i, ""),
           document_number: form.document_number.trim(),
           emission_date: form.emission_date,
           buyer_name: form.buyer_name.trim(),
