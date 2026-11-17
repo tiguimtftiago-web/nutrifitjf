@@ -19,6 +19,20 @@ function addDays(date:string, days:number) { const d=new Date(date+"T12:00:00");
 function dateLabel(date:string|null|undefined) { if(!date)return "Não informado"; const d=new Date(date.length===10?date+"T12:00:00":date); return Number.isNaN(d.getTime())?"Não informado":d.toLocaleDateString("pt-BR"); }
 function phoneDigits(phone:string|null|undefined) { const digits=String(phone||"").replace(/\D/g,""); return digits && !digits.startsWith("55") && (digits.length===10||digits.length===11) ? "55"+digits : digits; }
 function money(value:number) { return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(value||0)); }
+function averageIntervalDays(history:Order[]) {
+  if(history.length<2)return null;
+  const dates=history.map(o=>new Date(o.created_at).getTime()).filter(Number.isFinite).sort((a,b)=>a-b);
+  if(dates.length<2)return null;
+  const intervals=dates.slice(1).map((date,index)=>Math.round((date-dates[index])/86400000)).filter(days=>days>0);
+  return intervals.length?Math.round(intervals.reduce((sum,days)=>sum+days,0)/intervals.length):null;
+}
+function suggestedCycle(days:number|null):Plan["cycle_type"] {
+  if(days===null)return "custom";
+  if(days>=5&&days<=9)return "weekly";
+  if(days>=12&&days<=18)return "fortnightly";
+  if(days>=25&&days<=35)return "monthly";
+  return "custom";
+}
 
 async function api(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...(init.headers as Record<string,string>||{})};
@@ -69,20 +83,25 @@ export default function RenewalsPage() {
     if(saved){setToken(saved);void load(saved);}
   },[load]);
 
-  const orderByCustomer=useMemo(()=>{
-    const map=new Map<string,Order>();
+  const historyByCustomer=useMemo(()=>{
+    const map=new Map<string,Order[]>();
     for(const order of orders){
       if(!order.customer_profile_id||order.status==="cancelado"||Number(order.total||0)===0||String(order.notes||"").toLowerCase().includes("teste interno"))continue;
-      if(!map.has(order.customer_profile_id))map.set(order.customer_profile_id,order);
+      const history=map.get(order.customer_profile_id)||[];
+      history.push(order);
+      map.set(order.customer_profile_id,history);
     }
+    for(const history of map.values())history.sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
     return map;
   },[orders]);
   const planByCustomer=useMemo(()=>new Map(plans.map(p=>[p.customer_profile_id,p])),[plans]);
   const rows=useMemo(()=>customers.map(customer=>{
-    const lastOrder=orderByCustomer.get(customer.id)||null;
+    const history=historyByCustomer.get(customer.id)||[];
+    const lastOrder=history[0]||null;
+    const observedCycleDays=averageIntervalDays(history);
     const plan=planByCustomer.get(customer.id)||null;
     const due=!!plan&&plan.status==="active"&&plan.reminder_date<=todayISO();
-    return {customer,lastOrder,plan,due};
+    return {customer,lastOrder,history,observedCycleDays,plan,due};
   }).filter(row=>{
     const q=search.trim().toLocaleLowerCase("pt-BR");
     if(q&&!row.customer.name.toLocaleLowerCase("pt-BR").includes(q)&&!phoneDigits(row.customer.whatsapp).includes(phoneDigits(q)))return false;
@@ -90,7 +109,7 @@ export default function RenewalsPage() {
     if(filter==="unconfigured")return !row.plan;
     if(filter==="active")return !!row.plan&&row.plan.status!=="paused"&&row.plan.status!=="declined";
     return true;
-  }),[customers,orderByCustomer,planByCustomer,filter,search]);
+  }),[customers,historyByCustomer,planByCustomer,filter,search]);
 
   const today=todayISO();
   const dueCount=customers.filter(c=>{const p=planByCustomer.get(c.id);return !!p&&p.status==="active"&&p.reminder_date<=today;}).length;
@@ -98,13 +117,15 @@ export default function RenewalsPage() {
   const noPlanCount=customers.length-plans.length;
 
   function openEditor(customer:Customer) {
-    const lastOrder=orderByCustomer.get(customer.id);
+    const history=historyByCustomer.get(customer.id)||[];
+    const lastOrder=history[0];
     const existing=planByCustomer.get(customer.id);
+    const observedDays=averageIntervalDays(history);
     const anchor=existing?.cycle_anchor_date|| (lastOrder?localISO(new Date(lastOrder.created_at)):todayISO());
-    const days=existing?.cycle_days||30;
+    const days=existing?.cycle_days||observedDays||30;
     setEditing(customer);
     setForm({
-      cycle_type:existing?.cycle_type||"monthly",
+      cycle_type:existing?.cycle_type||suggestedCycle(observedDays),
       cycle_days:days,
       planned_quantity:existing?.planned_quantity||lastOrder?.item_count||0,
       cycle_anchor_date:anchor,
@@ -161,7 +182,7 @@ export default function RenewalsPage() {
   }
 
   async function markRenewed(plan:Plan) {
-    const anchor=todayISO();
+    const anchor=plan.next_order_date;
     await updatePlan(plan,{cycle_anchor_date:anchor,next_order_date:addDays(anchor,plan.cycle_days),status:"active"});
   }
 
@@ -183,9 +204,9 @@ export default function RenewalsPage() {
         <div className="mt-4 flex flex-wrap gap-2">{([{id:"all",label:"Todos"},{id:"due",label:"Contatar agora"},{id:"unconfigured",label:"Sem ciclo"},{id:"active",label:"Ciclos ativos"}] as {id:Filter;label:string}[]).map(item=><button key={item.id} onClick={()=>setFilter(item.id)} className={"rounded-full px-3 py-2 text-xs font-black "+(filter===item.id?"bg-[#a7b86a] text-black":"border border-white/10 bg-white/5 text-white/60")}>{item.label}</button>)}</div>
       </section>
       <section className="grid gap-3 lg:grid-cols-2">
-        {rows.map(({customer,lastOrder,plan,due})=><article key={customer.id} className={"rounded-2xl border p-4 "+(due?"border-[#ef7d18]/45 bg-[#17120c]":"border-white/10 bg-[#10150d]")}>
+        {rows.map(({customer,lastOrder,history,observedCycleDays,plan,due})=><article key={customer.id} className={"rounded-2xl border p-4 "+(due?"border-[#ef7d18]/45 bg-[#17120c]":"border-white/10 bg-[#10150d]")}>
           <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="font-black">{customer.name}</h3><p className="mt-1 text-xs text-white/45">{customer.whatsapp||"WhatsApp não informado"} • {customer.email||"E-mail não informado"}</p></div><span className={"rounded-full px-2.5 py-1 text-[10px] font-black "+(due?"bg-[#ef7d18]/15 text-[#ffb36b]":plan?.status==="paused"?"bg-white/10 text-white/55":"bg-[#a7b86a]/10 text-[#d5e3a0]")}>{due?"Contato pendente":plan?statusLabels[plan.status]:"Período a definir"}</span></div>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-xs"><div className="rounded-xl bg-black/25 p-3"><span className="text-white/40">Último pedido</span><p className="mt-1 font-bold">{lastOrder?dateLabel(lastOrder.created_at):"Sem pedido vinculado"}</p><p className="mt-1 text-white/40">{lastOrder?lastOrder.item_count+" marmitas • "+money(lastOrder.total):"Não há histórico associado"}</p></div><div className="rounded-xl bg-black/25 p-3"><span className="text-white/40">Frequência</span><p className="mt-1 font-bold">{plan?cycleLabels[plan.cycle_type]+" ("+plan.cycle_days+" dias)":"Não definida"}</p><p className="mt-1 text-white/40">{plan?(plan.planned_quantity||"Qtd. a definir")+" marmitas previstas":"Configure o ciclo"}</p></div></div>
+          <div className="mt-4 grid grid-cols-2 gap-3 text-xs"><div className="rounded-xl bg-black/25 p-3"><span className="text-white/40">Último pedido</span><p className="mt-1 font-bold">{lastOrder?dateLabel(lastOrder.created_at):"Sem pedido vinculado"}</p><p className="mt-1 text-white/40">{lastOrder?lastOrder.item_count+" marmitas • "+money(lastOrder.total):"Não há histórico associado"}</p><p className="mt-2 text-[11px] text-[#c9d69c]">{history.length} pedido(s) no histórico{observedCycleDays?" • intervalo médio observado: "+observedCycleDays+" dias":history.length===1?" • intervalo ainda não calculável":""}</p></div><div className="rounded-xl bg-black/25 p-3"><span className="text-white/40">Frequência</span><p className="mt-1 font-bold">{plan?cycleLabels[plan.cycle_type]+" ("+plan.cycle_days+" dias)":"Não definida"}</p><p className="mt-1 text-white/40">{plan?(plan.planned_quantity||"Qtd. a definir")+" marmitas previstas":"Configure o ciclo"}</p></div></div>
           {plan&&<div className="mt-3 grid grid-cols-2 gap-3 text-xs"><div><span className="text-white/40">Próximo pedido previsto</span><p className="mt-1 font-bold text-[#dce8ad]">{dateLabel(plan.next_order_date)}</p></div><div><span className="text-white/40">Lembrar em (D-2)</span><p className={"mt-1 font-bold "+(due?"text-[#ffb36b]":"text-white")}>{dateLabel(plan.reminder_date)}</p></div></div>}
           <div className="mt-4 flex flex-wrap gap-2">
             <button onClick={()=>openEditor(customer)} className="rounded-xl bg-[#a7b86a] px-3 py-2 text-xs font-black text-black"><Plus size={14} className="mr-1 inline"/>{plan ? "Editar ciclo" : "Configurar recorrência"}</button>
@@ -202,7 +223,7 @@ export default function RenewalsPage() {
     {editing&&<div className="fixed inset-0 z-50 flex items-end justify-center bg-black/75 p-0 sm:items-center sm:p-5"><form onSubmit={savePlan} className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-white/10 bg-[#10150d] p-5 shadow-2xl sm:rounded-3xl"><div className="mb-5 flex items-start justify-between"><div><div className="text-[10px] font-black uppercase tracking-[.2em] text-[#a7b86a]">Planejamento individual</div><h2 className="mt-1 text-xl font-black">{editing.name}</h2><p className="mt-1 text-xs text-white/45">Configure a previsão de consumo e o contato D-2.</p></div><button type="button" onClick={()=>setEditing(null)} className="rounded-full bg-white/5 p-2"><X size={17}/></button></div>
       <div className="grid gap-3 sm:grid-cols-2"><label className="text-xs font-bold text-white/65">Frequência<select value={form.cycle_type} onChange={e=>changeCycle(e.target.value as Plan["cycle_type"])} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"><option value="weekly">Semanal (7 dias)</option><option value="fortnightly">Quinzenal (15 dias)</option><option value="monthly">Mensal (30 dias)</option><option value="custom">Personalizado</option></select></label><label className="text-xs font-bold text-white/65">Intervalo em dias<input required type="number" min="1" max="365" value={form.cycle_days} onChange={e=>setForm(f=>({...f,cycle_days:Number(e.target.value),next_order_date:addDays(f.cycle_anchor_date,Number(e.target.value)||1)}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"/></label><label className="text-xs font-bold text-white/65">Data-base do ciclo<input required type="date" value={form.cycle_anchor_date} onChange={e=>setForm(f=>({...f,cycle_anchor_date:e.target.value,next_order_date:addDays(e.target.value,f.cycle_days)}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"/></label><label className="text-xs font-bold text-white/65">Próximo pedido previsto<input required type="date" value={form.next_order_date} onChange={e=>setForm(f=>({...f,next_order_date:e.target.value}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"/></label><label className="text-xs font-bold text-white/65">Quantidade prevista<input type="number" min="0" value={form.planned_quantity} onChange={e=>setForm(f=>({...f,planned_quantity:Number(e.target.value)}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"/></label><label className="text-xs font-bold text-white/65">Situação<select value={form.status} onChange={e=>setForm(f=>({...f,status:e.target.value as Plan["status"]}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white"><option value="active">Ativo</option><option value="paused">Pausado</option><option value="declined">Não vai renovar</option></select></label></div>
       <label className="mt-3 block text-xs font-bold text-white/65">Observações<textarea rows={3} value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 p-3 text-white" placeholder="Ex.: cliente contrata 30 marmitas para consumo ao longo do mês."/></label>
-      <div className="mt-4 rounded-xl border border-[#a7b86a]/20 bg-[#a7b86a]/[.06] p-3 text-xs text-[#dce8ad]">Próximo contato sugerido: <b>{dateLabel(addDays(form.next_order_date,-2))}</b> (dois dias antes do próximo pedido previsto).</div>
+      <div className="mt-4 rounded-xl border border-[#a7b86a]/20 bg-[#a7b86a]/[.06] p-3 text-xs text-[#dce8ad]">{averageIntervalDays(historyByCustomer.get(editing.id)||[])!==null?<>Intervalo médio observado no histórico: <b>{averageIntervalDays(historyByCustomer.get(editing.id)||[])} dias</b>. A frequência sugerida é editável.</>:<>Ainda não há pedidos suficientes para calcular a frequência. Confirme o intervalo com o cliente antes de salvar.</>}<div className="mt-2">Próximo contato sugerido: <b>{dateLabel(addDays(form.next_order_date,-2))}</b> (dois dias antes do próximo pedido previsto).</div></div>
       {error&&<p className="mt-3 text-sm text-orange-300">{error}</p>}
       <div className="mt-5 flex gap-2"><button type="button" onClick={()=>setEditing(null)} className="flex-1 rounded-xl border border-white/10 bg-white/5 p-3 text-sm font-bold">Cancelar</button><button disabled={busy} className="flex-1 rounded-xl bg-[#a7b86a] p-3 text-sm font-black text-black">{busy?"Salvando...":"Salvar planejamento"}</button></div>
     </form></div>}
