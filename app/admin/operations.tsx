@@ -37,7 +37,7 @@ const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py
 
 type InventoryVisual = { column:number; row:number; label:string };
 function inventoryImage(item:InventoryItem):InventoryVisual {
-  const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+  const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   const n=normalize(item.name+" "+item.category);
   const has=(...terms:string[])=>terms.some(term=>n.includes(normalize(term)));
   // Cada família visual aponta para um produto específico no sprite, sem reutilizar foto de prato pronto.
@@ -232,6 +232,74 @@ export default function Operations({section,token,initialCategory}:{section:"est
     w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha de produção Nutrifit</title><style>@page{margin:14mm}body{font:14px Arial,sans-serif;color:#111;padding:10px}.brand{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:3px solid #a7b86a;margin-bottom:12px}.brand img{width:58px;height:58px;object-fit:contain;display:block}.brand-copy h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}.brand-copy small{font-size:12px;color:#444}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #bbb;padding:10px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.checks{margin-top:20px;line-height:2}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo Nutrifit"><div class="brand-copy"><h1>NUTRIFIT — Ficha de produção</h1><small>Conferência de pedido e preparo</small></div></header><div class="meta"><div class="box"><b>Cliente</b><br>'+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido</b><br>'+esc(order.id)+'</div><div class="box"><b>Recebido em</b><br>'+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status do pedido</b><br>'+esc(order.status||"—")+'</div></div><b>Itens solicitados</b><table><thead><tr><th>Prato</th><th>Linha</th><th>Peso</th><th>Qtd.</th><th>Preparado</th><th>Conferido</th></tr></thead><tbody>'+rows+'</tbody></table><div class="checks"><b>Conferência final</b><br>☐ Quantidades conferidas<br>☐ Etiquetas conferidas<br>☐ Pedido completo<br>☐ Estoque registrado conforme produção efetiva</div><h2 style="margin-top:28px">Conferência de insumos (estimativa pela ficha técnica)</h2><table><thead><tr><th>Prato</th><th>Insumo</th><th>Necessário</th><th>Estoque atual</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table><p><small>Quantidades estimadas com base nos insumos cadastrados e na quantidade do pedido. Confirme unidades e rendimento da ficha. Esta impressão não altera nem baixa o estoque.</small></p><script>window.onload=()=>{const logo=document.querySelector(".brand img");let didPrint=false;const print=()=>{if(didPrint)return;didPrint=true;setTimeout(()=>window.print(),120);};if(!logo||logo.complete){print();}else{logo.onload=print;logo.onerror=print;setTimeout(print,1800);}}</script></body></html>');
     w.document.close();
   }
+
+  function printDailyProductionSheet(){
+    const pad=(n:number)=>String(n).padStart(2,"0");
+    const now=new Date();
+    const todayKey=now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
+    const localDateKey=(value:string)=>{const d=new Date(value);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
+    const cancelled=(status:string)=>["cancelado","cancelada","cancelled"].includes(String(status||"").toLowerCase());
+    const dailyOrders=customerOrders.filter(order=>!cancelled(order.status)&&(
+      localDateKey(order.created_at)===todayKey ||
+      deliveries.some(d=>d.order_id===order.id&&String(d.delivery_date||"").slice(0,10)===todayKey)
+    )).sort((a,b)=>(a.customer_name||"").localeCompare(b.customer_name||"","pt-BR"));
+    if(!dailyOrders.length){
+      setError("Não há pedidos cadastrados ou entregas programadas para hoje na Central de Produção.");
+      return;
+    }
+    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const dishTotals=new Map<string,{name:string;line:string;weight:string;quantity:number}>();
+    const ingredientTotals=new Map<string,{dish:string;ingredient:string;unit:string;required:number;stock:number;state:string}>();
+    const orderRows=dailyOrders.map(order=>{
+      const items=Array.isArray(order.items)?order.items:[];
+      items.forEach(item=>{
+        const name=String(item.name||"Item sem nome").trim();
+        const line=String(item.line||"—").trim();
+        const weight=String(item.weight||"—").trim();
+        const quantity=Number(item.quantity||0);
+        const key=[norm(name),norm(line),norm(weight)].join("|");
+        const previous=dishTotals.get(key)||{name,line,weight,quantity:0};
+        previous.quantity+=quantity;
+        dishTotals.set(key,previous);
+        const sameNameDifferentWeight=items.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==String(item.weight||"").trim()&&String(other.weight||"").trim()!=="");
+        const exactName=name+(sameNameDifferentWeight&&weight!=="—"?" — "+weight:"");
+        const activeRecipes=recipes.filter(r=>r.active);
+        const recipe=activeRecipes.find(r=>norm(r.product_name||"")===norm(exactName))||
+          activeRecipes.find(r=>norm(r.name)===norm(exactName))||
+          (!sameNameDifferentWeight?activeRecipes.find(r=>norm(r.product_name||"")===norm(name)||norm(r.name)===norm(name)):undefined);
+        if(!recipe){
+          const k="missing-recipe|"+key;
+          ingredientTotals.set(k,{dish:name,ingredient:"Ficha técnica não encontrada/ativa",unit:"—",required:0,stock:0,state:"Cadastrar ficha"});
+          return;
+        }
+        const linked=recipeItems.filter(ri=>ri.recipe_id===recipe.id);
+        if(!linked.length){
+          const k="empty-recipe|"+key;
+          ingredientTotals.set(k,{dish:name,ingredient:"Ficha técnica sem insumos",unit:"—",required:0,stock:0,state:"Completar ficha"});
+          return;
+        }
+        linked.forEach(ri=>{
+          const inv=inventory.find(x=>x.id===ri.item_id);
+          const ingredient=inv?.name||"Insumo não encontrado";
+          const k=recipe.id+"|"+ri.item_id;
+          const required=Number(ri.quantity||0)*quantity;
+          const previous=ingredientTotals.get(k);
+          const total=(previous?.required||0)+required;
+          ingredientTotals.set(k,{dish:name,ingredient,unit:inv?.unit||"—",required:total,stock:Number(inv?.current_quantity||0),state:!inv?"Conferir cadastro":Number(inv.current_quantity||0)>=total?"Estoque suficiente":"Conferir falta"});
+        });
+      });
+      return '<tr><td>'+esc(order.customer_name||"Cliente sem nome")+'</td><td>'+esc(order.id.slice(0,8))+'</td><td>'+items.reduce((n,x)=>n+Number(x.quantity||0),0)+'</td><td>'+esc(order.status||"Recebido")+'</td><td>'+esc(order.notes||"—")+'</td></tr>';
+    }).join("");
+    const dishRows=[...dishTotals.values()].sort((a,b)=>a.name.localeCompare(b.name,"pt-BR")).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.line)+'</td><td>'+esc(x.weight)+'</td><td>'+x.quantity+'</td><td>☐</td></tr>').join("");
+    const ingredientRows=[...ingredientTotals.values()].map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+(x.required?esc(x.required.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+(Number.isFinite(x.stock)?esc(x.stock.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+esc(x.state)+'</td></tr>').join("");
+    const totalMeals=[...dishTotals.values()].reduce((n,x)=>n+x.quantity,0);
+    const w=window.open("","_blank");
+    if(!w){setError("O navegador bloqueou a impressão. Permita janelas pop-up para imprimir a produção do dia.");return;}
+    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produção diária Nutrifit</title><style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font:11px Arial,sans-serif;color:#171717;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:3px solid #a7b83f;padding:0 0 10px;margin-bottom:12px}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{font-size:19px;margin:0 0 4px}.brand small{color:#555}.summary{display:flex;gap:8px;margin:12px 0}.metric{border:1px solid #bbb;border-radius:6px;padding:8px;flex:1}.metric b{display:block;font-size:17px;margin-top:3px}.section{margin-top:16px}h2{font-size:13px;margin:0 0 7px;color:#333}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #bbb;padding:6px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#edf0e4;font-size:10px}tr{break-inside:avoid}.note{margin-top:12px;padding:8px;border-left:3px solid #ef5a00;background:#f7f7f7;font-size:10px}.footer{margin-top:14px;border-top:1px solid #bbb;padding-top:6px;color:#555;font-size:9px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo oficial Nutrifit"><div><h1>NUTRIFIT — Ordem geral de produção</h1><small>Produção e conferência diária · '+todayKey.split("-").reverse().join("/")+'</small></div></header><div class="summary"><div class="metric">Pedidos do dia<b>'+dailyOrders.length+'</b></div><div class="metric">Marmitas previstas<b>'+totalMeals+'</b></div><div class="metric">Pratos diferentes<b>'+dishTotals.size+'</b></div></div><section class="section"><h2>1. Pedidos por cliente</h2><table><thead><tr><th style="width:22%">Cliente</th><th style="width:12%">Pedido</th><th style="width:9%">Qtd.</th><th style="width:17%">Status</th><th>Observações</th></tr></thead><tbody>'+orderRows+'</tbody></table></section><section class="section"><h2>2. Produção consolidada por prato</h2><table><thead><tr><th>Prato</th><th style="width:17%">Linha</th><th style="width:15%">Peso</th><th style="width:10%">Total</th><th style="width:13%">Conferido</th></tr></thead><tbody>'+dishRows+'</tbody></table></section><section class="section"><h2>3. Conferência de insumos — estimativa pelas fichas cadastradas</h2><table><thead><tr><th style="width:22%">Prato</th><th style="width:29%">Insumo</th><th style="width:17%">Necessário</th><th style="width:15%">Estoque atual</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table></section><div class="note"><b>Atenção:</b> esta folha consolida pedidos criados hoje e pedidos com entrega programada para hoje. As quantidades de insumos são estimativas conforme as fichas técnicas cadastradas. Fichas ausentes, sem insumos ou cadastros incompletos são sinalizados. Esta impressão não altera pedidos, não registra produção e não realiza baixa de estoque.</div><div class="footer">Nutrifit · Documento operacional para impressão e conferência interna.</div><script>window.onload=()=>{const logo=document.querySelector(".brand img");let done=false;const go=()=>{if(done)return;done=true;setTimeout(()=>window.print(),150);};if(!logo||logo.complete)go();else{logo.onload=go;logo.onerror=go;setTimeout(go,1800);}}</script></body></html>');
+    w.document.close();
+  }
+
   async function addSupplier(){
     if(!supplierForm.name.trim())return;
     setBusy(true);setError("");
@@ -885,7 +953,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
     <Panel title="Produção">
     <div className="mb-5 rounded-2xl border border-[#a7b86a]/30 bg-[#a7b86a]/[.06] p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Central de pedidos e preparo</div><h2 className="mt-1 text-xl font-black">O que precisa ser preparado</h2><p className="mt-1 text-sm text-white/50">Cliente, pratos, quantidades e ficha de preparo em um só lugar.</p></div><button type="button" onClick={()=>void load(true)} className="rounded-full border border-white/10 px-4 py-2 text-sm font-bold">Atualizar lista</button></div>
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><div className="text-xs font-black uppercase tracking-[.18em] text-[#a7b86a]">Central de pedidos e preparo</div><h2 className="mt-1 text-xl font-black">O que precisa ser preparado</h2><p className="mt-1 text-sm text-white/50">Cliente, pratos, quantidades e ficha de preparo em um só lugar.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={printDailyProductionSheet} className="rounded-full bg-[#a7b83f] px-4 py-2 text-sm font-black text-black">Imprimir produção do dia</button><button type="button" onClick={()=>void load(true)} className="rounded-full border border-white/10 px-4 py-2 text-sm font-bold">Atualizar lista</button></div></div>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[{label:"Pedidos ativos",value:customerOrders.filter(o=>!["entregue","concluido","concluida","cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length},{label:"Planejadas",value:production.filter(p=>p.status==="planejada").length},{label:"Em preparo",value:production.filter(p=>p.status==="em_producao").length},{label:"Concluídas",value:production.filter(p=>p.status==="concluida").length}].map(s=><div key={s.label} className="rounded-xl border border-white/10 bg-black/20 p-3"><div className="text-xs text-white/45">{s.label}</div><div className="mt-1 text-2xl font-black">{s.value}</div></div>)}</div>
       <div className="mt-4 space-y-3">{customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).length===0?<div className="rounded-xl border border-white/10 p-4 text-sm text-white/45">Nenhum pedido ativo encontrado.</div>:customerOrders.filter(o=>!["cancelado","cancelada","cancelled"].includes(String(o.status||"").toLowerCase())).map(order=>{
         const items=Array.isArray(order.items)?order.items:[];const linked=production.filter(p=>p.order_id===order.id);
