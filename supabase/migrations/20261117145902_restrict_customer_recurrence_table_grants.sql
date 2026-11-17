@@ -1,0 +1,1 @@
+revoke all on table public.customer_recurrence_plans from anon, public; grant select, insert, update, delete on table public.customer_recurrence_plans to authenticated;
