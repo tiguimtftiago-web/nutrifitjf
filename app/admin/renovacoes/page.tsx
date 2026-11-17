@@ -146,7 +146,7 @@ export default function RenewalsPage() {
     if(!form.cycle_anchor_date||!form.next_order_date||form.cycle_days<1){setError("Informe as datas e um ciclo válido.");return;}
     setBusy(true);setError("");setNotice("");
     try {
-      const payload={customer_profile_id:editing.id,cycle_type:form.cycle_type,cycle_days:Number(form.cycle_days),planned_quantity:Number(form.planned_quantity||0),cycle_anchor_date:form.cycle_anchor_date,next_order_date:form.next_order_date,reminder_date:addDays(form.next_order_date,-2),status:form.status,notes:form.notes.trim()||null,updated_at:new Date().toISOString()};
+      const payload={customer_profile_id:editing.id,cycle_type:form.cycle_type,cycle_days:Number(form.cycle_days),planned_quantity:Number(form.planned_quantity||0),cycle_anchor_date:form.cycle_anchor_date,next_order_date:form.next_order_date,status:form.status,notes:form.notes.trim()||null,updated_at:new Date().toISOString()};
       await api(URL+"/rest/v1/customer_recurrence_plans?on_conflict=customer_profile_id",token,{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify(payload)});
       setEditing(null);setNotice("Planejamento de recorrência salvo.");await load();
     } catch(e){setError(e instanceof Error?e.message:"Não foi possível salvar o planejamento.");}
@@ -156,7 +156,7 @@ export default function RenewalsPage() {
   async function updatePlan(plan:Plan,patch:Partial<Plan>) {
     setBusy(true);setError("");setNotice("");
     try {
-      const nextPatch={...patch};if(nextPatch.next_order_date)nextPatch.reminder_date=addDays(nextPatch.next_order_date,-2);await api(URL+"/rest/v1/customer_recurrence_plans?id=eq."+encodeURIComponent(plan.id),token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({...nextPatch,updated_at:new Date().toISOString()})});
+      await api(URL+"/rest/v1/customer_recurrence_plans?id=eq."+encodeURIComponent(plan.id),token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({...patch,updated_at:new Date().toISOString()})});
       setNotice("Planejamento atualizado.");await load();
     } catch(e){setError(e instanceof Error?e.message:"Não foi possível atualizar.");}
     finally{setBusy(false);}
