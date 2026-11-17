@@ -37,7 +37,7 @@ const input="min-w-0 w-full rounded-xl border border-white/10 bg-white/5 px-3 py
 
 type InventoryVisual = { column:number; row:number; label:string };
 function inventoryImage(item:InventoryItem):InventoryVisual {
-  const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+  const normalize=(value:string)=>value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
   const n=normalize(item.name+" "+item.category);
   const has=(...terms:string[])=>terms.some(term=>n.includes(normalize(term)));
   // Cada família visual aponta para um produto específico no sprite, sem reutilizar foto de prato pronto.
@@ -292,7 +292,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
       return '<tr><td>'+esc(order.customer_name||"Cliente sem nome")+'</td><td>'+esc(order.id.slice(0,8))+'</td><td>'+items.reduce((n,x)=>n+Number(x.quantity||0),0)+'</td><td>'+esc(order.status||"Recebido")+'</td><td>'+esc(order.notes||"—")+'</td></tr>';
     }).join("");
     const dishRows=[...dishTotals.values()].sort((a,b)=>a.name.localeCompare(b.name,"pt-BR")).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.line)+'</td><td>'+esc(x.weight)+'</td><td>'+x.quantity+'</td><td>☐</td></tr>').join("");
-    const ingredientRows=[...ingredientTotals.values()].map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+(x.required?esc(x.required.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+(x.stock?esc(x.stock.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+esc(x.state)+'</td></tr>').join("");
+    const ingredientRows=[...ingredientTotals.values()].map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+(x.required?esc(x.required.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+(Number.isFinite(x.stock)?esc(x.stock.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+esc(x.state)+'</td></tr>').join("");
     const totalMeals=[...dishTotals.values()].reduce((n,x)=>n+x.quantity,0);
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a impressão. Permita janelas pop-up para imprimir a produção do dia.");return;}
