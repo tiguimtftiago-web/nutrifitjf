@@ -81,7 +81,7 @@ export default function RenewalsPage() {
   const rows=useMemo(()=>customers.map(customer=>{
     const lastOrder=orderByCustomer.get(customer.id)||null;
     const plan=planByCustomer.get(customer.id)||null;
-    const due=!!plan&&plan.status!=="paused"&&plan.status!=="declined"&&plan.reminder_date<=todayISO();
+    const due=!!plan&&plan.status==="active"&&plan.reminder_date<=todayISO();
     return {customer,lastOrder,plan,due};
   }).filter(row=>{
     const q=search.trim().toLocaleLowerCase("pt-BR");
@@ -93,7 +93,7 @@ export default function RenewalsPage() {
   }),[customers,orderByCustomer,planByCustomer,filter,search]);
 
   const today=todayISO();
-  const dueCount=customers.filter(c=>{const p=planByCustomer.get(c.id);return !!p&&p.status!=="paused"&&p.status!=="declined"&&p.reminder_date<=today;}).length;
+  const dueCount=customers.filter(c=>{const p=planByCustomer.get(c.id);return !!p&&p.status==="active"&&p.reminder_date<=today;}).length;
   const activeCount=plans.filter(p=>p.status!=="paused"&&p.status!=="declined").length;
   const noPlanCount=customers.length-plans.length;
 
