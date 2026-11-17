@@ -17,7 +17,7 @@ const todayISO = () => { const d=new Date(); return localISO(d); };
 function localISO(d:Date) { return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-"); }
 function addDays(date:string, days:number) { const d=new Date(date+"T12:00:00"); d.setDate(d.getDate()+days); return localISO(d); }
 function dateLabel(date:string|null|undefined) { if(!date)return "Não informado"; const d=new Date(date.length===10?date+"T12:00:00":date); return Number.isNaN(d.getTime())?"Não informado":d.toLocaleDateString("pt-BR"); }
-function phoneDigits(phone:string|null|undefined) { return String(phone||"").replace(/\D/g,""); }
+function phoneDigits(phone:string|null|undefined) { const digits=String(phone||"").replace(/\D/g,""); return digits && !digits.startsWith("55") && (digits.length===10||digits.length===11) ? "55"+digits : digits; }
 function money(value:number) { return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(value||0)); }
 
 async function api(path:string, token:string, init:RequestInit={}) {
