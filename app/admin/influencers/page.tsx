@@ -17,7 +17,6 @@ async function api(path:string, token:string, init:RequestInit={}) {
   return body?JSON.parse(body):null;
 }
 const dateToday=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
-const money=(value:number)=>value.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
 export default function InfluencersPage(){
   const [token,setToken]=useState("");
@@ -36,7 +35,7 @@ export default function InfluencersPage(){
     setBusy(true);setError("");
     try{
       const [p,d]=await Promise.all([
-        api(URL+"/rest/v1/marketing_partners?select=id,name,partner_type,active,standard_meal_quantity,standard_cycle,operational_notes&active=eq.true&order=name.asc",currentToken),
+        api(URL+"/rest/v1/marketing_partners?select=id,name,partner_type,active,standard_meal_quantity,standard_cycle,operational_notes&active=eq.true&name=in.(Alisson,Millene)&order=name.asc",currentToken),
         api(URL+"/rest/v1/delivery_orders?select=id,customer_name,delivery_date,status,meal_quantity,notes,created_at&notes=like.*NF_INFLUENCER*&order=delivery_date.desc.nullslast",currentToken)
       ]);
       setPartners(Array.isArray(p)?p:[]);
