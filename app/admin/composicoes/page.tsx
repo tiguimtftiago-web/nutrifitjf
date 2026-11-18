@@ -84,18 +84,18 @@ export default function ComposicoesPage(){
     if(!components.length||components.some(c=>!c.source_id||!c.quantity||Number(c.quantity)<=0)){setError("Complete todos os componentes com uma quantidade válida.");return;}
     setBusy(true);
     try{
-      const comp=await api("meal_compositions?select=id",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({name:name.trim(),category,default_yield_quantity:yieldQty?Number(yieldQty):null,default_yield_unit:yieldUnit,active:true,validated:false,source_order_id:orderId||null,notes:notes.trim()||null})});
+      const comp=await api("meal_compositions?select=id",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({name:name.trim(),category,default_yield_quantity:yieldQty?Number(yieldQty):null,default_yield_unit:yieldUnit,active:true,validated:false,source_order_id:orderId||null,notes:notes.trim()||null})});
       const compositionId=comp?.[0]?.id;
       if(!compositionId)throw new Error("A composição foi salva sem retornar o identificador.");
       const componentRows=components.map((c,index)=>({composition_id:compositionId,sort_order:index,recipe_id:c.source==="recipe"?c.source_id:null,item_id:c.source==="item"?c.source_id:null,component_name_snapshot:c.name,quantity:Number(c.quantity),unit:c.unit,notes:c.notes||null}));
-      await api("meal_composition_components",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(componentRows)});
+      await api("meal_composition_components",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(componentRows)});
       if(orderId){
         const order=orders.find(o=>o.id===orderId);
-        const line=await api("customer_order_meal_lines?select=id",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({order_id:orderId,source_composition_id:compositionId,meal_period:mealPeriod,display_name:name.trim(),quantity:Number(lineQty),portion_total_quantity:yieldQty?Number(yieldQty):null,portion_unit:yieldUnit,validation_status:"pendente",validation_notes:"Aguardando validação de unidades, rendimentos e conferência de cozinha.",composition_snapshot:componentRows.map(({recipe_id,item_id,component_name_snapshot,quantity,unit})=>({recipe_id,item_id,name:component_name_snapshot,quantity_per_portion:quantity,unit})),order_item_snapshot:{order_code:order?.order_code,customer_name:order?.customer_name}})});
+        const line=await api("customer_order_meal_lines?select=id",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({order_id:orderId,source_composition_id:compositionId,meal_period:mealPeriod,display_name:name.trim(),quantity:Number(lineQty),portion_total_quantity:yieldQty?Number(yieldQty):null,portion_unit:yieldUnit,validation_status:"pendente",validation_notes:"Aguardando validação de unidades, rendimentos e conferência de cozinha.",composition_snapshot:componentRows.map(({recipe_id,item_id,component_name_snapshot,quantity,unit})=>({recipe_id,item_id,name:component_name_snapshot,quantity_per_portion:quantity,unit})),order_item_snapshot:{order_code:order?.order_code,customer_name:order?.customer_name}})});
         const lineId=line?.[0]?.id;
         if(lineId){
           const snapshotRows=componentRows.map(row=>({meal_line_id:lineId,sort_order:row.sort_order,recipe_id:row.recipe_id,item_id:row.item_id,component_name_snapshot:row.component_name_snapshot,quantity_per_portion:row.quantity,total_quantity:row.quantity*Number(lineQty),unit:row.unit,notes:row.notes}));
-          await api("customer_order_meal_components",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(snapshotRows)});
+          await api("customer_order_meal_components",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify(snapshotRows)});
         }
       }
       setMessage(orderId?"Composição salva e vinculada ao pedido como pendente de validação. Nenhuma baixa de estoque foi realizada.":"Composição salva na biblioteca para reutilização.");
