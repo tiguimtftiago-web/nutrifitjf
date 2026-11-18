@@ -16,11 +16,11 @@ const FALLBACK_VAPID_PUBLIC_KEY = "BB0vbJzwFpvhg9vRY65tqKh220prqXjozkHCwBXAxesWC
 
 type DeliveryRecord = { id:string; order_id:string|null; customer_name:string|null; delivery_date:string|null; status:string; meal_quantity:number; notes:string|null; created_at:string; };
 type Order = { order_code:string; id:string; customer_profile_id:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; email:string|null; items:unknown; item_count:number; subtotal:number; delivery_fee:number; total:number; cep:string|null; neighborhood:string|null; status:string; };
-type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; order_count:number; total_spend:number; };
+type Customer = { id:string; created_at:string; name:string; whatsapp:string; email:string|null; marketing_consent:boolean; coupon_code?:string|null; acquisition_source?:string|null; acquisition_campaign?:string|null; acquisition_medium?:string|null; order_count:number; total_spend:number; };
 type Lead = { id:string; created_at:string; company:string; contact_name:string; whatsapp:string; email:string; estimated_meals:string|null; frequency:string|null; status:string; next_follow_up_at:string|null; proposal_value:number|null; owner_notes:string|null; notes:string|null; };
 type ContactEvent = { id:string; lead_id:string; recipient_email:string; subject:string|null; event_type:string; event_at:string; evidence_note:string|null; };
 type Message = { id:string; created_at:string; from_phone:string|null; display_name:string|null; message_text:string|null; message_type:string|null; processed:boolean; };
-type Section = "resumo"|"pedidos"|"clientes"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"|"embalagens"|"configuracoes";
+type Section = "resumo"|"pedidos"|"clientes"|"cadastros"|"whatsapp"|"b2b"|"estoque"|"produtos"|"financeiro"|"entregas"|"producao"|"cupons"|"embalagens"|"configuracoes";
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; };
 type OrderRequirement = { id:string; order_id:string; recipe_id:string|null; item_id:string; required_quantity:number; item_name:string; unit:string; current_quantity:number; };
 type OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
@@ -533,6 +533,7 @@ export default function AdminPage() {
     {id:"estoque" as Section,label:"Estoque",Icon:Package},
     {id:"entregas" as Section,label:"Entregas",Icon:Truck},
     {id:"clientes" as Section,label:"Clientes",Icon:Users},
+    {id:"cadastros" as Section,label:"Cadastros do site",Icon:Users},
     {id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},
     {id:"embalagens" as Section,label:"Embalagens",Icon:Package},
     {id:"whatsapp" as Section,label:"WhatsApp",Icon:MessageCircle},
@@ -662,6 +663,42 @@ export default function AdminPage() {
             </Panel>
           )}
 
+          {section==="cadastros"&&(
+            <Panel title="Cadastros realizados no site">
+              <p className="mb-5 text-sm text-white/45">Acompanhe quem criou cadastro na Nutrifit, quando se cadastrou e a origem do contato.</p>
+              <div className="mb-5 grid grid-cols-2 gap-3 xl:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-xs text-white/45">Cadastros carregados</div><strong className="mt-1 block text-2xl font-black text-[#d9e5a5]">{customers.length}</strong></div>
+                <div className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="text-xs text-white/45">Neste mês</div><strong className="mt-1 block text-2xl font-black text-[#ffb36b]">{customers.filter(c=>new Date(c.created_at).getMonth()===new Date().getMonth()&&new Date(c.created_at).getFullYear()===new Date().getFullYear()).length}</strong></div>
+                <div className="col-span-2 rounded-2xl border border-white/10 bg-white/[.03] p-4 xl:col-span-1"><div className="text-xs text-white/45">Autorizaram mensagens de marketing</div><strong className="mt-1 block text-2xl font-black">{customers.filter(c=>c.marketing_consent).length}</strong></div>
+              </div>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="text-xs text-white/45">Mais recentes primeiro · atualização automática a cada 30 segundos</div>
+                <div className="flex items-center rounded-full border border-white/10 bg-white/5 px-3">
+                  <Search size={15} className="mr-2 text-white/35"/>
+                  <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar nome, WhatsApp ou e-mail" className="w-full min-w-0 bg-transparent py-2.5 text-sm outline-none sm:w-64"/>
+                </div>
+              </div>
+              <div className="grid gap-3 lg:hidden">
+                {customers.filter(c=>!q||[c.name,c.whatsapp,c.email||"",c.acquisition_source||"",c.acquisition_campaign||""].join(" ").toLowerCase().includes(q)).map(c=>(
+                  <div key={c.id} className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
+                    <div className="flex items-start justify-between gap-3"><div className="font-black">{c.name}</div><span className="shrink-0 rounded-full bg-[#a7b86a]/15 px-2.5 py-1 text-[10px] font-bold text-[#d9e5a5]">{new Date(c.created_at).toLocaleDateString("pt-BR")}</span></div>
+                    <div className="mt-2 space-y-1 text-xs text-white/55"><div>{c.whatsapp||"WhatsApp não informado"}</div><div>{c.email||"E-mail não informado"}</div></div>
+                    <div className="mt-3 flex flex-wrap gap-2 text-[10px]"><span className="rounded-full border border-white/10 px-2 py-1">{c.acquisition_source||"Origem não identificada"}</span>{c.coupon_code&&<span className="rounded-full border border-[#ef7d18]/30 px-2 py-1 text-[#ffb36b]">Cupom: {c.coupon_code}</span>}<span className={c.marketing_consent?"text-[#b9e6b1]":"text-white/35"}>{c.marketing_consent?"Aceitou marketing":"Sem autorização de marketing"}</span></div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto lg:block">
+                <table className="w-full min-w-[900px] text-left text-sm">
+                  <thead><tr className="text-xs text-white/40"><th className="p-3">Data do cadastro</th><th className="p-3">Nome</th><th className="p-3">WhatsApp</th><th className="p-3">E-mail</th><th className="p-3">Origem / campanha</th><th className="p-3">Marketing</th></tr></thead>
+                  <tbody>{customers.filter(c=>!q||[c.name,c.whatsapp,c.email||"",c.acquisition_source||"",c.acquisition_campaign||""].join(" ").toLowerCase().includes(q)).map(c=>(
+                    <tr key={c.id} className="border-t border-white/5"><td className="p-3 whitespace-nowrap">{new Date(c.created_at).toLocaleString("pt-BR")}</td><td className="p-3 font-black">{c.name}</td><td className="p-3">{c.whatsapp||"—"}</td><td className="p-3">{c.email||"—"}</td><td className="p-3">{[c.acquisition_source,c.acquisition_campaign].filter(Boolean).join(" / ")||"Não identificada"}</td><td className="p-3">{c.marketing_consent?<span className="text-[#b9e6b1]">Autorizado</span>:<span className="text-white/35">Não autorizado</span>}</td></tr>
+                  ))}</tbody>
+                </table>
+              </div>
+              {customers.filter(c=>!q||[c.name,c.whatsapp,c.email||"",c.acquisition_source||"",c.acquisition_campaign||""].join(" ").toLowerCase().includes(q)).length===0&&<div className="py-10 text-center text-sm text-white/40">Nenhum cadastro encontrado.</div>}
+            </Panel>
+          )}
+
           {section==="whatsapp"&&(
             <Panel title="WhatsApp">
               <div className="grid gap-3 lg:hidden">
@@ -747,7 +784,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 gap-2">
             
             
-            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"embalagens" as Section,label:"Embalagens",Icon:Package},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"configuracoes" as Section,label:"Configurações",Icon:Settings},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{if(id==="pedidos")setOrderStatusFilter("all");navigateSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
+            {[{id:"clientes" as Section,label:"Clientes",Icon:Users},{id:"cadastros" as Section,label:"Cadastros do site",Icon:Users},{id:"estoque" as Section,label:"Estoque",Icon:Package},{id:"embalagens" as Section,label:"Embalagens",Icon:Package},{id:"financeiro" as Section,label:"Financeiro",Icon:Wallet},{id:"entregas" as Section,label:"Entregas",Icon:Truck},{id:"producao" as Section,label:"Produção",Icon:Factory},{id:"configuracoes" as Section,label:"Configurações",Icon:Settings},{id:"b2b" as Section,label:"B2B",Icon:Building2},{id:"produtos" as Section,label:"Produtos",Icon:ShoppingBag},{id:"cupons" as Section,label:"Cupons",Icon:Ticket}].map(({id,label,Icon})=><button key={id} onClick={()=>{if(id==="pedidos")setOrderStatusFilter("all");navigateSection(id);setMobileMore(false)}} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-3 text-left text-xs font-black"><Icon size={17} className="text-[#a7b86a]"/>{label}</button>)}
             <a href="/admin/renovacoes" className="flex items-center gap-3 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.06] p-3 text-left text-xs font-black text-[#d9e5a5]"><CalendarClock size={17}/>Renovação de pedidos</a><a href="/admin/documentos" className="mt-3 flex items-center gap-3 rounded-2xl border border-[#ef7d18]/25 bg-[#ef7d18]/[.06] p-3 text-left text-xs font-black text-[#ffb36b]">📄 Documentos oficiais</a>
           </div>
         </div>
