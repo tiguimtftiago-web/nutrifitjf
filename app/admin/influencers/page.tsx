@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowLeft, RefreshCw, Users, PackageCheck, CalendarDays, Plus, Instagram, AlertCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, Users, PackageCheck, CalendarDays, Plus, Camera, AlertCircle } from "lucide-react";
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
@@ -96,7 +96,7 @@ export default function InfluencersPage(){
 
       <section className="mb-5 grid gap-3 md:grid-cols-2">
         {totals.map(({partner,rows,delivered,remaining})=><article key={partner.id} className="rounded-3xl border border-white/10 bg-[#10130d] p-5">
-          <div className="flex items-start justify-between gap-3"><div className="flex items-center gap-3"><div className="rounded-2xl bg-[#ef7d18]/15 p-3 text-[#ffb36b]"><Instagram size={22}/></div><div><h2 className="text-xl font-black">{partner.name}</h2><p className="text-xs text-white/45">Parceria ativa • 30 dias</p></div></div><span className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-[10px] font-black text-[#d9e5a5]">ATIVO</span></div>
+          <div className="flex items-start justify-between gap-3"><div className="flex items-center gap-3"><div className="rounded-2xl bg-[#ef7d18]/15 p-3 text-[#ffb36b]"><Camera size={22}/></div><div><h2 className="text-xl font-black">{partner.name}</h2><p className="text-xs text-white/45">Parceria ativa • 30 dias</p></div></div><span className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-[10px] font-black text-[#d9e5a5]">ATIVO</span></div>
           <div className="mt-5 grid grid-cols-3 gap-2"><div className="rounded-2xl bg-white/[.04] p-3"><div className="text-[10px] text-white/45">Meta</div><div className="mt-1 text-xl font-black">30</div></div><div className="rounded-2xl bg-white/[.04] p-3"><div className="text-[10px] text-white/45">Entregues</div><div className="mt-1 text-xl font-black">{delivered}</div></div><div className="rounded-2xl bg-white/[.04] p-3"><div className="text-[10px] text-white/45">Saldo</div><div className="mt-1 text-xl font-black text-[#ffb36b]">{remaining}</div></div></div>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#a7b86a]" style={{width:Math.min(100,delivered/CAMPAIGN_QUOTA*100)+"%"}}/></div>
           {partner.operational_notes&&<p className="mt-4 text-xs leading-relaxed text-white/45">{partner.operational_notes}</p>}
