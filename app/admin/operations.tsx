@@ -386,6 +386,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   }
   async function addMovement(){
     if(!movementForm.item_id||!movementForm.quantity)return;
+    if(!movementForm.reason.trim()){setError("Informe o motivo da movimentação para manter o histórico auditável.");return;}
     setBusy(true);setError("");
     try{
       const referenceType=movementForm.order_id?"customer_order":movementForm.movement_type==="consumo"?"general_consumption":movementForm.movement_type==="perda"?"loss":movementForm.movement_type==="ajuste"?"adjustment":null;
