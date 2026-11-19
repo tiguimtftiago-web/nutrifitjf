@@ -19,6 +19,7 @@ type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 type Supplier = { id:string; name:string; active:boolean; };
 type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; order_id:string|null; financial_transaction_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string;item_id:string;quantity:number;unit_cost:number;inventory_items?:{name:string;unit:string}|null}[]; };
+type LedgerAudit = { item_id:string; audit_status:string; difference:number; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -88,6 +89,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [coupons,setCoupons]=useState<Coupon[]>([]);
   const [inventory,setInventory]=useState<InventoryItem[]>([]);
   const [movements,setMovements]=useState<Movement[]>([]);
+  const [ledgerAudit,setLedgerAudit]=useState<LedgerAudit[]>([]);
   const [recipes,setRecipes]=useState<Recipe[]>([]);
   const [recipeItems,setRecipeItems]=useState<RecipeItem[]>([]);
   const [purchaseAlerts,setPurchaseAlerts]=useState<PurchaseAlert[]>([]);
@@ -113,7 +115,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
+      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,la]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
@@ -127,9 +129,10 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
         req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
-        req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token)
+        req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token),
+        req(URL+"/rest/v1/inventory_stock_ledger_audit?select=item_id,audit_status,difference&limit=500",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);
+      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setLedgerAudit(la||[]);
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
@@ -859,6 +862,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <Stat label="Estoque baixo" value={inventory.filter(x=>Number(x.current_quantity)>0&&Number(x.current_quantity)<=Number(x.minimum_quantity)).length}/>
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
     </div>
+    {ledgerAudit.length>0&&(()=>{const divergences=ledgerAudit.filter(x=>x.audit_status!=="OK");return <div role="status" className={"mt-4 rounded-2xl border p-4 text-sm "+(divergences.length?"border-[#ef7d18]/30 bg-[#ef7d18]/[.07] text-[#f1b06e]":"border-[#a7b86a]/25 bg-[#a7b86a]/[.07] text-[#c4d38c]")}><b>Conciliação automática do estoque:</b> {ledgerAudit.length-divergences.length} de {ledgerAudit.length} itens conciliados.{divergences.length>0?" Divergências encontradas: "+divergences.length+". Suspenda novas baixas dos itens divergentes até conferir o saldo físico.":" Todas as movimentações posteriores ao marco de auditoria fecham com o saldo registrado."}</div>;})()}
     {itemsWithoutMinimum>0&&<div role="status" className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.07] p-4 text-sm leading-6 text-[#f1b06e]"><b>Estoque mínimo a revisar:</b> {itemsWithoutMinimum} item(ns) ativo(s) estão sem um limite mínimo positivo cadastrado. O indicador “Estoque baixo” depende desse limite para alertar antes da falta; revise os parâmetros conforme a necessidade real de cada insumo.</div>}
     <div className="mt-5 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-7">
       <input value={stockForm.name} onChange={e=>setStockForm({...stockForm,name:e.target.value})} placeholder="Insumo" aria-label="Nome do insumo" className={input}/>
