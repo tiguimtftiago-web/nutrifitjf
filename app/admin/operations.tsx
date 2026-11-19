@@ -427,10 +427,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!recipe||!recipe.active){setError("Não é possível produzir: selecione uma ficha técnica ativa.");return;}
     if(!Number.isFinite(qty)||qty<=0){setError("Informe uma quantidade de produção maior que zero.");return;}
     if(ingredients.length===0){setError("Produção bloqueada: esta ficha técnica não possui insumos cadastrados.");return;}
-    if(productionForm.status==="concluida"){
-      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*qty;return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
-      if(shortage.length){setError("Produção bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
-    }
+    // O banco aplica rendimento e valida o estoque real no momento da conclusão.
     setBusy(true);setError("");
     try{
       await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:productionForm.recipe_id,quantity:qty,status:productionForm.status,notes:productionForm.notes||null})});
@@ -438,16 +435,11 @@ export default function Operations({section,token,initialCategory}:{section:"est
     }catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível criar a produção.");}finally{setBusy(false);}
   }
   async function updateProductionStatus(id:string,status:string){
-    const batch=production.find(p=>p.id===id);
-    if(status==="concluida"&&batch){
-      const ingredients=recipeItems.filter(x=>x.recipe_id===batch.recipe_id);
-      if(!ingredients.length){setError("Conclusão bloqueada: a ficha técnica não possui insumos cadastrados.");return;}
-      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*Number(batch.quantity);return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
-      if(shortage.length){setError("Conclusão bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
-    }
+    // O banco calcula a matéria-prima com rendimento e bloqueia a conclusão se faltar estoque.
+    // A interface não repete uma validação simplificada que poderia ignorar as perdas de preparo.
     setBusy(true);setError("");
     try{await req(URL+"/rest/v1/production_batches?id=eq."+id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});await load();}
-    catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível atualizar a produção. Confira o estoque dos insumos.");}
+    catch(e){setError(readableError(e,"Não foi possível atualizar a produção. O banco validou o saldo e o rendimento dos insumos."));}
     finally{setBusy(false);}
   }
 
