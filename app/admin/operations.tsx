@@ -99,7 +99,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:"",order_id:""});
-  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
+  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",purchase_unit:"kg",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
   const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
@@ -353,17 +353,24 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!purchaseForm.item_id||!purchaseForm.quantity||!purchaseForm.unit_cost)return;
     setBusy(true);setError("");
     try{
+      const stockUnit=inventory.find(x=>x.id===purchaseForm.item_id)?.unit||purchaseForm.purchase_unit;
+      let stockQuantity=Number(purchaseForm.quantity);
+      let stockUnitCost=Number(purchaseForm.unit_cost);
+      if(stockUnit==="g"&&purchaseForm.purchase_unit==="kg"){stockQuantity*=1000;stockUnitCost/=1000;}
+      else if(stockUnit==="kg"&&purchaseForm.purchase_unit==="g"){stockQuantity/=1000;stockUnitCost*=1000;}
+      else if(stockUnit!==purchaseForm.purchase_unit){throw new Error("Unidade de compra incompatível com a unidade cadastrada no estoque.");}
+      const purchaseNote=[purchaseForm.notes.trim(),`Informado na compra: ${purchaseForm.quantity} ${purchaseForm.purchase_unit} a ${money(Number(purchaseForm.unit_cost))}/${purchaseForm.purchase_unit}. Conversão registrada em ${stockQuantity} ${stockUnit}.`].filter(Boolean).join(" · ");
       await req(URL+"/rest/v1/rpc/register_inventory_purchase",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({
         p_item_id:purchaseForm.item_id,
-        p_quantity:Number(purchaseForm.quantity),
-        p_unit_cost:Number(purchaseForm.unit_cost),
+        p_quantity:stockQuantity,
+        p_unit_cost:stockUnitCost,
         p_supplier_id:purchaseForm.supplier_id||null,
         p_is_promotion:purchaseForm.is_promotion,
-        p_notes:purchaseForm.notes||null,
+        p_notes:purchaseNote||null,
         p_order_id:purchaseForm.order_id||null,
         p_invoice_number:purchaseForm.invoice_number.trim()||null
       })});
-      setPurchaseForm({item_id:"",quantity:"",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
+      setPurchaseForm({item_id:"",quantity:"",purchase_unit:"kg",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
       await load();
     }catch(e){setError(readableError(e,"Não foi possível registrar a compra e vincular a entrada ao pedido/nota."));}
     finally{setBusy(false);}
@@ -867,10 +874,11 @@ export default function Operations({section,token,initialCategory}:{section:"est
         <div className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#c4d38c]">Compra real</div>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <select value={purchaseForm.item_id} onChange={e=>setPurchaseForm({...purchaseForm,item_id:e.target.value})} className={input}><option value="">Insumo comprado</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
-        <input type="number" step="0.001" value={purchaseForm.quantity} onChange={e=>setPurchaseForm({...purchaseForm,quantity:e.target.value})} placeholder="Quantidade comprada" className={input}/>
-        <input type="number" step="0.01" value={purchaseForm.unit_cost} onChange={e=>setPurchaseForm({...purchaseForm,unit_cost:e.target.value})} placeholder="Preço por unidade" className={input}/>
+        <select value={purchaseForm.item_id} onChange={e=>{const item=inventory.find(x=>x.id===e.target.value);setPurchaseForm({...purchaseForm,item_id:e.target.value,purchase_unit:item?.unit==="g"?"kg":item?.unit||"kg"});}} className={input}><option value="">Insumo comprado</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
+        <input type="number" step="0.001" value={purchaseForm.quantity} onChange={e=>setPurchaseForm({...purchaseForm,quantity:e.target.value})} placeholder={"Quantidade em "+purchaseForm.purchase_unit} className={input}/>
+        <input type="number" step="0.01" value={purchaseForm.unit_cost} onChange={e=>setPurchaseForm({...purchaseForm,unit_cost:e.target.value})} placeholder={"Preço por "+purchaseForm.purchase_unit} className={input}/>
         <select value={purchaseForm.supplier_id} onChange={e=>setPurchaseForm({...purchaseForm,supplier_id:e.target.value})} className={input}><option value="">Fornecedor</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>
+        <select value={purchaseForm.purchase_unit} onChange={e=>setPurchaseForm({...purchaseForm,purchase_unit:e.target.value})} className={input}><option value="kg">Compra em kg</option><option value="g">Compra em g</option><option value="un">Compra em unidade</option></select>
         <select value={purchaseForm.order_id} onChange={e=>setPurchaseForm({...purchaseForm,order_id:e.target.value})} className={input}><option value="">Vincular ao pedido (opcional)</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
         <input value={purchaseForm.invoice_number} onChange={e=>setPurchaseForm({...purchaseForm,invoice_number:e.target.value})} placeholder="Número da nota fiscal" className={input}/>
         <input value={purchaseForm.notes} onChange={e=>setPurchaseForm({...purchaseForm,notes:e.target.value})} placeholder="Observação (opcional)" className={input}/>
