@@ -26,11 +26,11 @@ begin
     return new;
   end if;
 
-  begin
-    v_order_id:=new.reference_id::uuid;
-  exception when others then
-    return new;
-  end;
+  select o.id into v_order_id
+  from public.customer_orders o
+  where o.id::text=new.reference_id or o.order_code=new.reference_id
+  limit 1;
+  if v_order_id is null then return new; end if;
 
   select id into v_cost_record_id
   from public.customer_order_costs
@@ -93,7 +93,8 @@ with movement_costs as (
     string_agg('Movimentação '||m.id::text||': '||coalesce(m.reason,''),E'\n' order by m.created_at) as notes
   from public.inventory_movements m
   join public.inventory_items i on i.id=m.item_id
-  join public.customer_order_costs c on c.order_id=m.reference_id::uuid
+  join public.customer_orders o on (o.id::text=m.reference_id or o.order_code=m.reference_id)
+  join public.customer_order_costs c on c.order_id=o.id
   where m.movement_type='consumo'
     and m.reference_type in ('order','customer_order')
     and nullif(m.reference_id,'') is not null
