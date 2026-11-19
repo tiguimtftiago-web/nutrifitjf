@@ -898,12 +898,14 @@ export default function Operations({section,token,initialCategory}:{section:"est
       </div>
       <div className="mt-3 text-xs text-white/45">Toda compra registrada por este formulário gera entrada de estoque, vínculo opcional com pedido e despesa pendente no financeiro. Confirme o pagamento no financeiro quando aplicável.</div>
     </div>
+    <div className="mb-2 text-xs text-white/45">Entradas de compras e notas devem ser lançadas no formulário de compra acima. Use esta movimentação para consumo, perda, devolução ou ajuste e informe sempre o motivo.</div>
     <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-3">
       <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
       <select value={movementForm.movement_type} onChange={e=>setMovementForm({...movementForm,movement_type:e.target.value})} className={input}><option value="entrada">Entrada</option><option value="consumo">Consumo</option><option value="perda">Perda</option><option value="ajuste">Ajuste</option><option value="devolucao">Devolução</option></select>
       <select value={movementForm.order_id} onChange={e=>setMovementForm({...movementForm,order_id:e.target.value})} className={input}><option value="">Consumo geral / sem pedido</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
       <input type="number" step="0.001" value={movementForm.quantity} onChange={e=>setMovementForm({...movementForm,quantity:e.target.value})} placeholder="Quantidade" className={input}/>
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
+      <input value={movementForm.reason} onChange={e=>setMovementForm({...movementForm,reason:e.target.value})} placeholder="Motivo / justificativa da movimentação" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
     </div>
     <div className="mt-5 rounded-2xl border border-white/10 bg-white/[.025] p-4">
