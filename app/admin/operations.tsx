@@ -206,34 +206,42 @@ export default function Operations({section,token,initialCategory}:{section:"est
     }finally{setBusy(false);}
   }
 
-  function printOrderProductionSheet(order:CustomerOrder){
-    const items=Array.isArray(order.items)?order.items:[];
-    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
-    const rows=items.map(item=>'<tr><td>'+esc(item.name||"Item")+'</td><td>'+esc(item.line||"—")+'</td><td>'+esc(item.weight||"—")+'</td><td>'+Number(item.quantity||0)+'</td><td>☐</td><td>☐</td></tr>').join("");
-    const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-    const ingredientRows=items.flatMap(item=>{
-      const name=String(item.name||"").trim();const weight=String(item.weight||"").trim();const qty=Number(item.quantity||0);
-      const sameNameDifferentWeight=items.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==weight&&String(other.weight||"").trim()!=="");
-      const exactName=name+(sameNameDifferentWeight&&weight?" — "+weight:"");
-      const activeRecipes=recipes.filter(r=>r.active);
-      const recipe=activeRecipes.find(r=>norm(r.product_name||"")===norm(exactName))||
-        activeRecipes.find(r=>norm(r.name)===norm(exactName))||
-        (!sameNameDifferentWeight?activeRecipes.find(r=>norm(r.product_name||"")===norm(name)||norm(r.name)===norm(name)):undefined);
-      if(!recipe)return [{dish:name||"Item sem nome",ingredient:"Ficha técnica não encontrada/ativa",required:"—",stock:"—",state:"Cadastrar ficha"}];
-      const ingredients=recipeItems.filter(ri=>ri.recipe_id===recipe.id);
-      if(!ingredients.length)return [{dish:name,ingredient:"Ficha técnica sem insumos",required:"—",stock:"—",state:"Completar ficha"}];
-      return ingredients.map(ri=>{
-        const inv=inventory.find(x=>x.id===ri.item_id);const required=Number(ri.quantity||0)*qty;
-        return {dish:name,ingredient:inv?.name||"Insumo não encontrado",required:Number.isFinite(required)?required.toLocaleString("pt-BR"): "—",stock:inv?Number(inv.current_quantity||0).toLocaleString("pt-BR")+" "+inv.unit:"—",state:inv&&Number(inv.current_quantity||0)>=required?"Estoque suficiente":inv?"Conferir falta":"Conferir cadastro"};
-      });
-    }).map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+esc(x.required)+'</td><td>'+esc(x.stock)+'</td><td>'+esc(x.state)+'</td></tr>').join("");
+  async function printOrderProductionSheet(order:CustomerOrder){
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a ficha. Permita janelas pop-up para imprimir.");return;}
-    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha de produção Nutrifit</title><style>@page{margin:14mm}body{font:14px Arial,sans-serif;color:#111;padding:10px}.brand{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:3px solid #a7b86a;margin-bottom:12px}.brand img{width:58px;height:58px;object-fit:contain;display:block}.brand-copy h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}.brand-copy small{font-size:12px;color:#444}.meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}.box{border:1px solid #bbb;padding:10px}table{width:100%;border-collapse:collapse;margin-top:18px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eee}.checks{margin-top:20px;line-height:2}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo Nutrifit"><div class="brand-copy"><h1>NUTRIFIT — Ficha de produção</h1><small>Conferência de pedido e preparo</small></div></header><div class="meta"><div class="box"><b>Cliente</b><br>'+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido</b><br>'+esc(order.id)+'</div><div class="box"><b>Recebido em</b><br>'+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status do pedido</b><br>'+esc(order.status||"—")+'</div></div><b>Itens solicitados</b><table><thead><tr><th>Prato</th><th>Linha</th><th>Peso</th><th>Qtd.</th><th>Preparado</th><th>Conferido</th></tr></thead><tbody>'+rows+'</tbody></table><div class="checks"><b>Conferência final</b><br>☐ Quantidades conferidas<br>☐ Etiquetas conferidas<br>☐ Pedido completo<br>☐ Estoque registrado conforme produção efetiva</div><h2 style="margin-top:28px">Conferência de insumos (estimativa pela ficha técnica)</h2><table><thead><tr><th>Prato</th><th>Insumo</th><th>Necessário</th><th>Estoque atual</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table><p><small>Quantidades estimadas com base nos insumos cadastrados e na quantidade do pedido. Confirme unidades e rendimento da ficha. Esta impressão não altera nem baixa o estoque.</small></p><script>window.onload=()=>{const logo=document.querySelector(".brand img");let didPrint=false;const print=()=>{if(didPrint)return;didPrint=true;setTimeout(()=>window.print(),120);};if(!logo||logo.complete){print();}else{logo.onload=print;logo.onerror=print;setTimeout(print,1800);}}</script></body></html>');
-    w.document.close();
+    w.document.write("<p style='font:14px Arial;padding:24px'>Carregando a conferência oficial de estoque e rendimento...</p>");
+    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
+    try{
+      const [requirements,exceptions]=await Promise.all([
+        req(URL+"/rest/v1/order_inventory_requirements?select=item_id,required_quantity,finished_quantity,consumed_quantity,remaining_quantity,yield_rate,inventory_items(name,unit,current_quantity)&order_id=eq."+order.id,token),
+        req(URL+"/rest/v1/order_inventory_exceptions?select=order_item_snapshot,issue&order_id=eq."+order.id,token)
+      ]);
+      const items=Array.isArray(order.items)?order.items:[];
+      const rows=items.map(item=>'<tr><td>'+esc(item.name||"Item")+'</td><td>'+esc(item.line||"—")+'</td><td>'+esc(item.weight||"—")+'</td><td>'+Number(item.quantity||0)+'</td><td>☐</td><td>☐</td></tr>').join("");
+      const ingredientRows=(requirements||[]).map((x:any)=>{
+        const name=x.inventory_items?.name||"Insumo";
+        const unit=x.inventory_items?.unit||"";
+        const ready=Number(x.finished_quantity||0);
+        const raw=Number(x.required_quantity||0);
+        const consumed=Number(x.consumed_quantity||0);
+        const remaining=Number(x.remaining_quantity??Math.max(0,raw-consumed));
+        const stock=Number(x.inventory_items?.current_quantity||0);
+        const projected=stock-remaining;
+        const shortage=projected<0;
+        return '<tr><td>'+esc(name)+'</td><td>'+esc(ready.toLocaleString("pt-BR")+" "+unit)+'</td><td>'+esc(raw.toLocaleString("pt-BR")+" "+unit)+(Number(x.yield_rate||1)<1?'<small> · rendimento '+esc((Number(x.yield_rate)*100).toLocaleString("pt-BR"))+'%</small>':'')+'</td><td>'+esc(consumed.toLocaleString("pt-BR")+" "+unit)+'</td><td>'+esc(remaining.toLocaleString("pt-BR")+" "+unit)+'</td><td>'+esc(stock.toLocaleString("pt-BR")+" "+unit)+'</td><td style="font-weight:bold;color:'+(shortage?'#c2410c':'#3f6212')+'">'+esc(projected.toLocaleString("pt-BR")+" "+unit)+'</td><td>'+esc(shortage?"Comprar "+Math.abs(projected).toLocaleString("pt-BR")+" "+unit:"Saldo suficiente")+'</td></tr>';
+      }).join("");
+      const exceptionRows=(exceptions||[]).map((x:any)=>'<li>'+esc(x.order_item_snapshot?.name||"Item do pedido")+' '+esc(x.order_item_snapshot?.weight||"")+' — '+esc(x.issue)+'</li>').join("");
+      const exceptionBlock=exceptionRows?'<div class="warning"><b>Itens sem ficha técnica — produção bloqueada</b><ul>'+exceptionRows+'</ul></div>':'';
+      w.document.open();
+      w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha de produção Nutrifit</title><style>@page{size:A4 landscape;margin:12mm}body{font:12px Arial,sans-serif;color:#111;padding:8px}.brand{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #a7b86a;margin-bottom:12px}.brand img{width:58px;height:58px;object-fit:contain;display:block}.brand-copy h1{margin:0 0 4px;font-size:20px}.brand-copy small{font-size:11px;color:#444}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.box{border:1px solid #bbb;padding:8px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #bbb;padding:7px;text-align:left}th{background:#eee}small{display:block;color:#666;font-size:9px}.warning{margin-top:12px;padding:9px;border:1px solid #e87922;background:#fff7ed}.warning ul{margin:6px 0 0;padding-left:18px}.checks{margin-top:16px;line-height:2}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo Nutrifit"><div class="brand-copy"><h1>NUTRIFIT — Ficha de produção</h1><small>Conferência oficial de pedido, matéria-prima e rendimento</small></div></header><div class="meta"><div class="box"><b>Cliente</b><br>'+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido</b><br>'+esc(order.order_code||order.id)+'</div><div class="box"><b>Recebido em</b><br>'+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status do pedido</b><br>'+esc(order.status||"—")+'</div></div><b>Itens solicitados</b><table><thead><tr><th>Prato</th><th>Linha</th><th>Peso/Composição</th><th>Qtd.</th><th>Preparado</th><th>Conferido</th></tr></thead><tbody>'+rows+'</tbody></table>'+exceptionBlock+'<h2 style="margin-top:20px">Conferência de insumos e saldo projetado</h2><table><thead><tr><th>Insumo</th><th>Peso pronto previsto</th><th>Matéria-prima total</th><th>Já baixado</th><th>Falta consumir</th><th>Estoque agora</th><th>Saldo após pedido</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table><div class="checks"><b>Conferência final</b><br>☐ Quantidades conferidas<br>☐ Etiquetas conferidas<br>☐ Pedido completo<br>☐ Baixa automática registrada ao iniciar o preparo</div><p><small>Valores consultados diretamente dos requisitos do pedido no banco. O estoque atual já considera as baixas anteriores. A impressão não altera o estoque; a baixa automática ocorre quando o pedido entra em "em preparo".</small></p><script>window.onload=()=>{const logo=document.querySelector(".brand img");let didPrint=false;const print=()=>{if(didPrint)return;didPrint=true;setTimeout(()=>window.print(),120);};if(!logo||logo.complete){print();}else{logo.onload=print;logo.onerror=print;setTimeout(print,1800);}}</script></body></html>');
+      w.document.close();
+    }catch(e){
+      w.close();
+      setError(readableError(e,"Não foi possível carregar a conferência oficial do pedido. Atualize os requisitos e tente novamente."));
+    }
   }
 
-  function printDailyProductionSheet(){
+  async function printDailyProductionSheet(){
     const pad=(n:number)=>String(n).padStart(2,"0");
     const now=new Date();
     const todayKey=now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
@@ -247,57 +255,69 @@ export default function Operations({section,token,initialCategory}:{section:"est
       setError("Não há pedidos cadastrados ou entregas programadas para hoje na Central de Produção.");
       return;
     }
-    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
-    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-    const dishTotals=new Map<string,{name:string;line:string;weight:string;quantity:number}>();
-    const ingredientTotals=new Map<string,{dish:string;ingredient:string;unit:string;required:number;stock:number;state:string}>();
-    const orderRows=dailyOrders.map(order=>{
-      const items=Array.isArray(order.items)?order.items:[];
-      items.forEach(item=>{
-        const name=String(item.name||"Item sem nome").trim();
-        const line=String(item.line||"—").trim();
-        const weight=String(item.weight||"—").trim();
-        const quantity=Number(item.quantity||0);
-        const key=[norm(name),norm(line),norm(weight)].join("|");
-        const previous=dishTotals.get(key)||{name,line,weight,quantity:0};
-        previous.quantity+=quantity;
-        dishTotals.set(key,previous);
-        const sameNameDifferentWeight=items.some(other=>norm(String(other.name||""))===norm(name)&&String(other.weight||"").trim()!==String(item.weight||"").trim()&&String(other.weight||"").trim()!=="");
-        const exactName=name+(sameNameDifferentWeight&&weight!=="—"?" — "+weight:"");
-        const activeRecipes=recipes.filter(r=>r.active);
-        const recipe=activeRecipes.find(r=>norm(r.product_name||"")===norm(exactName))||
-          activeRecipes.find(r=>norm(r.name)===norm(exactName))||
-          (!sameNameDifferentWeight?activeRecipes.find(r=>norm(r.product_name||"")===norm(name)||norm(r.name)===norm(name)):undefined);
-        if(!recipe){
-          const k="missing-recipe|"+key;
-          ingredientTotals.set(k,{dish:name,ingredient:"Ficha técnica não encontrada/ativa",unit:"—",required:0,stock:0,state:"Cadastrar ficha"});
-          return;
-        }
-        const linked=recipeItems.filter(ri=>ri.recipe_id===recipe.id);
-        if(!linked.length){
-          const k="empty-recipe|"+key;
-          ingredientTotals.set(k,{dish:name,ingredient:"Ficha técnica sem insumos",unit:"—",required:0,stock:0,state:"Completar ficha"});
-          return;
-        }
-        linked.forEach(ri=>{
-          const inv=inventory.find(x=>x.id===ri.item_id);
-          const ingredient=inv?.name||"Insumo não encontrado";
-          const k=recipe.id+"|"+ri.item_id;
-          const required=Number(ri.quantity||0)*quantity;
-          const previous=ingredientTotals.get(k);
-          const total=(previous?.required||0)+required;
-          ingredientTotals.set(k,{dish:name,ingredient,unit:inv?.unit||"—",required:total,stock:Number(inv?.current_quantity||0),state:!inv?"Conferir cadastro":Number(inv.current_quantity||0)>=total?"Estoque suficiente":"Conferir falta"});
-        });
-      });
-      return '<tr><td>'+esc(order.customer_name||"Cliente sem nome")+'</td><td>'+esc(order.id.slice(0,8))+'</td><td>'+items.reduce((n,x)=>n+Number(x.quantity||0),0)+'</td><td>'+esc(order.status||"Recebido")+'</td><td>'+esc(order.notes||"—")+'</td></tr>';
-    }).join("");
-    const dishRows=[...dishTotals.values()].sort((a,b)=>a.name.localeCompare(b.name,"pt-BR")).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.line)+'</td><td>'+esc(x.weight)+'</td><td>'+x.quantity+'</td><td>☐</td></tr>').join("");
-    const ingredientRows=[...ingredientTotals.values()].map(x=>'<tr><td>'+esc(x.dish)+'</td><td>'+esc(x.ingredient)+'</td><td>'+(x.required?esc(x.required.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+(Number.isFinite(x.stock)?esc(x.stock.toLocaleString("pt-BR")+" "+x.unit):"—")+'</td><td>'+esc(x.state)+'</td></tr>').join("");
-    const totalMeals=[...dishTotals.values()].reduce((n,x)=>n+x.quantity,0);
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a impressão. Permita janelas pop-up para imprimir a produção do dia.");return;}
-    w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produção diária Nutrifit</title><style>@page{size:A4 portrait;margin:12mm}*{box-sizing:border-box}body{font:11px Arial,sans-serif;color:#171717;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:3px solid #a7b83f;padding:0 0 10px;margin-bottom:12px}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{font-size:19px;margin:0 0 4px}.brand small{color:#555}.summary{display:flex;gap:8px;margin:12px 0}.metric{border:1px solid #bbb;border-radius:6px;padding:8px;flex:1}.metric b{display:block;font-size:17px;margin-top:3px}.section{margin-top:16px}h2{font-size:13px;margin:0 0 7px;color:#333}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #bbb;padding:6px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#edf0e4;font-size:10px}tr{break-inside:avoid}.note{margin-top:12px;padding:8px;border-left:3px solid #ef5a00;background:#f7f7f7;font-size:10px}.footer{margin-top:14px;border-top:1px solid #bbb;padding-top:6px;color:#555;font-size:9px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo oficial Nutrifit"><div><h1>NUTRIFIT — Ordem geral de produção</h1><small>Produção e conferência diária · '+todayKey.split("-").reverse().join("/")+'</small></div></header><div class="summary"><div class="metric">Pedidos do dia<b>'+dailyOrders.length+'</b></div><div class="metric">Marmitas previstas<b>'+totalMeals+'</b></div><div class="metric">Pratos diferentes<b>'+dishTotals.size+'</b></div></div><section class="section"><h2>1. Pedidos por cliente</h2><table><thead><tr><th style="width:22%">Cliente</th><th style="width:12%">Pedido</th><th style="width:9%">Qtd.</th><th style="width:17%">Status</th><th>Observações</th></tr></thead><tbody>'+orderRows+'</tbody></table></section><section class="section"><h2>2. Produção consolidada por prato</h2><table><thead><tr><th>Prato</th><th style="width:17%">Linha</th><th style="width:15%">Peso</th><th style="width:10%">Total</th><th style="width:13%">Conferido</th></tr></thead><tbody>'+dishRows+'</tbody></table></section><section class="section"><h2>3. Conferência de insumos — estimativa pelas fichas cadastradas</h2><table><thead><tr><th style="width:22%">Prato</th><th style="width:29%">Insumo</th><th style="width:17%">Necessário</th><th style="width:15%">Estoque atual</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table></section><div class="note"><b>Atenção:</b> esta folha consolida pedidos criados hoje e pedidos com entrega programada para hoje. As quantidades de insumos são estimativas conforme as fichas técnicas cadastradas. Fichas ausentes, sem insumos ou cadastros incompletos são sinalizados. Esta impressão não altera pedidos, não registra produção e não realiza baixa de estoque.</div><div class="footer">Nutrifit · Documento operacional para impressão e conferência interna.</div><script>window.onload=()=>{const logo=document.querySelector(".brand img");let done=false;const go=()=>{if(done)return;done=true;setTimeout(()=>window.print(),150);};if(!logo||logo.complete)go();else{logo.onload=go;logo.onerror=go;setTimeout(go,1800);}}</script></body></html>');
-    w.document.close();
+    w.document.write("<p style='font:14px Arial;padding:24px'>Consolidando fichas técnicas, rendimentos, baixas e saldos...</p>");
+    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    try{
+      const ids=dailyOrders.map(o=>o.id).join(",");
+      const [requirements,exceptions]=await Promise.all([
+        req(URL+"/rest/v1/order_inventory_requirements?select=order_id,item_id,required_quantity,finished_quantity,consumed_quantity,remaining_quantity,yield_rate,inventory_items(name,unit,current_quantity)&order_id=in.("+ids+")",token),
+        req(URL+"/rest/v1/order_inventory_exceptions?select=order_id,order_item_snapshot,issue&order_id=in.("+ids+")",token)
+      ]);
+      const dishTotals=new Map<string,{name:string;line:string;weight:string;quantity:number}>();
+      dailyOrders.forEach(order=>{
+        const items=Array.isArray(order.items)?order.items:[];
+        items.forEach(item=>{
+          const name=String(item.name||"Item sem nome").trim();
+          const line=String(item.line||"—").trim();
+          const weight=String(item.weight||"—").trim();
+          const quantity=Number(item.quantity||0);
+          const key=[norm(name),norm(line),norm(weight)].join("|");
+          const previous=dishTotals.get(key)||{name,line,weight,quantity:0};
+          previous.quantity+=quantity;
+          dishTotals.set(key,previous);
+        });
+      });
+      const ingredientTotals=new Map<string,{name:string;unit:string;ready:number;required:number;consumed:number;remaining:number;stock:number;yieldRate:number}>();
+      (requirements||[]).forEach((x:any)=>{
+        const itemId=String(x.item_id);
+        const previous=ingredientTotals.get(itemId)||{
+          name:x.inventory_items?.name||"Insumo",
+          unit:x.inventory_items?.unit||"",
+          ready:0,required:0,consumed:0,remaining:0,
+          stock:Number(x.inventory_items?.current_quantity||0),
+          yieldRate:Number(x.yield_rate||1)
+        };
+        previous.ready+=Number(x.finished_quantity||0);
+        previous.required+=Number(x.required_quantity||0);
+        previous.consumed+=Number(x.consumed_quantity||0);
+        previous.remaining+=Number(x.remaining_quantity??Math.max(0,Number(x.required_quantity||0)-Number(x.consumed_quantity||0)));
+        previous.stock=Number(x.inventory_items?.current_quantity??previous.stock);
+        previous.yieldRate=Math.min(previous.yieldRate,Number(x.yield_rate||1));
+        ingredientTotals.set(itemId,previous);
+      });
+      const orderRows=dailyOrders.map(order=>{
+        const items=Array.isArray(order.items)?order.items:[];
+        return '<tr><td>'+esc(order.customer_name||"Cliente sem nome")+'</td><td>'+esc(order.order_code||order.id.slice(0,8))+'</td><td>'+items.reduce((n,x)=>n+Number(x.quantity||0),0)+'</td><td>'+esc(order.status||"Recebido")+'</td><td>'+esc(order.notes||"—")+'</td></tr>';
+      }).join("");
+      const dishRows=[...dishTotals.values()].sort((a,b)=>a.name.localeCompare(b.name,"pt-BR")).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.line)+'</td><td>'+esc(x.weight)+'</td><td>'+x.quantity+'</td><td>☐</td></tr>').join("");
+      const ingredientRows=[...ingredientTotals.values()].sort((a,b)=>a.name.localeCompare(b.name,"pt-BR")).map(x=>{
+        const projected=x.stock-x.remaining;
+        const shortage=projected<0;
+        return '<tr><td>'+esc(x.name)+'</td><td>'+esc(x.ready.toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(x.required.toLocaleString("pt-BR")+" "+x.unit)+(x.yieldRate<1?'<small>Rendimento '+esc((x.yieldRate*100).toLocaleString("pt-BR"))+'%</small>':'')+'</td><td>'+esc(x.consumed.toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(x.remaining.toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(x.stock.toLocaleString("pt-BR")+" "+x.unit)+'</td><td style="font-weight:bold;color:'+(shortage?'#c2410c':'#3f6212')+'">'+esc(projected.toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(shortage?"Comprar "+Math.abs(projected).toLocaleString("pt-BR")+" "+x.unit:"Saldo suficiente")+'</td></tr>';
+      }).join("");
+      const exceptionRows=(exceptions||[]).map((x:any)=>'<li>'+esc(x.order_item_snapshot?.name||"Item do pedido")+' '+esc(x.order_item_snapshot?.weight||"")+' — '+esc(x.issue)+'</li>').join("");
+      const exceptionBlock=exceptionRows?'<div class="note"><b>Itens sem ficha técnica vinculada — produção bloqueada</b><ul>'+exceptionRows+'</ul></div>':'';
+      const totalMeals=[...dishTotals.values()].reduce((n,x)=>n+x.quantity,0);
+      w.document.open();
+      w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Produção diária Nutrifit</title><style>@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font:10px Arial,sans-serif;color:#171717;margin:0}.brand{display:flex;align-items:center;gap:12px;border-bottom:3px solid #a7b83f;padding:0 0 10px;margin-bottom:12px}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{font-size:19px;margin:0 0 4px}.brand small{color:#555}.summary{display:flex;gap:8px;margin:12px 0}.metric{border:1px solid #bbb;border-radius:6px;padding:8px;flex:1}.metric b{display:block;font-size:17px;margin-top:3px}.section{margin-top:14px}h2{font-size:12px;margin:0 0 7px;color:#333}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #bbb;padding:5px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#edf0e4;font-size:9px}tr{break-inside:avoid}.note{margin-top:12px;padding:8px;border-left:3px solid #ef5a00;background:#f7f7f7;font-size:9px}.note ul{margin:5px 0 0;padding-left:16px}.footer{margin-top:12px;border-top:1px solid #bbb;padding-top:6px;color:#555;font-size:8px}small{display:block;color:#666;font-size:8px}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Logo oficial Nutrifit"><div><h1>NUTRIFIT — Ordem geral de produção</h1><small>Produção e conferência diária · '+todayKey.split("-").reverse().join("/")+'</small></div></header><div class="summary"><div class="metric">Pedidos do dia<b>'+dailyOrders.length+'</b></div><div class="metric">Marmitas previstas<b>'+totalMeals+'</b></div><div class="metric">Pratos diferentes<b>'+dishTotals.size+'</b></div></div><section class="section"><h2>1. Pedidos por cliente</h2><table><thead><tr><th style="width:22%">Cliente</th><th style="width:12%">Pedido</th><th style="width:9%">Qtd.</th><th style="width:17%">Status</th><th>Observações</th></tr></thead><tbody>'+orderRows+'</tbody></table></section><section class="section"><h2>2. Produção consolidada por prato</h2><table><thead><tr><th>Prato</th><th style="width:17%">Linha</th><th style="width:15%">Peso</th><th style="width:10%">Total</th><th style="width:13%">Conferido</th></tr></thead><tbody>'+dishRows+'</tbody></table></section><section class="section"><h2>3. Insumos, rendimento e saldo projetado — cálculo oficial do banco</h2><table><thead><tr><th>Insumo</th><th>Peso pronto previsto</th><th>Matéria-prima total</th><th>Já baixado</th><th>Falta consumir</th><th>Estoque agora</th><th>Saldo após pedidos</th><th>Conferência</th></tr></thead><tbody>'+ingredientRows+'</tbody></table></section>'+exceptionBlock+'<div class="note"><b>Atenção:</b> os requisitos são lidos diretamente do banco e já aplicam os rendimentos cadastrados. O estoque atual já reflete as baixas anteriores; o saldo projetado desconta somente o que ainda falta consumir. Itens sem ficha técnica são sinalizados e não recebem baixa estimada. Esta impressão não altera o estoque.</div><div class="footer">Nutrifit · Documento operacional para impressão e conferência interna.</div><script>window.onload=()=>{const logo=document.querySelector(".brand img");let done=false;const go=()=>{if(done)return;done=true;setTimeout(()=>window.print(),150);};if(!logo||logo.complete)go();else{logo.onload=go;logo.onerror=go;setTimeout(go,1800);}}</script></body></html>');
+      w.document.close();
+    }catch(e){
+      w.close();
+      setError(readableError(e,"Não foi possível carregar os requisitos oficiais dos pedidos do dia. Atualize a Central de Produção e tente novamente."));
+    }
   }
 
   async function addSupplier(){
