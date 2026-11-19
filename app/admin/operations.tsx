@@ -10,7 +10,7 @@ type ComboPrice = { id:string; name:string; quantity:number; price:number; activ
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
-type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
+type CustomerOrder = { id:string; order_code?:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
@@ -18,7 +18,7 @@ type Recipe = { id:string; name:string; product_name:string|null; yield_quantity
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 type Supplier = { id:string; name:string; active:boolean; };
-type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string}[]; };
+type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; order_id:string|null; financial_transaction_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string}[]; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -99,7 +99,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
   const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
-  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
+  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
   const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
@@ -116,7 +116,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
-        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
@@ -126,7 +126,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
-        req(URL+"/rest/v1/customer_orders?select=id,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
+        req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token)
       ]);
       setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);
@@ -353,10 +353,19 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!purchaseForm.item_id||!purchaseForm.quantity||!purchaseForm.unit_cost)return;
     setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/rpc/register_inventory_purchase",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({p_item_id:purchaseForm.item_id,p_quantity:Number(purchaseForm.quantity),p_unit_cost:Number(purchaseForm.unit_cost),p_supplier_id:purchaseForm.supplier_id||null,p_is_promotion:purchaseForm.is_promotion,p_notes:purchaseForm.notes||null})});
-      setPurchaseForm({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
+      await req(URL+"/rest/v1/rpc/register_inventory_purchase",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({
+        p_item_id:purchaseForm.item_id,
+        p_quantity:Number(purchaseForm.quantity),
+        p_unit_cost:Number(purchaseForm.unit_cost),
+        p_supplier_id:purchaseForm.supplier_id||null,
+        p_is_promotion:purchaseForm.is_promotion,
+        p_notes:purchaseForm.notes||null,
+        p_order_id:purchaseForm.order_id||null,
+        p_invoice_number:purchaseForm.invoice_number.trim()||null
+      })});
+      setPurchaseForm({item_id:"",quantity:"",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
       await load();
-    }catch(e){setError("Não foi possível registrar a compra. Confira o insumo, a quantidade e o preço informado.");}
+    }catch(e){setError(readableError(e,"Não foi possível registrar a compra e vincular a entrada ao pedido/nota."));}
     finally{setBusy(false);}
   }
   async function addMovement(){
@@ -848,11 +857,13 @@ export default function Operations({section,token,initialCategory}:{section:"est
         <div><div className="text-sm font-black">Registrar compra</div><div className="mt-1 text-xs text-white/45">A entrada atualiza o estoque e recalcula automaticamente o custo médio do insumo.</div></div>
         <div className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#c4d38c]">Compra real</div>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <select value={purchaseForm.item_id} onChange={e=>setPurchaseForm({...purchaseForm,item_id:e.target.value})} className={input}><option value="">Insumo comprado</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
         <input type="number" step="0.001" value={purchaseForm.quantity} onChange={e=>setPurchaseForm({...purchaseForm,quantity:e.target.value})} placeholder="Quantidade comprada" className={input}/>
         <input type="number" step="0.01" value={purchaseForm.unit_cost} onChange={e=>setPurchaseForm({...purchaseForm,unit_cost:e.target.value})} placeholder="Preço por unidade" className={input}/>
         <select value={purchaseForm.supplier_id} onChange={e=>setPurchaseForm({...purchaseForm,supplier_id:e.target.value})} className={input}><option value="">Fornecedor</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>
+        <select value={purchaseForm.order_id} onChange={e=>setPurchaseForm({...purchaseForm,order_id:e.target.value})} className={input}><option value="">Vincular ao pedido (opcional)</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
+        <input value={purchaseForm.invoice_number} onChange={e=>setPurchaseForm({...purchaseForm,invoice_number:e.target.value})} placeholder="Número da nota fiscal" className={input}/>
         <input value={purchaseForm.notes} onChange={e=>setPurchaseForm({...purchaseForm,notes:e.target.value})} placeholder="Observação (opcional)" className={input}/>
         <button onClick={()=>void addPurchase()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Registrar compra</button>
       </div>
