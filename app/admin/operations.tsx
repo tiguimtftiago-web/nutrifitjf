@@ -115,7 +115,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,la]=await Promise.all([
+      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
@@ -132,7 +132,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token),
         req(URL+"/rest/v1/inventory_stock_ledger_audit?select=item_id,name,unit,displayed_stock,ledger_expected_stock,difference,audit_status&limit=500",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setStockAudit(la||[]);
+      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setStockAudit(audit||[]);
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
