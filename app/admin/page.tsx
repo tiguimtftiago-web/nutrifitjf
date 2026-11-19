@@ -371,7 +371,7 @@ export default function AdminPage() {
         return;
       }
       await loadOrderProduction(order.id);
-      setError(`${count} ficha(s) de produção gerada(s) com sucesso. O estoque só será baixado quando a produção for concluída.`);
+      setError(`${count} ficha(s) de produção vinculada(s) e sincronizada(s) com o pedido. O estoque só será baixado quando a produção for concluída.`);
     }catch(e){
       console.error("createProductionFromOrder",e);
       let detail=e instanceof Error?e.message:"";
