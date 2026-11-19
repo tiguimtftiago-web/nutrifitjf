@@ -13,6 +13,7 @@ type Production = { id:string; created_at:string; product_id:string|null; recipe
 type CustomerOrder = { id:string; order_code?:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
+type StockAuditRow = { item_id:string; name:string; unit:string; displayed_stock:number; ledger_expected_stock:number; difference:number; audit_status:string; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
 type Recipe = { id:string; name:string; product_name:string|null; yield_quantity:number; yield_unit:string; active:boolean; };
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
@@ -88,6 +89,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [expandedProductionOrder,setExpandedProductionOrder]=useState<string|null>(null);
   const [coupons,setCoupons]=useState<Coupon[]>([]);
   const [inventory,setInventory]=useState<InventoryItem[]>([]);
+  const [stockAudit,setStockAudit]=useState<StockAuditRow[]>([]);
   const [movements,setMovements]=useState<Movement[]>([]);
   const [ledgerAudit,setLedgerAudit]=useState<LedgerAudit[]>([]);
   const [recipes,setRecipes]=useState<Recipe[]>([]);
@@ -132,7 +134,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token),
         req(URL+"/rest/v1/inventory_stock_ledger_audit?select=item_id,audit_status,difference&limit=500",token)
       ]);
-      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setLedgerAudit(la||[]);
+      setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setStockAudit(audit||[]);setLedgerAudit(la||[]);
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
@@ -861,6 +863,14 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <Stat label="Comprar agora" value={today}/>
       <Stat label="Estoque baixo" value={inventory.filter(x=>Number(x.current_quantity)>0&&Number(x.current_quantity)<=Number(x.minimum_quantity)).length}/>
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
+    </div>
+    <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div><div className="text-sm font-black">Auditoria do livro de estoque</div><div className="mt-1 text-xs text-white/45">Compara o saldo exibido com o saldo reconstruído pelas movimentações desde o marco de auditoria.</div></div>
+        <div className={"text-sm font-black "+(stockAudit.length>0&&stockAudit.some(x=>x.audit_status!=="OK")?"text-[#ef7d18]":"text-[#a7b86a]")}>{stockAudit.length>0?stockAudit.filter(x=>x.audit_status==="OK").length+"/"+stockAudit.length+" conciliados":"Auditoria indisponível"}</div>
+      </div>
+      {stockAudit.length>0&&stockAudit.some(x=>x.audit_status!=="OK")?<div className="mt-3 space-y-1 text-xs text-[#f1b06e]">{stockAudit.filter(x=>x.audit_status!=="OK").map(x=><div key={x.item_id}>{x.name}: diferença de {Number(x.difference).toLocaleString("pt-BR")} {x.unit}</div>)}</div>:stockAudit.length>0?<div className="mt-2 text-xs text-[#a7b86a]">Nenhuma divergência entre o saldo do sistema e o livro de movimentações.</div>:null}
+      <div className="mt-2 text-[10px] text-white/35">O marco inicial registra o saldo que já existia no sistema; esta conciliação não substitui uma contagem física dos insumos.</div>
     </div>
     {ledgerAudit.length>0&&(()=>{const divergences=ledgerAudit.filter(x=>x.audit_status!=="OK");return <div role="status" className={"mt-4 rounded-2xl border p-4 text-sm "+(divergences.length?"border-[#ef7d18]/30 bg-[#ef7d18]/[.07] text-[#f1b06e]":"border-[#a7b86a]/25 bg-[#a7b86a]/[.07] text-[#c4d38c]")}><b>Conciliação automática do estoque:</b> {ledgerAudit.length-divergences.length} de {ledgerAudit.length} itens conciliados.{divergences.length>0?" Divergências encontradas: "+divergences.length+". Suspenda novas baixas dos itens divergentes até conferir o saldo físico.":" Todas as movimentações posteriores ao marco de auditoria fecham com o saldo registrado."}</div>;})()}
     {itemsWithoutMinimum>0&&<div role="status" className="mt-4 rounded-2xl border border-[#ef7d18]/30 bg-[#ef7d18]/[.07] p-4 text-sm leading-6 text-[#f1b06e]"><b>Estoque mínimo a revisar:</b> {itemsWithoutMinimum} item(ns) ativo(s) estão sem um limite mínimo positivo cadastrado. O indicador “Estoque baixo” depende desse limite para alertar antes da falta; revise os parâmetros conforme a necessidade real de cada insumo.</div>}
