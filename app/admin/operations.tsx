@@ -18,7 +18,7 @@ type Recipe = { id:string; name:string; product_name:string|null; yield_quantity
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 type Supplier = { id:string; name:string; active:boolean; };
-type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; order_id:string|null; financial_transaction_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string}[]; };
+type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; order_id:string|null; financial_transaction_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string;item_id:string;quantity:number;unit_cost:number;inventory_items?:{name:string;unit:string}|null}[]; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -98,7 +98,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [inventoryCategory,setInventoryCategory]=useState(initialCategory||"Todas as categorias");
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
-  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
+  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:"",order_id:""});
   const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
   const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
@@ -116,7 +116,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
-        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
@@ -370,11 +370,20 @@ export default function Operations({section,token,initialCategory}:{section:"est
   }
   async function addMovement(){
     if(!movementForm.item_id||!movementForm.quantity)return;
-    setBusy(true);
+    setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/inventory_movements",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({item_id:movementForm.item_id,movement_type:movementForm.movement_type,quantity:Number(movementForm.quantity),unit_cost:movementForm.unit_cost?Number(movementForm.unit_cost):null,reason:movementForm.reason||null})});
-      setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});await load();
-    }catch{setError("Não foi possível registrar a movimentação. Verifique o estoque disponível.");}finally{setBusy(false);}
+      const referenceType=movementForm.order_id?"customer_order":movementForm.movement_type==="consumo"?"general_consumption":movementForm.movement_type==="perda"?"loss":movementForm.movement_type==="ajuste"?"adjustment":null;
+      await req(URL+"/rest/v1/inventory_movements",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({
+        item_id:movementForm.item_id,
+        movement_type:movementForm.movement_type,
+        quantity:Number(movementForm.quantity),
+        unit_cost:movementForm.unit_cost?Number(movementForm.unit_cost):null,
+        reason:movementForm.reason||null,
+        reference_type:referenceType,
+        reference_id:movementForm.order_id||null
+      })});
+      setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:"",order_id:""});await load();
+    }catch(e){setError(readableError(e,"Não foi possível registrar a movimentação. Verifique o estoque e o vínculo com o pedido."));}finally{setBusy(false);}
   }
   function readableError(e:unknown,fallback:string){
     const raw=e instanceof Error?e.message:String(e||"");
@@ -868,11 +877,23 @@ export default function Operations({section,token,initialCategory}:{section:"est
         <button onClick={()=>void addPurchase()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Registrar compra</button>
       </div>
       <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm font-bold"><input type="checkbox" checked={purchaseForm.is_promotion} onChange={e=>setPurchaseForm({...purchaseForm,is_promotion:e.target.checked})}/><span>Foi comprado em promoção</span></label>
-      <div className="mt-3 text-xs text-white/45">Exemplo: comprar 20 kg a R$ 10,00/kg em promoção atualiza o saldo e recalcula o custo médio junto com o estoque que já existia.</div>
+      <div className="mt-4 rounded-xl border border-white/10 bg-black/10 p-3">
+        <div className="mb-2 text-sm font-black">Compras recentes vinculadas</div>
+        <div className="space-y-2">{inventoryPurchases.slice(0,8).map(p=>{
+          const linkedOrder=customerOrders.find(o=>o.id===p.order_id);
+          const items=(p.inventory_purchase_items||[]).map(x=>(x.inventory_items?.name||"Insumo")+" · "+Number(x.quantity).toLocaleString("pt-BR")+" "+(x.inventory_items?.unit||"un")).join(", ");
+          return <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 py-2 text-xs">
+            <div><b>{items||"Compra de insumos"}</b><div className="mt-1 text-white/40">{p.invoice_number?"Nota "+p.invoice_number+" · ":""}{linkedOrder?(linkedOrder.order_code||linkedOrder.customer_name):"Sem pedido específico"} · {new Date(p.created_at).toLocaleDateString("pt-BR")}</div></div>
+            <div className="text-right"><b>{money(p.total_cost)}</b><div className="mt-1 text-white/40">{p.financial_transaction_id?"Despesa vinculada":"Sem vínculo financeiro"}</div></div>
+          </div>;
+        })}{inventoryPurchases.length===0&&<div className="text-xs text-white/40">Nenhuma compra registrada.</div>}</div>
+      </div>
+      <div className="mt-3 text-xs text-white/45">Toda compra registrada por este formulário gera entrada de estoque, vínculo opcional com pedido e despesa pendente no financeiro. Confirme o pagamento no financeiro quando aplicável.</div>
     </div>
-    <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-5">
-      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
+    <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-3">
+      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
       <select value={movementForm.movement_type} onChange={e=>setMovementForm({...movementForm,movement_type:e.target.value})} className={input}><option value="entrada">Entrada</option><option value="consumo">Consumo</option><option value="perda">Perda</option><option value="ajuste">Ajuste</option><option value="devolucao">Devolução</option></select>
+      <select value={movementForm.order_id} onChange={e=>setMovementForm({...movementForm,order_id:e.target.value})} className={input}><option value="">Consumo geral / sem pedido</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
       <input type="number" step="0.001" value={movementForm.quantity} onChange={e=>setMovementForm({...movementForm,quantity:e.target.value})} placeholder="Quantidade" className={input}/>
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
