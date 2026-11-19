@@ -10,7 +10,7 @@ type ComboPrice = { id:string; name:string; quantity:number; price:number; activ
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
-type CustomerOrder = { id:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
+type CustomerOrder = { id:string; order_code?:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type Movement = { id:string; created_at:string; item_id:string; movement_type:string; quantity:number; unit_cost:number|null; reason:string|null; };
@@ -18,7 +18,7 @@ type Recipe = { id:string; name:string; product_name:string|null; yield_quantity
 type RecipeItem = { id:string; recipe_id:string; item_id:string; quantity:number; };
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 type Supplier = { id:string; name:string; active:boolean; };
-type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string}[]; };
+type InventoryPurchase = { id:string; created_at:string; total_cost:number; status:string; invoice_number:string|null; notes:string|null; supplier_id:string|null; order_id:string|null; financial_transaction_id:string|null; suppliers?:{name:string}|null; inventory_purchase_items?:{id:string;item_id:string;quantity:number;unit_cost:number;inventory_items?:{name:string;unit:string}|null}[]; };
 
 async function req(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",...((init.headers as Record<string,string>)||{})};
@@ -98,8 +98,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [inventoryCategory,setInventoryCategory]=useState(initialCategory||"Todas as categorias");
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
-  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});
-  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
+  const [movementForm,setMovementForm]=useState({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:"",order_id:""});
+  const [purchaseForm,setPurchaseForm]=useState({item_id:"",quantity:"",purchase_unit:"kg",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
   const [productionForm,setProductionForm]=useState({recipe_id:"",quantity:"",status:"planejada",notes:""});
   const [recipeForm,setRecipeForm]=useState({name:"",product_name:"",yield_quantity:"350",yield_unit:"g"});
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
@@ -116,7 +116,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
-        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,suppliers(name),inventory_purchase_items(id)&order=created_at.desc&limit=500",token),
+        req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
         req(URL+"/rest/v1/production_batches?select=*&order=produced_at.desc&limit=200",token),
         req(URL+"/rest/v1/coupons?select=*&order=created_at.desc&limit=200",token),
@@ -126,7 +126,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
-        req(URL+"/rest/v1/customer_orders?select=id,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
+        req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token)
       ]);
       setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);
@@ -353,19 +353,44 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!purchaseForm.item_id||!purchaseForm.quantity||!purchaseForm.unit_cost)return;
     setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/rpc/register_inventory_purchase",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({p_item_id:purchaseForm.item_id,p_quantity:Number(purchaseForm.quantity),p_unit_cost:Number(purchaseForm.unit_cost),p_supplier_id:purchaseForm.supplier_id||null,p_is_promotion:purchaseForm.is_promotion,p_notes:purchaseForm.notes||null})});
-      setPurchaseForm({item_id:"",quantity:"",unit_cost:"",supplier_id:"",is_promotion:false,notes:""});
+      const stockUnit=inventory.find(x=>x.id===purchaseForm.item_id)?.unit||purchaseForm.purchase_unit;
+      let stockQuantity=Number(purchaseForm.quantity);
+      let stockUnitCost=Number(purchaseForm.unit_cost);
+      if(stockUnit==="g"&&purchaseForm.purchase_unit==="kg"){stockQuantity*=1000;stockUnitCost/=1000;}
+      else if(stockUnit==="kg"&&purchaseForm.purchase_unit==="g"){stockQuantity/=1000;stockUnitCost*=1000;}
+      else if(stockUnit!==purchaseForm.purchase_unit){throw new Error("Unidade de compra incompatível com a unidade cadastrada no estoque.");}
+      const purchaseNote=[purchaseForm.notes.trim(),`Informado na compra: ${purchaseForm.quantity} ${purchaseForm.purchase_unit} a ${money(Number(purchaseForm.unit_cost))}/${purchaseForm.purchase_unit}. Conversão registrada em ${stockQuantity} ${stockUnit}.`].filter(Boolean).join(" · ");
+      await req(URL+"/rest/v1/rpc/register_inventory_purchase",token,{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({
+        p_item_id:purchaseForm.item_id,
+        p_quantity:stockQuantity,
+        p_unit_cost:stockUnitCost,
+        p_supplier_id:purchaseForm.supplier_id||null,
+        p_is_promotion:purchaseForm.is_promotion,
+        p_notes:purchaseNote||null,
+        p_order_id:purchaseForm.order_id||null,
+        p_invoice_number:purchaseForm.invoice_number.trim()||null
+      })});
+      setPurchaseForm({item_id:"",quantity:"",purchase_unit:"kg",unit_cost:"",supplier_id:"",order_id:"",invoice_number:"",is_promotion:false,notes:""});
       await load();
-    }catch(e){setError("Não foi possível registrar a compra. Confira o insumo, a quantidade e o preço informado.");}
+    }catch(e){setError(readableError(e,"Não foi possível registrar a compra e vincular a entrada ao pedido/nota."));}
     finally{setBusy(false);}
   }
   async function addMovement(){
     if(!movementForm.item_id||!movementForm.quantity)return;
-    setBusy(true);
+    setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/inventory_movements",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({item_id:movementForm.item_id,movement_type:movementForm.movement_type,quantity:Number(movementForm.quantity),unit_cost:movementForm.unit_cost?Number(movementForm.unit_cost):null,reason:movementForm.reason||null})});
-      setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:""});await load();
-    }catch{setError("Não foi possível registrar a movimentação. Verifique o estoque disponível.");}finally{setBusy(false);}
+      const referenceType=movementForm.order_id?"customer_order":movementForm.movement_type==="consumo"?"general_consumption":movementForm.movement_type==="perda"?"loss":movementForm.movement_type==="ajuste"?"adjustment":null;
+      await req(URL+"/rest/v1/inventory_movements",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({
+        item_id:movementForm.item_id,
+        movement_type:movementForm.movement_type,
+        quantity:Number(movementForm.quantity),
+        unit_cost:movementForm.unit_cost?Number(movementForm.unit_cost):null,
+        reason:movementForm.reason||null,
+        reference_type:referenceType,
+        reference_id:movementForm.order_id||null
+      })});
+      setMovementForm({item_id:"",movement_type:"entrada",quantity:"",unit_cost:"",reason:"",order_id:""});await load();
+    }catch(e){setError(readableError(e,"Não foi possível registrar a movimentação. Verifique o estoque e o vínculo com o pedido."));}finally{setBusy(false);}
   }
   function readableError(e:unknown,fallback:string){
     const raw=e instanceof Error?e.message:String(e||"");
@@ -427,10 +452,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!recipe||!recipe.active){setError("Não é possível produzir: selecione uma ficha técnica ativa.");return;}
     if(!Number.isFinite(qty)||qty<=0){setError("Informe uma quantidade de produção maior que zero.");return;}
     if(ingredients.length===0){setError("Produção bloqueada: esta ficha técnica não possui insumos cadastrados.");return;}
-    if(productionForm.status==="concluida"){
-      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*qty;return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
-      if(shortage.length){setError("Produção bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
-    }
+    // O banco aplica rendimento e valida o estoque real no momento da conclusão.
     setBusy(true);setError("");
     try{
       await req(URL+"/rest/v1/production_batches",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({recipe_id:productionForm.recipe_id,quantity:qty,status:productionForm.status,notes:productionForm.notes||null})});
@@ -438,16 +460,11 @@ export default function Operations({section,token,initialCategory}:{section:"est
     }catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível criar a produção.");}finally{setBusy(false);}
   }
   async function updateProductionStatus(id:string,status:string){
-    const batch=production.find(p=>p.id===id);
-    if(status==="concluida"&&batch){
-      const ingredients=recipeItems.filter(x=>x.recipe_id===batch.recipe_id);
-      if(!ingredients.length){setError("Conclusão bloqueada: a ficha técnica não possui insumos cadastrados.");return;}
-      const shortage=ingredients.map(ri=>{const item=inventory.find(i=>i.id===ri.item_id);const required=Number(ri.quantity)*Number(batch.quantity);return item&&Number(item.current_quantity)<required?item.name+" (necessário "+required+" "+item.unit+", disponível "+item.current_quantity+")":null;}).filter(Boolean);
-      if(shortage.length){setError("Conclusão bloqueada por estoque insuficiente: "+shortage.join("; "));return;}
-    }
+    // O banco calcula a matéria-prima com rendimento e bloqueia a conclusão se faltar estoque.
+    // A interface não repete uma validação simplificada que poderia ignorar as perdas de preparo.
     setBusy(true);setError("");
     try{await req(URL+"/rest/v1/production_batches?id=eq."+id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({status})});await load();}
-    catch(e){let detail=e instanceof Error?e.message:"";try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}setError(detail||"Não foi possível atualizar a produção. Confira o estoque dos insumos.");}
+    catch(e){setError(readableError(e,"Não foi possível atualizar a produção. O banco validou o saldo e o rendimento dos insumos."));}
     finally{setBusy(false);}
   }
 
@@ -856,20 +873,35 @@ export default function Operations({section,token,initialCategory}:{section:"est
         <div><div className="text-sm font-black">Registrar compra</div><div className="mt-1 text-xs text-white/45">A entrada atualiza o estoque e recalcula automaticamente o custo médio do insumo.</div></div>
         <div className="rounded-full bg-[#a7b86a]/15 px-3 py-1 text-xs font-black text-[#c4d38c]">Compra real</div>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
-        <select value={purchaseForm.item_id} onChange={e=>setPurchaseForm({...purchaseForm,item_id:e.target.value})} className={input}><option value="">Insumo comprado</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
-        <input type="number" step="0.001" value={purchaseForm.quantity} onChange={e=>setPurchaseForm({...purchaseForm,quantity:e.target.value})} placeholder="Quantidade comprada" className={input}/>
-        <input type="number" step="0.01" value={purchaseForm.unit_cost} onChange={e=>setPurchaseForm({...purchaseForm,unit_cost:e.target.value})} placeholder="Preço por unidade" className={input}/>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <select value={purchaseForm.item_id} onChange={e=>{const item=inventory.find(x=>x.id===e.target.value);setPurchaseForm({...purchaseForm,item_id:e.target.value,purchase_unit:item?.unit==="g"?"kg":item?.unit||"kg"});}} className={input}><option value="">Insumo comprado</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
+        <input type="number" step="0.001" value={purchaseForm.quantity} onChange={e=>setPurchaseForm({...purchaseForm,quantity:e.target.value})} placeholder={"Quantidade em "+purchaseForm.purchase_unit} className={input}/>
+        <input type="number" step="0.01" value={purchaseForm.unit_cost} onChange={e=>setPurchaseForm({...purchaseForm,unit_cost:e.target.value})} placeholder={"Preço por "+purchaseForm.purchase_unit} className={input}/>
         <select value={purchaseForm.supplier_id} onChange={e=>setPurchaseForm({...purchaseForm,supplier_id:e.target.value})} className={input}><option value="">Fornecedor</option>{suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>
+        <select value={purchaseForm.purchase_unit} onChange={e=>setPurchaseForm({...purchaseForm,purchase_unit:e.target.value})} className={input}><option value="kg">Compra em kg</option><option value="g">Compra em g</option><option value="un">Compra em unidade</option>{!["kg","g","un"].includes(purchaseForm.purchase_unit)&&<option value={purchaseForm.purchase_unit}>Compra em {purchaseForm.purchase_unit}</option>}</select>
+        <select value={purchaseForm.order_id} onChange={e=>setPurchaseForm({...purchaseForm,order_id:e.target.value})} className={input}><option value="">Vincular ao pedido (opcional)</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
+        <input value={purchaseForm.invoice_number} onChange={e=>setPurchaseForm({...purchaseForm,invoice_number:e.target.value})} placeholder="Número da nota fiscal" className={input}/>
         <input value={purchaseForm.notes} onChange={e=>setPurchaseForm({...purchaseForm,notes:e.target.value})} placeholder="Observação (opcional)" className={input}/>
         <button onClick={()=>void addPurchase()} disabled={busy} className="rounded-full bg-[#a7b86a] px-4 py-3 text-sm font-black text-black">Registrar compra</button>
       </div>
       <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm font-bold"><input type="checkbox" checked={purchaseForm.is_promotion} onChange={e=>setPurchaseForm({...purchaseForm,is_promotion:e.target.checked})}/><span>Foi comprado em promoção</span></label>
-      <div className="mt-3 text-xs text-white/45">Exemplo: comprar 20 kg a R$ 10,00/kg em promoção atualiza o saldo e recalcula o custo médio junto com o estoque que já existia.</div>
+      <div className="mt-4 rounded-xl border border-white/10 bg-black/10 p-3">
+        <div className="mb-2 text-sm font-black">Compras recentes vinculadas</div>
+        <div className="space-y-2">{inventoryPurchases.slice(0,8).map(p=>{
+          const linkedOrder=customerOrders.find(o=>o.id===p.order_id);
+          const items=(p.inventory_purchase_items||[]).map(x=>(x.inventory_items?.name||"Insumo")+" · "+Number(x.quantity).toLocaleString("pt-BR")+" "+(x.inventory_items?.unit||"un")).join(", ");
+          return <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 py-2 text-xs">
+            <div><b>{items||"Compra de insumos"}</b><div className="mt-1 text-white/40">{p.invoice_number?"Nota "+p.invoice_number+" · ":""}{linkedOrder?(linkedOrder.order_code||linkedOrder.customer_name):"Sem pedido específico"} · {new Date(p.created_at).toLocaleDateString("pt-BR")}</div></div>
+            <div className="text-right"><b>{money(p.total_cost)}</b><div className="mt-1 text-white/40">{p.financial_transaction_id?"Despesa vinculada":"Sem vínculo financeiro"}</div></div>
+          </div>;
+        })}{inventoryPurchases.length===0&&<div className="text-xs text-white/40">Nenhuma compra registrada.</div>}</div>
+      </div>
+      <div className="mt-3 text-xs text-white/45">Toda compra registrada por este formulário gera entrada de estoque, vínculo opcional com pedido e despesa pendente no financeiro. Confirme o pagamento no financeiro quando aplicável.</div>
     </div>
-    <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-5">
-      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select>
+    <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/[.025] p-4 sm:grid-cols-2 lg:grid-cols-3">
+      <select value={movementForm.item_id} onChange={e=>setMovementForm({...movementForm,item_id:e.target.value})} className={input}><option value="">Selecionar insumo</option>{inventory.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name} ({x.unit})</option>)}</select>
       <select value={movementForm.movement_type} onChange={e=>setMovementForm({...movementForm,movement_type:e.target.value})} className={input}><option value="entrada">Entrada</option><option value="consumo">Consumo</option><option value="perda">Perda</option><option value="ajuste">Ajuste</option><option value="devolucao">Devolução</option></select>
+      <select value={movementForm.order_id} onChange={e=>setMovementForm({...movementForm,order_id:e.target.value})} className={input}><option value="">Consumo geral / sem pedido</option>{customerOrders.filter(o=>["confirmado","pago_recebido","em_preparo","saiu_entrega"].includes(o.status)).map(o=><option key={o.id} value={o.id}>{o.order_code||o.customer_name||"Pedido"} · {o.customer_name||"Cliente"}</option>)}</select>
       <input type="number" step="0.001" value={movementForm.quantity} onChange={e=>setMovementForm({...movementForm,quantity:e.target.value})} placeholder="Quantidade" className={input}/>
       <input type="number" step="0.01" value={movementForm.unit_cost} onChange={e=>setMovementForm({...movementForm,unit_cost:e.target.value})} placeholder="Custo unitário" className={input}/>
       <button onClick={()=>void addMovement()} disabled={busy} className="rounded-full bg-[#ef7d18] px-4 py-3 text-sm font-black text-black">Registrar movimentação</button>
