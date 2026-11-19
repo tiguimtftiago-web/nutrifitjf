@@ -178,13 +178,6 @@ export default function Operations({section,token,initialCategory}:{section:"est
   }
 
   async function createProductionPlan(order:CustomerOrder){
-    const existing=production.filter(p=>p.order_id===order.id);
-    // Evita novas tentativas automáticas sobre pedidos que já possuem lotes.
-    // A reconciliação de quantidades existentes deve ser manual antes de gerar novamente.
-    if(existing.length){
-      setError("Este pedido já possui registros de produção. Confira os lotes existentes antes de gerar novamente, para evitar duplicidade ou quantidades incorretas.");
-      return;
-    }
     setBusy(true);setError("");
     try{
       const result=await req(URL+"/rest/v1/rpc/create_production_from_order",token,{
@@ -192,16 +185,12 @@ export default function Operations({section,token,initialCategory}:{section:"est
         body:JSON.stringify({p_order_id:order.id})
       });
       const count=Number(result||0);
-      if(count===0){
-        setError("Nenhum lote foi criado. Confira se o pedido está confirmado, pago ou em preparo e se todos os pratos possuem fichas técnicas ativas com insumos.");
-        return;
-      }
       await load();
-      setError("Plano de produção criado com validação transacional. Nenhum lote parcial será mantido se a validação do banco falhar.");
+      setError(count>0
+        ? "Foram vinculados "+count+" novo(s) lote(s). Os lotes existentes foram preservados e não houve baixa duplicada."
+        : "Os lotes deste pedido já estavam vinculados. A conferência foi atualizada sem criar duplicidades.");
     }catch(e){
-      let detail=e instanceof Error?e.message:"";
-      try{const parsed=JSON.parse(detail);detail=parsed.message||parsed.details||detail;}catch{}
-      setError("Não foi possível criar o plano. Confira as fichas técnicas e o status do pedido antes de tentar novamente. "+(detail||"Falha ao criar o plano."));
+      setError(readableError(e,"Não foi possível vincular a produção. Confira as fichas técnicas, o estoque e o status do pedido."));
       await load(true);
     }finally{setBusy(false);}
   }
