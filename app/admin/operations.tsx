@@ -215,9 +215,10 @@ export default function Operations({section,token,initialCategory}:{section:"est
       if(Array.isArray(personalizedLines)&&personalizedLines.length){
         const ids=personalizedLines.map((x:any)=>x.id);
         const components=await req(URL+"/rest/v1/customer_order_meal_components?select=meal_line_id,sort_order,item_id,recipe_id,component_name_snapshot,quantity_per_portion,total_quantity,unit,notes&meal_line_id=in.("+ids.join(",")+")&order=sort_order.asc",token);
-        const mealBlocks=personalizedLines.map((line:any)=>{
+        const totalMeals=personalizedLines.reduce((sum:number,line:any)=>sum+Number(line.quantity||0),0);
+        const mealBlocks='<div style="border:1px solid #a7b86a;padding:9px;margin:10px 0;background:#f5f7ef"><b>LOTE DESTA PRODUÇÃO:</b> '+totalMeals+' marmitas · '+personalizedLines.length+' pratos diferentes</div>'+personalizedLines.map((line:any)=>{
           const rows=(components||[]).filter((x:any)=>x.meal_line_id===line.id).map((x:any)=>{
-            const source=x.item_id?"Insumo vinculado":x.recipe_id?"Preparação vinculada":"Manual — sem vínculo automático com estoque";
+            const source=x.unit==="un"?"Embalagem":x.item_id?"Insumo vinculado":x.recipe_id?"Preparação vinculada":"Manual — sem vínculo automático com estoque";
             return '<tr><td>'+esc(x.component_name_snapshot)+'</td><td>'+esc(Number(x.quantity_per_portion).toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(Number(x.total_quantity).toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(source)+'</td></tr>';
           }).join("");
           const total=line.portion_total_quantity===null?"A confirmar":Number(line.portion_total_quantity).toLocaleString("pt-BR")+" "+line.portion_unit;
