@@ -10,7 +10,7 @@ type Order={id:string;order_code:string;customer_name:string|null;created_at:str
 type InventoryItem={id:string;name:string;unit:string;category:string;active:boolean};
 type Recipe={id:string;name:string;product_name:string|null;yield_unit:string;active:boolean};
 type ComponentDraft={key:string;source:"item"|"recipe"|"manual";source_id:string;name:string;quantity:string;unit:string;notes:string};
-type MealDraft={lineId:string|null;displayName:string;quantity:string;mealPeriod:string;components:ComponentDraft[];notes:string;orderItem:OrderItem};
+type MealDraft={lineId:string|null;displayName:string;quantity:string;mealPeriod:string;validationStatus:"pendente"|"validada"|"bloqueada";components:ComponentDraft[];notes:string;orderItem:OrderItem};
 
 async function api(path:string,token:string,init:RequestInit={}){
  const headers:Record<string,string>={apikey:KEY,"Content-Type":"application/json",Authorization:"Bearer "+token,...((init.headers as Record<string,string>)||{})};
@@ -28,19 +28,20 @@ function parseOrderItems(value:any):OrderItem[]{
 }
 function seedFabrício(item:OrderItem):ComponentDraft[]{
  const name=normalize(item.name);
- const row=(source:"item"|"manual",source_id:string,label:string,quantity:number,notes=""):ComponentDraft=>({key:newKey(),source,source_id,name:label,quantity:String(quantity),unit:"g",notes});
- if(name.includes("carne de panela"))return [row("item","7f21756a-63eb-49fd-9ee7-b11d068b10df","Carne de panela",120),row("manual","","Batata e cenoura — peso combinado",140,"140 g no total; divisão entre batata e cenoura ainda não especificada.")];
+ const row=(source:"item"|"manual",source_id:string,label:string,quantity:number,unit="g",notes=""):ComponentDraft=>({key:newKey(),source,source_id,name:label,quantity:String(quantity),unit,notes});
+ if(name.includes("carne de panela"))return [row("item","7f21756a-63eb-49fd-9ee7-b11d068b10df","Carne de panela",120),row("manual","","Batata inglesa e cenoura — peso combinado",140,"g","140 g no total; divisão entre batata e cenoura não informada. Vincular ao estoque após definir a divisão ou o insumo de mix.")];
  if(name.includes("cupim"))return [row("item","7011cb95-e5c9-4ce7-a61c-6642f4de332b","Cupim",120),row("item","f32f768f-e346-4753-93b2-14b65b16dd7d","Mandioca",140)];
- if(name.includes("frango empanado"))return [row("item","f6b9590c-f24d-40d0-a337-24779efa0419","Frango empanado",120),row("item","bb7f72fa-32c7-43b3-a856-894622b0b754","Arroz branco",70)];
- if(name.includes("patinho"))return [row("item","b2dcb2da-3144-4254-9ffd-df64d2d72977","Patinho",120)];
- if(name.includes("pernil"))return [row("item","4c251a0b-b0cb-44e0-bc7b-f6c12cb6200b","Pernil suíno",120),row("item","bb7f72fa-32c7-43b3-a856-894622b0b754","Arroz branco",70)];
+ if(name.includes("frango empanado"))return [row("item","f6b9590c-f24d-40d0-a337-24779efa0419","Frango empanado",120),row("item","bb7f72fa-32c7-43b3-a856-894622b0b754","Arroz branco",70),row("item","bd98b937-8bcc-405d-b7da-dce9732e1399","Feijão",60),row("item","33e3acdf-2a84-4fe6-a2cc-43dbe4e6b15f","Legumes",60)];
+ if(name.includes("patinho"))return [row("item","b2dcb2da-3144-4254-9ffd-df64d2d72977","Patinho",120),row("item","e0e28502-5e84-4303-8981-cd48269fcd6f","Abóbora",140)];
+ if(name.includes("pernil"))return [row("item","4c251a0b-b0cb-44e0-bc7b-f6c12cb6200b","Pernil suíno desfiado",120),row("item","bb7f72fa-32c7-43b3-a856-894622b0b754","Arroz branco",70),row("item","33e3acdf-2a84-4fe6-a2cc-43dbe4e6b15f","Legumes",60),row("manual","","Molho",15,"ml","15 ml por marmita; preparar vínculo de estoque para o molho antes da baixa.")];
  return [];
 }
 function seedNotes(item:OrderItem):string{
  const name=normalize(item.name);
- if(name.includes("frango empanado"))return "Legumes e feijão: gramaturas ainda não confirmadas. Não produzir esses componentes até registrar as quantidades.";
- if(name.includes("patinho"))return "Abóbora: gramatura ainda não confirmada. Não estimar nem completar o peso da marmita.";
- if(name.includes("pernil"))return "Legumes e feijão: gramaturas ainda não confirmadas. Não produzir esses componentes até registrar as quantidades.";
+ if(name.includes("carne de panela"))return "120 g de carne + 140 g combinados de batata inglesa e cenoura. Divisão ainda não informada; manter pendente para baixa individual de estoque.";
+ if(name.includes("pernil"))return "120 g pernil desfiado + 70 g arroz + 60 g legumes + 15 ml molho. O molho ainda precisa de vínculo de estoque para baixa.";
+ if(name.includes("frango empanado"))return "120 g frango empanado + 70 g arroz + 60 g feijão + 60 g legumes. Pesos prontos.";
+ if(name.includes("patinho"))return "120 g patinho + 140 g abóbora. Pesos prontos.";
  return "";
 }
 
@@ -66,7 +67,7 @@ export default function PersonalizedOrdersPage(){
     const line=(lines||[]).find((x:any)=>normalize(x.display_name)===normalize(orderItem.name));
     const linked=(componentRows||[]).filter((x:any)=>x.meal_line_id===line?.id);
     const components:ComponentDraft[]=line?linked.map((x:any)=>({key:x.id||newKey(),source:x.item_id?"item":x.recipe_id?"recipe":"manual",source_id:x.item_id||x.recipe_id||"",name:x.component_name_snapshot,quantity:String(x.quantity_per_portion),unit:x.unit,notes:x.notes||""})):order.order_code==="NF-534B60"?seedFabrício(orderItem):[];
-    return {lineId:line?.id||null,displayName:orderItem.name,quantity:String(line?.quantity??orderItem.quantity),mealPeriod:line?.meal_period||"outro",components,notes:line?.validation_notes||(!line&&order.order_code==="NF-534B60"?seedNotes(orderItem):""),orderItem};
+    return {lineId:line?.id||null,displayName:orderItem.name,quantity:String(line?.quantity??orderItem.quantity),mealPeriod:line?.meal_period||"outro",validationStatus:line?.validation_status||"pendente",components,notes:line?.validation_notes||(!line&&order.order_code==="NF-534B60"?seedNotes(orderItem):""),orderItem};
    });setMeals(drafts);
   }catch(e){setError(e instanceof Error?e.message:"Não foi possível carregar as refeições do pedido.")}
   finally{setLoading(false)}
@@ -90,16 +91,16 @@ export default function PersonalizedOrdersPage(){
   if(!token||!selectedOrder){setError("Sessão administrativa ou pedido não identificado.");return}
   if(!meal.displayName.trim()||!meal.components.length){setError("Cada refeição precisa ter nome e ao menos um componente.");return}
   if(meal.components.some(c=>!c.name.trim()||!c.quantity.trim()||!Number.isFinite(Number(c.quantity))||Number(c.quantity)<=0||!c.unit.trim())){setError("Preencha nome, quantidade positiva e unidade em todos os componentes.");return}
-  if(meal.components.some(c=>c.source!=="manual"&&!c.source_id)){setError("Selecione o insumo ou preparação de cada componente vinculado.");return}
+  if(meal.components.some(c=>c.source!=="manual"&&!c.source_id)){setError("Selecione o insumo ou preparação de cada componente vinculado.");return}\n  if(meal.validationStatus==="validada"&&meal.components.some(c=>c.source==="manual"||!c.source_id)){setError("Não é possível validar: todos os componentes precisam estar vinculados ao estoque ou a uma preparação.");return}
   setSavingId(meal.displayName);setError("");setMessage("");
   try{
    await api("rpc/save_customer_order_meal_composition",token,{method:"POST",body:JSON.stringify({
     p_order_id:selectedOrder.id,p_line_id:meal.lineId,p_display_name:meal.displayName.trim(),p_quantity:Number(meal.quantity),p_meal_period:meal.mealPeriod,
-    p_validation_status:"pendente",p_validation_notes:meal.notes.trim()||null,
+    p_validation_status:meal.validationStatus,p_validation_notes:meal.notes.trim()||null,
     p_order_item_snapshot:{order_code:selectedOrder.order_code,name:meal.orderItem.name,line:"Dieta individual",weight:(totalFor(meal)?String(totalFor(meal)?.quantity)+" "+String(totalFor(meal)?.unit):"Composição parcial"),catalog_line:meal.orderItem.line,catalog_weight:meal.orderItem.weight,quantity:meal.orderItem.quantity},
     p_components:meal.components.map(c=>({item_id:c.source==="item"?c.source_id:null,recipe_id:c.source==="recipe"?c.source_id:null,component_name_snapshot:c.name.trim(),quantity_per_portion:Number(c.quantity),unit:c.unit.trim(),notes:c.notes.trim()||null}))
    })});
-   setMessage("Composição de "+meal.displayName+" salva no pedido "+selectedOrder.order_code+". Status pendente de validação; nenhuma baixa de estoque ou alteração comercial foi realizada.");
+   setMessage("Composição de "+meal.displayName+" salva no pedido "+selectedOrder.order_code+". Status "+meal.validationStatus+"; os requisitos de estoque serão recalculados e a baixa só ocorrerá ao iniciar o preparo. Nenhuma alteração comercial foi realizada.");
    await loadOrderMeals(selectedOrder.id);
   }catch(e){setError(e instanceof Error?e.message:"Não foi possível salvar a composição.")}
   finally{setSavingId("")}
@@ -136,7 +137,7 @@ export default function PersonalizedOrdersPage(){
        <div className="mt-4 flex flex-wrap items-end gap-3">
         <label className="text-xs text-white/55">Quantidade de marmitas<input type="number" min="1" step="1" value={meal.quantity} onChange={e=>updateMeal(index,{quantity:e.target.value})} className={input+" w-28"}/></label>
         <label className="text-xs text-white/55">Refeição<select value={meal.mealPeriod} onChange={e=>updateMeal(index,{mealPeriod:e.target.value})} className={input+" w-36"}><option value="almoco">Almoço</option><option value="jantar">Jantar</option><option value="outro">Outro</option></select></label>
-        <span className="text-xs text-white/40">Peso calculado = soma dos componentes informados; não existe peso-alvo automático.</span>
+        <label className="text-xs text-white/55">Validação<select value={meal.validationStatus} onChange={e=>updateMeal(index,{validationStatus:e.target.value as "pendente"|"validada"|"bloqueada"})} className={input+" w-36"}><option value="pendente">Pendente</option><option value="validada">Validada</option><option value="bloqueada">Bloqueada</option></select></label><span className="text-xs text-white/40">A baixa exige todas as fichas validadas e todos os componentes vinculados ao estoque.</span>
        </div>
        <div className="mt-4 space-y-2">
         {meal.components.map((c,ci)=><div key={c.key} className="grid gap-2 rounded-xl border border-white/10 bg-black/20 p-3 sm:grid-cols-[115px_minmax(160px,1fr)_110px_75px_36px] sm:items-end">
@@ -150,7 +151,7 @@ export default function PersonalizedOrdersPage(){
        </div>
        <button type="button" onClick={()=>addComponent(index)} className="mt-3 inline-flex items-center gap-1 rounded-full border border-[#a7b86a]/35 px-3 py-2 text-xs font-bold text-[#c6d88c]"><Plus size={14}/> Adicionar componente</button>
        <label className="mt-4 block text-xs text-white/55">Pendências e instruções da dieta<textarea rows={2} value={meal.notes} onChange={e=>updateMeal(index,{notes:e.target.value})} placeholder="Registre componentes ainda sem gramatura confirmada. Não estime." className={input}/></label>
-       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3"><div className="text-xs text-white/45">{meal.components.length} componente(s) · {manualCount?manualCount+" manual(is), sem vínculo automático com estoque":"componentes vinculados a insumos/preparações"}</div><button type="button" disabled={!!savingId||!meal.components.length} onClick={()=>void saveMeal(meal)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#a7b86a] px-4 text-xs font-black text-black disabled:opacity-50"><Save size={15}/>{savingId===meal.displayName?"Salvando...":"Salvar ficha pendente"}</button></div>
+       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-3"><div className="text-xs text-white/45">{meal.components.length} componente(s) · {manualCount?manualCount+" manual(is), sem vínculo automático com estoque":"componentes vinculados a insumos/preparações"}</div><button type="button" disabled={!!savingId||!meal.components.length} onClick={()=>void saveMeal(meal)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#a7b86a] px-4 text-xs font-black text-black disabled:opacity-50"><Save size={15}/>{savingId===meal.displayName?"Salvando...":meal.validationStatus==="validada"?"Salvar ficha validada":"Salvar ficha"}</button></div>
       </section>
      })}
      {meals.length===0&&<div className="rounded-2xl border border-white/10 bg-[#111710] p-5 text-sm text-white/55">Este pedido não tem itens reconhecidos para montar fichas.</div>}
