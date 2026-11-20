@@ -6,6 +6,7 @@ import { Activity, AlertTriangle, CheckCircle2, Clock3, RefreshCw, ShieldCheck, 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
+type Plan = {id:string;created_at:string;status:string;priority:string;area:string;title:string;description:string;source_diagnosis:any;result:any;completed_at:string|null};
 type Audit = {
   id:string; created_at:string; agent_name:string; area:string; event_type:string;
   status:string; priority:string; title:string; details:string; source_table:string|null;
@@ -17,7 +18,7 @@ const label=(v:string)=>({diagnostico:"Diagnóstico",correcao:"Correção",valid
 
 export default function IntelligenceCenter(){
   const [token,setToken]=useState("");
-  const [rows,setRows]=useState<Audit[]>([]);
+  const [rows,setRows]=useState<Audit[]>([]);\n  const [plans,setPlans]=useState<Plan[]>([]);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [filter,setFilter]=useState("abertos");
