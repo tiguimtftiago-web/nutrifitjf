@@ -95,7 +95,7 @@ export default function PersonalizedOrdersPage(){
    await api("rpc/save_customer_order_meal_composition",token,{method:"POST",body:JSON.stringify({
     p_order_id:selectedOrder.id,p_line_id:meal.lineId,p_display_name:meal.displayName.trim(),p_quantity:Number(meal.quantity),p_meal_period:meal.mealPeriod,
     p_validation_status:"pendente",p_validation_notes:meal.notes.trim()||null,
-    p_order_item_snapshot:{order_code:selectedOrder.order_code,name:meal.orderItem.name,line:meal.orderItem.line,weight:meal.orderItem.weight,quantity:meal.orderItem.quantity},
+    p_order_item_snapshot:{order_code:selectedOrder.order_code,name:meal.orderItem.name,line:"Dieta individual",weight:(totalFor(meal)?String(totalFor(meal)?.quantity)+" "+String(totalFor(meal)?.unit):"Composição parcial"),catalog_line:meal.orderItem.line,catalog_weight:meal.orderItem.weight,quantity:meal.orderItem.quantity},
     p_components:meal.components.map(c=>({item_id:c.source==="item"?c.source_id:null,recipe_id:c.source==="recipe"?c.source_id:null,component_name_snapshot:c.name.trim(),quantity_per_portion:Number(c.quantity),unit:c.unit.trim(),notes:c.notes.trim()||null}))
    })});
    setMessage("Composição de "+meal.displayName+" salva no pedido "+selectedOrder.order_code+". Status pendente de validação; nenhuma baixa de estoque ou alteração comercial foi realizada.");
