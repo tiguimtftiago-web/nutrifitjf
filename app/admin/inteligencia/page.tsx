@@ -7,6 +7,7 @@ const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzx
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
 type Plan = {id:string;created_at:string;status:string;priority:string;area:string;title:string;description:string;source_diagnosis:any;result:any;completed_at:string|null};
+type QueueTask = {id:string;created_at:string;title:string;area:string;task_type:string;priority:string;status:string;description:string|null;source_table:string|null;source_record_id:string|null;assigned_agent:string|null;attempts:number;requires_user_action:boolean;lease_expires_at:string|null};
 type Audit = {
   id:string; created_at:string; agent_name:string; area:string; event_type:string;
   status:string; priority:string; title:string; details:string; source_table:string|null;
@@ -20,6 +21,7 @@ export default function IntelligenceCenter(){
   const [token,setToken]=useState("");
   const [rows,setRows]=useState<Audit[]>([]);
   const [plans,setPlans]=useState<Plan[]>([]);
+  const [tasks,setTasks]=useState<QueueTask[]>([]);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [filter,setFilter]=useState("abertos");
@@ -30,11 +32,12 @@ export default function IntelligenceCenter(){
     setLoading(true);setError("");
     try{
       const headers={apikey:KEY,Authorization:"Bearer "+t};
-      const [res,planRes]=await Promise.all([fetch(URL+"/rest/v1/agent_audit_log?select=*&order=created_at.desc&limit=300",{headers}),fetch(URL+"/rest/v1/agent_action_plans?select=*&order=created_at.desc&limit=100",{headers})]);
-      const body=await res.text(); const planBody=await planRes.text();
+      const [res,planRes,queueRes]=await Promise.all([fetch(URL+"/rest/v1/agent_audit_log?select=*&order=created_at.desc&limit=300",{headers}),fetch(URL+"/rest/v1/agent_action_plans?select=*&order=created_at.desc&limit=100",{headers}),fetch(URL+"/rest/v1/agent_work_queue?select=*&order=created_at.desc&limit=200",{headers})]);
+      const body=await res.text(); const planBody=await planRes.text(); const queueBody=await queueRes.text();
       if(!res.ok)throw new Error(res.status===401||res.status===403?"Acesso administrativo não autorizado. Entre novamente pelo painel.":body);
       if(!planRes.ok)throw new Error("Não foi possível carregar os planos compartilhados: "+planBody);
-      setRows(body?JSON.parse(body):[]);setPlans(planBody?JSON.parse(planBody):[]);
+      if(!queueRes.ok)throw new Error("Não foi possível carregar a fila de trabalho: "+queueBody);
+      setRows(body?JSON.parse(body):[]);setPlans(planBody?JSON.parse(planBody):[]);setTasks(queueBody?JSON.parse(queueBody):[]);
     }catch(e){setError(e instanceof Error?e.message:"Falha ao consultar o histórico de auditoria.");}
     finally{setLoading(false);}
   },[token]);
@@ -60,13 +63,19 @@ export default function IntelligenceCenter(){
       {!token&&<div className="mb-4 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#ffb36b]">Não encontrei uma sessão administrativa ativa. Entre primeiro em <a className="underline" href="/admin">/admin</a>.</div>}
       {error&&<div className="mb-4 rounded-2xl border border-red-400/30 bg-red-950/30 p-4 text-sm text-red-200">{error}</div>}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat icon={<Activity/>} label="Registros auditados" value={rows.length}/>
         <Stat icon={<AlertTriangle/>} label="Pendências abertas" value={open.length} accent={open.length>0}/>
         <Stat icon={<ShieldCheck/>} label="Validações concluídas" value={validated.length}/>
         <Stat icon={<Clock3/>} label="Prioridade crítica" value={critical.length} accent={critical.length>0}/>
+        <Stat icon={<Activity/>} label="Tarefas na fila" value={tasks.filter(t=>!["concluida","cancelada"].includes(t.status)).length} accent={tasks.some(t=>t.priority==="critica"&&t.status!=="concluida")}/>
       </div>
 
+      <section className="mt-5 rounded-3xl border border-[#a7b86a]/20 bg-[#0d110b] p-4 sm:p-6">
+        <div className="mb-4"><h2 className="text-lg font-black">Fila única de trabalho</h2><p className="mt-1 text-xs text-white/40">Tarefas compartilhadas com prioridade, dependências, atribuição e bloqueio humano.</p></div>
+        <div className="space-y-2">{tasks.map(t=><article key={t.id} className="rounded-xl border border-white/10 bg-white/[.025] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black uppercase text-[#c4d38c]">{t.area}</span><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${t.priority==="critica"?"bg-red-500/15 text-red-300":t.priority==="alta"?"bg-orange-500/15 text-orange-300":"bg-white/10 text-white/50"}`}>{label(t.priority)}</span><span className="text-[10px] text-white/45">{label(t.status)}</span></div><span className="text-[10px] text-white/35">{new Date(t.created_at).toLocaleString("pt-BR")}</span></div><h3 className="mt-2 text-sm font-black">{t.title}</h3><p className="mt-1 text-xs leading-5 text-white/55">{t.description}</p><div className="mt-2 flex flex-wrap gap-3 text-[10px] text-white/35"><span>Tipo: {t.task_type}</span>{t.source_record_id&&<span>Origem: {t.source_record_id}</span>}{t.assigned_agent&&<span>Agente: {t.assigned_agent}</span>}<span>Tentativas: {t.attempts}</span>{t.requires_user_action&&<span className="font-black text-[#ffb36b]">Aguardando decisão</span>}</div></article>)}</div>
+        {tasks.length===0&&<p className="py-6 text-center text-sm text-white/40">Fila sem tarefas registradas.</p>}
+      </section>
       <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
         <div className="mb-4"><h2 className="text-lg font-black">Planos compartilhados de ação</h2><p className="mt-1 text-xs text-white/40">Backlog central registrado no banco. Planos propostos ainda não significam execução autorizada.</p></div>
         <div className="mb-5 grid gap-2 md:grid-cols-3">{plans.map(p=><article key={p.id} className="rounded-xl border border-white/10 bg-white/[.025] p-3"><div className="flex items-center justify-between gap-2"><span className="text-[10px] font-black uppercase text-[#c4d38c]">{p.area}</span><span className="text-[10px] text-white/40">{label(p.priority)}</span></div><h3 className="mt-2 text-sm font-black">{p.title}</h3><p className="mt-1 text-xs leading-5 text-white/55">{p.description}</p><div className="mt-2 text-[10px] text-white/35">Status: {p.status}</div></article>)}</div>
