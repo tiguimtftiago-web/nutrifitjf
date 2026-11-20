@@ -183,6 +183,11 @@ export default function Operations({section,token,initialCategory}:{section:"est
   async function createProductionPlan(order:CustomerOrder){
     setBusy(true);setError("");
     try{
+      const personalizedLines=await req(URL+"/rest/v1/customer_order_meal_lines?select=id,display_name,validation_status&order_id=eq."+order.id,token);
+      if(Array.isArray(personalizedLines)&&personalizedLines.length){
+        setError("Plano padrão bloqueado: este pedido possui dieta personalizada. Confira a ficha em Dietas por pedido. O cálculo de matéria-prima e a baixa só podem ser liberados após validar todos os componentes e rendimentos.");
+        return;
+      }
       const result=await req(URL+"/rest/v1/rpc/create_production_from_order",token,{
         method:"POST",
         body:JSON.stringify({p_order_id:order.id})
@@ -204,6 +209,27 @@ export default function Operations({section,token,initialCategory}:{section:"est
     w.document.write("<p style='font:14px Arial;padding:24px'>Carregando a conferência oficial de estoque e rendimento...</p>");
     const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
     try{
+      const personalizedLines=await req(URL+"/rest/v1/customer_order_meal_lines?select=id,display_name,quantity,portion_total_quantity,portion_unit,validation_status,validation_notes,order_item_snapshot&order_id=eq."+order.id+"&order=created_at.asc",token);
+      if(Array.isArray(personalizedLines)&&personalizedLines.length){
+        const ids=personalizedLines.map((x:any)=>x.id);
+        const components=await req(URL+"/rest/v1/customer_order_meal_components?select=meal_line_id,sort_order,item_id,recipe_id,component_name_snapshot,quantity_per_portion,total_quantity,unit,notes&meal_line_id=in.("+ids.join(",")+")&order=sort_order.asc",token);
+        const mealBlocks=personalizedLines.map((line:any)=>{
+          const rows=(components||[]).filter((x:any)=>x.meal_line_id===line.id).map((x:any)=>{
+            const source=x.item_id?"Insumo vinculado":x.recipe_id?"Preparação vinculada":"Manual — sem vínculo automático com estoque";
+            return '<tr><td>'+esc(x.component_name_snapshot)+'</td><td>'+esc(Number(x.quantity_per_portion).toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(Number(x.total_quantity).toLocaleString("pt-BR")+" "+x.unit)+'</td><td>'+esc(source)+'</td></tr>';
+          }).join("");
+          const total=line.portion_total_quantity===null?"A confirmar":Number(line.portion_total_quantity).toLocaleString("pt-BR")+" "+line.portion_unit;
+          const notes=line.validation_notes?'<div class="note"><b>Pendências:</b> '+esc(line.validation_notes)+'</div>':"";
+          return '<section class="meal"><h2>'+esc(line.display_name)+'</h2><p>Quantidade: '+Number(line.quantity)+' · Total dos componentes registrados por marmita: <b>'+esc(total)+'</b> · Validação: '+esc(line.validation_status)+'</p><table><thead><tr><th>Componente</th><th>Por marmita</th><th>Total do pedido</th><th>Vínculo</th></tr></thead><tbody>'+rows+'</tbody></table>'+notes+'</section>';
+        }).join("");
+        const orderItems=Array.isArray(order.items)?order.items:[];
+        const missing=orderItems.filter((item:any)=>!personalizedLines.some((line:any)=>String(line.display_name||"").trim().toLocaleLowerCase("pt-BR")===String(item.name||"").trim().toLocaleLowerCase("pt-BR")));
+        const missingBlock=missing.length?'<div class="warning"><b>Itens ainda sem ficha personalizada:</b> '+missing.map((x:any)=>esc(x.name||"Item")).join(", ")+'</div>':"";
+        w.document.open();
+        w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Ficha personalizada Nutrifit</title><style>@page{size:A4 portrait;margin:12mm}body{font:11px Arial,sans-serif;color:#111;padding:6px}.brand{display:flex;align-items:center;gap:12px;border-bottom:3px solid #a7b86a;padding-bottom:10px}.brand img{width:52px;height:52px;object-fit:contain}.brand h1{margin:0;font-size:19px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0}.box{border:1px solid #bbb;padding:7px}.meal{break-inside:avoid;border:1px solid #aaa;padding:9px;margin:9px 0}.meal h2{font-size:14px;margin:0 0 5px}.meal p{margin:4px 0 7px}.meal table{width:100%;border-collapse:collapse}.meal th,.meal td{border:1px solid #bbb;padding:5px;text-align:left}.meal th{background:#eee}.note,.warning{margin-top:7px;padding:7px;border:1px solid #e87922;background:#fff7ed}.foot{margin-top:12px;border-top:1px solid #aaa;padding-top:7px;font-size:10px}</style></head><body><header class="brand"><img src="'+window.location.origin+'/images/nutrifit-logo-icon.svg" alt="Nutrifit"><h1>NUTRIFIT — Ficha de dieta personalizada</h1></header><div class="meta"><div class="box"><b>Cliente:</b> '+esc(order.customer_name||"Não informado")+'</div><div class="box"><b>Pedido:</b> '+esc(order.order_code||order.id)+'</div><div class="box"><b>Recebido em:</b> '+new Date(order.created_at).toLocaleString("pt-BR")+'</div><div class="box"><b>Status comercial:</b> '+esc(order.status||"—")+'</div></div>'+missingBlock+mealBlocks+'<div class="foot"><b>Regra de montagem:</b> pesos prontos conforme dieta individual. O total é a soma dos componentes registrados; não completar até peso padrão do cardápio. Esta ficha não calcula matéria-prima nem autoriza baixa de estoque. Iniciar produção permanece bloqueado enquanto houver validação pendente.</div><script>window.onload=()=>setTimeout(()=>window.print(),150);</script></body></html>');
+        w.document.close();
+        return;
+      }
       const [requirements,exceptions]=await Promise.all([
         req(URL+"/rest/v1/order_inventory_requirements?select=item_id,required_quantity,finished_quantity,consumed_quantity,remaining_quantity,yield_rate,inventory_items(name,unit,current_quantity)&order_id=eq."+order.id,token),
         req(URL+"/rest/v1/order_inventory_exceptions?select=order_item_snapshot,issue&order_id=eq."+order.id,token)
