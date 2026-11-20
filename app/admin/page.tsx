@@ -27,6 +27,21 @@ type OrderInventoryException = { id:string; order_id:string; order_item_snapshot
 type OrderProduction = { id:string; order_id:string; recipe_id:string|null; quantity:number; status:string; stock_consumed:boolean; recipe_name:string|null; };
 type PurchaseAlert = { item_id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; required_quantity:number; shortage_quantity:number; order_count:number; status:string; };
 
+function apiErrorMessage(raw:string) {
+  try {
+    const parsed=JSON.parse(raw);
+    if(typeof parsed==="string") return parsed;
+    const message=String(parsed?.message||parsed?.error_description||parsed?.error||"").trim();
+    const detail=String(parsed?.details||parsed?.hint||"").trim();
+    if(/invalid input syntax for type json/i.test(message)) {
+      return "Não foi possível gerar a produção porque um dado do pedido chegou em formato JSON inválido. Nenhum lote foi criado."+(detail?" Detalhe: "+detail:"");
+    }
+    return [message,detail].filter(Boolean).join(" — ")||raw;
+  } catch {
+    return raw;
+  }
+}
+
 async function request(path:string, token:string, init:RequestInit={}) {
   const headers:Record<string,string> = { apikey:KEY, "Content-Type":"application/json", ...((init.headers as Record<string,string>) || {}) };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -36,7 +51,7 @@ async function request(path:string, token:string, init:RequestInit={}) {
     window.dispatchEvent(new Event("nutrifit-admin-auth-expired"));
     throw new Error("Sessão administrativa expirada.");
   }
-  if (!response.ok) throw new Error(text || "Erro na solicitação.");
+  if (!response.ok) throw new Error(text ? apiErrorMessage(text) : "Erro na solicitação.");
   return text ? JSON.parse(text) : null;
 }
 
