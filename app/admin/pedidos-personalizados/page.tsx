@@ -64,7 +64,7 @@ export default function PersonalizedOrdersPage(){
    const ids=(lines||[]).map((x:any)=>x.id);
    const componentRows=ids.length?await api("customer_order_meal_components?select=id,meal_line_id,sort_order,item_id,recipe_id,component_name_snapshot,quantity_per_portion,unit,notes&meal_line_id=in.("+ids.join(",")+")&order=sort_order.asc",token):[];
    const drafts=parseOrderItems(order.items).map(orderItem=>{
-    const line=(lines||[]).find((x:any)=>normalize(x.display_name)===normalize(orderItem.name));
+    const line=(lines||[]).find((x:any)=>normalize(x.display_name)===normalize(orderItem.name)||normalize(String(x.order_item_snapshot?.name||""))===normalize(orderItem.name));
     const linked=(componentRows||[]).filter((x:any)=>x.meal_line_id===line?.id);
     const components:ComponentDraft[]=line?linked.map((x:any)=>({key:x.id||newKey(),source:x.item_id?"item":x.recipe_id?"recipe":"manual",source_id:x.item_id||x.recipe_id||"",name:x.component_name_snapshot,quantity:String(x.quantity_per_portion),unit:x.unit,notes:x.notes||""})):order.order_code==="NF-534B60"?seedFabrício(orderItem):[];
     return {lineId:line?.id||null,displayName:orderItem.name,quantity:String(line?.quantity??orderItem.quantity),mealPeriod:line?.meal_period||"outro",validationStatus:line?.validation_status||"pendente",components,notes:line?.validation_notes||(!line&&order.order_code==="NF-534B60"?seedNotes(orderItem):""),orderItem};
@@ -91,7 +91,8 @@ export default function PersonalizedOrdersPage(){
   if(!token||!selectedOrder){setError("Sessão administrativa ou pedido não identificado.");return}
   if(!meal.displayName.trim()||!meal.components.length){setError("Cada refeição precisa ter nome e ao menos um componente.");return}
   if(meal.components.some(c=>!c.name.trim()||!c.quantity.trim()||!Number.isFinite(Number(c.quantity))||Number(c.quantity)<=0||!c.unit.trim())){setError("Preencha nome, quantidade positiva e unidade em todos os componentes.");return}
-  if(meal.components.some(c=>c.source!=="manual"&&!c.source_id)){setError("Selecione o insumo ou preparação de cada componente vinculado.");return}\n  if(meal.validationStatus==="validada"&&meal.components.some(c=>c.source==="manual"||!c.source_id)){setError("Não é possível validar: todos os componentes precisam estar vinculados ao estoque ou a uma preparação.");return}
+  if(meal.components.some(c=>c.source!=="manual"&&!c.source_id)){setError("Selecione o insumo ou preparação de cada componente vinculado.");return}
+  if(meal.validationStatus==="validada"&&meal.components.some(c=>c.source==="manual"||!c.source_id)){setError("Não é possível validar: todos os componentes precisam estar vinculados ao estoque ou a uma preparação.");return}
   setSavingId(meal.displayName);setError("");setMessage("");
   try{
    await api("rpc/save_customer_order_meal_composition",token,{method:"POST",body:JSON.stringify({
