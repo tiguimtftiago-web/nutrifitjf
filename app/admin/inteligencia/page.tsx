@@ -18,7 +18,8 @@ const label=(v:string)=>({diagnostico:"Diagnóstico",correcao:"Correção",valid
 
 export default function IntelligenceCenter(){
   const [token,setToken]=useState("");
-  const [rows,setRows]=useState<Audit[]>([]);\n  const [plans,setPlans]=useState<Plan[]>([]);
+  const [rows,setRows]=useState<Audit[]>([]);
+  const [plans,setPlans]=useState<Plan[]>([]);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [filter,setFilter]=useState("abertos");
@@ -28,10 +29,12 @@ export default function IntelligenceCenter(){
     if(!t){setLoading(false);return;}
     setLoading(true);setError("");
     try{
-      const res=await fetch(URL+"/rest/v1/agent_audit_log?select=*&order=created_at.desc&limit=300",{headers:{apikey:KEY,Authorization:"Bearer "+t}});
-      const body=await res.text();
+      const headers={apikey:KEY,Authorization:"Bearer "+t};
+      const [res,planRes]=await Promise.all([fetch(URL+"/rest/v1/agent_audit_log?select=*&order=created_at.desc&limit=300",{headers}),fetch(URL+"/rest/v1/agent_action_plans?select=*&order=created_at.desc&limit=100",{headers})]);
+      const body=await res.text(); const planBody=await planRes.text();
       if(!res.ok)throw new Error(res.status===401||res.status===403?"Acesso administrativo não autorizado. Entre novamente pelo painel.":body);
-      setRows(body?JSON.parse(body):[]);
+      if(!planRes.ok)throw new Error("Não foi possível carregar os planos compartilhados: "+planBody);
+      setRows(body?JSON.parse(body):[]);setPlans(planBody?JSON.parse(planBody):[]);
     }catch(e){setError(e instanceof Error?e.message:"Falha ao consultar o histórico de auditoria.");}
     finally{setLoading(false);}
   },[token]);
@@ -65,6 +68,8 @@ export default function IntelligenceCenter(){
       </div>
 
       <section className="mt-5 rounded-3xl border border-white/10 bg-[#0d110b] p-4 sm:p-6">
+        <div className="mb-4"><h2 className="text-lg font-black">Planos compartilhados de ação</h2><p className="mt-1 text-xs text-white/40">Backlog central registrado no banco. Planos propostos ainda não significam execução autorizada.</p></div>
+        <div className="mb-5 grid gap-2 md:grid-cols-3">{plans.map(p=><article key={p.id} className="rounded-xl border border-white/10 bg-white/[.025] p-3"><div className="flex items-center justify-between gap-2"><span className="text-[10px] font-black uppercase text-[#c4d38c]">{p.area}</span><span className="text-[10px] text-white/40">{label(p.priority)}</span></div><h3 className="mt-2 text-sm font-black">{p.title}</h3><p className="mt-1 text-xs leading-5 text-white/55">{p.description}</p><div className="mt-2 text-[10px] text-white/35">Status: {p.status}</div></article>)}</div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><h2 className="text-lg font-black">Fila de ocorrências e decisões</h2><p className="mt-1 text-xs text-white/40">O histórico mostra evidências registradas. Pendências não são baixadas automaticamente sem validação.</p></div>
           <div className="flex flex-wrap gap-2">
