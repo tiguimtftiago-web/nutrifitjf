@@ -97,6 +97,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [supplierForm,setSupplierForm]=useState({name:"",contact_name:"",whatsapp:"",email:""});
   const [purchaseSupplier,setPurchaseSupplier]=useState<string>("Todos os fornecedores");
   const [inventorySearch,setInventorySearch]=useState("");
+  const [priceLookupSearch,setPriceLookupSearch]=useState("");
+  const [productSearch,setProductSearch]=useState("");
   const [inventoryCategory,setInventoryCategory]=useState(initialCategory||"Todas as categorias");
   const [recipeSearch,setRecipeSearch]=useState("");
   const [stockForm,setStockForm]=useState({name:"",category:"insumo",unit:"kg",minimum_quantity:"0",average_cost:"0",supplier:""});
@@ -663,7 +665,12 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <button onClick={()=>void (editingProduct?saveProduct():addProduct())} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black">{editingProduct?"Salvar alterações":"Cadastrar produto"}</button>
       {editingProduct&&<button onClick={cancelProductEdit} disabled={busy} className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold">Cancelar</button>}
     </div>
-    <Table><thead><tr><Th>Produto</Th><Th>Linha</Th><Th>Tamanho</Th><Th>Preço</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{products.map(p=><tr key={p.id} className="border-t border-white/5">
+    <div className="mt-5 mb-3 rounded-2xl border border-white/10 bg-white/[.025] p-3">
+      <label className="mb-2 block text-xs font-black uppercase tracking-wider text-white/45">Pesquisa rápida de produtos e preços</label>
+      <div className="relative"><span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40">⌕</span><input value={productSearch} onChange={e=>setProductSearch(e.target.value)} placeholder="Digite o nome do produto..." aria-label="Pesquisar produto e preço" className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-10 pr-10 outline-none focus:border-[#a7b86a]/60"/>{productSearch&&<button type="button" onClick={()=>setProductSearch("")} aria-label="Limpar pesquisa" className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-white/55">×</button>}</div>
+      <div className="mt-2 text-xs text-white/40">{products.filter(p=>!productSearch.trim()||[p.name,p.category,p.line||"",p.sku||""].join(" ").toLocaleLowerCase("pt-BR").includes(productSearch.trim().toLocaleLowerCase("pt-BR"))).length} produto(s) encontrado(s)</div>
+    </div>
+    <Table><thead><tr><Th>Produto</Th><Th>Linha</Th><Th>Tamanho</Th><Th>Preço</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{products.filter(p=>!productSearch.trim()||[p.name,p.category,p.line||"",p.sku||""].join(" ").toLocaleLowerCase("pt-BR").includes(productSearch.trim().toLocaleLowerCase("pt-BR"))).map(p=><tr key={p.id} className="border-t border-white/5">
       <Td><b>{p.name}</b><div className="text-xs text-white/35">{p.category}</div></Td>
       <Td>{p.line||"—"}</Td><Td>{p.size_grams?p.size_grams+" g":"—"}</Td><Td>{money(p.price)}</Td>
       <Td>{p.active?"Ativo":"Inativo"}</Td>
@@ -920,6 +927,12 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <Stat label="Comprar agora" value={today}/>
       <Stat label="Estoque baixo" value={inventory.filter(x=>Number(x.current_quantity)>0&&Number(x.current_quantity)<=Number(x.minimum_quantity)).length}/>
       <Stat label="Valor em estoque" value={money(inventory.reduce((s,x)=>s+Number(x.current_quantity)*Number(x.average_cost),0))}/>
+    </div>
+    <div className="mt-4 rounded-2xl border border-[#a7b86a]/25 bg-[#a7b86a]/[.05] p-4">
+      <label className="mb-2 block text-xs font-black uppercase tracking-wider text-[#c4d38c]">Pesquisa rápida de insumos e preços</label>
+      <div className="relative"><span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40">⌕</span><input value={priceLookupSearch} onChange={e=>setPriceLookupSearch(e.target.value)} placeholder="Digite o nome do insumo..." aria-label="Pesquisar insumo e custo médio" className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-10 pr-10 outline-none focus:border-[#a7b86a]/60"/>{priceLookupSearch&&<button type="button" onClick={()=>setPriceLookupSearch("")} aria-label="Limpar pesquisa" className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-white/55">×</button>}</div>
+      {priceLookupSearch.trim()&&<div className="mt-3 space-y-2">{inventory.filter(x=>[x.name,x.category,x.supplier||""].join(" ").toLocaleLowerCase("pt-BR").includes(priceLookupSearch.trim().toLocaleLowerCase("pt-BR"))).slice(0,12).map(x=><div key={x.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-black/20 px-3 py-2.5"><div className="min-w-0"><div className="truncate text-sm font-bold">{x.name}</div><div className="text-xs text-white/40">{x.category} · {x.unit} · {x.active?"Ativo":"Desativado"}</div></div><div className="shrink-0 text-right"><div className="text-[10px] text-white/40">Custo médio</div><div className="text-sm font-black text-[#c4d38c]">{money(x.average_cost)}/{x.unit}</div></div></div>)}{inventory.filter(x=>[x.name,x.category,x.supplier||""].join(" ").toLocaleLowerCase("pt-BR").includes(priceLookupSearch.trim().toLocaleLowerCase("pt-BR"))).length===0&&<div className="rounded-xl bg-black/20 p-3 text-sm text-white/45">Nenhum insumo encontrado.</div>}</div>}
+      <p className="mt-2 text-[10px] text-white/35">Consulta o custo médio atualmente cadastrado; não altera preços nem registra uma nova compra.</p>
     </div>
     <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.025] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
