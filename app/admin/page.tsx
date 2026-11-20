@@ -374,7 +374,7 @@ export default function AdminPage() {
     const w=window.open("","_blank");
     if(!w){setError("O navegador bloqueou a impressão. Permita janelas pop-up para este site e tente novamente.");return;}
     w.document.write("<p style=\"font:16px Arial;padding:24px\">Preparando ficha de produção...</p>");
-    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",\"\": "&quot;"}[ch]||ch));
+    const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[ch]||ch));
     try{
       const lines=await request(URL+"/rest/v1/customer_order_meal_lines?select=id,display_name,quantity,portion_total_quantity,portion_unit,validation_status,validation_notes,order_item_snapshot&order_id=eq."+order.id+"&order=created_at.asc",token);
       if(!Array.isArray(lines)||!lines.length)throw new Error("Este pedido ainda não possui fichas personalizadas vinculadas.");
