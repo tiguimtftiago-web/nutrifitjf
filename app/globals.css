@@ -214,3 +214,43 @@ textarea::placeholder {
   color: #b7bcb0;
   opacity: 1;
 }
+
+
+/* Impressão das fichas Nutrifit: mantém as composições e remove controles da tela. */
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  html, body, main {
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #111 !important;
+    color-scheme: light !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  body { font-size: 10pt !important; }
+  button, a, select, input, textarea, nav, footer,
+  [role="alert"] { display: none !important; }
+  main > div { max-width: none !important; }
+  main section {
+    background: #fff !important;
+    color: #111 !important;
+    border: 1px solid #bbb !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 8mm !important;
+  }
+  main h1, main h2, main h3, main p, main span, main label, main div {
+    color: #111 !important;
+  }
+  main [class*="text-[#a7b86a]"],
+  main [class*="text-[#c6d88c]"],
+  main [class*="text-[#ffb36b]"] { color: #333 !important; }
+  main [class*="bg-black"],
+  main [class*="bg-[#111710"],
+  main [class*="bg-[#090d09"] { background: #fff !important; }
+  main .print\:border-black { border-color: #999 !important; }
+  main section > div { break-inside: avoid; }
+}
