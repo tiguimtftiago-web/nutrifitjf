@@ -301,16 +301,39 @@ const catalogNameAliases: Record<string, string> = {
       redeemClub = true;
       clubProfileId = String(profile.id);
     }
-    const totalCents = Math.max(0, subtotalCents - discountCents + deliveryCents);
+    let personalizationPercent = 0;
+    let personalizationCents = 0;
+    const isPersonalized = body.is_personalized === true;
+    if (isPersonalized) {
+      const settingResponse = await fetch(
+        url + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1",
+        { headers },
+      );
+      if (!settingResponse.ok) return respond(502, { error: "Não foi possível validar a regra de personalização." });
+      const settings = await settingResponse.json();
+      const setting = settings?.[0]?.setting_value;
+      if (!setting || setting.enabled === false) return respond(409, { error: "Pedidos personalizados estão temporariamente indisponíveis pelo site. Fale com a Nutrifit." });
+      personalizationPercent = Number(setting.percent);
+      if (!Number.isFinite(personalizationPercent) || personalizationPercent < 0 || personalizationPercent > 200)
+        return respond(502, { error: "A regra de personalização está inválida. Entre em contato com a Nutrifit." });
+      personalizationCents = Math.round(subtotalCents * personalizationPercent / 100);
+    }
+    const finalSubtotalCents = subtotalCents + personalizationCents;
+    const totalCents = Math.max(0, finalSubtotalCents - discountCents + deliveryCents);
+    const orderNotes = [
+      body.notes ? String(body.notes).slice(0, 2000) : "",
+      isPersonalized ? "Personalização: " + personalizationPercent + "% (R$ " + (personalizationCents / 100).toFixed(2) + ") calculados sobre os produtos." : "",
+    ].filter(Boolean).join("\n") || null;
     const payload = {
       customer_name: customerName, whatsapp, email: email || null, customer_profile_id: clubProfileId,
-      items: pricedItems, item_count: itemCount, subtotal: subtotalCents / 100,
+      items: pricedItems, item_count: itemCount, subtotal: finalSubtotalCents / 100,
       discount: discountCents / 100, delivery_fee: deliveryCents / 100, total: totalCents / 100,
+      is_personalized: isPersonalized, personalization_percent: personalizationPercent, personalization_amount: personalizationCents / 100,
       cep: String(body.cep ?? "").replace(/\D/g, "").slice(0, 8) || null,
       street, address_number: addressNumber, address_complement: addressComplement || null,
       city, state, address_reference: addressReference || null,
       neighborhood: neighborhood || null,
-      notes: body.notes ? String(body.notes).slice(0, 2000) : null,
+      notes: orderNotes,
       acquisition_source: body.acquisition_source ? String(body.acquisition_source).slice(0, 120) : null,
       acquisition_campaign: body.acquisition_campaign ? String(body.acquisition_campaign).slice(0, 200) : null,
       acquisition_medium: body.acquisition_medium ? String(body.acquisition_medium).slice(0, 120) : null,
@@ -358,7 +381,7 @@ const catalogNameAliases: Record<string, string> = {
     const codeRows = codeResponse?.ok ? await codeResponse.json() : [];
     return respond(200, {
       ok: true, order_id: savedOrderId, order_code: codeRows?.[0]?.order_code ?? null,
-      subtotal: payload.subtotal, discount: payload.discount,
+      subtotal: payload.subtotal, discount: payload.discount, is_personalized: isPersonalized, personalization_percent: personalizationPercent, personalization_amount: personalizationCents / 100,
       delivery_fee: payload.delivery_fee, total: payload.total,
       items: pricedItems,
     });

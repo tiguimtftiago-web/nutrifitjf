@@ -10,7 +10,7 @@ type ComboPrice = { id:string; name:string; quantity:number; price:number; activ
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
 type Production = { id:string; created_at:string; product_id:string|null; recipe_id:string|null; order_id:string|null; quantity:number; produced_at:string; status:string; notes:string|null; stock_consumed:boolean; };
-type CustomerOrder = { id:string; order_code?:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; };
+type CustomerOrder = { id:string; order_code?:string; created_at:string; customer_name:string|null; whatsapp:string|null; items:Array<{name?:string;line?:string;weight?:string;quantity?:number}>; item_count:number; subtotal:number; total:number; status:string; notes:string|null; is_personalized?:boolean; personalization_percent?:number; personalization_amount?:number; };
 type Coupon = { id:string; created_at:string; code:string; description:string|null; discount_type:string; discount_value:number; minimum_order_value:number; max_uses:number|null; uses_count:number; starts_at:string|null; expires_at:string|null; active:boolean; };
 type InventoryItem = { id:string; name:string; category:string; unit:string; current_quantity:number; minimum_quantity:number; average_cost:number; supplier:string|null; active:boolean; notes:string|null; image_path?:string|null; purchase_pack_size?:number|null; purchase_pack_cost?:number|null; };
 type StockAuditRow = { item_id:string; name:string; unit:string; displayed_stock:number; ledger_expected_stock:number; difference:number; audit_status:string; };
@@ -115,11 +115,14 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [editingProduct,setEditingProduct]=useState<Product|null>(null);
   const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});
   const [coupon,setCoupon]=useState({code:"",description:"",discount_type:"percent",discount_value:"",minimum_order_value:"0"});
+  const [personalizationPercent,setPersonalizationPercent]=useState("40");
+  const [personalizationEnabled,setPersonalizationEnabled]=useState(true);
+  const [personalizationSaved,setPersonalizationSaved]=useState(false);
 
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit]=await Promise.all([
+      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit,personalizationData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,premium_surcharge,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
@@ -132,9 +135,10 @@ export default function Operations({section,token,initialCategory}:{section:"est
         req(URL+"/rest/v1/inventory_recipe_items?select=id,recipe_id,item_id,quantity&limit=1000",token),
         req(URL+"/rest/v1/inventory_purchase_alerts?select=*&limit=500",token),
         req(URL+"/rest/v1/suppliers?select=id,name,active&active=eq.true&order=name.asc&limit=200",token),
-        req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes&order=created_at.desc&limit=200",token),
+        req(URL+"/rest/v1/customer_orders?select=id,order_code,created_at,customer_name,whatsapp,items,item_count,subtotal,total,status,notes,is_personalized,personalization_percent,personalization_amount&order=created_at.desc&limit=200",token),
         req(URL+"/rest/v1/catalog_combos?select=id,name,quantity,price,active,notes&order=name.asc,quantity.asc&limit=200",token),
-        req(URL+"/rest/v1/inventory_stock_ledger_audit?select=item_id,name,unit,displayed_stock,ledger_expected_stock,difference,audit_status&limit=500",token)
+        req(URL+"/rest/v1/inventory_stock_ledger_audit?select=item_id,name,unit,displayed_stock,ledger_expected_stock,difference,audit_status&limit=500",token),
+        req(URL+"/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1",token)
       ]);
       const orderIds=(orders||[]).map((order:any)=>order.id).filter(Boolean);
       let mealLines:any[]=[];
@@ -148,6 +152,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
       (mealLines||[]).forEach((line:any)=>{const entry={...line,components:(mealComponents||[]).filter((component:any)=>component.meal_line_id===line.id)};(customMap[line.order_id]||(customMap[line.order_id]=[])).push(entry);});
       setPersonalizedByOrder(customMap);
       setProducts(p||[]);setFinance(f||[]);setInventoryPurchases(ip||[]);setDeliveries(d||[]);setProduction(b||[]);setCustomerOrders(orders||[]);setCoupons(c||[]);setInventory(i||[]);setMovements(m||[]);setRecipes(r||[]);setRecipeItems(ri||[]);setPurchaseAlerts(a||[]);setSuppliers(s||[]);setComboPrices(comboData||[]);setStockAudit(audit||[]);
+      const personalizationConfig=Array.isArray(personalizationData)?personalizationData[0]?.setting_value:null;
+      if(personalizationConfig){setPersonalizationPercent(String(Number(personalizationConfig.percent??40)));setPersonalizationEnabled(personalizationConfig.enabled!==false);}
     }catch{
       if(!background)setError("Não foi possível carregar esta área. Tente atualizar novamente.");
     }finally{
@@ -652,6 +658,21 @@ export default function Operations({section,token,initialCategory}:{section:"est
     }catch{setError("Não foi possível excluir o cupom.");}finally{setBusy(false);}
   }
 
+  async function savePersonalizationConfig(){
+    const percent=Number(personalizationPercent.replace(",","."));
+    if(!Number.isFinite(percent)||percent<0||percent>200){setError("Informe um percentual entre 0% e 200%.");return;}
+    setBusy(true);setError("");setPersonalizationSaved(false);
+    try{
+      await req(URL+"/rest/v1/business_settings?on_conflict=setting_key",token,{
+        method:"POST",
+        headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+        body:JSON.stringify({setting_key:"personalization_surcharge_percent",setting_value:{percent,enabled:personalizationEnabled},updated_at:new Date().toISOString()})
+      });
+      setPersonalizationPercent(String(percent));setPersonalizationSaved(true);
+    }catch(e){setError("Não foi possível salvar a regra de personalização. "+(e instanceof Error?e.message:""));}
+    finally{setBusy(false);}
+  }
+
   async function addCoupon(){
     if(!coupon.code.trim()||!coupon.discount_value)return;
     setBusy(true);
@@ -663,6 +684,35 @@ export default function Operations({section,token,initialCategory}:{section:"est
 
   if(section==="produtos")return <div>
     {error&&<div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-[#ef7d18]/30 bg-[#1b120a] p-4 text-sm text-[#f1b06e]" role="alert"><span>{error}</span><button onClick={()=>setError("")} className="shrink-0 rounded-full bg-white/5 px-2 py-1 text-xs font-black">Fechar</button></div>}
+    <Panel title="Personalização de pedidos">
+      <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <div className="text-sm font-bold text-white/80">Adicional único para pedidos personalizados</div>
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-white/45">O percentual é aplicado somente quando o pedido for identificado como personalizado. O preço do cardápio e os adicionais de proteínas especiais continuam separados.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={personalizationEnabled} onChange={e=>{setPersonalizationEnabled(e.target.checked);setPersonalizationSaved(false);}} className="accent-[#a7b86a]"/> Regra ativa</label>
+            <div className="w-36">
+              <label className="mb-1 block text-xs text-white/45">Percentual (%)</label>
+              <input type="number" min="0" max="200" step="0.5" value={personalizationPercent} onChange={e=>{setPersonalizationPercent(e.target.value);setPersonalizationSaved(false);}} className={input}/>
+            </div>
+          </div>
+        </div>
+        <button onClick={()=>void savePersonalizationConfig()} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black disabled:opacity-50">Salvar regra</button>
+      </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-3">
+        {([{name:"Fit",size:"350 g"},{name:"Performance",size:"450 g"},{name:"Tradicional",size:"500 g"}]).map(line=>{
+          const combo=comboPrices.find(c=>c.name.toLocaleUpperCase("pt-BR")===line.name.toLocaleUpperCase("pt-BR")&&Number(c.quantity)===5);
+          const base=Number(combo?.price||0);
+          const extra=personalizationEnabled?Math.round(base*100*(Number(personalizationPercent)||0)/100)/100:0;
+          return <div key={line.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
+            <div className="text-xs text-white/45">{line.size}</div>
+            <div className="mt-1 flex items-center justify-between gap-2"><b>{line.name}</b><span className="rounded-full bg-white/10 px-3 py-1 text-sm font-black">{personalizationEnabled?((Number(personalizationPercent)||0).toLocaleString("pt-BR")+"%"):"Desativado"}</span></div>
+            {combo?<div className="mt-3 text-xs leading-5 text-white/55">Combo de 5: {money(base)}{personalizationEnabled?<><br/>Com personalização: <b className="text-[#b6d76a]">{money(base+extra)}</b></>:<><br/><span className="text-white/35">Adicional desativado</span></>}</div>:<div className="mt-3 text-xs text-white/40">Preço do combo de 5 não cadastrado</div>}
+          </div>;
+        })}
+      </div>
+      {personalizationSaved&&<p className="mt-3 text-xs font-bold text-[#a7b86a]" role="status">Regra salva no banco de dados.</p>}
+    </Panel>
     <Panel title="Produtos / Cardápio">
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <input value={product.name} onChange={e=>setProduct({...product,name:e.target.value})} placeholder="Nome do produto" className={input}/>
@@ -1104,7 +1154,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
         const expanded=expandedProductionOrder===order.id;
         return <article key={order.id} className="rounded-2xl border border-white/10 bg-black/20 p-3 sm:p-4">
         <button type="button" onClick={()=>setExpandedProductionOrder(expanded?null:order.id)} aria-expanded={expanded} aria-controls={"production-order-details-"+order.id} className="flex w-full flex-col gap-3 text-left sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="min-w-0 flex-1"><div className="text-xs text-white/40">Pedido #{order.id.slice(0,8)} · {new Date(order.created_at).toLocaleString("pt-BR")}</div><h3 className="mt-1 break-words text-lg font-black">{order.customer_name||"Cliente sem nome"}</h3><div className="mt-1 text-sm text-white/60">{order.item_count||items.reduce((n,x)=>n+Number(x.quantity||0),0)} marmita(s) · {money(Number(order.total||0))}</div></div>
+          <div className="min-w-0 flex-1"><div className="text-xs text-white/40">Pedido #{order.id.slice(0,8)} · {new Date(order.created_at).toLocaleString("pt-BR")}</div><h3 className="mt-1 break-words text-lg font-black">{order.customer_name||"Cliente sem nome"}</h3><div className="mt-1 text-sm text-white/60">{order.item_count||items.reduce((n,x)=>n+Number(x.quantity||0),0)} marmita(s) · {money(Number(order.total||0))}</div>{order.is_personalized&&<div className="mt-1 text-xs font-bold text-[#b6d76a]">Pedido personalizado · {Number(order.personalization_percent||0).toLocaleString("pt-BR")}% · adicional {money(Number(order.personalization_amount||0))}</div>}</div>
           <div className="flex items-center justify-between gap-3 sm:justify-end"><span className="rounded-full border border-[#a7b86a]/30 bg-[#a7b86a]/10 px-3 py-1.5 text-xs font-bold text-[#c4d38c]">{statusLabel(order.status||"recebido")}</span><span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-xl text-[#c4d38c]">{expanded?"−":"+"}</span></div>
         </button>
         {expanded&&<div id={"production-order-details-"+order.id} className="mt-3 border-t border-white/10 pt-3">

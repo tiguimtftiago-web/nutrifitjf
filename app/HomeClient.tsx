@@ -834,11 +834,29 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [isPersonalized, setIsPersonalized] = useState(false);
+  const [personalizationNotes, setPersonalizationNotes] = useState("");
+  const [personalizationPercent, setPersonalizationPercent] = useState(40);
+  const [personalizationEnabled, setPersonalizationEnabled] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
   const orderSubmitLock = useRef(false);
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(initialStep);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
+  useEffect(() => {
+    let active = true;
+    fetch(SUPABASE_URL + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1", {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+    }).then(async (response) => {
+      if (!response.ok) return;
+      const rows = await response.json();
+      const config = rows?.[0]?.setting_value;
+      const percent = Number(config?.percent);
+      if (active && config) { const enabled = config.enabled !== false; setPersonalizationEnabled(enabled); if (!enabled) setIsPersonalized(false); if (Number.isFinite(percent) && percent >= 0 && percent <= 200) setPersonalizationPercent(percent); }
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
   const option = comboOptions[lineIndex];
   const products = productsOverride;
   const complements = complementsOverride;
@@ -855,7 +873,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = complements.filter((item) => selectedComplements[item.name]);
   const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
-  const grandTotal = comboTotal + deliveryFee + complementTotal;
+  const personalizationExtra = isPersonalized ? Math.round(Math.round(subtotal * 100) * personalizationPercent / 100) / 100 : 0;
+  const grandTotal = comboTotal + deliveryFee + complementTotal + personalizationExtra;
 
   const addComplement = (name: string) => {
     setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
@@ -920,6 +939,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     setDeliveryStatus("idle");
     setCustomerName("");
     setCustomerPhone("");
+    setIsPersonalized(false);
+    setPersonalizationNotes("");
     setPaymentStatus("idle");
     setSelectedComplements({});
   };
@@ -1038,6 +1059,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       `Quantidade: ${quantity} marmitas`,
       `Valor do combo: ${money(subtotal)}`,
       ...(premiumExtra > 0 ? [`Adicionais por proteínas especiais: ${money(premiumExtra)}`] : []),
+      ...(isPersonalized ? [`Personalização (${personalizationPercent}%): ${money(personalizationExtra)}`] : []),
+      ...(isPersonalized && personalizationNotes.trim() ? ["OBSERVAÇÕES DA DIETA", personalizationNotes.trim()] : []),
       ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
       `Frete: ${money(deliveryFee)}`,
       "------------------------------",
@@ -1076,6 +1099,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           whatsapp: normalizedPhone,
           line: option.line,
           combo_quantity: quantity,
+          is_personalized: isPersonalized,
+          notes: isPersonalized ? personalizationNotes.trim() || null : null,
           items: products
             .filter((product) => selected[product.name])
             .map((product) => ({
@@ -1120,6 +1145,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "*VALORES CONFIRMADOS PELO SISTEMA*",
         `Combo: *${money(Number(result.combo_base ?? subtotal))}*`,
         ...(Number(result.premium_surcharge ?? 0) > 0 ? [`Adicionais por proteínas especiais: *${money(Number(result.premium_surcharge))}*`] : []),
+        ...(Number(result.personalization_amount ?? 0) > 0 ? [`Personalização (${Number(result.personalization_percent)}%): *${money(Number(result.personalization_amount))}*`] : []),
         ...(Number(result.complement_total ?? 0) > 0 ? [`Complementos: *${money(Number(result.complement_total))}*`] : []),
         `Subtotal dos itens: *${money(Number(result.subtotal))}*`,
         `Desconto: *-${money(Number(result.discount ?? 0))}*`,
@@ -1564,12 +1590,22 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="mt-1 text-sm text-white/45">Só falta seu nome e WhatsApp. Depois o pedido abre no WhatsApp para você concluir o pagamento.</div>
           </div>
 
+          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#86a51d]/30 bg-[#171d10] p-4">
+            <input type="checkbox" checked={isPersonalized} disabled={!personalizationEnabled} onChange={(event) => setIsPersonalized(event.target.checked)} className="mt-1 h-4 w-4 accent-[#a7b86a] disabled:opacity-40" />
+            <span className="min-w-0">
+              <span className="block text-sm font-black text-white">Quero personalizar este pedido conforme minha dieta</span>
+              <span className="mt-1 block text-xs leading-5 text-white/55">{personalizationEnabled ? `Inclui o adicional de personalização de ${personalizationPercent}% sobre o valor do combo. A equipe confirma os ajustes da sua dieta antes do preparo.` : "A personalização pelo site está temporariamente desativada. Fale com a equipe Nutrifit."}</span>
+            </span>
+          </label>
+          {isPersonalized && <div className="mb-4 rounded-2xl border border-white/10 bg-white/[.025] p-3"><label className="block text-xs font-bold text-white/65">Observações da dieta (opcional)<textarea value={personalizationNotes} onChange={(event) => setPersonalizationNotes(event.target.value)} rows={3} maxLength={1200} placeholder="Descreva as adaptações necessárias ou informe que enviará seu plano alimentar pelo WhatsApp." className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" /></label></div>}
+
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
               <span className="text-white/45">Linha</span><strong>{option.line} • {option.weight}</strong>
               <span className="text-white/45">Marmitas</span><strong>{quantity}</strong>
               <span className="text-white/45">Subtotal do combo</span><strong>{money(subtotal)}</strong>
               {premiumExtra > 0 && <><span className="text-[#efb06d]">Adicionais por proteínas especiais</span><strong className="text-[#efb06d]">{money(premiumExtra)}</strong></>}
+              {isPersonalized && <><span className="text-[#b6d76a]">Personalização ({personalizationPercent}%)</span><strong className="text-[#b6d76a]">{money(personalizationExtra)}</strong></>}
               {complementItems.length > 0 && (
                 <>
                   <span className="text-white/45">Complementos</span>
@@ -2434,6 +2470,9 @@ export default function Home() {
   const [customerNameError, setCustomerNameError] = useState("");
   const [customerPhoneError, setCustomerPhoneError] = useState("");
   const [couponExpanded, setCouponExpanded] = useState(false);
+  const [isOrderPersonalized, setIsOrderPersonalized] = useState(false);
+  const [orderPersonalizationPercent, setOrderPersonalizationPercent] = useState(40);
+  const [orderPersonalizationEnabled, setOrderPersonalizationEnabled] = useState(true);
   const [addressEditing, setAddressEditing] = useState(false);
   const [orderCep, setOrderCep] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
@@ -2469,6 +2508,20 @@ export default function Home() {
       window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
     }
   }, []);
+  useEffect(() => {
+    let active = true;
+    fetch(SUPABASE_URL + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1", {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+    }).then(async (response) => {
+      if (!response.ok) return;
+      const rows = await response.json();
+      const config = rows?.[0]?.setting_value;
+      const percent = Number(config?.percent);
+      if (active && config) { const enabled = config.enabled !== false; setOrderPersonalizationEnabled(enabled); if (!enabled) setIsOrderPersonalized(false); if (Number.isFinite(percent) && percent >= 0 && percent <= 200) setOrderPersonalizationPercent(percent); }
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
   const orderHasUnverifiedPrices = orderItems.some((item) => getOrderItemCatalogPrice(item) === null);
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -2482,7 +2535,8 @@ export default function Home() {
     : 0;
   const orderDiscount = couponDiscount > 0 ? couponDiscount : Math.min(clubDiscount, orderSubtotal);
   const discountLabel = couponDiscount > 0 ? "Cupom " + appliedCoupon!.code : "Clube Nutrifit";
-  const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
+  const orderPersonalizationExtra = isOrderPersonalized ? Math.round(Math.round(orderSubtotal * 100) * orderPersonalizationPercent / 100) / 100 : 0;
+  const orderGrandTotal = Math.max(0, orderSubtotal + orderPersonalizationExtra - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
@@ -2674,6 +2728,7 @@ export default function Home() {
     drawWrapped("RESUMO DOS VALORES", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
     drawWrapped("Subtotal: " + money(orderSubtotal));
+    if (isOrderPersonalized) drawWrapped("Personalização (" + orderPersonalizationPercent + "%): " + money(orderPersonalizationExtra));
     drawWrapped(discountLabel + ": -" + money(orderDiscount));
     drawWrapped("Frete: " + orderFreightLabel);
     ctx.fillStyle = "#173d20";
@@ -2757,6 +2812,7 @@ export default function Home() {
       "------------",
       "*RESUMO DO PEDIDO*",
       `Produtos: ${money(orderSubtotal)}`,
+      ...(isOrderPersonalized ? [`Personalização (${orderPersonalizationPercent}%): ${money(orderPersonalizationExtra)}`] : []),
       `${discountLabel}: -${money(orderDiscount)}`,
       `Frete: ${money(orderDeliveryFee)}`,
       `*TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
@@ -2794,6 +2850,7 @@ export default function Home() {
         body: JSON.stringify({
           customer_name: customerName.trim(),
           whatsapp: orderPhoneDigits,
+          is_personalized: isOrderPersonalized,
           items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
           coupon_code: appliedCoupon?.code || null,
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
@@ -2854,6 +2911,7 @@ export default function Home() {
         "",
         "*RESUMO DO PEDIDO*",
         `Subtotal oficial: ${money(Number(result.subtotal))}`,
+        ...(Number(result.personalization_amount ?? 0) > 0 ? [`Personalização (${Number(result.personalization_percent)}%): ${money(Number(result.personalization_amount))}`] : []),
         `Desconto oficial: -${money(Number(result.discount ?? 0))}`,
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
         `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
@@ -3210,9 +3268,9 @@ export default function Home() {
 
       <section id="plano-alimentar" aria-label="Atalhos nutricionais" className="border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:px-5 sm:py-4">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
-          <a href={whatsappOrder("Olá Nutrifit! Tenho um plano alimentar e quero transformar em marmitas.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#86a51d]/40 bg-[#86a51d]/[.06] p-3">
+          <a href={whatsappOrder(orderPersonalizationEnabled ? "Olá Nutrifit! Tenho meu plano alimentar e quero transformá-lo em um pedido personalizado. Estou ciente do adicional de personalização de " + orderPersonalizationPercent + "% sobre o valor dos produtos. Vou enviar minha dieta para orçamento." : "Olá Nutrifit! Tenho meu plano alimentar e gostaria de consultar a equipe sobre um pedido personalizado.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#86a51d]/40 bg-[#86a51d]/[.06] p-3">
             <ClipboardCheck size={22} className="text-[#86a51d]" />
-            <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">Transforme suas orientações em refeições.</span></span>
+            <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">{orderPersonalizationEnabled ? `Envie sua dieta para orçamento personalizado · adicional de ${orderPersonalizationPercent}% em refeições.` : "Consulte a equipe sobre a disponibilidade de pedidos personalizados."}</span></span>
             <span className="text-[10px] font-black text-[#86a51d]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
           </a>
           <a href="https://wa.me/5532999925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#f47b0b]/45 bg-[#f47b0b]/[.04] p-3">
@@ -3747,12 +3805,17 @@ export default function Home() {
 
             {orderItems.length > 0 && (
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/[.98] px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,.35)] backdrop-blur sm:px-7 sm:pt-5 sm:pb-7">
+                <label className="mb-3 flex cursor-pointer items-start gap-2 rounded-xl border border-[#86a51d]/30 bg-[#171d10] p-3 text-xs">
+                  <input type="checkbox" checked={isOrderPersonalized} disabled={!orderPersonalizationEnabled} onChange={(event) => setIsOrderPersonalized(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a] disabled:opacity-40" />
+                  <span><strong className="block text-white">Quero adaptar este pedido à minha dieta</strong><span className="mt-1 block leading-4 text-white/55">{orderPersonalizationEnabled ? `Adicional de personalização: ${orderPersonalizationPercent}% sobre os produtos (${money(orderPersonalizationExtra)}).` : "A personalização pelo site está temporariamente desativada."}</span></span>
+                </label>
                 <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-xs">
                   <span className="text-white/55">{orderDiscount > 0 ? (couponDiscount > 0 ? "Cupom aplicado" : "Desconto Nutrifit") : "Descontos"}</span>
                   <strong className={orderDiscount > 0 ? "text-[#86a51d]" : "text-white/65"}>{orderDiscount > 0 ? "-" + money(orderDiscount) : appliedCoupon ? "Verifique o mínimo do cupom" : "Nenhum desconto aplicado"}</strong>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
+                  {isOrderPersonalized && <><span className="text-[#b6d76a]">Personalização ({orderPersonalizationPercent}%)</span><strong className="text-right text-[#b6d76a]">{money(orderPersonalizationExtra)}</strong></>}
                   <span className="text-white/70">Frete</span><strong className="text-right">{orderFreightLabel}</strong>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
