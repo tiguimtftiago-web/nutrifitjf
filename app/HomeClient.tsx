@@ -835,6 +835,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isPersonalized, setIsPersonalized] = useState(false);
+  const [personalizationNotes, setPersonalizationNotes] = useState("");
   const [personalizationPercent, setPersonalizationPercent] = useState(40);
   const [personalizationEnabled, setPersonalizationEnabled] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -939,6 +940,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     setCustomerName("");
     setCustomerPhone("");
     setIsPersonalized(false);
+    setPersonalizationNotes("");
     setPaymentStatus("idle");
     setSelectedComplements({});
   };
@@ -1058,6 +1060,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       `Valor do combo: ${money(subtotal)}`,
       ...(premiumExtra > 0 ? [`Adicionais por proteínas especiais: ${money(premiumExtra)}`] : []),
       ...(isPersonalized ? [`Personalização (${personalizationPercent}%): ${money(personalizationExtra)}`] : []),
+      ...(isPersonalized && personalizationNotes.trim() ? ["OBSERVAÇÕES DA DIETA", personalizationNotes.trim()] : []),
       ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
       `Frete: ${money(deliveryFee)}`,
       "------------------------------",
@@ -1097,6 +1100,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           line: option.line,
           combo_quantity: quantity,
           is_personalized: isPersonalized,
+          notes: isPersonalized ? personalizationNotes.trim() || null : null,
           items: products
             .filter((product) => selected[product.name])
             .map((product) => ({
@@ -1593,6 +1597,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
               <span className="mt-1 block text-xs leading-5 text-white/55">{personalizationEnabled ? `Inclui o adicional de personalização de ${personalizationPercent}% sobre o valor do combo. A equipe confirma os ajustes da sua dieta antes do preparo.` : "A personalização pelo site está temporariamente desativada. Fale com a equipe Nutrifit."}</span>
             </span>
           </label>
+          {isPersonalized && <div className="mb-4 rounded-2xl border border-white/10 bg-white/[.025] p-3"><label className="block text-xs font-bold text-white/65">Observações da dieta (opcional)<textarea value={personalizationNotes} onChange={(event) => setPersonalizationNotes(event.target.value)} rows={3} maxLength={1200} placeholder="Descreva as adaptações necessárias ou informe que enviará seu plano alimentar pelo WhatsApp." className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" /></label></div>}
 
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
