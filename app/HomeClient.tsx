@@ -3470,6 +3470,17 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-y border-white/10 bg-[#10140d]">
+        <div className="mx-auto grid max-w-7xl gap-5 px-4 py-8 sm:px-6 md:grid-cols-[1fr_auto] md:items-center md:px-8 md:py-10">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#f47b0b]">Atendimento sob medida</p>
+            <h2 className="mt-2 text-2xl font-black sm:text-3xl">Precisa de refeições diferentes do nosso cardápio?</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">Monte sua solicitação personalizada, informe quantidades e gramaturas e receba um orçamento antes da produção.</p>
+          </div>
+          <a href="/pedidos-personalizados" onClick={() => trackClick("personalized_request_open", "home_personalized_card")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#86a51d] px-6 py-3 text-sm font-black text-black transition hover:brightness-110">Montar pedido personalizado <ArrowRight size={17}/></a>
+        </div>
+      </section>
+
       <CustomerReviews />
 
       <section id="como-pedir" className="border-t border-white/10 bg-[#0d100c]">
@@ -3985,6 +3996,7 @@ export default function Home() {
               <a href="#sanduiches" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🥪</span> Sanduíches</a>
               <a href="#combos" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🍽️</span> Combos</a>
               <a href="#b2b" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.04] px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-[#86a51d]/60"><span aria-hidden="true" className="text-base">🏢</span> Empresas</a>
+              <a href="/pedidos-personalizados" className="inline-flex items-center gap-2 rounded-full border border-[#86a51d]/40 bg-[#86a51d]/10 px-3 py-2 text-xs font-semibold text-white/90"><span aria-hidden="true" className="text-base">✍️</span> Personalizados</a>
             </div>
           </section>
           <div className="grid gap-7 md:grid-cols-[1.15fr_.85fr] md:gap-12">
