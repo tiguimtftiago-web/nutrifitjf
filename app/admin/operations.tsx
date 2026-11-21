@@ -122,7 +122,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   async function load(background=false){
     if(!background){setBusy(true);setError("");}
     try{
-      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit]=await Promise.all([
+      const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit,personalizationData]=await Promise.all([
         req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,premium_surcharge,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
