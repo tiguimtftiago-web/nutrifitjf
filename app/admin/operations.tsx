@@ -5,7 +5,7 @@ import { useEffect, useState, type ReactNode } from "react";
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 
-type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; active:boolean; sku:string|null; description:string|null; image_url:string|null; };
+type Product = { id:string; name:string; category:string; line:string|null; size_grams:number|null; price:number; premium_surcharge:number; active:boolean; sku:string|null; description:string|null; image_url:string|null; };
 type ComboPrice = { id:string; name:string; quantity:number; price:number; active:boolean; notes:string|null; };
 type Finance = { id:string; created_at:string; type:string; category:string; description:string; amount:number; payment_method:string|null; status:string; paid_at:string|null; };
 type Delivery = { id:string; order_id?:string|null; created_at:string; customer_name:string|null; whatsapp:string|null; neighborhood:string|null; delivery_date:string|null; delivery_window:string|null; fee:number; status:string; driver_name:string|null; meal_quantity?:number; notes?:string|null; };
@@ -111,7 +111,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
   const [recipeItemForm,setRecipeItemForm]=useState({recipe_id:"",item_id:"",quantity:""});
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
-  const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});
+  const [product,setProduct]=useState({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",premium_surcharge:"0",description:"",image_url:"",sku:""});
   const [editingProduct,setEditingProduct]=useState<Product|null>(null);
   const [expense,setExpense]=useState({type:"despesa",category:"insumos",description:"",amount:"",payment_method:"Pix"});
   const [coupon,setCoupon]=useState({code:"",description:"",discount_type:"percent",discount_value:"",minimum_order_value:"0"});
@@ -120,7 +120,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!background){setBusy(true);setError("");}
     try{
       const [p,f,ip,d,b,c,i,m,r,ri,a,s,orders,comboData,audit]=await Promise.all([
-        req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
+        req(URL+"/rest/v1/catalog_products?select=id,name,category,line,size_grams,price,premium_surcharge,active,sku,description,image_url&order=sort_order.asc,name.asc&limit=500",token),
         req(URL+"/rest/v1/financial_transactions?select=*&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/inventory_purchases?select=id,created_at,total_cost,status,invoice_number,notes,supplier_id,order_id,financial_transaction_id,suppliers(name),inventory_purchase_items(id,item_id,quantity,unit_cost,inventory_items(name,unit))&order=created_at.desc&limit=500",token),
         req(URL+"/rest/v1/delivery_orders?select=*&order=delivery_date.asc,created_at.desc&limit=200",token),
@@ -559,23 +559,23 @@ export default function Operations({section,token,initialCategory}:{section:"est
     if(!product.name.trim()||!product.price)return;
     setBusy(true);
     try{
-      await req(URL+"/rest/v1/catalog_products",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price),description:product.description.trim()||null,image_url:product.image_url.trim()||null,sku:product.sku.trim()||null})});
-      setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});await load();
+      await req(URL+"/rest/v1/catalog_products",token,{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price),premium_surcharge:Math.max(0,Number(product.premium_surcharge||0)),description:product.description.trim()||null,image_url:product.image_url.trim()||null,sku:product.sku.trim()||null})});
+      setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",premium_surcharge:"0",description:"",image_url:"",sku:""});await load();
     }catch{setError("Não foi possível cadastrar o produto.");}finally{setBusy(false);}
   }
   function startProductEdit(p:Product){
     setEditingProduct(p);
-    setProduct({name:p.name,category:p.category,line:p.line||"",size_grams:p.size_grams?String(p.size_grams):"",price:String(p.price),description:p.description||"",image_url:p.image_url||"",sku:p.sku||""});
+    setProduct({name:p.name,category:p.category,line:p.line||"",size_grams:p.size_grams?String(p.size_grams):"",price:String(p.price),premium_surcharge:String(p.premium_surcharge||0),description:p.description||"",image_url:p.image_url||"",sku:p.sku||""});
   }
   function cancelProductEdit(){
     setEditingProduct(null);
-    setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",description:"",image_url:"",sku:""});
+    setProduct({name:"",category:"marmita",line:"Fit",size_grams:"350",price:"",premium_surcharge:"0",description:"",image_url:"",sku:""});
   }
   async function saveProduct(){
     if(!editingProduct||!product.name.trim()||!product.price)return;
     setBusy(true);setError("");
     try{
-      await req(URL+"/rest/v1/catalog_products?id=eq."+editingProduct.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price)})});
+      await req(URL+"/rest/v1/catalog_products?id=eq."+editingProduct.id,token,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({name:product.name.trim(),category:product.category,line:product.line||null,size_grams:product.size_grams?Number(product.size_grams):null,price:Number(product.price),premium_surcharge:Math.max(0,Number(product.premium_surcharge||0))})});
       cancelProductEdit();await load();
     }catch{setError("Não foi possível atualizar o produto.");}finally{setBusy(false);}
   }
@@ -669,7 +669,8 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <input value={product.category} onChange={e=>setProduct({...product,category:e.target.value})} placeholder="Categoria" className={input}/>
       <input value={product.line} onChange={e=>setProduct({...product,line:e.target.value})} placeholder="Linha" className={input}/>
       <input value={product.size_grams} onChange={e=>setProduct({...product,size_grams:e.target.value})} placeholder="Gramas / ml" className={input}/>
-      <input type="number" step="0.01" value={product.price} onChange={e=>setProduct({...product,price:e.target.value})} placeholder="Preço" className={input}/>
+      <input type="number" step="0.01" value={product.price} onChange={e=>setProduct({...product,price:e.target.value})} placeholder="Preço de venda (R$)" className={input}/>
+      <input type="number" min="0" step="0.01" value={product.premium_surcharge} onChange={e=>setProduct({...product,premium_surcharge:e.target.value})} placeholder="Adicional especial por unidade (R$)" className={input}/>
       <input value={product.sku} onChange={e=>setProduct({...product,sku:e.target.value})} placeholder="SKU (opcional)" className={input}/>
       <input value={product.image_url} onChange={e=>setProduct({...product,image_url:e.target.value})} placeholder="Caminho da imagem (ex.: /images/prato.jpg)" className={input}/>
       <textarea value={product.description} onChange={e=>setProduct({...product,description:e.target.value})} placeholder="Descrição exibida no cardápio" rows={2} className={input+" sm:col-span-2"}/>
@@ -683,9 +684,10 @@ export default function Operations({section,token,initialCategory}:{section:"est
       <div className="relative"><span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/40">⌕</span><input value={productSearch} onChange={e=>setProductSearch(e.target.value)} placeholder="Digite o nome do produto..." aria-label="Pesquisar produto e preço" className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-10 pr-10 outline-none focus:border-[#a7b86a]/60"/>{productSearch&&<button type="button" onClick={()=>setProductSearch("")} aria-label="Limpar pesquisa" className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-xs text-white/55">×</button>}</div>
       <div className="mt-2 text-xs text-white/40">{products.filter(p=>!productSearch.trim()||[p.name,p.category,p.line||"",p.sku||""].join(" ").toLocaleLowerCase("pt-BR").includes(productSearch.trim().toLocaleLowerCase("pt-BR"))).length} produto(s) encontrado(s)</div>
     </div>
-    <Table><thead><tr><Th>Produto</Th><Th>Linha</Th><Th>Tamanho</Th><Th>Preço</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{products.filter(p=>!productSearch.trim()||[p.name,p.category,p.line||"",p.sku||""].join(" ").toLocaleLowerCase("pt-BR").includes(productSearch.trim().toLocaleLowerCase("pt-BR"))).map(p=><tr key={p.id} className="border-t border-white/5">
+    <Table><thead><tr><Th>Produto</Th><Th>Linha</Th><Th>Tamanho</Th><Th>Preço</Th><Th>Adicional especial</Th><Th>Status</Th><Th>Ações</Th></tr></thead><tbody>{products.filter(p=>!productSearch.trim()||[p.name,p.category,p.line||"",p.sku||""].join(" ").toLocaleLowerCase("pt-BR").includes(productSearch.trim().toLocaleLowerCase("pt-BR"))).map(p=><tr key={p.id} className="border-t border-white/5">
       <Td><b>{p.name}</b><div className="text-xs text-white/35">{p.category}</div></Td>
       <Td>{p.line||"—"}</Td><Td>{p.size_grams?p.size_grams+" g":"—"}</Td><Td>{money(p.price)}</Td>
+      <Td>{p.premium_surcharge>0?money(p.premium_surcharge):"—"}</Td>
       <Td>{p.active?"Ativo":"Inativo"}</Td>
       <Td><div className="flex gap-2 whitespace-nowrap">
         <button onClick={()=>startProductEdit(p)} disabled={busy} className="rounded-full border border-white/10 px-3 py-2 text-xs font-bold">Editar</button>
