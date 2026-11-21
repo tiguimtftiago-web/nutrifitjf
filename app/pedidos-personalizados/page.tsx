@@ -62,6 +62,34 @@ export default function PersonalizedOrdersPage() {
           <p className="mt-4 max-w-2xl text-sm leading-6 text-white/65 sm:text-base">Conte como você precisa das refeições. Nossa equipe avalia a composição, a operação e os ingredientes para preparar um orçamento claro antes de iniciar a produção.</p>
         </div>
 
+        <section className="mt-7 rounded-2xl border border-[#86a51d]/30 bg-[#11170e] p-5 sm:p-6" aria-labelledby="pricing-explainer">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-[#f47b0b]">Transparência no orçamento</p>
+            <h2 id="pricing-explainer" className="mt-2 text-xl font-black sm:text-2xl">Como é calculado o valor da sua refeição personalizada?</h2>
+            <p className="mt-2 text-sm leading-6 text-white/65">O preço considera a composição completa do pedido — não apenas o peso final da marmita. Cada solicitação é avaliada para que você saiba o valor antes de confirmar.</p>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <span className="text-lg" aria-hidden="true">🥩</span>
+              <h3 className="mt-2 text-sm font-black">Ingredientes e compras</h3>
+              <p className="mt-1 text-xs leading-5 text-white/55">Consideramos os alimentos escolhidos e a necessidade de compras específicas fora do cardápio habitual.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <span className="text-lg" aria-hidden="true">⚖️</span>
+              <h3 className="mt-2 text-sm font-black">Gramaturas e quantidade</h3>
+              <p className="mt-1 text-xs leading-5 text-white/55">As porções e o número de refeições influenciam o custo dos ingredientes e a organização da produção.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <span className="text-lg" aria-hidden="true">🍱</span>
+              <h3 className="mt-2 text-sm font-black">Preparação individual</h3>
+              <p className="mt-1 text-xs leading-5 text-white/55">Também avaliamos separação, preparo, embalagem e etapas adicionais necessárias para atender à sua solicitação.</p>
+            </div>
+          </div>
+          <div className="mt-4 rounded-xl border border-[#86a51d]/25 bg-[#86a51d]/[.08] px-4 py-3 text-sm leading-6 text-white/80">
+            <strong className="text-[#b8d66a]">Você aprova antes de pagar:</strong> enviamos o orçamento final e as condições do pedido. A produção só começa depois da sua aprovação. Uma gramatura menor, por si só, não define o preço; a composição e os custos de produção também são considerados.
+          </div>
+        </section>
+
         <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_340px] lg:items-start">
           <section className="rounded-2xl border border-white/10 bg-[#11150f] p-4 sm:p-6">
             <div className="flex items-center gap-3 border-b border-white/10 pb-4">
