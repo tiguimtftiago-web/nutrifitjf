@@ -690,7 +690,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
           <div className="text-sm font-bold text-white/80">Adicional único para pedidos personalizados</div>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-white/45">O percentual é aplicado somente quando o pedido for identificado como personalizado. O preço do cardápio e os adicionais de proteínas especiais continuam separados.</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={personalizationEnabled} onChange={e=>setPersonalizationEnabled(e.target.checked)} className="accent-[#a7b86a]"/> Regra ativa</label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={personalizationEnabled} onChange={e=>{setPersonalizationEnabled(e.target.checked);setPersonalizationSaved(false);}} className="accent-[#a7b86a]"/> Regra ativa</label>
             <div className="w-36">
               <label className="mb-1 block text-xs text-white/45">Percentual (%)</label>
               <input type="number" min="0" max="200" step="0.5" value={personalizationPercent} onChange={e=>{setPersonalizationPercent(e.target.value);setPersonalizationSaved(false);}} className={input}/>
