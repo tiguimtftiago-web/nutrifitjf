@@ -1140,6 +1140,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "*VALORES CONFIRMADOS PELO SISTEMA*",
         `Combo: *${money(Number(result.combo_base ?? subtotal))}*`,
         ...(Number(result.premium_surcharge ?? 0) > 0 ? [`Adicionais por proteínas especiais: *${money(Number(result.premium_surcharge))}*`] : []),
+        ...(Number(result.personalization_amount ?? 0) > 0 ? [`Personalização (${Number(result.personalization_percent)}%): *${money(Number(result.personalization_amount))}*`] : []),
         ...(Number(result.complement_total ?? 0) > 0 ? [`Complementos: *${money(Number(result.complement_total))}*`] : []),
         `Subtotal dos itens: *${money(Number(result.subtotal))}*`,
         `Desconto: *-${money(Number(result.discount ?? 0))}*`,
