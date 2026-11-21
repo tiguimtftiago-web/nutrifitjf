@@ -23,7 +23,7 @@ drop policy if exists business_settings_public_personalization_read on public.bu
 create policy business_settings_public_personalization_read
   on public.business_settings
   for select
-  to anon
+  to anon, authenticated
   using (setting_key = 'personalization_surcharge_percent');
 
 grant select on public.business_settings to anon;
