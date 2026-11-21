@@ -700,7 +700,16 @@ export default function Operations({section,token,initialCategory}:{section:"est
         <button onClick={()=>void savePersonalizationConfig()} disabled={busy} className="rounded-full bg-[#a7b86a] px-5 py-3 text-sm font-black text-black disabled:opacity-50">Salvar regra</button>
       </div>
       <div className="mt-5 grid gap-2 sm:grid-cols-3">
-        {([{name:"Fit",size:"350 g"},{name:"Performance",size:"450 g"},{name:"Tradicional",size:"500 g"}]).map(line=><div key={line.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3"><div className="text-xs text-white/45">{line.size}</div><div className="mt-1 flex items-center justify-between gap-2"><b>{line.name}</b><span className="rounded-full bg-white/10 px-3 py-1 text-sm font-black">{personalizationEnabled?((Number(personalizationPercent)||0).toLocaleString("pt-BR")+"%"):"Desativado"}</span></div></div>)}
+        {([{name:"Fit",size:"350 g"},{name:"Performance",size:"450 g"},{name:"Tradicional",size:"500 g"}]).map(line=>{
+          const combo=comboPrices.find(c=>c.name.toLocaleUpperCase("pt-BR")===line.name.toLocaleUpperCase("pt-BR")&&Number(c.quantity)===5);
+          const base=Number(combo?.price||0);
+          const extra=personalizationEnabled?Math.round(base*100*(Number(personalizationPercent)||0)/100)/100:0;
+          return <div key={line.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
+            <div className="text-xs text-white/45">{line.size}</div>
+            <div className="mt-1 flex items-center justify-between gap-2"><b>{line.name}</b><span className="rounded-full bg-white/10 px-3 py-1 text-sm font-black">{personalizationEnabled?((Number(personalizationPercent)||0).toLocaleString("pt-BR")+"%"):"Desativado"}</span></div>
+            {combo?<div className="mt-3 text-xs leading-5 text-white/55">Combo de 5: {money(base)}<br/>Com personalização: <b className="text-[#b6d76a]">{money(base+extra)}</b></div>:<div className="mt-3 text-xs text-white/40">Preço do combo de 5 não cadastrado</div>}
+          </div>;
+        })}
       </div>
       {personalizationSaved&&<p className="mt-3 text-xs font-bold text-[#a7b86a]" role="status">Regra salva no banco de dados.</p>}
     </Panel>
