@@ -834,11 +834,27 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const [deliveryStatus, setDeliveryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [isPersonalized, setIsPersonalized] = useState(false);
+  const [personalizationPercent, setPersonalizationPercent] = useState(40);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "loading" | "error">("idle");
   const orderSubmitLock = useRef(false);
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(initialStep);
   const [selectedComplements, setSelectedComplements] = useState<Record<string, number>>({});
   const [complementCategory, setComplementCategory] = useState<"SUCOS" | "SANDUÍCHES" | "FRUTAS" | null>(null);
+  useEffect(() => {
+    let active = true;
+    fetch(SUPABASE_URL + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1", {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+    }).then(async (response) => {
+      if (!response.ok) return;
+      const rows = await response.json();
+      const config = rows?.[0]?.setting_value;
+      const percent = Number(config?.percent);
+      if (active && config?.enabled !== false && Number.isFinite(percent) && percent >= 0 && percent <= 200) setPersonalizationPercent(percent);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
   const option = comboOptions[lineIndex];
   const products = productsOverride;
   const complements = complementsOverride;
@@ -855,7 +871,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = complements.filter((item) => selectedComplements[item.name]);
   const complementTotal = complementItems.reduce((sum, item) => sum + (item.price ?? 0) * (selectedComplements[item.name] || 0), 0);
-  const grandTotal = comboTotal + deliveryFee + complementTotal;
+  const personalizationExtra = isPersonalized ? Math.round(Math.round(subtotal * 100) * personalizationPercent / 100) / 100 : 0;
+  const grandTotal = comboTotal + deliveryFee + complementTotal + personalizationExtra;
 
   const addComplement = (name: string) => {
     setSelectedComplements((current) => ({ ...current, [name]: (current[name] || 0) + 1 }));
@@ -920,6 +937,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
     setDeliveryStatus("idle");
     setCustomerName("");
     setCustomerPhone("");
+    setIsPersonalized(false);
     setPaymentStatus("idle");
     setSelectedComplements({});
   };
@@ -1038,6 +1056,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       `Quantidade: ${quantity} marmitas`,
       `Valor do combo: ${money(subtotal)}`,
       ...(premiumExtra > 0 ? [`Adicionais por proteínas especiais: ${money(premiumExtra)}`] : []),
+      ...(isPersonalized ? [`Personalização (${personalizationPercent}%): ${money(personalizationExtra)}`] : []),
       ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
       `Frete: ${money(deliveryFee)}`,
       "------------------------------",
@@ -1076,6 +1095,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
           whatsapp: normalizedPhone,
           line: option.line,
           combo_quantity: quantity,
+          is_personalized: isPersonalized,
           items: products
             .filter((product) => selected[product.name])
             .map((product) => ({
@@ -1564,12 +1584,21 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="mt-1 text-sm text-white/45">Só falta seu nome e WhatsApp. Depois o pedido abre no WhatsApp para você concluir o pagamento.</div>
           </div>
 
+          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#86a51d]/30 bg-[#171d10] p-4">
+            <input type="checkbox" checked={isPersonalized} onChange={(event) => setIsPersonalized(event.target.checked)} className="mt-1 h-4 w-4 accent-[#a7b86a]" />
+            <span className="min-w-0">
+              <span className="block text-sm font-black text-white">Quero personalizar este pedido conforme minha dieta</span>
+              <span className="mt-1 block text-xs leading-5 text-white/55">Inclui o adicional de personalização de {personalizationPercent}% sobre o valor do combo. A equipe confirma os ajustes da sua dieta antes do preparo.</span>
+            </span>
+          </label>
+
           <div className="rounded-2xl border border-white/10 bg-white/[.025] p-4">
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
               <span className="text-white/45">Linha</span><strong>{option.line} • {option.weight}</strong>
               <span className="text-white/45">Marmitas</span><strong>{quantity}</strong>
               <span className="text-white/45">Subtotal do combo</span><strong>{money(subtotal)}</strong>
               {premiumExtra > 0 && <><span className="text-[#efb06d]">Adicionais por proteínas especiais</span><strong className="text-[#efb06d]">{money(premiumExtra)}</strong></>}
+              {isPersonalized && <><span className="text-[#b6d76a]">Personalização ({personalizationPercent}%)</span><strong className="text-[#b6d76a]">{money(personalizationExtra)}</strong></>}
               {complementItems.length > 0 && (
                 <>
                   <span className="text-white/45">Complementos</span>
