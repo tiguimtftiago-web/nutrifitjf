@@ -1590,11 +1590,15 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="mt-1 text-sm text-white/45">Só falta seu nome e WhatsApp. Depois o pedido abre no WhatsApp para você concluir o pagamento.</div>
           </div>
 
-          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#86a51d]/30 bg-[#171d10] p-4">
+          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-[#f47b0b]/45 bg-[#171d10] p-4 shadow-[0_0_0_1px_rgba(244,123,11,.08)]">
             <input type="checkbox" checked={isPersonalized} disabled={!personalizationEnabled} onChange={(event) => setIsPersonalized(event.target.checked)} className="mt-1 h-4 w-4 accent-[#a7b86a] disabled:opacity-40" />
-            <span className="min-w-0">
-              <span className="block text-sm font-black text-white">Quero personalizar este pedido conforme minha dieta</span>
-              <span className="mt-1 block text-xs leading-5 text-white/55">{personalizationEnabled ? `Inclui o adicional de personalização de ${personalizationPercent}% sobre o valor do combo. A equipe confirma os ajustes da sua dieta antes do preparo.` : "A personalização pelo site está temporariamente desativada. Fale com a equipe Nutrifit."}</span>
+            <span className="min-w-0 flex-1">
+              <span className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-black text-white">Quero personalizar este pedido conforme minha dieta</span>
+                <span className="rounded-full bg-[#f47b0b]/15 px-2.5 py-1 text-xs font-black text-[#ffad62]">{personalizationEnabled ? `+ ${personalizationPercent}%` : "Indisponível"}</span>
+              </span>
+              <span className="mt-2 block text-xs leading-5 text-white/70">{personalizationEnabled ? `A personalização tem adicional de ${personalizationPercent}% sobre o valor do combo. Você verá o valor em reais antes de confirmar.` : "A personalização pelo site está temporariamente desativada. Fale com a equipe Nutrifit."}</span>
+              <span className="mt-1 block text-[11px] font-semibold text-[#b6d76a]">Opcional — se não marcar, o pedido permanece com o preço normal.</span>
             </span>
           </label>
           {isPersonalized && <div className="mb-4 rounded-2xl border border-white/10 bg-white/[.025] p-3"><label className="block text-xs font-bold text-white/65">Observações da dieta (opcional)<textarea value={personalizationNotes} onChange={(event) => setPersonalizationNotes(event.target.value)} rows={3} maxLength={1200} placeholder="Descreva as adaptações necessárias ou informe que enviará seu plano alimentar pelo WhatsApp." className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-3 text-sm text-white outline-none focus:border-[#86a51d]" /></label></div>}
@@ -3805,9 +3809,13 @@ export default function Home() {
 
             {orderItems.length > 0 && (
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/[.98] px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,.35)] backdrop-blur sm:px-7 sm:pt-5 sm:pb-7">
-                <label className="mb-3 flex cursor-pointer items-start gap-2 rounded-xl border border-[#86a51d]/30 bg-[#171d10] p-3 text-xs">
+                <label className="mb-3 flex cursor-pointer items-start gap-2 rounded-xl border border-[#f47b0b]/45 bg-[#171d10] p-3 text-xs shadow-[0_0_0_1px_rgba(244,123,11,.08)]">
                   <input type="checkbox" checked={isOrderPersonalized} disabled={!orderPersonalizationEnabled} onChange={(event) => setIsOrderPersonalized(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a] disabled:opacity-40" />
-                  <span><strong className="block text-white">Quero adaptar este pedido à minha dieta</strong><span className="mt-1 block leading-4 text-white/55">{orderPersonalizationEnabled ? `Adicional de personalização: ${orderPersonalizationPercent}% sobre os produtos (${money(orderPersonalizationExtra)}).` : "A personalização pelo site está temporariamente desativada."}</span></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-2"><strong className="text-white">Quero adaptar este pedido à minha dieta</strong><strong className="rounded-full bg-[#f47b0b]/15 px-2 py-1 text-[#ffad62]">{orderPersonalizationEnabled ? `+ ${orderPersonalizationPercent}%` : "Indisponível"}</strong></span>
+                    <span className="mt-1 block leading-4 text-white/70">{orderPersonalizationEnabled ? `Adicional de ${orderPersonalizationPercent}% sobre o valor dos produtos (${money(orderPersonalizationExtra)}). O valor é exibido antes da confirmação.` : "A personalização pelo site está temporariamente desativada."}</span>
+                    <span className="mt-1 block text-[11px] font-semibold text-[#b6d76a]">Opcional — sem marcar, o pedido segue pelo preço normal.</span>
+                  </span>
                 </label>
                 <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-xs">
                   <span className="text-white/55">{orderDiscount > 0 ? (couponDiscount > 0 ? "Cupom aplicado" : "Desconto Nutrifit") : "Descontos"}</span>
