@@ -280,7 +280,24 @@ const catalogNameAliases: Record<string, string> = {
       if (quantity < 20) deliveryCents = Math.round(expectedFee * 100);
     }
 
-    const subtotalCents = baseCents + premiumCents + complementCents;
+    let personalizationPercent = 0;
+    let personalizationCents = 0;
+    const isPersonalized = body.is_personalized === true;
+    if (isPersonalized) {
+      const settingResponse = await fetch(
+        url + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1",
+        { headers },
+      );
+      if (!settingResponse.ok) return respond(502, { error: "Não foi possível validar a regra de personalização." });
+      const settings = await settingResponse.json();
+      const setting = settings?.[0]?.setting_value;
+      if (!setting || setting.enabled === false) return respond(409, { error: "Pedidos personalizados estão temporariamente indisponíveis pelo site. Fale com a Nutrifit." });
+      personalizationPercent = Number(setting.percent);
+      if (!Number.isFinite(personalizationPercent) || personalizationPercent < 0 || personalizationPercent > 200)
+        return respond(502, { error: "A regra de personalização está inválida. Entre em contato com a Nutrifit." });
+      personalizationCents = Math.round(baseCents * personalizationPercent / 100);
+    }
+    const subtotalCents = baseCents + premiumCents + complementCents + personalizationCents;
     const totalCents = subtotalCents + deliveryCents;
     if (subtotalCents <= 0 || totalCents > 50000000) return respond(400, { error: "Valor do pedido inválido." });
     const acquisitionSource = body.acquisition_source ? String(body.acquisition_source).slice(0, 120) : "site_combo_builder";
@@ -288,6 +305,7 @@ const catalogNameAliases: Record<string, string> = {
       "Pedido iniciado pelo montador de combos.",
       "Linha: " + line + "; quantidade do combo: " + quantity + "; recebimento: " + mode + ".",
       premiumBreakdown.length ? "Adicionais por proteínas especiais: " + premiumBreakdown.map((item) => item.quantity + "x " + item.name + " (" + (item.total_cents / 100).toFixed(2) + ")").join("; ") : "",
+      isPersonalized ? "Personalização: " + personalizationPercent + "% (R$ " + (personalizationCents / 100).toFixed(2) + ") calculados sobre o valor-base do combo." : "",
       body.notes ? String(body.notes).slice(0, 1200) : "",
     ].filter(Boolean).join("\n");
 
@@ -295,6 +313,7 @@ const catalogNameAliases: Record<string, string> = {
       customer_name: customerName, whatsapp, email: body.email ? String(body.email).slice(0, 254) : null,
       items: pricedItems, item_count: quantity + complementInput.reduce((sum: number, item: {quantity:number}) => sum + item.quantity, 0),
       subtotal: subtotalCents / 100, discount: 0, delivery_fee: deliveryCents / 100, total: totalCents / 100,
+      is_personalized: isPersonalized, personalization_percent: personalizationPercent, personalization_amount: personalizationCents / 100,
       cep: cep || null, neighborhood: mode === "pickup" ? "Retirada na Nutrifit" : (neighborhood || String(body.neighborhood ?? "").trim().slice(0, 120) || null),
       street: mode === "delivery" ? street : null,
       address_number: mode === "delivery" ? addressNumber : null,
@@ -319,6 +338,7 @@ const catalogNameAliases: Record<string, string> = {
     return respond(200, {
       ok: true, order_id: saved?.[0]?.id ?? null, order_code: saved?.[0]?.order_code ?? null,
       combo_base: baseCents / 100, premium_surcharge: premiumCents / 100, complement_total: complementCents / 100,
+      is_personalized: isPersonalized, personalization_percent: personalizationPercent, personalization_amount: personalizationCents / 100,
       subtotal: payload.subtotal, delivery_fee: payload.delivery_fee, total: payload.total,
       premium_breakdown: premiumBreakdown.map((item) => ({ name: item.name, quantity: item.quantity, unit_surcharge: item.unit_cents / 100, total_surcharge: item.total_cents / 100 })),
       items: pricedItems,
