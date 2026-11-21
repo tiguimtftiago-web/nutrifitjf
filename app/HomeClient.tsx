@@ -92,6 +92,7 @@ type Product = {
   crop?: string;
   comingSoon?: boolean;
   category?: string;
+  premiumSurcharge?: number;
 };
 
 const FIT_SPRITE = "/images/nutrifit-fit-350-sprite.jpg";
@@ -537,6 +538,7 @@ type CatalogProductRow = {
   image_url: string | null;
   category: string;
   sort_order: number;
+  premium_surcharge?: number | string | null;
 };
 
 function useCatalogComboPrices(): CatalogComboPriceState {
@@ -579,7 +581,7 @@ function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus 
     const loadProducts = async () => {
       try {
         const response = await fetch(
-          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)&order=sort_order.asc,name.asc",
+          SUPABASE_URL + "/rest/v1/catalog_products?select=name,line,size_grams,price,description,image_url,category,sort_order,premium_surcharge&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)&order=sort_order.asc,name.asc",
           { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, cache: "no-store" },
         );
         if (!response.ok) throw new Error("Não foi possível carregar o catálogo.");
@@ -608,6 +610,7 @@ function useCatalogProducts(): { products: Product[]; status: CatalogLoadStatus 
               description: row.description || "",
               image: row.image_url || "",
               category,
+              premiumSurcharge: Number(row.premium_surcharge ?? 0),
             };
           });
         if (!products.length) throw new Error("O catálogo não retornou produtos ativos válidos.");
@@ -843,8 +846,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
   const priceReady = catalogComboReady && catalogProductsReady && catalogPrice !== undefined && products.length > 0;
   const subtotal = catalogPrice ?? 0;
-  const tilapiaSurchargePerUnit = (productName: string) => option.line === "FIT" && productName === "Tilápia Fit com Arroz Branco e Legumes" ? 6 : 0;
-  const premiumExtra = products.reduce((sum, product) => sum + tilapiaSurchargePerUnit(product.name) * (selected[product.name] || 0), 0);
+  const premiumExtra = products.reduce((sum, product) =>
+    sum + (product.category === "marmita" ? Math.max(0, Number(product.premiumSurcharge || 0)) * (selected[product.name] || 0) : 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = complements.filter((item) => selectedComplements[item.name]);
@@ -1031,7 +1034,7 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       "RESUMO DOS VALORES",
       `Quantidade: ${quantity} marmitas`,
       `Valor do combo: ${money(subtotal)}`,
-      ...(premiumExtra > 0 ? [`Adicional de tilápia: ${money(premiumExtra)}`] : []),
+      ...(premiumExtra > 0 ? [`Adicionais por proteínas especiais: ${money(premiumExtra)}`] : []),
       ...(complementTotal > 0 ? [`Complementos: ${money(complementTotal)}`] : []),
       `Frete: ${money(deliveryFee)}`,
       "------------------------------",
@@ -1112,7 +1115,10 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
         "",
         "------------",
         "*VALORES CONFIRMADOS PELO SISTEMA*",
-        `Subtotal: *${money(Number(result.subtotal))}*`,
+        `Combo: *${money(Number(result.combo_base ?? subtotal))}*`,
+        ...(Number(result.premium_surcharge ?? 0) > 0 ? [`Adicionais por proteínas especiais: *${money(Number(result.premium_surcharge))}*`] : []),
+        ...(Number(result.complement_total ?? 0) > 0 ? [`Complementos: *${money(Number(result.complement_total))}*`] : []),
+        `Subtotal dos itens: *${money(Number(result.subtotal))}*`,
         `Desconto: *-${money(Number(result.discount ?? 0))}*`,
         `Frete: *${money(Number(result.delivery_fee))}*`,
         `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
@@ -1559,7 +1565,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
             <div className="grid grid-cols-2 gap-x-5 gap-y-2 text-sm">
               <span className="text-white/45">Linha</span><strong>{option.line} • {option.weight}</strong>
               <span className="text-white/45">Marmitas</span><strong>{quantity}</strong>
-              <span className="text-white/45">Subtotal</span><strong>{money(subtotal)}</strong>
+              <span className="text-white/45">Subtotal do combo</span><strong>{money(subtotal)}</strong>
+              {premiumExtra > 0 && <><span className="text-[#efb06d]">Adicionais por proteínas especiais</span><strong className="text-[#efb06d]">{money(premiumExtra)}</strong></>}
               {complementItems.length > 0 && (
                 <>
                   <span className="text-white/45">Complementos</span>
