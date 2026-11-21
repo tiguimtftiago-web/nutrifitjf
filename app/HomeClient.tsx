@@ -2463,6 +2463,8 @@ export default function Home() {
   const [customerNameError, setCustomerNameError] = useState("");
   const [customerPhoneError, setCustomerPhoneError] = useState("");
   const [couponExpanded, setCouponExpanded] = useState(false);
+  const [isOrderPersonalized, setIsOrderPersonalized] = useState(false);
+  const [orderPersonalizationPercent, setOrderPersonalizationPercent] = useState(40);
   const [addressEditing, setAddressEditing] = useState(false);
   const [orderCep, setOrderCep] = useState("");
   const [orderStreet, setOrderStreet] = useState("");
@@ -2498,6 +2500,20 @@ export default function Home() {
       window.localStorage.removeItem(DELIVERY_STORAGE_KEY);
     }
   }, []);
+  useEffect(() => {
+    let active = true;
+    fetch(SUPABASE_URL + "/rest/v1/business_settings?select=setting_value&setting_key=eq.personalization_surcharge_percent&limit=1", {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+    }).then(async (response) => {
+      if (!response.ok) return;
+      const rows = await response.json();
+      const config = rows?.[0]?.setting_value;
+      const percent = Number(config?.percent);
+      if (active && config?.enabled !== false && Number.isFinite(percent) && percent >= 0 && percent <= 200) setOrderPersonalizationPercent(percent);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
   const orderHasUnverifiedPrices = orderItems.some((item) => getOrderItemCatalogPrice(item) === null);
   const orderSubtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const orderCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -2511,7 +2527,8 @@ export default function Home() {
     : 0;
   const orderDiscount = couponDiscount > 0 ? couponDiscount : Math.min(clubDiscount, orderSubtotal);
   const discountLabel = couponDiscount > 0 ? "Cupom " + appliedCoupon!.code : "Clube Nutrifit";
-  const orderGrandTotal = Math.max(0, orderSubtotal - orderDiscount + orderDeliveryFee);
+  const orderPersonalizationExtra = isOrderPersonalized ? Math.round(Math.round(orderSubtotal * 100) * orderPersonalizationPercent / 100) / 100 : 0;
+  const orderGrandTotal = Math.max(0, orderSubtotal + orderPersonalizationExtra - orderDiscount + orderDeliveryFee);
   const orderPhoneDigits = customerPhone.replace(/\D/g, "");
   const orderCustomerReady = Boolean(customerName.trim() && orderPhoneDigits.length >= 10);
   const orderDeliveryReady = Boolean(orderDelivery && orderNumber.trim() && orderNeighborhood.trim() && orderCity.trim() && orderState.trim());
@@ -2786,6 +2803,7 @@ export default function Home() {
       "------------",
       "*RESUMO DO PEDIDO*",
       `Produtos: ${money(orderSubtotal)}`,
+      ...(isOrderPersonalized ? [`Personalização (${orderPersonalizationPercent}%): ${money(orderPersonalizationExtra)}`] : []),
       `${discountLabel}: -${money(orderDiscount)}`,
       `Frete: ${money(orderDeliveryFee)}`,
       `*TOTAL A PAGAR: ${money(orderGrandTotal)}*`,
@@ -2823,6 +2841,7 @@ export default function Home() {
         body: JSON.stringify({
           customer_name: customerName.trim(),
           whatsapp: orderPhoneDigits,
+          is_personalized: isOrderPersonalized,
           items: orderItems.map(({ name, line, weight, quantity }) => ({ name, line, weight, quantity })),
           coupon_code: appliedCoupon?.code || null,
           club_welcome_discount: !appliedCoupon && clubDiscount > 0,
@@ -2883,6 +2902,7 @@ export default function Home() {
         "",
         "*RESUMO DO PEDIDO*",
         `Subtotal oficial: ${money(Number(result.subtotal))}`,
+        ...(Number(result.personalization_amount ?? 0) > 0 ? [`Personalização (${Number(result.personalization_percent)}%): ${money(Number(result.personalization_amount))}`] : []),
         `Desconto oficial: -${money(Number(result.discount ?? 0))}`,
         `Frete oficial: ${money(Number(result.delivery_fee))}`,
         `*TOTAL OFICIAL: ${money(Number(result.total))}*`,
@@ -3776,12 +3796,17 @@ export default function Home() {
 
             {orderItems.length > 0 && (
               <div className="sticky bottom-0 z-10 border-t border-white/10 bg-[#080a07]/[.98] px-4 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,.35)] backdrop-blur sm:px-7 sm:pt-5 sm:pb-7">
+                <label className="mb-3 flex cursor-pointer items-start gap-2 rounded-xl border border-[#86a51d]/30 bg-[#171d10] p-3 text-xs">
+                  <input type="checkbox" checked={isOrderPersonalized} onChange={(event) => setIsOrderPersonalized(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#a7b86a]" />
+                  <span><strong className="block text-white">Quero adaptar este pedido à minha dieta</strong><span className="mt-1 block leading-4 text-white/55">Adicional de personalização: {orderPersonalizationPercent}% sobre os produtos ({money(orderPersonalizationExtra)}).</span></span>
+                </label>
                 <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-xs">
                   <span className="text-white/55">{orderDiscount > 0 ? (couponDiscount > 0 ? "Cupom aplicado" : "Desconto Nutrifit") : "Descontos"}</span>
                   <strong className={orderDiscount > 0 ? "text-[#86a51d]" : "text-white/65"}>{orderDiscount > 0 ? "-" + money(orderDiscount) : appliedCoupon ? "Verifique o mínimo do cupom" : "Nenhum desconto aplicado"}</strong>
                 </div>
                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                   <span className="text-white/45">Subtotal</span><strong className="text-right">{money(orderSubtotal)}</strong>
+                  {isOrderPersonalized && <><span className="text-[#b6d76a]">Personalização ({orderPersonalizationPercent}%)</span><strong className="text-right text-[#b6d76a]">{money(orderPersonalizationExtra)}</strong></>}
                   <span className="text-white/70">Frete</span><strong className="text-right">{orderFreightLabel}</strong>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
