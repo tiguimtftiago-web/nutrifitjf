@@ -2728,6 +2728,7 @@ export default function Home() {
     drawWrapped("RESUMO DOS VALORES", "bold 32px Arial");
     ctx.fillStyle = "#ffffff";
     drawWrapped("Subtotal: " + money(orderSubtotal));
+    if (isOrderPersonalized) drawWrapped("Personalização (" + orderPersonalizationPercent + "%): " + money(orderPersonalizationExtra));
     drawWrapped(discountLabel + ": -" + money(orderDiscount));
     drawWrapped("Frete: " + orderFreightLabel);
     ctx.fillStyle = "#173d20";
