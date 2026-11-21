@@ -707,7 +707,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
           return <div key={line.name} className="rounded-2xl border border-white/10 bg-white/[.025] p-3">
             <div className="text-xs text-white/45">{line.size}</div>
             <div className="mt-1 flex items-center justify-between gap-2"><b>{line.name}</b><span className="rounded-full bg-white/10 px-3 py-1 text-sm font-black">{personalizationEnabled?((Number(personalizationPercent)||0).toLocaleString("pt-BR")+"%"):"Desativado"}</span></div>
-            {combo?<div className="mt-3 text-xs leading-5 text-white/55">Combo de 5: {money(base)}<br/>Com personalização: <b className="text-[#b6d76a]">{money(base+extra)}</b></div>:<div className="mt-3 text-xs text-white/40">Preço do combo de 5 não cadastrado</div>}
+            {combo?<div className="mt-3 text-xs leading-5 text-white/55">Combo de 5: {money(base)}{personalizationEnabled?<><br/>Com personalização: <b className="text-[#b6d76a]">{money(base+extra)}</b></>:<><br/><span className="text-white/35">Adicional desativado</span></>}</div>:<div className="mt-3 text-xs text-white/40">Preço do combo de 5 não cadastrado</div>}
           </div>;
         })}
       </div>
