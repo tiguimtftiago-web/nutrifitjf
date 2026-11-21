@@ -3272,10 +3272,17 @@ export default function Home() {
 
       <section id="plano-alimentar" aria-label="Atalhos nutricionais" className="border-b border-white/10 bg-[#0b0e09] px-3 py-3 sm:px-5 sm:py-4">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-2">
-          <a href={whatsappOrder(orderPersonalizationEnabled ? "Olá Nutrifit! Tenho meu plano alimentar e quero transformá-lo em um pedido personalizado. Estou ciente do adicional de personalização de " + orderPersonalizationPercent + "% sobre o valor dos produtos. Vou enviar minha dieta para orçamento." : "Olá Nutrifit! Tenho meu plano alimentar e gostaria de consultar a equipe sobre um pedido personalizado.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#86a51d]/40 bg-[#86a51d]/[.06] p-3">
-            <ClipboardCheck size={22} className="text-[#86a51d]" />
-            <span><span className="block text-xs font-black">Tenho meu plano</span><span className="mt-1 block text-[10px] leading-4 text-white/55">{orderPersonalizationEnabled ? `Envie sua dieta para orçamento personalizado · adicional de ${orderPersonalizationPercent}% em refeições.` : "Consulte a equipe sobre a disponibilidade de pedidos personalizados."}</span></span>
-            <span className="text-[10px] font-black text-[#86a51d]">Acessar <ArrowRight size={12} className="ml-1 inline" /></span>
+          <a href={whatsappOrder(orderPersonalizationEnabled ? "Olá Nutrifit! Tenho meu plano alimentar e quero transformá-lo em um pedido personalizado. Estou ciente do adicional de personalização de " + orderPersonalizationPercent + "% sobre o valor dos produtos. Vou enviar minha dieta para orçamento." : "Olá Nutrifit! Tenho meu plano alimentar e gostaria de consultar a equipe sobre um pedido personalizado.")} onClick={() => trackClick("mobile_nutrition_click", "meu_plano")} className="flex min-h-[116px] flex-col justify-between rounded-2xl border border-[#f47b0b]/60 bg-[#f47b0b]/[.07] p-3 shadow-[0_0_0_1px_rgba(244,123,11,.08)]">
+            <div className="flex items-center justify-between gap-2">
+              <ClipboardCheck size={22} className="text-[#86a51d]" />
+              {orderPersonalizationEnabled && <span className="rounded-full border border-[#f47b0b]/50 bg-[#f47b0b]/15 px-2.5 py-1 text-[11px] font-black text-[#ffad62]">+{orderPersonalizationPercent}%</span>}
+            </div>
+            <span>
+              <span className="block text-xs font-black">Tenho meu plano</span>
+              <span className="mt-1 block text-[11px] font-black leading-4 text-[#ffad62]">{orderPersonalizationEnabled ? `ADICIONAL DE ${orderPersonalizationPercent}% SOBRE O VALOR DOS PRODUTOS` : "Consulte a equipe sobre pedidos personalizados."}</span>
+              <span className="mt-1 block text-[10px] leading-4 text-white/65">{orderPersonalizationEnabled ? "Envie sua dieta para orçamento. Você conhece o adicional antes de iniciar." : "Consulte a equipe sobre a disponibilidade de pedidos personalizados."}</span>
+            </span>
+            <span className="text-[10px] font-black text-[#ffad62]">Ver como funciona <ArrowRight size={12} className="ml-1 inline" /></span>
           </a>
           <a href="https://wa.me/5532999925617?text=Ol%C3%A1%2C%20Deuslene%21%20Vim%20pelo%20site%20da%20Nutrifit%20e%20gostaria%20de%20falar%20sobre%20orienta%C3%A7%C3%A3o%20nutricional." onClick={() => trackClick("mobile_nutrition_click", "atendimento_nutricional")} className="flex min-h-[100px] flex-col justify-between rounded-2xl border border-[#f47b0b]/45 bg-[#f47b0b]/[.04] p-3">
             <Stethoscope size={22} className="text-[#f47b0b]" />
