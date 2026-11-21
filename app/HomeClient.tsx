@@ -846,8 +846,11 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
   const catalogPrice = catalogComboPrices[option.line]?.[quantity];
   const priceReady = catalogComboReady && catalogProductsReady && catalogPrice !== undefined && products.length > 0;
   const subtotal = catalogPrice ?? 0;
-  const premiumExtra = products.reduce((sum, product) =>
-    sum + (product.category === "marmita" ? Math.max(0, Number(product.premiumSurcharge || 0)) * (selected[product.name] || 0) : 0), 0);
+  const surchargeForProduct = (productName: string) => {
+    const product = products.find((item) => item.name === productName);
+    return product?.category === "marmita" ? Math.max(0, Number(product.premiumSurcharge || 0)) : 0;
+  };
+  const premiumExtra = products.reduce((sum, product) => sum + surchargeForProduct(product.name) * (selected[product.name] || 0), 0);
   const comboTotal = subtotal + premiumExtra;
   const deliveryFee = quantity >= DELIVERY_FREE_FROM ? 0 : delivery?.fee ?? 0;
   const complementItems = complements.filter((item) => selectedComplements[item.name]);
@@ -988,8 +991,8 @@ function ComboBuilder({ initialLine = 0, initialQuantity = 5, initialStep = 1, a
       .filter((product) => selected[product.name])
       .map((product, i) => {
         const qty = selected[product.name];
-        const itemTotal = ((subtotal / quantity) + tilapiaSurchargePerUnit(product.name)) * qty;
-        return `${i + 1}. ${qty}x ${product.name}\n   ${product.line} | ${product.weight} | ${money(itemTotal)}${tilapiaSurchargePerUnit(product.name) ? ` (adicional de ${money(tilapiaSurchargePerUnit(product.name))}/un.)` : ""}`;
+        const itemTotal = ((subtotal / quantity) + surchargeForProduct(product.name)) * qty;
+        return `${i + 1}. ${qty}x ${product.name}\n   ${product.line} | ${product.weight} | ${money(itemTotal)}${surchargeForProduct(product.name) ? ` (adicional de ${money(surchargeForProduct(product.name))}/un.)` : ""}`;
       })
       .join("\n\n");
 
