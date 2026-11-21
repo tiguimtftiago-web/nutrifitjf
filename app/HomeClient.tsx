@@ -3160,20 +3160,6 @@ export default function Home() {
         </div>}
       </header>
 
-      {orderPersonalizationEnabled && (
-        <div className="relative z-40 border-b border-[#f47b0b]/35 bg-[#f47b0b] text-[#111]">
-          <a href="#plano-alimentar" onClick={() => trackClick("personalization_notice_click", "top_notice")} className="mx-auto flex min-h-[54px] max-w-7xl items-center justify-center gap-3 px-4 py-2.5 text-center transition hover:bg-[#ff9638] sm:min-h-[58px] sm:gap-4 sm:px-6">
-            <span className="grid h-9 w-12 shrink-0 place-items-center rounded-lg bg-black text-lg font-black leading-none text-[#ff9a3d] sm:h-10 sm:w-14 sm:text-xl">+{orderPersonalizationPercent}%</span>
-            <span className="min-w-0 text-left leading-tight">
-              <span className="block text-[11px] font-black uppercase tracking-[.08em] sm:text-xs">Atenção: pedidos personalizados</span>
-              <span className="mt-0.5 block text-[11px] font-semibold sm:text-sm">Adicional de {orderPersonalizationPercent}% sobre o valor dos produtos. Saiba antes de começar.</span>
-            </span>
-            <span className="hidden shrink-0 text-xs font-black underline underline-offset-4 sm:inline">Entenda</span>
-            <ArrowRight size={17} className="shrink-0 sm:hidden" aria-hidden="true" />
-          </a>
-        </div>
-      )}
-
       <section id="inicio" className="border-b border-white/10 bg-[#080a07]">
   <div className="relative min-h-[400px] overflow-hidden sm:min-h-[430px] md:min-h-[500px]">
     {bannerSlides.map((slide, index) => (
