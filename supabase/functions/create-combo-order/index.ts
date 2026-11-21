@@ -169,7 +169,7 @@ Deno.serve(async (req: Request) => {
       return respond(400, { error: "Há complementos ou quantidades inválidos." });
 
     const catalogResponse = await fetch(
-      url + "/rest/v1/catalog_products?select=name,line,size_grams,price,category,active&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)",
+      url + "/rest/v1/catalog_products?select=name,line,size_grams,price,category,active,premium_surcharge&active=eq.true&category=in.(marmita,salada,suco,sanduiche,fruta,complemento)",
       { headers },
     );
     if (!catalogResponse.ok) return respond(502, { error: "Não foi possível conferir o catálogo." });
@@ -184,6 +184,7 @@ const catalogNameAliases: Record<string, string> = {
     const perMealBaseCents = Math.floor(baseCents / quantity);
     let baseRemainderCents = baseCents % quantity;
     let premiumCents = 0;
+    const premiumBreakdown: Array<{name:string;quantity:number;unit_cents:number;total_cents:number}> = [];
     const pricedItems: Array<Record<string, unknown>> = [];
 
     for (const item of items) {
@@ -196,9 +197,14 @@ const catalogNameAliases: Record<string, string> = {
         normalize(product.category) === "marmita"
       );
       if (!match) return respond(400, { error: "Prato indisponível ou não conferido no catálogo: " + item.name });
-      const isTilapiaPremium = line === "FIT" && normalize(item.name) === normalize("Tilápia Fit com Arroz Branco e Legumes");
-      const surchargeCents = isTilapiaPremium ? 600 : 0;
-      if (isTilapiaPremium) premiumCents += surchargeCents * item.quantity;
+      const surchargeCents = Math.round(Number(match.premium_surcharge ?? 0) * 100);
+      if (!Number.isFinite(surchargeCents) || surchargeCents < 0)
+        return respond(502, { error: "O adicional cadastrado para " + item.name + " é inválido. Entre em contato com a Nutrifit." });
+      if (surchargeCents > 0) {
+        const totalSurchargeCents = surchargeCents * item.quantity;
+        premiumCents += totalSurchargeCents;
+        premiumBreakdown.push({ name: String(match.name), quantity: item.quantity, unit_cents: surchargeCents, total_cents: totalSurchargeCents });
+      }
 
       // Distribute any leftover cents across individual meals so line items sum exactly to the combo price.
       const extraBaseUnits = Math.min(item.quantity, baseRemainderCents);
@@ -281,6 +287,7 @@ const catalogNameAliases: Record<string, string> = {
     const notes = [
       "Pedido iniciado pelo montador de combos.",
       "Linha: " + line + "; quantidade do combo: " + quantity + "; recebimento: " + mode + ".",
+      premiumBreakdown.length ? "Adicionais por proteínas especiais: " + premiumBreakdown.map((item) => item.quantity + "x " + item.name + " (" + (item.total_cents / 100).toFixed(2) + ")").join("; ") : "",
       body.notes ? String(body.notes).slice(0, 1200) : "",
     ].filter(Boolean).join("\n");
 
@@ -310,8 +317,11 @@ const catalogNameAliases: Record<string, string> = {
     }
     const saved = await insertResponse.json();
     return respond(200, {
-      ok: true, order_id: saved?.[0]?.id ?? null, order_code: saved?.[0]?.order_code ?? null, subtotal: payload.subtotal,
-      delivery_fee: payload.delivery_fee, total: payload.total, items: pricedItems,
+      ok: true, order_id: saved?.[0]?.id ?? null, order_code: saved?.[0]?.order_code ?? null,
+      combo_base: baseCents / 100, premium_surcharge: premiumCents / 100, complement_total: complementCents / 100,
+      subtotal: payload.subtotal, delivery_fee: payload.delivery_fee, total: payload.total,
+      premium_breakdown: premiumBreakdown.map((item) => ({ name: item.name, quantity: item.quantity, unit_surcharge: item.unit_cents / 100, total_surcharge: item.total_cents / 100 })),
+      items: pricedItems,
     });
   } catch (error) {
     console.error("create-combo-order error", error);
