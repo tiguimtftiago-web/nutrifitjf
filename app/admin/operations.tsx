@@ -205,7 +205,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     setBusy(true);setError("");
     try{
       const personalizedLines=await req(URL+"/rest/v1/customer_order_meal_lines?select=id,display_name,validation_status&order_id=eq."+order.id,token);
-      if(Array.isArray(personalizedLines)&&personalizedLines.length){
+      if(order.is_personalized===true&&Array.isArray(personalizedLines)&&personalizedLines.length){
         setError("Plano padrão bloqueado: este pedido possui dieta personalizada. Confira a ficha em Dietas por pedido. O cálculo de matéria-prima e a baixa só podem ser liberados após validar todos os componentes e rendimentos.");
         return;
       }
@@ -231,7 +231,7 @@ export default function Operations({section,token,initialCategory}:{section:"est
     const esc=(v:unknown)=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]||ch));
     try{
       const personalizedLines=await req(URL+"/rest/v1/customer_order_meal_lines?select=id,display_name,quantity,portion_total_quantity,portion_unit,validation_status,validation_notes,order_item_snapshot&order_id=eq."+order.id+"&order=created_at.asc",token);
-      if(Array.isArray(personalizedLines)&&personalizedLines.length){
+      if(order.is_personalized===true&&Array.isArray(personalizedLines)&&personalizedLines.length){
         const ids=personalizedLines.map((x:any)=>x.id);
         const components=await req(URL+"/rest/v1/customer_order_meal_components?select=meal_line_id,sort_order,item_id,recipe_id,component_name_snapshot,quantity_per_portion,total_quantity,unit,notes&meal_line_id=in.("+ids.join(",")+")&order=sort_order.asc",token);
         const totalMeals=personalizedLines.reduce((sum:number,line:any)=>sum+Number(line.quantity||0),0);
