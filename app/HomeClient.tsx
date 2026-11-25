@@ -4114,7 +4114,7 @@ export default function Home() {
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Pluxee"><img src="https://cdn.brandfetch.io/idnMsbT5BM/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1790140413212" alt="Pluxee" loading="lazy" className="h-7 max-w-full object-contain" /></div>
               <div className="flex h-12 w-[82px] items-center justify-center rounded-md bg-white p-2" aria-label="Sodexo"><img src="https://cdn.brandfetch.io/ideTMqb6AG/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1668750649762" alt="Sodexo" loading="lazy" className="h-7 max-w-full object-contain" /></div>
             </div>
-            <p className="mt-4 text-xs leading-5 text-white/45">As formas de pagamento disponíveis podem variar conforme o pedido. Confirme as opções aceitas antes de finalizar.</p>
+            <p className="mt-4 max-w-2xl text-xs leading-5 text-white/60"><span className="font-bold text-white/80">Mais facilidade para pagar seu pedido.</span> Aceitamos Pix, cartões de crédito e débito e benefícios Alelo, Ticket, Pluxee e Sodexo. A aceitação dos benefícios depende da modalidade habilitada no cartão. <a href={whatsapp} onClick={() => trackClick("whatsapp_click", "footer_payment")} className="font-semibold text-[#f47b0b] underline-offset-2 hover:underline">Fale com nossa equipe</a> se tiver dúvidas.</p>
           </section>
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/55">
             <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
