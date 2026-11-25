@@ -4114,13 +4114,14 @@ export default function Home() {
           </div>
           <section className="mt-8 border-t border-white/10 pt-6" aria-labelledby="nutrifit-payment-heading">
             <div className="flex items-center gap-3"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#86a51d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 10h20"/></svg><h2 id="nutrifit-payment-heading" className="text-lg font-black sm:text-xl">Formas de pagamento</h2></div>
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Bandeiras de benefícios aceitas">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5" aria-label="Bandeiras e benefícios aceitos">
               <div className="flex min-h-[76px] items-center justify-center rounded-xl border border-white/10 bg-white px-3 py-3 shadow-sm" aria-label="Alelo"><img src="https://cdn.brandfetch.io/idGnRcCsdo/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1667926099056" alt="Alelo" loading="lazy" className="h-10 max-w-full object-contain" /></div>
               <div className="flex min-h-[76px] items-center justify-center rounded-xl border border-white/10 bg-white px-3 py-3 shadow-sm" aria-label="Ticket, uma marca Edenred"><img src="https://www.edenred.com.br/wp-content/uploads/2023/06/Ticket-Edenred-Logo-Web-300x119.png" alt="Ticket, uma marca Edenred" loading="lazy" className="h-11 max-w-full object-contain" /></div>
               <div className="flex min-h-[76px] items-center justify-center rounded-xl border border-white/10 bg-white px-3 py-3 shadow-sm" aria-label="Pluxee"><img src="https://cdn.brandfetch.io/idnMsbT5BM/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1790140413212" alt="Pluxee" loading="lazy" className="h-10 max-w-full object-contain" /></div>
+              <div className="flex min-h-[76px] items-center justify-center rounded-xl border border-white/10 bg-white px-3 py-3 shadow-sm" aria-label="iFood Benefícios"><img src="https://cdn.brandfetch.io/idvFPAKYIS/theme/dark/logo.svg" alt="iFood" loading="lazy" className="h-9 max-w-full object-contain" /><span className="ml-1 text-sm font-bold text-[#404040]">Benefícios</span></div>
               <div className="flex min-h-[76px] items-center justify-center rounded-xl border border-white/10 bg-white px-3 py-3 shadow-sm" aria-label="Sodexo, cartões da marca anterior"><img src="https://cdn.brandfetch.io/ideTMqb6AG/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1668750649762" alt="Sodexo, cartões da marca anterior" loading="lazy" className="h-10 max-w-full object-contain" /></div>
             </div>
-            <p className="mt-4 text-xs leading-5 text-white/50">Também aceitamos Pix e cartões Visa, Mastercard e Elo. A aceitação dos benefícios depende da modalidade habilitada no cartão.</p>
+            <p className="mt-4 text-xs leading-5 text-white/50">Também aceitamos Pix e cartões Visa, Mastercard e Elo. A aceitação dos benefícios depende da modalidade habilitada no cartão; o pagamento por link pode ter regras diferentes da maquininha.</p>
           </section>
           <div className="mt-7 border-t border-white/10 pt-5 text-center text-xs leading-6 text-white/55">
             <p>© {new Date().getFullYear()} Nutrifit. Todos os direitos reservados.</p>
