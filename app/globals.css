@@ -254,3 +254,74 @@ textarea::placeholder {
   main .print\:border-black { border-color: #999 !important; }
   main section > div { break-inside: avoid; }
 }
+
+
+/* NutriFit 360 — ícones com acabamento claymorphism */
+.nf-clay-icon {
+  --clay-hi: #f7ffbf;
+  --clay-mid: #b5e01a;
+  --clay-low: #789516;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  color: #40520d;
+  background: linear-gradient(145deg, #f8ffe0 0%, var(--clay-mid) 54%, #a3ca0c 100%);
+  border: 1px solid rgba(255,255,255,.76);
+  box-shadow:
+    4px 5px 8px rgba(78,91,39,.22),
+    -3px -3px 7px rgba(255,255,255,.94),
+    inset 1px 1px 2px rgba(255,255,255,.9),
+    inset -2px -2px 4px rgba(91,120,0,.18);
+  text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+.nf-clay-icon svg {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.55));
+}
+.nf-clay-icon--orange {
+  color: #8c3c0d;
+  background: linear-gradient(145deg, #fff0df 0%, #ffad68 48%, #f26a1b 100%);
+  box-shadow:
+    4px 5px 8px rgba(126,68,30,.2),
+    -3px -3px 7px rgba(255,255,255,.94),
+    inset 1px 1px 2px rgba(255,255,255,.9),
+    inset -2px -2px 4px rgba(158,66,15,.2);
+}
+.nf-clay-icon--neutral {
+  color: #66615a;
+  background: linear-gradient(145deg, #fff 0%, #e8e5df 58%, #d3cec6 100%);
+  box-shadow:
+    4px 5px 8px rgba(78,73,65,.18),
+    -3px -3px 7px rgba(255,255,255,.98),
+    inset 1px 1px 2px rgba(255,255,255,.95),
+    inset -2px -2px 4px rgba(98,91,79,.13);
+}
+.nf-reference-metric-label .nf-clay-icon {
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+}
+.nf-weekly-ticket > span .nf-clay-icon {
+  width: 25px;
+  height: 25px;
+  border-radius: 8px;
+}
+.nf-achievement-pill {
+  gap: 7px;
+}
+.nf-achievement-pill .nf-clay-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+}
+.nf-reference-side-pill button svg,
+.nf-reference-nav button svg,
+.nf-reference-bell svg {
+  filter: drop-shadow(1px 2px 1px rgba(80,75,65,.24));
+}
+.nf-reference-side-pill button.active svg,
+.nf-reference-nav button.active svg {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.65));
+}
