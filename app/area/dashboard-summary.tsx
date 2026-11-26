@@ -59,9 +59,9 @@ export default function DashboardSummary({onNavigate,children}:Props){
      <small>Registros de hoje</small>
     </article>
     <article className="nf-reference-metric">
-     <div className="nf-reference-metric-label"><ClayIcon name="water" tone="green" size={19}/> <span>ÁGUA</span></div>
-     <strong>1,5 L</strong>
-     <small>Referência visual de meta diária</small>
+     <div className="nf-reference-metric-label"><ClayIcon name="water" tone="blue" size={19}/> <span>HIDRATAÇÃO</span></div>
+     <strong>—</strong>
+     <small>Registro de água em breve</small>
     </article>
    </div>
    <button type="button" className="nf-weekly-ticket" onClick={()=>onNavigate("metas")} aria-label="Abrir metas semanais">
@@ -83,10 +83,10 @@ export default function DashboardSummary({onNavigate,children}:Props){
     <p>{loading?"Atualizando seus registros…":data.workouts===0?"Registre seus treinos para acompanhar sua evolução.":`${data.workouts} treino(s) registrado(s) nesta semana.`}</p>
    </article>
    <article className="nf-reference-card nf-achievements">
-    <h2>Top Conquistas</h2>
-    <div className="nf-achievement-pill"><ClayIcon name="dumbbell" tone="green" size={17}/><b>Força</b><ClayIcon name="trophy" tone="orange" size={17}/></div>
-    <div className="nf-achievement-pill"><ClayIcon name="medal" tone="orange" size={17}/><b>Disciplina</b><ClayIcon name="target" tone="green" size={17}/></div>
-    <div className="nf-achievement-pill"><ClayIcon name="apple" tone="green" size={17}/><b>Nutrição</b><ClayIcon name="flame" tone="orange" size={17}/></div>
+    <h2>Pilares do Progresso</h2>
+    <div className="nf-achievement-pill"><ClayIcon name="dumbbell" tone="green" size={17}/><b>Movimento</b><ClayIcon name="trophy" tone="gold" size={17}/></div>
+    <div className="nf-achievement-pill"><ClayIcon name="medal" tone="gold" size={17}/><b>Constância</b><ClayIcon name="target" tone="orange" size={17}/></div>
+    <div className="nf-achievement-pill"><ClayIcon name="apple" tone="green" size={17}/><b>Alimentação</b><ClayIcon name="flame" tone="orange" size={17}/></div>
    </article>
   </section>
   {error&&<p className="nf-dashboard-error" role="status">{error}</p>}
