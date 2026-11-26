@@ -2314,6 +2314,7 @@ function Section({ id, eyebrow, title, subtitle, products, featuredNames, onAdd,
 
 export default function Home() {
   const [bannerIndex, setBannerIndex] = useState(0);
+  const [contactMenuOpen, setContactMenuOpen] = useState(false);
   const [juiceShowcaseIndex, setJuiceShowcaseIndex] = useState(0);
   const [selectedJuiceSize, setSelectedJuiceSize] = useState<"500 ml" | "300 ml">("500 ml");
   const [comboOpen, setComboOpen] = useState(false);
@@ -4042,24 +4043,67 @@ export default function Home() {
       </section>
 
       {!orderOpen && (
-      <a
-        href="/assistente"
-        onClick={() => trackClick("assistant_open", "floating_button")}
-        aria-label="Abrir Assistente Nutrifit"
-        className="group fixed bottom-5 right-2 z-[90] flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-[#86a51d]/70 bg-black/95 p-1 text-white shadow-[0_10px_35px_rgba(0,0,0,.45)] backdrop-blur-md transition-all hover:border-[#f47b0b] hover:scale-[1.02] active:scale-[.98] sm:bottom-6 sm:right-6 sm:h-auto sm:w-auto sm:min-h-14 sm:gap-2.5 sm:justify-start sm:overflow-visible sm:px-3.5 sm:py-2"
-      >
-        <span className="relative hidden h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/80 bg-black sm:grid sm:h-11 sm:w-11">
-          <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain sm:h-9 sm:w-9" />
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black bg-[#86a51d]" aria-hidden="true" />
-        </span>
-        <span className="hidden pr-1 text-left leading-tight sm:block">
-          <span className="block text-sm font-black">Assistente Nutrifit</span>
-          <span className="mt-0.5 block text-[10px] font-bold text-white/55">Posso ajudar você?</span>
-        </span>
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f47b0b] text-black sm:h-9 sm:w-9">
-          <MessageCircle size={17} strokeWidth={2.6} />
-        </span>
-      </a>
+        <div className="fixed bottom-5 right-4 z-[90] flex flex-col items-end sm:bottom-6 sm:right-6">
+          {contactMenuOpen && (
+            <div className="mb-3 w-[min( min( calc(100vw - 2rem), 19rem), 19rem)] overflow-hidden rounded-2xl border border-white/15 bg-[#10130d]/[.98] p-2.5 shadow-[0_16px_48px_rgba(0,0,0,.6)] backdrop-blur-xl" role="dialog" aria-label="Opções de atendimento">
+              <div className="flex items-center justify-between px-2 pb-2.5 pt-1">
+                <div>
+                  <p className="text-sm font-black text-white">Como podemos ajudar?</p>
+                  <p className="mt-0.5 text-[11px] text-white/55">Escolha seu canal de atendimento.</p>
+                </div>
+                <button type="button" onClick={() => setContactMenuOpen(false)} aria-label="Fechar opções de atendimento" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white/65 transition hover:bg-white/10 hover:text-white">
+                  <X size={17} />
+                </button>
+              </div>
+              <a
+                href={whatsappOrder("Olá, Nutrifit! Gostaria de falar com a equipe.")}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => { trackClick("whatsapp_contact_opened", "floating_menu"); setContactMenuOpen(false); }}
+                className="flex min-h-[58px] items-center gap-3 rounded-xl bg-[#25D366] px-3.5 py-3 text-[#062b16] transition hover:brightness-105"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-black/10"><MessageCircle size={22} strokeWidth={2.5} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-black">WhatsApp</span>
+                  <span className="mt-0.5 block text-[11px] font-semibold text-[#062b16]/75">Fale diretamente com nossa equipe</span>
+                </span>
+                <ArrowRight size={17} />
+              </a>
+              <a
+                href="/assistente"
+                onClick={() => { trackClick("assistant_open", "floating_menu"); setContactMenuOpen(false); }}
+                className="mt-2 flex min-h-[58px] items-center gap-3 rounded-xl border border-[#f47b0b]/35 bg-[#f47b0b]/10 px-3.5 py-3 text-white transition hover:bg-[#f47b0b]/15"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/35 bg-black/35">
+                  <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-black">Assistente Nutrifit</span>
+                  <span className="mt-0.5 block text-[11px] font-semibold text-white/55">Tire dúvidas pelo atendimento virtual</span>
+                </span>
+                <ArrowRight size={17} className="text-[#f47b0b]" />
+              </a>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setContactMenuOpen((open) => !open)}
+            aria-label={contactMenuOpen ? "Fechar opções de atendimento" : "Abrir opções de atendimento"}
+            aria-expanded={contactMenuOpen}
+            aria-haspopup="dialog"
+            className="group inline-flex min-h-14 items-center gap-2.5 rounded-full border border-[#86a51d]/65 bg-[#080a07]/95 px-3.5 py-2 text-white shadow-[0_10px_35px_rgba(0,0,0,.5)] backdrop-blur-md transition hover:border-[#f47b0b] hover:brightness-110 active:scale-[.98]"
+          >
+            <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#f47b0b]/70 bg-black">
+              <img src="/images/nutrifit-logo-icon.svg" alt="" className="h-8 w-8 object-contain" />
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-black bg-[#86a51d]" aria-hidden="true" />
+            </span>
+            <span className="pr-1 text-left leading-tight">
+              <span className="block text-sm font-black">Fale com a Nutrifit</span>
+              <span className="mt-0.5 block text-[10px] font-bold text-white/55">{contactMenuOpen ? "Escolha uma opção" : "WhatsApp ou assistente"}</span>
+            </span>
+            {contactMenuOpen ? <X size={18} className="text-[#f47b0b]" /> : <MessageCircle size={19} className="text-[#86a51d]" />}
+          </button>
+        </div>
       )}
 
 
@@ -4138,18 +4182,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-      <a
-        href={whatsappOrder("Olá, Nutrifit! Gostaria de tirar uma dúvida.")}
-        target="_blank"
-        rel="noreferrer"
-        onClick={() => trackClick("whatsapp_contact_opened", "floating")}
-        aria-label="Fale com a Nutrifit pelo WhatsApp"
-        title="Fale com a Nutrifit pelo WhatsApp"
-        className="fixed bottom-5 right-4 z-40 inline-flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-[#25D366] px-4 text-[#062b16] shadow-[0_8px_28px_rgba(0,0,0,.42)] transition hover:scale-[1.03] hover:brightness-110 sm:bottom-7 sm:right-7 sm:min-h-14 sm:px-5"
-      >
-        <MessageCircle size={25} strokeWidth={2.5} />
-        <span className="hidden text-sm font-black sm:inline">Fale conosco</span>
-      </a>
     </main>
   );
 }
