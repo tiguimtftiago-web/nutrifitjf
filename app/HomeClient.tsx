@@ -3113,6 +3113,19 @@ export default function Home() {
 
             
 
+            <a
+              href={whatsappOrder("Olá, Nutrifit! Gostaria de falar com a equipe.")}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => trackClick("whatsapp_contact_opened", "header")}
+              aria-label="Fale com a Nutrifit pelo WhatsApp"
+              title="Fale com a Nutrifit pelo WhatsApp"
+              className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-[#062b16] shadow-[0_3px_12px_rgba(37,211,102,.22)] transition hover:brightness-110 sm:h-11 sm:w-11"
+            >
+              <MessageCircle size={20} strokeWidth={2.4} />
+              <span className="hidden xl:inline xl:ml-2 xl:whitespace-nowrap xl:text-xs xl:font-black">Fale conosco</span>
+            </a>
+
             <button type="button" onClick={() => setOrderOpen(true)} aria-label="Carrinho" title="Carrinho" className="relative grid h-9 w-8 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/10 sm:h-11 sm:w-11">
               <ShoppingCart size={21} strokeWidth={1.7} />
               {orderCount > 0 && <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#f47b0b] px-1 text-[9px] font-black text-white">{orderCount}</span>}
@@ -4125,6 +4138,18 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      <a
+        href={whatsappOrder("Olá, Nutrifit! Gostaria de tirar uma dúvida.")}
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => trackClick("whatsapp_contact_opened", "floating")}
+        aria-label="Fale com a Nutrifit pelo WhatsApp"
+        title="Fale com a Nutrifit pelo WhatsApp"
+        className="fixed bottom-5 right-4 z-40 inline-flex min-h-14 min-w-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-[#25D366] px-4 text-[#062b16] shadow-[0_8px_28px_rgba(0,0,0,.42)] transition hover:scale-[1.03] hover:brightness-110 sm:bottom-7 sm:right-7 sm:min-h-14 sm:px-5"
+      >
+        <MessageCircle size={25} strokeWidth={2.5} />
+        <span className="hidden text-sm font-black sm:inline">Fale conosco</span>
+      </a>
     </main>
   );
 }
