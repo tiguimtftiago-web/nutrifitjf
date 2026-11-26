@@ -7,7 +7,6 @@ import NutritionTracker from "./nutrition-tracker";
 import TrainingTracker from "./training-tracker";
 import GoalTracker from "./goal-tracker";
 import ClayIcon from "./clay-icon";
-import { Activity, Bell, Dumbbell, Home, Salad, Settings, Target } from "lucide-react";
 
 type Tab = "inicio" | "treino" | "nutricao" | "evolucao" | "metas";
 const SUPABASE_URL=process.env.NEXT_PUBLIC_SUPABASE_URL;
