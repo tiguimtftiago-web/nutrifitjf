@@ -1,67 +1,68 @@
 "use client";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import AreaAuthGate from "./area-auth-gate";
 import WeightTracker from "./weight-tracker";
 import DashboardSummary from "./dashboard-summary";
 import NutritionTracker from "./nutrition-tracker";
 import TrainingTracker from "./training-tracker";
 import GoalTracker from "./goal-tracker";
-import {
-  Activity, ArrowDownRight, ArrowRight, Bell, Bike, CalendarDays,
-  ChevronRight, CircleHelp, Dumbbell, Flame, Footprints, HeartPulse,
-  Home, Leaf, Moon, Plus, Salad, Scale, Sparkles, Target, Utensils,
-  Watch, Zap,
-} from "lucide-react";
+import { Activity, Bell, Dumbbell, Home, Salad, Settings, Target } from "lucide-react";
+
+type Tab = "inicio" | "treino" | "nutricao" | "evolucao" | "metas";
+const SUPABASE_URL=process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState<"inicio" | "treino" | "nutricao" | "evolucao" | "metas">("inicio");
-  return (
-    <main className="nf-shell">
-      <div className="nf-glow nf-glow-one" />
-      <div className="nf-glow nf-glow-two" />
-      <header className="nf-topbar">
-        <a className="nf-brand" href="/" aria-label="Voltar para Nutrifit">
-          <img
-            className="nf-brand-logo"
-            src="/nutrifit-logo-oficial.webp"
-            alt="Nutrifit — Comida de Verdade. Para todos os estilos de vida."
-            width="350"
-            height="270"
-          />
-        </a>
-        <div className="nf-top-actions">
-          <span className="nf-live"><i /> PAINEL PESSOAL</span>
-          <span className="nf-icon-button" aria-hidden="true"><Bell size={18}/><em /></span>
-          <a className="nf-avatar" href="#perfil" aria-label="Perfil">T</a>
-        </div>
-      </header>
+ const [activeTab,setActiveTab]=useState<Tab>("inicio");
+ const [displayName,setDisplayName]=useState("Elaine");
+ useEffect(()=>{
+  let live=true;
+  async function loadName(){
+   try{
+    const raw=localStorage.getItem("nutrifit360.session");
+    const session=raw?JSON.parse(raw) as {access_token?:string;user?:{id?:string;user_metadata?:{full_name?:string}}}:null;
+    const metadataName=session?.user?.user_metadata?.full_name;
+    if(metadataName&&live)setDisplayName(metadataName.trim().split(/\s+/)[0]);
+    if(!session?.access_token||!session.user?.id||!SUPABASE_URL||!SUPABASE_KEY)return;
+    const response=await fetch(`${SUPABASE_URL}/rest/v1/nutrifit360_profiles?select=full_name&user_id=eq.${session.user.id}&limit=1`,{headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${session.access_token}`},cache:"no-store"});
+    if(!response.ok)return;
+    const rows=await response.json() as Array<{full_name:string}>;
+    if(live&&rows[0]?.full_name)setDisplayName(rows[0].full_name.trim().split(/\s+/)[0]);
+   }catch{/* Mantém o primeiro nome padrão enquanto o perfil não responde. */}
+  }
+  void loadName();return()=>{live=false;};
+ },[]);
+ const tabs: {id:Tab;label:string;icon:typeof Home}[]=[
+  {id:"inicio",label:"Início",icon:Home},{id:"treino",label:"Treino",icon:Dumbbell},{id:"nutricao",label:"Nutrição",icon:Salad},{id:"evolucao",label:"Evolução",icon:Activity},{id:"metas",label:"Metas",icon:Target}
+ ];
+ return (
+  <main className="nf-shell nf-reference-shell">
+   <header className="nf-reference-header">
+    <a className="nf-reference-brand" href="/" aria-label="Voltar à Nutrifit">
+     <img src="/nutrifit-logo-oficial.webp" alt="Logo oficial Nutrifit" width="100" height="100"/>
+    </a>
+    <div className="nf-reference-greeting">
+     <div className="nf-reference-brandline">NutriFit <span>360</span></div>
+     <h1>Olá, {displayName}! <span>💪</span></h1>
+    </div>
+    <div className="nf-reference-actions">
+     <button className="nf-reference-bell" type="button" aria-label="Notificações"><Bell size={19}/><i/></button>
+     <div className="nf-reference-avatar" aria-label="Perfil de {displayName}">👩🏾‍🦱<i/></div>
+    </div>
+   </header>
 
-      <div className="nf-layout">
-        <aside className="nf-sidebar">
-          <p className="nf-side-label">SEU ESPAÇO</p>
-          <a className="nf-side-link active" href="#inicio"><Home size={17}/> Visão geral</a>
-          <a className="nf-side-link" href="#treino"><Dumbbell size={17}/> Treinamento</a>
-          <a className="nf-side-link" href="#alimentacao"><Salad size={17}/> Alimentação</a>
-          <a className="nf-side-link" href="#evolucao"><Activity size={17}/> Evolução</a>
-          <a className="nf-side-link" href="#metas"><Target size={17}/> Metas e desafios</a>
-          <div className="nf-side-bottom">
-            <div className="nf-side-promo"><Sparkles size={18}/><b>Sua jornada, seus dados.</b><span>Pequenos registros ajudam a enxergar o caminho.</span></div>
-            <a className="nf-side-link" href="/"><CircleHelp size={17}/> Voltar à loja</a>
-          </div>
-        </aside>
-
-        <section className="nf-content" aria-live="polite">
-          {activeTab === "inicio" && <>
-            <div className="nf-welcome"><div><div className="nf-eyebrow"><span className="nf-eyebrow-line"/> ÁREA DO CLIENTE</div><h1>Olá, <span>bem-vindo.</span></h1><p>Seu espaço para acompanhar cada passo da sua evolução.</p></div><div className="nf-date"><CalendarDays size={15}/> SEU PAINEL PESSOAL</div></div>
-
-            <div className="nf-section-heading"><div><div className="nf-eyebrow">VISÃO GERAL</div><h2>Seu panorama</h2></div><span className="nf-demo-tag">DADOS DOS SEUS REGISTROS</span></div>
-            <DashboardSummary onNavigate={setActiveTab} />
-            <section className="nf-3d-scene" aria-label="Academia tridimensional NutriFit 360">
-              <div className="nf-scene-caption"><b>Movimento também é cuidado.</b><span>Pequenos passos constroem grandes mudanças.</span></div>
-              <div className="nf-scene-float nf-scene-heart"><HeartPulse size={17}/><span><b>Bem-estar</b><small>Corpo em movimento</small></span></div>
-              <div className="nf-scene-float nf-scene-time"><Watch size={17}/><span><b>Sua rotina</b><small>No seu ritmo</small></span></div>
-              <svg className="nf-gym-svg" viewBox="0 0 760 390" role="img" aria-label="Mini academia isométrica com pesos, banco, bicicleta ergométrica e pessoa treinando">
+   <div className="nf-reference-main" aria-live="polite">
+    {activeTab==="inicio" ? <>
+     <DashboardSummary onNavigate={setActiveTab}>
+      <section className="nf-3d-scene" aria-label="Academia isométrica NutriFit 360">
+       <div className="nf-scene-caption"><b>Movimento também é cuidado.</b><span>Pequenos passos constroem grandes mudanças.</span></div>
+       <aside className="nf-reference-side-pill" aria-label="Atalhos rápidos">
+        <button className="active" type="button" onClick={()=>setActiveTab("inicio")} aria-label="Início"><Home size={18}/></button>
+        <button type="button" onClick={()=>setActiveTab("treino")} aria-label="Treino"><Dumbbell size={17}/></button>
+        <button type="button" onClick={()=>setActiveTab("evolucao")} aria-label="Evolução"><Activity size={17}/></button>
+        <button type="button" onClick={()=>setActiveTab("metas")} aria-label="Configurações e metas"><Settings size={17}/></button>
+       </aside>
+       <svg className="nf-gym-svg" viewBox="0 0 760 390" role="img" aria-label="Mini academia isométrica com pesos, banco, bicicleta ergométrica e pessoa treinando">
                 <defs>
                   <linearGradient id="nfPlatformSide" x1="0" y1="0" x2="0.9" y2="1"><stop stopColor="#b8ce62"/><stop offset="1" stopColor="#718b36"/></linearGradient>
                   <linearGradient id="nfPlatformTop" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fffdf7"/><stop offset="1" stopColor="#e8ddcc"/></linearGradient>
@@ -144,26 +145,27 @@ function DashboardContent() {
                 <path d="M226 93l8-14 8 14 14 8-14 8-8 14-8-14-14-8Z" fill="#ed8738" opacity=".9"/>
                 <circle cx="576" cy="65" r="7" fill="#a7b66a"/><circle cx="260" cy="56" r="5" fill="#ed8738"/>
               </svg>
-            </section>
+       <span className="nf-scene-spark spark-one" aria-hidden="true">✦</span>
+       <span className="nf-scene-spark spark-two" aria-hidden="true">●</span>
+      </section>
+     </DashboardSummary>
+     <section className="nf-reference-tip">
+      <div className="nf-reference-tip-icon">💡</div>
+      <div><h2>Dica do Dia</h2><p>Beba água e mantenha sua alimentação equilibrada!</p></div>
+     </section>
+     <footer className="nf-reference-footer">O acompanhamento é informativo e não substitui orientação de nutricionista ou médico.<span>© NUTRIFIT 360°</span></footer>
+    </> : <section className="nf-reference-panel">
+      {activeTab==="treino"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><Dumbbell size={20}/></div><TrainingTracker/></>}
+      {activeTab==="nutricao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ALIMENTAÇÃO</div><h3>Nutrição</h3></div><Salad size={20}/></div><NutritionTracker/></>}
+      {activeTab==="evolucao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Evolução</h3></div><Activity size={20}/></div><WeightTracker/></>}
+      {activeTab==="metas"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">OBJETIVOS PESSOAIS</div><h3>Metas</h3></div><Target size={20}/></div><GoalTracker/></>}
+    </section>}
+   </div>
 
-          </>}
-          {activeTab === "treino" && <section className="nf-panel nf-tab-panel"><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><Dumbbell size={20}/></div><p className="nf-tab-description">Minutos treinados e sessões registradas nesta semana.</p><TrainingTracker /></section>}
-          {activeTab === "nutricao" && <section className="nf-panel nf-tab-panel"><div className="nf-panel-heading"><div><div className="nf-eyebrow">ALIMENTAÇÃO</div><h3>Nutrição</h3></div><Leaf size={20}/></div><NutritionTracker /></section>}
-          {activeTab === "evolucao" && <section className="nf-panel nf-tab-panel" id="evolucao"><div className="nf-panel-heading"><div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Evolução</h3></div><Activity size={20}/></div><p className="nf-tab-description">Acompanhe seu histórico de peso com os registros realizados.</p><WeightTracker /></section>}
-          {activeTab === "metas" && <section className="nf-panel nf-tab-panel"><div className="nf-panel-heading"><div><div className="nf-eyebrow">OBJETIVOS PESSOAIS</div><h3>Metas</h3></div><Target size={20}/></div><GoalTracker /></section>}
-          <footer className="nf-disclaimer">O acompanhamento é informativo e não substitui orientação de nutricionista ou médico. <span>© NUTRIFIT 360°</span></footer>
-        </section>
-      </div>
-
-      <nav className="nf-mobile-nav" aria-label="Navegação da Área Nutrifit">
-        <button type="button" className={activeTab === "inicio" ? "active" : ""} aria-current={activeTab === "inicio" ? "page" : undefined} onClick={() => setActiveTab("inicio")}><Home size={19}/><span>Início</span></button>
-        <button type="button" className={activeTab === "treino" ? "active" : ""} aria-current={activeTab === "treino" ? "page" : undefined} onClick={() => setActiveTab("treino")}><Dumbbell size={19}/><span>Treino</span></button>
-        <button type="button" className={activeTab === "nutricao" ? "active" : ""} aria-current={activeTab === "nutricao" ? "page" : undefined} onClick={() => setActiveTab("nutricao")}><Salad size={19}/><span>Nutrição</span></button>
-        <button type="button" className={activeTab === "evolucao" ? "active" : ""} aria-current={activeTab === "evolucao" ? "page" : undefined} onClick={() => setActiveTab("evolucao")}><Activity size={19}/><span>Evolução</span></button>
-        <button type="button" className={activeTab === "metas" ? "active" : ""} aria-current={activeTab === "metas" ? "page" : undefined} onClick={() => setActiveTab("metas")}><Target size={19}/><span>Metas</span></button>
-      </nav>
-
-      <style jsx>{`
+   <nav className="nf-reference-nav" aria-label="Navegação principal">
+    {tabs.map(({id,label,icon:Icon})=><button type="button" key={id} className={activeTab===id?"active":""} aria-current={activeTab===id?"page":undefined} onClick={()=>setActiveTab(id)}><Icon size={21}/><span>{label}</span></button>)}
+   </nav>
+   <style jsx>{`
         :global(*){box-sizing:border-box}
         .nf-shell{--bg:#090b09;--panel:#111511;--panel2:#151b15;--line:#252d24;--muted:#8c9689;--text:#f4f5ef;--green:#a4c64a;--orange:#f28a22;min-height:100vh;background:radial-gradient(ellipse at 76% 0%,#1b2516 0,transparent 32%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;position:relative;overflow:hidden;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
         .nf-glow{position:absolute;pointer-events:none;filter:blur(80px);opacity:.12;border-radius:50%}.nf-glow-one{width:300px;height:300px;background:#8ebd32;top:260px;right:-170px}.nf-glow-two{width:240px;height:240px;background:#f28a22;top:850px;left:-170px}
@@ -280,11 +282,88 @@ function DashboardContent() {
         .nf-home-stats article strong{color:#292923!important}
         @media(max-width:560px){.nf-3d-scene{height:365px;margin:16px 0 22px;border-radius:26px}.nf-gym-svg{width:125%;max-width:none;left:50%;bottom:0}.nf-scene-caption{left:17px;top:18px}.nf-scene-caption b{font-size:13px}.nf-scene-caption span{font-size:9px;max-width:210px}.nf-scene-float{padding:8px 10px;border-radius:12px;gap:6px}.nf-scene-float b{font-size:9px}.nf-scene-float small{font-size:7px}.nf-scene-heart{right:12px;top:18px}.nf-scene-time{right:12px;top:74px}.nf-home-panorama{padding:15px!important}.nf-home-stats article{min-height:116px;padding:12px!important}.nf-home-macros>div{padding:10px!important}}
 
-            `}</style>
-    </main>
-  );
+            
+
+        .nf-reference-shell{min-height:100svh;padding:14px 12px calc(86px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 12%,#fff 0%,#eef0f3 48%,#e7e9ed 100%);color:#20211f;font-family:Inter,Arial,sans-serif;overflow-x:hidden}
+        .nf-reference-header{width:100%;max-width:430px;min-height:82px;margin:0 auto 12px;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid #fff;border-radius:22px;background:linear-gradient(145deg,#fffefa,#f7f1e8);box-shadow:9px 12px 22px #77634c20,-6px -6px 15px #fff;position:relative}
+        .nf-reference-brand{width:62px;height:62px;flex:0 0 62px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .nf-reference-brand img{width:100%;height:100%;object-fit:contain}
+        .nf-reference-greeting{min-width:0;flex:1}
+        .nf-reference-brandline{font-size:12px;font-weight:900;letter-spacing:.2px;color:#71843f;line-height:1.2}
+        .nf-reference-brandline span{color:#ed8738}
+        .nf-reference-greeting h1{margin:4px 0 0;font-size:18px;line-height:1.2;letter-spacing:-.35px;color:#20211f;font-weight:800;white-space:nowrap}
+        .nf-reference-greeting h1 span{font-size:16px}
+        .nf-reference-actions{display:flex;align-items:center;gap:7px}
+        .nf-reference-bell{width:32px;height:32px;position:relative;border:0;border-radius:11px;background:transparent;color:#8d877e;display:grid;place-items:center}
+        .nf-reference-bell i{position:absolute;right:4px;top:3px;width:8px;height:8px;border-radius:50%;background:#e83e3b;border:1px solid #fff}
+        .nf-reference-avatar{width:43px;height:43px;flex:0 0 43px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f2d7c2,#b87955);border:3px solid #fff;box-shadow:4px 5px 10px #76634c25;font-size:23px;position:relative}
+        .nf-reference-avatar i{position:absolute;right:-2px;bottom:0;width:11px;height:11px;border-radius:50%;background:#a6d900;border:2px solid #fff}
+        .nf-reference-main{max-width:430px;margin:0 auto}
+        .nf-dashboard-summary{display:flex;flex-direction:column;gap:10px}
+        .nf-reference-toprow{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(112px,.85fr);gap:9px;align-items:stretch}
+        .nf-reference-metrics{display:grid;grid-template-columns:1fr 1fr;min-width:0;overflow:hidden;border-radius:19px;border:1px solid #fff;background:linear-gradient(145deg,#fffefa,#f7f1e8);box-shadow:8px 10px 18px #77634c1c,-5px -5px 12px #fff}
+        .nf-reference-metric{min-width:0;padding:10px 9px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+        .nf-reference-metric+ .nf-reference-metric{border-left:1px solid #e4dcd1}
+        .nf-reference-metric-label{display:flex;align-items:center;gap:5px;font-size:8px;letter-spacing:.45px;color:#81796f;white-space:nowrap}
+        .nf-reference-metric-label svg{color:#91ad42;flex:none}
+        .nf-reference-metric:nth-child(2) .nf-reference-metric-label svg{color:#4aa8d7}
+        .nf-reference-metric strong{font-size:22px;line-height:1.05;font-weight:850;color:#20211f}
+        .nf-reference-metric small{font-size:8px;line-height:1.2;color:#948a7e}
+        .nf-weekly-ticket{min-width:0;border:0;border-radius:13px;padding:9px 9px;background:linear-gradient(145deg,#d5f326,#bde400);box-shadow:5px 7px 14px #91b90c44,inset 1px 1px 2px #fff9;color:#22251a;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;text-align:left}
+        .nf-weekly-ticket>span{font-size:8px;font-weight:800;letter-spacing:.35px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+        .nf-weekly-ticket>strong{font-size:22px;line-height:1.05;font-weight:900}
+        .nf-weekly-ticket>small{font-size:7px;line-height:1.2;opacity:.78}
+        .nf-3d-scene{height:275px;position:relative;margin:0;border-radius:25px;background:linear-gradient(145deg,#fffdf8 0%,#f4ecdf 100%);box-shadow:12px 15px 25px #76634c20,-7px -7px 17px #fff;border:1px solid #fff;overflow:hidden}
+        .nf-gym-svg{position:absolute;width:116%;max-width:none;height:auto;left:50%;bottom:-4px;transform:translateX(-50%);z-index:1;overflow:visible}
+        .nf-scene-caption{position:absolute;left:16px;top:15px;z-index:4;display:flex;flex-direction:column;gap:3px;max-width:210px}
+        .nf-scene-caption b{font-size:12px;color:#4d5933;letter-spacing:-.15px}
+        .nf-scene-caption span{font-size:8px;color:#8b8175}
+        .nf-scene-heart,.nf-scene-time{display:none}
+        .nf-reference-side-pill{position:absolute;z-index:5;left:9px;top:50px;width:42px;height:164px;border-radius:22px;background:linear-gradient(145deg,#fffefa,#f5eee5);box-shadow:6px 8px 16px #76634c24,-4px -4px 11px #fff;border:1px solid #fff;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:7px 0}
+        .nf-reference-side-pill button{width:29px;height:29px;border:0;border-radius:10px;background:transparent;color:#9a948b;display:grid;place-items:center;padding:0}
+        .nf-reference-side-pill button.active{background:linear-gradient(145deg,#d7f52a,#b8df00);color:#586e26;box-shadow:inset 2px 2px 4px #8eaf1e55,2px 3px 6px #6d832c22}
+        .nf-reference-lower{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.92fr);gap:9px}
+        .nf-reference-card{min-width:0;border:1px solid #fff;border-radius:19px;background:linear-gradient(145deg,#fffefa,#f6efe6);box-shadow:8px 10px 18px #77634c1c,-5px -5px 12px #fff;padding:10px}
+        .nf-reference-card-heading{display:flex;align-items:center;justify-content:space-between;gap:4px}
+        .nf-reference-card h2{margin:0 0 6px;font-size:11px;line-height:1.2;font-weight:850;color:#20211f;white-space:nowrap}
+        .nf-reference-card-heading h2{margin:0}
+        .nf-reference-card-heading>span{font-size:7px;color:#92897e}
+        .nf-reference-bars{height:62px;display:flex;align-items:flex-end;justify-content:space-around;gap:5px;padding:3px 0 0}
+        .nf-reference-bar-column{height:100%;display:flex;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px}
+        .nf-reference-bar-column>span{display:block;width:min(17px,72%);min-height:5px;border-radius:8px 8px 6px 6px;background:linear-gradient(145deg,#d7d5d3,#b8b5b4);box-shadow:3px 4px 7px #8884,-2px -2px 4px #fff}
+        .nf-reference-bar-column>span.has-value{background:linear-gradient(145deg,#d9f42c,#b7dc00);box-shadow:3px 4px 7px #91b41f55,-2px -2px 4px #fff}
+        .nf-reference-bar-column small{font-size:6px;color:#968d82}
+        .nf-weekly-progress p{font-size:7px;line-height:1.3;color:#91877b;margin:4px 0 0}
+        .nf-achievements{display:flex;flex-direction:column;gap:5px}
+        .nf-achievements h2{margin:0 0 1px}
+        .nf-achievement-pill{height:20px;border-radius:11px;background:linear-gradient(145deg,#fffefa,#f3ece2);box-shadow:3px 4px 7px #76634c1c,-2px -2px 5px #fff;display:flex;align-items:center;justify-content:space-between;padding:0 6px;gap:4px;font-size:10px;color:#ed8738}
+        .nf-achievement-pill b{font-size:8px;font-weight:600;color:#37342f;flex:1}
+        .nf-reference-tip{max-width:430px;min-height:61px;margin:0 auto 8px;padding:9px 12px;display:flex;align-items:center;gap:10px;border:1px solid #fff;border-radius:18px;background:linear-gradient(145deg,#fffefa,#f6efe6);box-shadow:8px 10px 18px #77634c1c,-5px -5px 12px #fff}
+        .nf-reference-tip-icon{width:39px;height:39px;flex:0 0 39px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#fff3cc,#f4d68c);box-shadow:inset 2px 2px 5px #e5c88c55;font-size:22px}
+        .nf-reference-tip h2{margin:0 0 3px;font-size:11px;color:#292923}
+        .nf-reference-tip p{margin:0;font-size:9px;line-height:1.25;color:#7f766b}
+        .nf-reference-footer{max-width:430px;margin:0 auto;color:#958b80;font-size:7px;line-height:1.4;padding:0 4px}
+        .nf-reference-footer span{display:block;margin-top:5px;letter-spacing:1.1px}
+        .nf-reference-nav{position:fixed;z-index:30;left:0;right:0;bottom:0;min-height:72px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-around;gap:2px;background:rgba(255,252,246,.96);border-top:1px solid #e8ded1;box-shadow:0 -8px 20px #76634c16;backdrop-filter:blur(18px)}
+        .nf-reference-nav button{flex:1;min-width:0;height:58px;border:0;border-radius:14px;background:transparent;color:#8b8379;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:inherit;cursor:pointer}
+        .nf-reference-nav button.active{color:#6e843b}
+        .nf-reference-nav button.active svg{background:linear-gradient(145deg,#d8f52a,#b7df00);box-shadow:inset 2px 2px 4px #8eaf1e55,2px 3px 6px #6d832c22;border-radius:10px;padding:4px;width:30px;height:30px}
+        .nf-reference-nav button svg{width:23px;height:23px}
+        .nf-reference-nav button span{font-size:9px;line-height:1.1}
+        .nf-reference-panel{max-width:430px;margin:0 auto;padding:14px;border:1px solid #fff;border-radius:22px;background:linear-gradient(145deg,#fffefa,#f6efe6);box-shadow:9px 12px 24px #77634c20,-6px -6px 16px #fff;color:#292923}
+        .nf-reference-panel h2{color:#292923}
+        .nf-reference-panel .nf-eyebrow{color:#71843f}
+        .nf-reference-panel :global(.nf-training-stats>article),.nf-reference-panel :global(.nf-training-stats>div){background:#f7f0e8!important;border:1px solid #eee4d8!important;color:#292923!important}
+        .nf-dashboard-error{font-size:9px;color:#b85c30;margin:0}
+        @media(min-width:561px){.nf-reference-shell{padding-top:24px}.nf-reference-header{margin-bottom:16px}.nf-reference-main{padding:0 14px}.nf-3d-scene{height:320px}.nf-gym-svg{width:min(100%,760px)}}
+        @media(max-width:370px){.nf-reference-header{gap:6px;padding:8px}.nf-reference-brand{width:52px;height:52px;flex-basis:52px}.nf-reference-greeting h1{font-size:16px}.nf-reference-metric{padding:8px 6px}.nf-reference-metric-label{font-size:7px}.nf-weekly-ticket{padding:7px}.nf-weekly-ticket>strong{font-size:20px}.nf-3d-scene{height:252px}}
+        @media(prefers-reduced-motion:reduce){.nf-reference-shell *{scroll-behavior:auto!important;transition:none!important}}
+
+   `}</style>
+  </main>
+ );
 }
 
 export default function AreaNutrifitPage() {
-  return <AreaAuthGate><DashboardContent /></AreaAuthGate>;
+ return <AreaAuthGate><DashboardContent/></AreaAuthGate>;
 }
