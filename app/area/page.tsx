@@ -158,6 +158,34 @@ function DashboardContent() {
         @media(max-width:560px){.nf-topbar{height:84px;padding:0 10px}.nf-brand-logo{width:112px;max-height:70px}.nf-layout{padding:16px 12px 0}.nf-3d-scene{height:255px;margin:14px 0 20px}.nf-scene-platform{left:7%;right:7%;bottom:24px;height:94px}.nf-scene-person{font-size:72px;bottom:89px;left:48%}.nf-scene-rack{left:13%;bottom:89px;transform:scale(.82) perspective(200px) rotateY(-17deg);transform-origin:left bottom}.nf-scene-bench{right:19%;bottom:83px;font-size:54px}.nf-scene-bottle{right:10%;bottom:96px;transform:scale(.85)}.nf-scene-mat{right:26%;bottom:45px;width:70px}.plant-one{left:7%;bottom:85px}.plant-two{right:5%;bottom:91px}.nf-scene-clock{right:20%;top:24px;width:37px;height:37px;font-size:26px}.nf-scene-caption{left:14px;top:15px}.nf-scene-caption b{font-size:12px}.nf-scene-caption span{font-size:9px;max-width:190px}.nf-home-panorama{padding:14px}.nf-home-rings{gap:8px}.nf-home-stats{gap:8px}}
         @media(prefers-reduced-motion:reduce){.nf-3d-scene *{animation:none!important;transition:none!important}}
 
+      
+        /* Componentes internos: acabamento claro e tátil em todos os módulos */
+        :global(.nf-home-panorama),:global(.nf-dashboard-goals){background:linear-gradient(145deg,#fffdf9,#f5eee5)!important;border:1px solid #fff!important;border-radius:22px!important;box-shadow:9px 12px 24px #77634c20,-6px -6px 16px #fff!important;color:#292923!important}
+        :global(.nf-home-panorama-head h3),:global(.nf-home-stats strong),:global(.nf-home-ring-copy strong),:global(.nf-dashboard-goals b){color:#292923!important}
+        :global(.nf-home-ring b),:global(.nf-home-ring-target),:global(.nf-home-stats article>span),:global(.nf-home-macros span){color:#766d61!important}
+        :global(.nf-home-stats article){background:#f7f0e8!important;border:1px solid #eee4d8!important;border-radius:16px!important;box-shadow:inset 2px 2px 5px #8c77501a,inset -2px -2px 5px #fff!important}
+        :global(.nf-home-stats button),:global(.nf-dashboard-goals button){color:#71843f!important}
+        :global(.nf-home-macros){border-top-color:#e8ded1!important}
+        :global(.nf-live-label){color:#71843f!important}
+        :global(.nf-training-tracker),:global(.nf-nutrition-tracker),:global(.nf-goals),:global(.wt-root){color:#292923!important}
+        :global(.nf-training-stats>div),:global(.nf-training-week),:global(.nf-training-form),:global(.nf-training-history),:global(.nf-macro-layout),:global(.nf-food-adder),:global(.nf-food-portions),:global(.nf-food-summary),:global(.nf-meal-history),:global(.nf-goals-overview),:global(.nf-goal-form),:global(.nf-goal-card),:global(.wt-summary>div),:global(.wt-chart-card),:global(.wt-history){background:linear-gradient(145deg,#fffdf9,#f5eee5)!important;border:1px solid #e9dfd3!important;border-radius:18px!important;box-shadow:5px 7px 16px #76634c12,-4px -4px 10px #fff!important;color:#292923!important}
+        :global(.nf-training-tracker h4),:global(.nf-nutrition-tracker h4),:global(.nf-goals h4),:global(.nf-goal-card b),:global(.wt-history h4),:global(.wt-chart-head b){color:#292923!important}
+        :global(.nf-training-tracker small),:global(.nf-nutrition-tracker small),:global(.nf-goals small),:global(.wt-root small),:global(.wt-history p){color:#81776b}
+        :global(.nf-training-day),:global(.nf-training-row),:global(.nf-meal-row),:global(.nf-goal-list),:global(.wt-history li){border-color:#e8ded1!important;color:#292923!important}
+        :global(.nf-training-bar-track),:global(.nf-goal-track){background:#e9e1d6!important}
+        :global(.nf-training-bar-track span),:global(.nf-goal-progress span){background:linear-gradient(90deg,#a7b66a,#71843f)!important}
+        :global(.nf-food-adder input),:global(.nf-food-adder select),:global(.nf-meal-form input),:global(.nf-meal-form select),:global(.wt-form input),:global(.nf-goal-form input),:global(.nf-goal-form select),:global(.nf-goal-form textarea){background:#fffdf9!important;border:1px solid #e3d8ca!important;color:#292923!important;border-radius:12px!important;box-shadow:inset 2px 2px 5px #8c77501a,inset -2px -2px 5px #fff!important}
+        :global(.nf-food-add),:global(.nf-chart-action),:global(.wt-form button),:global(.nf-goal-form button){background:linear-gradient(145deg,#a7b66a,#7e9148)!important;color:#fff!important;border:0!important;border-radius:13px!important;box-shadow:0 6px 14px #71843f30!important}
+        :global(.nf-food-portion button),:global(.nf-meal-history button),:global(.wt-history-head button),:global(.nf-goal-delete){color:#d87932!important}
+        :global(.wt-line){stroke:#7e9148!important}:global(.wt-point){fill:#ed8738!important}:global(.wt-grid-line){stroke:#e7ded2!important}:global(.wt-axis-label){fill:#847b70!important}
+        :global(.wt-period){background:#f2eadf!important;border-color:#e5dacd!important}:global(.wt-period button){color:#81776b!important}:global(.wt-period button.active){background:#e5edcf!important;color:#617536!important}
+        :global(.nf-goal-message),:global(.nf-meal-error),:global(.wt-error){color:#b85c30!important}
+        :global(.nf-nutrition-empty),:global(.nf-goal-empty),:global(.wt-chart-empty){color:#82796d!important}
+        :global(.nf-macro-center strong),:global(.nf-food-kcal){color:#71843f!important}
+        :global(.nf-macro-center small),:global(.nf-macro-legend span){color:#766d61!important}
+        :global(.nf-macro-legend>div){border-color:#e8ded1!important}
+        :global(.nf-tab-panel){background:transparent!important;border:0!important;box-shadow:none!important}
+
             `}</style>
     </main>
   );
