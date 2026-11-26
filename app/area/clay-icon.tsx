@@ -2,14 +2,14 @@
 
 import {
   Activity, Apple, Bell, Dumbbell, Flame, Home, Lightbulb, Medal,
-  Settings, Target, Trophy, Utensils, Droplet
+  Settings, Target, Trophy, Utensils, Droplet, BarChart3, BicepsFlexed
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const icons = {
   home: Home,
   dumbbell: Dumbbell,
-  chart: Activity,
+  chart: BarChart3,
   settings: Settings,
   utensils: Utensils,
   water: Droplet,
@@ -20,6 +20,7 @@ const icons = {
   flame: Flame,
   lightbulb: Lightbulb,
   bell: Bell,
+  muscle: BicepsFlexed,
 } satisfies Record<string, LucideIcon>;
 
 export type ClayIconName = keyof typeof icons;
