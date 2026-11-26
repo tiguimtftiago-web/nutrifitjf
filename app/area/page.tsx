@@ -57,17 +57,93 @@ function DashboardContent() {
 
             <div className="nf-section-heading"><div><div className="nf-eyebrow">VISÃO GERAL</div><h2>Seu panorama</h2></div><span className="nf-demo-tag">DADOS DOS SEUS REGISTROS</span></div>
             <DashboardSummary onNavigate={setActiveTab} />
-            <section className="nf-3d-scene" aria-label="Ilustração de bem-estar e atividade física">
-              <div className="nf-scene-spark spark-one">✦</div><div className="nf-scene-spark spark-two">●</div>
-              <div className="nf-scene-plant plant-one">🪴</div><div className="nf-scene-plant plant-two">🌿</div>
-              <div className="nf-scene-clock">◷</div>
-              <div className="nf-scene-platform"><div className="nf-scene-platform-top" /></div>
-              <div className="nf-scene-rack"><span>●</span><span>●</span><span>●</span><span>●</span><small>━━━</small></div>
-              <div className="nf-scene-person">🏋️‍♀️</div>
-              <div className="nf-scene-bench">▰</div>
-              <div className="nf-scene-bottle">NF</div>
-              <div className="nf-scene-mat">▰</div>
+            <section className="nf-3d-scene" aria-label="Academia tridimensional NutriFit 360">
               <div className="nf-scene-caption"><b>Movimento também é cuidado.</b><span>Pequenos passos constroem grandes mudanças.</span></div>
+              <div className="nf-scene-float nf-scene-heart"><HeartPulse size={17}/><span><b>Bem-estar</b><small>Corpo em movimento</small></span></div>
+              <div className="nf-scene-float nf-scene-time"><Watch size={17}/><span><b>Sua rotina</b><small>No seu ritmo</small></span></div>
+              <svg className="nf-gym-svg" viewBox="0 0 760 390" role="img" aria-label="Mini academia isométrica com pesos, banco, bicicleta ergométrica e pessoa treinando">
+                <defs>
+                  <linearGradient id="nfPlatformSide" x1="0" y1="0" x2="0.9" y2="1"><stop stopColor="#b8ce62"/><stop offset="1" stopColor="#718b36"/></linearGradient>
+                  <linearGradient id="nfPlatformTop" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fffdf7"/><stop offset="1" stopColor="#e8ddcc"/></linearGradient>
+                  <linearGradient id="nfMetal" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f5f2ed"/><stop offset=".5" stopColor="#77746f"/><stop offset="1" stopColor="#d8d3cb"/></linearGradient>
+                  <linearGradient id="nfOrange" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ffb15f"/><stop offset="1" stopColor="#d76b2d"/></linearGradient>
+                  <filter id="nfShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="8"/></filter>
+                </defs>
+                <ellipse cx="385" cy="324" rx="300" ry="34" fill="#8b795f" opacity=".18" filter="url(#nfShadow)"/>
+                <path d="M80 210 382 95 682 210 380 345Z" fill="url(#nfPlatformSide)"/>
+                <path d="M80 210 380 323 682 210 682 233 380 367 80 234Z" fill="#829d3f"/>
+                <path d="M100 198 382 91 662 198 380 310Z" fill="url(#nfPlatformTop)" stroke="#fff" strokeWidth="5"/>
+                <path d="M118 198 382 104 643 198 380 297Z" fill="none" stroke="#e5dac9" strokeWidth="2"/>
+                <g opacity=".95">
+                  <path d="M150 196v-46l30-12v45M180 138l33 12v45M150 150l30 12 33-12" fill="none" stroke="#8a8881" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M146 145h70" stroke="#5d5b57" strokeWidth="8" strokeLinecap="round"/>
+                  <rect x="136" y="132" width="12" height="30" rx="4" fill="#5f5c58"/><rect x="218" y="132" width="12" height="30" rx="4" fill="#5f5c58"/>
+                  <path d="M156 143v-15M210 143v-15" stroke="#4f4d49" strokeWidth="8" strokeLinecap="round"/>
+                  <path d="M150 206 174 191 197 202 174 218Z" fill="#c9c3b8"/>
+                  <path d="M166 202 188 189M183 214 205 201" stroke="#68645e" strokeWidth="6" strokeLinecap="round"/>
+                  <path d="M163 187 172 183M194 181 203 177" stroke="#44413d" strokeWidth="7" strokeLinecap="round"/>
+                </g>
+                <g>
+                  <path d="M478 213 522 196 548 206 504 225Z" fill="#aaa49a"/>
+                  <path d="M504 225v35M537 211v39" stroke="#77736c" strokeWidth="8" strokeLinecap="round"/>
+                  <path d="M482 210 520 195 547 205 509 221Z" fill="#55534f"/>
+                  <path d="M478 214 502 225" stroke="#e9e3d9" strokeWidth="3"/>
+                </g>
+                <g>
+                  <path d="M560 146v67M582 138v75M560 146l22-8" stroke="#aaa59e" strokeWidth="9" strokeLinecap="round"/>
+                  <rect x="550" y="161" width="33" height="66" rx="10" fill="url(#nfOrange)"/>
+                  <rect x="558" y="153" width="17" height="10" rx="3" fill="#6e655a"/>
+                  <text x="566" y="198" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#fff">NF</text>
+                </g>
+                <g>
+                  <path d="M390 219 420 207 449 218 419 231Z" fill="#d9d2c7"/>
+                  <path d="M408 226v38M438 220v37" stroke="#817d76" strokeWidth="7" strokeLinecap="round"/>
+                  <path d="M389 217 420 205 450 217" stroke="#625f5a" strokeWidth="8" strokeLinecap="round"/>
+                </g>
+                <g>
+                  <path d="M308 222 329 199 351 210 330 235Z" fill="#d0c9bd"/>
+                  <path d="M329 235 349 224 370 236 350 248Z" fill="#a7b95d"/>
+                  <path d="M318 219 335 208 350 215" stroke="#69655e" strokeWidth="5" strokeLinecap="round"/>
+                </g>
+                <g>
+                  <ellipse cx="395" cy="165" rx="28" ry="13" fill="#d5cbb8"/>
+                  <path d="M378 164v-39M412 164v-39M378 125h34" stroke="#8b8983" strokeWidth="6" strokeLinecap="round"/>
+                  <circle cx="378" cy="121" r="7" fill="#595753"/><circle cx="412" cy="121" r="7" fill="#595753"/>
+                </g>
+                <g>
+                  <path d="M274 167 292 153 310 159 292 174Z" fill="#e4daca"/>
+                  <path d="M292 174v40M310 160v49" stroke="#8d8981" strokeWidth="6" strokeLinecap="round"/>
+                  <path d="M282 159 300 151" stroke="#5b5853" strokeWidth="7" strokeLinecap="round"/>
+                </g>
+                <g>
+                  <path d="M349 147 356 115 374 98 391 103 401 126 393 155 377 166 357 161Z" fill="#e7a47d"/>
+                  <circle cx="376" cy="91" r="18" fill="#d99a75"/>
+                  <path d="M359 91q-3-24 19-23 19 2 18 22l-12-8-14 4Z" fill="#6b4938"/>
+                  <path d="M358 118 339 99 329 81M391 117 409 95 419 76" fill="none" stroke="#d99a75" strokeWidth="13" strokeLinecap="round"/>
+                  <path d="M327 81 315 55M420 76 431 52" stroke="#d99a75" strokeWidth="10" strokeLinecap="round"/>
+                  <path d="M312 54 434 51" stroke="#77736d" strokeWidth="7" strokeLinecap="round"/>
+                  <rect x="303" y="43" width="12" height="24" rx="4" fill="#45433f"/><rect x="430" y="39" width="12" height="24" rx="4" fill="#45433f"/>
+                  <path d="M357 159 350 207 367 220 380 172M388 158 399 199 386 218 375 170" fill="#30445c"/>
+                  <path d="M351 207 344 238M399 199 411 229" stroke="#d99a75" strokeWidth="11" strokeLinecap="round"/>
+                  <path d="M337 240h17M404 232h18" stroke="#f1eee8" strokeWidth="8" strokeLinecap="round"/>
+                </g>
+                <g>
+                  <path d="M102 202q-7-29 9-47 13 18 8 36 8-36 29-44 3 26-13 44 22-24 39-20-9 25-35 36Z" fill="#7e9e48"/>
+                  <path d="M115 204q-4-25-20-29 0 22 15 34M138 195q7-28 29-31-2 23-25 40" fill="#9eb95d"/>
+                  <path d="M106 203h48l-7 26h-34Z" fill="#d9824b"/><path d="M106 203h48" stroke="#f1b17e" strokeWidth="4"/>
+                </g>
+                <g>
+                  <path d="M618 201q-2-29 13-43 11 17 4 34 11-27 30-29 1 23-19 37 20-17 33-10-11 22-34 26Z" fill="#769447"/>
+                  <path d="M632 202q-1-22-15-29 0 20 13 33M651 195q9-25 28-25-4 21-24 34" fill="#a5bd64"/>
+                  <path d="M622 205h48l-7 24h-34Z" fill="#d9824b"/><path d="M622 205h48" stroke="#f1b17e" strokeWidth="4"/>
+                </g>
+                <g>
+                  <circle cx="485" cy="87" r="23" fill="#fffaf2" stroke="#ed8738" strokeWidth="6"/>
+                  <path d="M485 70v18l12 7" fill="none" stroke="#786e62" strokeWidth="4" strokeLinecap="round"/>
+                </g>
+                <path d="M226 93l8-14 8 14 14 8-14 8-8 14-8-14-14-8Z" fill="#ed8738" opacity=".9"/>
+                <circle cx="576" cy="65" r="7" fill="#a7b66a"/><circle cx="260" cy="56" r="5" fill="#ed8738"/>
+              </svg>
             </section>
 
           </>}
@@ -185,6 +261,24 @@ function DashboardContent() {
         :global(.nf-macro-center small),:global(.nf-macro-legend span){color:#766d61!important}
         :global(.nf-macro-legend>div){border-color:#e8ded1!important}
         :global(.nf-tab-panel){background:transparent!important;border:0!important;box-shadow:none!important}
+
+      
+        /* Refinamento fiel à referência: cena vetorial isométrica e cartões 3D */
+        .nf-3d-scene{height:390px;margin:20px 0 26px;border-radius:30px;background:linear-gradient(145deg,#fffdf8 0%,#f4ecdf 100%);box-shadow:14px 18px 32px #76634c20,-7px -7px 18px #fff;border:1px solid #fff;overflow:hidden}
+        .nf-gym-svg{position:absolute;width:min(100%,760px);height:auto;left:50%;bottom:-2px;transform:translateX(-50%);z-index:1;overflow:visible}
+        .nf-scene-caption{left:26px;top:24px;z-index:4}
+        .nf-scene-caption b{font-size:16px;color:#4d5933;letter-spacing:-.2px}
+        .nf-scene-caption span{font-size:11px;color:#8b8175}
+        .nf-scene-float{position:absolute;z-index:4;display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:15px;background:linear-gradient(145deg,#fffefa,#f4eee5);border:1px solid #fff;box-shadow:7px 9px 18px #76634c20,-4px -4px 10px #fff;color:#7e9148}
+        .nf-scene-float span{display:flex;flex-direction:column;gap:2px}.nf-scene-float b{font-size:10px;color:#403d35}.nf-scene-float small{font-size:8px;color:#8b8175}
+        .nf-scene-heart{right:22px;top:22px}.nf-scene-time{right:24px;top:88px}
+        .nf-home-macros>div{background:linear-gradient(145deg,#fffdf9,#f3ebdf)!important;border:1px solid #e9dfd3!important;border-radius:16px!important;padding:13px!important;box-shadow:inset 2px 2px 5px #8c77501a,inset -2px -2px 5px #fff!important}
+        .nf-home-macros>div b{color:#292923!important}.nf-home-macros>div span{color:#81776b!important}
+        .nf-home-panorama{border-radius:26px!important;padding:22px!important}
+        .nf-home-ring svg .track{stroke:#e9e1d6!important}.nf-home-ring-copy strong{color:#292923!important}
+        .nf-home-stats article{min-height:132px;padding:16px!important}
+        .nf-home-stats article strong{color:#292923!important}
+        @media(max-width:560px){.nf-3d-scene{height:365px;margin:16px 0 22px;border-radius:26px}.nf-gym-svg{width:125%;max-width:none;left:50%;bottom:0}.nf-scene-caption{left:17px;top:18px}.nf-scene-caption b{font-size:13px}.nf-scene-caption span{font-size:9px;max-width:210px}.nf-scene-float{padding:8px 10px;border-radius:12px;gap:6px}.nf-scene-float b{font-size:9px}.nf-scene-float small{font-size:7px}.nf-scene-heart{right:12px;top:18px}.nf-scene-time{right:12px;top:74px}.nf-home-panorama{padding:15px!important}.nf-home-stats article{min-height:116px;padding:12px!important}.nf-home-macros>div{padding:10px!important}}
 
             `}</style>
     </main>
