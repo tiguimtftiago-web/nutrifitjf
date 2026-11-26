@@ -359,6 +359,62 @@ function DashboardContent() {
         @media(max-width:370px){.nf-reference-header{gap:6px;padding:8px}.nf-reference-brand{width:52px;height:52px;flex-basis:52px}.nf-reference-greeting h1{font-size:16px}.nf-reference-metric{padding:8px 6px}.nf-reference-metric-label{font-size:7px}.nf-weekly-ticket{padding:7px}.nf-weekly-ticket>strong{font-size:20px}.nf-3d-scene{height:252px}}
         @media(prefers-reduced-motion:reduce){.nf-reference-shell *{scroll-behavior:auto!important;transition:none!important}}
 
+        /* Fidelity pass: composition and clay-like depth inspired by the supplied 3D reference */
+        .nf-reference-shell{background:radial-gradient(ellipse at 50% 24%,#f5f6f8 0%,#eceef1 58%,#e5e7eb 100%);padding:12px 12px calc(82px + env(safe-area-inset-bottom))}
+        .nf-reference-header{min-height:78px;margin-bottom:11px;padding:9px 12px;border-radius:22px;background:linear-gradient(145deg,#fff 0%,#f6f4f1 100%);box-shadow:10px 12px 22px #5b606b22,-7px -7px 16px #fff}
+        .nf-reference-brand{width:58px;height:58px;flex-basis:58px;border-radius:50%;background:radial-gradient(circle at 32% 25%,#343434,#050505 72%);box-shadow:inset 2px 2px 5px #ffffff20,4px 6px 12px #34343425}
+        .nf-reference-brand img{width:94%;height:94%;object-fit:contain}
+        .nf-reference-greeting h1{font-size:19px;letter-spacing:-.45px}
+        .nf-reference-toprow{grid-template-columns:minmax(0,1.5fr) minmax(112px,.88fr);gap:10px}
+        .nf-reference-metrics{min-height:102px;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f4f1ed 100%);box-shadow:8px 10px 18px #555b681c,-6px -6px 14px #fff}
+        .nf-reference-metric{padding:10px 9px;gap:6px}
+        .nf-reference-metric-label{font-size:8px;letter-spacing:.55px}
+        .nf-reference-metric strong{font-size:24px;letter-spacing:-.7px}
+        .nf-weekly-ticket{min-height:102px;border-radius:14px;background:linear-gradient(145deg,#d9fa18 0%,#bde600 60%,#a9d500 100%);box-shadow:7px 9px 15px #789c173d,inset 2px 2px 3px #f7ffb7,inset -2px -3px 5px #88aa00}
+        .nf-weekly-ticket>span{font-size:8px;letter-spacing:.2px}
+        .nf-weekly-ticket>strong{font-size:26px;text-shadow:0 1px 0 #f5ff9c}
+        .nf-dashboard-summary{gap:12px}
+        .nf-3d-scene{height:335px;margin:0 -1px 0;border:0;border-radius:0;background:radial-gradient(ellipse at 51% 58%,#fffdf8 0%,#f0f0ee 58%,transparent 78%);box-shadow:none;overflow:visible}
+        .nf-3d-scene:before{content:"";position:absolute;left:13%;right:4%;bottom:10px;height:35px;border-radius:50%;background:#77705f20;filter:blur(18px);z-index:0}
+        .nf-gym-svg{width:132%;height:auto;max-width:none;left:55%;bottom:-1px;transform:translateX(-50%);z-index:1;filter:drop-shadow(0 13px 10px #554a3938)}
+        .nf-gym-svg g{filter:drop-shadow(1px 3px 2px #5a514333)}
+        .nf-scene-caption{display:none}
+        .nf-reference-side-pill{left:0;top:48%;transform:translateY(-50%);width:43px;height:174px;border-radius:23px;background:linear-gradient(145deg,#fff 0%,#f0eeeb 100%);box-shadow:7px 9px 17px #555b6828,-5px -5px 12px #fff;border:1px solid #fff}
+        .nf-reference-side-pill button{width:31px;height:31px;border-radius:11px}
+        .nf-reference-side-pill button.active{background:linear-gradient(145deg,#dfff20,#b5df00);box-shadow:inset 2px 2px 4px #809d1f66,3px 4px 7px #6d832c35}
+        .nf-reference-lower{gap:10px}
+        .nf-reference-card{min-height:145px;border-radius:22px;padding:13px 12px;background:linear-gradient(145deg,#fff 0%,#f2efeb 100%);box-shadow:9px 11px 19px #555b681d,-6px -6px 14px #fff}
+        .nf-reference-card h2{font-size:12px;margin-bottom:8px}
+        .nf-reference-bars{height:76px;gap:7px}
+        .nf-reference-bar-column>span{width:min(19px,76%);border-radius:9px;background:linear-gradient(145deg,#e1dfdd,#b9b7b8);box-shadow:3px 5px 7px #7774,-2px -2px 4px #fff}
+        .nf-reference-bar-column>span.has-value{background:linear-gradient(145deg,#e0fb2d,#b6df00);box-shadow:3px 5px 8px #8aa92766,-2px -2px 4px #fff}
+        .nf-achievement-pill{height:24px;border-radius:13px;background:linear-gradient(145deg,#fff,#eeeae5);box-shadow:3px 4px 8px #71685d20,-2px -2px 5px #fff;font-size:11px}
+        .nf-achievement-pill b{font-size:9px}
+        .nf-reference-tip{min-height:68px;margin:0 auto 9px;border-radius:21px;padding:10px 14px;background:linear-gradient(145deg,#fff 0%,#f1eee9 100%);box-shadow:9px 11px 18px #555b681c,-6px -6px 14px #fff}
+        .nf-reference-tip-icon{width:43px;height:43px;flex-basis:43px;font-size:24px;box-shadow:inset 2px 2px 5px #e5c88c66,3px 4px 8px #9e825233}
+        .nf-reference-tip h2{font-size:12px}
+        .nf-reference-tip p{font-size:10px}
+        .nf-reference-nav{min-height:76px;background:rgba(255,253,249,.97);border-top:1px solid #fff;box-shadow:0 -8px 20px #565b6817}
+        .nf-reference-nav button{height:62px}
+        .nf-reference-nav button span{font-size:10px}
+        @media(max-width:560px){
+          .nf-reference-shell{padding-left:11px;padding-right:11px}
+          .nf-3d-scene{height:335px;margin-top:-1px}
+          .nf-gym-svg{width:137%;left:56%;bottom:0}
+          .nf-reference-side-pill{left:-2px;top:51%;height:164px}
+          .nf-reference-lower{grid-template-columns:minmax(0,1.12fr) minmax(0,.92fr)}
+          .nf-reference-card{min-height:140px;padding:11px 9px}
+          .nf-reference-bars{height:70px}
+        }
+        @media(max-width:370px){
+          .nf-3d-scene{height:300px}
+          .nf-gym-svg{width:139%;left:57%}
+          .nf-reference-side-pill{width:38px;height:150px}
+          .nf-reference-metric-label{font-size:7px}
+          .nf-reference-card h2{font-size:10px}
+        }
+
+
    `}</style>
   </main>
  );
