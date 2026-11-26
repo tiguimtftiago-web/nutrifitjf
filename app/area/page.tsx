@@ -57,6 +57,18 @@ function DashboardContent() {
 
             <div className="nf-section-heading"><div><div className="nf-eyebrow">VISÃO GERAL</div><h2>Seu panorama</h2></div><span className="nf-demo-tag">DADOS DOS SEUS REGISTROS</span></div>
             <DashboardSummary onNavigate={setActiveTab} />
+            <section className="nf-3d-scene" aria-label="Ilustração de bem-estar e atividade física">
+              <div className="nf-scene-spark spark-one">✦</div><div className="nf-scene-spark spark-two">●</div>
+              <div className="nf-scene-plant plant-one">🪴</div><div className="nf-scene-plant plant-two">🌿</div>
+              <div className="nf-scene-clock">◷</div>
+              <div className="nf-scene-platform"><div className="nf-scene-platform-top" /></div>
+              <div className="nf-scene-rack"><span>●</span><span>●</span><span>●</span><span>●</span><small>━━━</small></div>
+              <div className="nf-scene-person">🏋️‍♀️</div>
+              <div className="nf-scene-bench">▰</div>
+              <div className="nf-scene-bottle">NF</div>
+              <div className="nf-scene-mat">▰</div>
+              <div className="nf-scene-caption"><b>Movimento também é cuidado.</b><span>Pequenos passos constroem grandes mudanças.</span></div>
+            </section>
 
           </>}
           {activeTab === "treino" && <section className="nf-panel nf-tab-panel"><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><Dumbbell size={20}/></div><p className="nf-tab-description">Minutos treinados e sessões registradas nesta semana.</p><TrainingTracker /></section>}
@@ -95,7 +107,58 @@ function DashboardContent() {
         @media(max-width:560px){.nf-shell{padding-bottom:85px}.nf-topbar{height:116px;padding:0 10px}.nf-brand{gap:5px}.nf-brand-logo{width:137px;max-height:106px}.nf-live{display:none}.nf-top-actions{gap:10px}.nf-layout{padding:20px 14px 0}.nf-welcome{align-items:flex-start;gap:10px;flex-direction:column;margin-bottom:18px}.nf-welcome h1{font-size:29px}.nf-welcome p{font-size:11px}.nf-date{align-self:flex-start}.nf-hero-card{min-height:290px;padding:22px 19px;align-items:flex-start}.nf-hero-copy{max-width:100%}.nf-hero-copy h2{font-size:29px}.nf-hero-copy p{max-width:270px;font-size:11px}.nf-orbit{width:145px;height:145px;right:-27px;top:69%;opacity:.35}.nf-orbit-core{width:80px;height:80px}.nf-orbit-core :global(svg){width:24px}.nf-orbit-core b{font-size:14px}.nf-hero-foot{padding:9px 12px;font-size:6px;letter-spacing:.8px}.nf-section-heading{align-items:flex-start;flex-direction:column;gap:9px;margin-top:25px}.nf-section-heading h2{font-size:18px}.nf-metric-grid{gap:9px}.nf-metric-card{padding:12px}.nf-metric-card strong{font-size:22px;margin:12px 0 5px}.nf-metric-card p{font-size:9px;min-height:25px;line-height:1.4}.nf-main-grid{gap:10px}.nf-panel{padding:14px}.nf-empty-chart{min-height:190px}.nf-bottom-grid{grid-template-columns:1fr;gap:10px}.nf-recommend{align-items:flex-start;flex-wrap:wrap;padding:14px}.nf-recommend>div:nth-child(2){min-width:calc(100% - 60px)}.nf-recommend .nf-outline-button{margin-left:57px}.nf-disclaimer{font-size:8px;line-height:1.5;flex-direction:column}.nf-mobile-nav{min-height:70px}.nf-tab-panel{padding:14px}}
         @media(min-width:901px){.nf-shell{padding-bottom:calc(100px + env(safe-area-inset-bottom))}.nf-content{padding-bottom:35px}}
         .nf-sidebar{display:none!important}.nf-action-row{border:0;color:inherit}.nf-mobile-nav button svg{flex:none}.nf-shell{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
-      `}</style>
+
+        /* NutriFit 360 — visual 3D inspirado na referência */
+        .nf-shell{--bg:#f4eee5;--panel:#fffaf4;--panel2:#f8f1e8;--line:#e8ded1;--muted:#847b70;--text:#292923;--green:#7e9148;--orange:#ed8738;background:radial-gradient(ellipse at 50% 20%,#fffdf9 0%,#f4eee5 62%,#eee5da 100%);color:var(--text);font-family:Inter,Arial,Helvetica,sans-serif}
+        .nf-glow{opacity:.14;filter:blur(65px)}.nf-glow-one{background:#a7b66a}.nf-glow-two{background:#f28c28}
+        .nf-topbar{height:88px;background:#fffaf4eF;border-bottom:1px solid #e8ded1;box-shadow:0 8px 24px #65513a12}
+        .nf-brand-logo{width:130px;max-height:76px;object-fit:contain}
+        .nf-live{color:#777064}.nf-icon-button{background:#fffaf4;border:1px solid #eee4d8;color:#625b51;box-shadow:5px 6px 14px #78634b18,-4px -4px 12px #fff}
+        .nf-avatar{background:linear-gradient(145deg,#e7d8c7,#fffaf4);color:#6f7e42;box-shadow:5px 6px 14px #78634b20,-4px -4px 12px #fff;border:1px solid #eee5dc}
+        .nf-layout{max-width:980px;padding-top:24px}
+        .nf-welcome h1{color:#292923}.nf-welcome h1 span{color:#7e9148}.nf-welcome p{color:#82796d}
+        .nf-eyebrow{color:#7e9148}.nf-eyebrow-line{background:#ed8738}
+        .nf-date,.nf-demo-tag{background:#fffaf4;border:1px solid #e9dfd3;color:#766d61;box-shadow:4px 5px 12px #76634c12,-3px -3px 10px #fff}
+        .nf-section-heading h2{color:#292923}
+        .nf-panel,.nf-home-panorama,.nf-dashboard-goals,.nf-metric-card{background:linear-gradient(145deg,#fffdf9,#f5eee5);border:1px solid #fff;border-radius:22px;box-shadow:9px 12px 24px #77634c20,-6px -6px 16px #fff}
+        .nf-home-panorama{padding:20px;border-color:#fff}
+        .nf-home-panorama-head h3,.nf-panel-heading h3{color:#292923}
+        .nf-live-label{color:#7e9148}
+        .nf-home-ring-copy strong,.nf-home-stats strong{color:#292923}
+        .nf-home-ring b,.nf-home-stats article>span{color:#71685d}
+        .nf-home-ring-target,.nf-home-stats button,.nf-home-macros span{color:#8b8175}
+        .nf-home-stats article{background:#f7f0e8;border:1px solid #eee4d8;border-radius:16px;box-shadow:inset 2px 2px 5px #8c77501a,inset -2px -2px 5px #fff}
+        .nf-home-stats button{color:#748543}
+        .nf-home-macros{border-top:1px solid #e8ded1}
+        .nf-dashboard-goals{padding:16px;color:#292923}
+        .nf-dashboard-goals button{background:#f7f0e8;color:#292923;border:1px solid #eee4d8}
+        .nf-panel{color:#292923}
+        .nf-panel-heading> :global(svg){color:#7e9148}
+        .nf-tab-description,.nf-disclaimer{color:#847b70}
+        .nf-mobile-nav{background:#fffaf4ed;border-top:1px solid #e7ddd1;box-shadow:0 -8px 24px #65513a16;backdrop-filter:blur(18px)}
+        .nf-mobile-nav button{color:#81776b}.nf-mobile-nav button.active{color:#71843e}
+        .nf-mobile-nav button.active svg{filter:drop-shadow(0 2px 2px #7e914833)}
+        .nf-sidebar{color:#292923}.nf-side-link{color:#70685d}.nf-side-link.active{background:#eaf0dc;color:#687b38;box-shadow:inset 2px 0 #7e9148}
+        .nf-side-promo{background:#fffaf4;border:1px solid #eee4d8;color:#7e9148;box-shadow:8px 10px 20px #78634b18}
+        .nf-side-promo b{color:#292923}.nf-side-promo span{color:#81776b}
+        .nf-3d-scene{height:290px;position:relative;margin:18px 0 24px;overflow:hidden;border-radius:26px;background:linear-gradient(145deg,#fffdf9,#f3eadf);border:1px solid #fff;box-shadow:12px 16px 28px #76634c20,-7px -7px 18px #fff}
+        .nf-scene-platform{position:absolute;left:13%;right:13%;bottom:32px;height:112px;border-radius:28px;background:linear-gradient(145deg,#b5c86a,#7e9148);transform:skewY(-8deg) rotate(-2deg);box-shadow:0 18px 20px #61743835}
+        .nf-scene-platform-top{position:absolute;inset:0 0 17px;border-radius:26px;background:linear-gradient(145deg,#fffaf2,#e8dcca);border:2px solid #fff;box-shadow:inset 0 3px 8px #fff}
+        .nf-scene-person{position:absolute;left:46%;bottom:105px;font-size:86px;transform:translateX(-50%);filter:drop-shadow(7px 10px 5px #66513b35);z-index:3}
+        .nf-scene-rack{position:absolute;left:22%;bottom:104px;width:120px;height:65px;border:7px solid #a9a39b;border-bottom-width:5px;border-radius:10px 10px 4px 4px;display:flex;align-items:flex-start;justify-content:space-around;padding:7px 5px;transform:perspective(200px) rotateY(-17deg);z-index:2;color:#56514c}
+        .nf-scene-rack span{font-size:19px;text-shadow:2px 3px 2px #0004}.nf-scene-rack small{position:absolute;bottom:-14px;left:4px;color:#777}
+        .nf-scene-bench{position:absolute;right:24%;bottom:97px;font-size:65px;color:#817b73;transform:rotate(-12deg);text-shadow:3px 5px 4px #0003;z-index:2}
+        .nf-scene-bottle{position:absolute;right:17%;bottom:115px;width:29px;height:67px;border-radius:9px 9px 6px 6px;background:linear-gradient(90deg,#d9782e,#f3a24d,#c96726);border-top:9px solid #7d6b58;display:grid;place-items:center;color:#fff;font-size:8px;font-weight:900;box-shadow:4px 6px 8px #0002;z-index:3}
+        .nf-scene-mat{position:absolute;right:31%;bottom:56px;width:90px;height:19px;border-radius:20px;background:linear-gradient(90deg,#a7b66a,#71883c);transform:rotate(-15deg);box-shadow:3px 5px 6px #0002;z-index:3}
+        .nf-scene-plant{position:absolute;z-index:4;font-size:32px;filter:drop-shadow(3px 5px 3px #0002)}.plant-one{left:13%;bottom:100px}.plant-two{right:12%;bottom:105px}
+        .nf-scene-clock{position:absolute;right:28%;top:24px;width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:#fffaf4;border:5px solid #ed8738;color:#6c6257;font-size:32px;box-shadow:4px 6px 10px #0002}
+        .nf-scene-spark{position:absolute;color:#ed8738;font-size:24px}.spark-one{right:12%;top:44px}.spark-two{left:17%;top:70px;color:#a7b66a}
+        .nf-scene-caption{position:absolute;left:22px;top:22px;display:flex;flex-direction:column;gap:5px;z-index:5}.nf-scene-caption b{font-size:14px;color:#4d5933}.nf-scene-caption span{font-size:10px;color:#8b8175}
+        .nf-3d-scene:after{content:"";position:absolute;width:130px;height:130px;right:8%;bottom:-70px;border-radius:50%;background:#a7b66a;filter:blur(45px);opacity:.35}
+        @media(max-width:560px){.nf-topbar{height:84px;padding:0 10px}.nf-brand-logo{width:112px;max-height:70px}.nf-layout{padding:16px 12px 0}.nf-3d-scene{height:255px;margin:14px 0 20px}.nf-scene-platform{left:7%;right:7%;bottom:24px;height:94px}.nf-scene-person{font-size:72px;bottom:89px;left:48%}.nf-scene-rack{left:13%;bottom:89px;transform:scale(.82) perspective(200px) rotateY(-17deg);transform-origin:left bottom}.nf-scene-bench{right:19%;bottom:83px;font-size:54px}.nf-scene-bottle{right:10%;bottom:96px;transform:scale(.85)}.nf-scene-mat{right:26%;bottom:45px;width:70px}.plant-one{left:7%;bottom:85px}.plant-two{right:5%;bottom:91px}.nf-scene-clock{right:20%;top:24px;width:37px;height:37px;font-size:26px}.nf-scene-caption{left:14px;top:15px}.nf-scene-caption b{font-size:12px}.nf-scene-caption span{font-size:9px;max-width:190px}.nf-home-panorama{padding:14px}.nf-home-rings{gap:8px}.nf-home-stats{gap:8px}}
+        @media(prefers-reduced-motion:reduce){.nf-3d-scene *{animation:none!important;transition:none!important}}
+
+            `}</style>
     </main>
   );
 }
