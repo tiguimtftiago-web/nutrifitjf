@@ -1,12 +1,12 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { Droplet, Target, Utensils } from "lucide-react";
+import { Target } from "lucide-react";
+import ClayIcon from "./clay-icon";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const sessionKey = "nutrifit360.session";
-type Meal = { calories:number; protein_g:number; carbs_g:number; fat_g:number };
 type Training = { duration_minutes:number; performed_at:string };
 type Goal = { id:string; title:string; goal_type:string; status:string; target_value:number|null; unit:string };
 type Data = { meals:number; workouts:number; activeGoals:Goal[]; dailyWorkouts:number[] };
@@ -54,18 +54,18 @@ export default function DashboardSummary({onNavigate,children}:Props){
   <section className="nf-reference-toprow" aria-label="Resumo diário e meta semanal">
    <div className="nf-reference-metrics">
     <article className="nf-reference-metric">
-     <div className="nf-reference-metric-label"><Utensils size={17}/> <span>REFEIÇÕES DO DIA</span></div>
+     <div className="nf-reference-metric-label"><ClayIcon name="utensils" tone="orange" size={18}/> <span>REFEIÇÕES DO DIA</span></div>
      <strong>{loading?"…":String(data.meals).padStart(2,"0")}</strong>
      <small>Registros de hoje</small>
     </article>
     <article className="nf-reference-metric">
-     <div className="nf-reference-metric-label"><Droplet size={18}/> <span>ÁGUA</span></div>
+     <div className="nf-reference-metric-label"><ClayIcon name="water" tone="green" size={19}/> <span>ÁGUA</span></div>
      <strong>1,5 L</strong>
      <small>Referência visual de meta diária</small>
     </article>
    </div>
    <button type="button" className="nf-weekly-ticket" onClick={()=>onNavigate("metas")} aria-label="Abrir metas semanais">
-    <span><Target size={18}/> META DA SEMANA</span>
+    <span><ClayIcon name="target" tone="neutral" size={19}/> META DA SEMANA</span>
     <strong>{progress===null?"—":`${progress}%`}</strong>
     <small>{progress===null?"Defina uma meta de treinos":`${data.workouts} de ${workoutGoal?.target_value} treinos`}</small>
    </button>
@@ -84,9 +84,9 @@ export default function DashboardSummary({onNavigate,children}:Props){
    </article>
    <article className="nf-reference-card nf-achievements">
     <h2>Top Conquistas</h2>
-    <div className="nf-achievement-pill"><span>💪</span><b>Força</b><span>🏆</span></div>
-    <div className="nf-achievement-pill"><span>❤️</span><b>Disciplina</b><span>🏅</span></div>
-    <div className="nf-achievement-pill"><span>🥗</span><b>Nutrição</b><span>🔥</span></div>
+    <div className="nf-achievement-pill"><ClayIcon name="dumbbell" tone="green" size={17}/><b>Força</b><ClayIcon name="trophy" tone="orange" size={17}/></div>
+    <div className="nf-achievement-pill"><ClayIcon name="medal" tone="orange" size={17}/><b>Disciplina</b><ClayIcon name="target" tone="green" size={17}/></div>
+    <div className="nf-achievement-pill"><ClayIcon name="apple" tone="green" size={17}/><b>Nutrição</b><ClayIcon name="flame" tone="orange" size={17}/></div>
    </article>
   </section>
   {error&&<p className="nf-dashboard-error" role="status">{error}</p>}
