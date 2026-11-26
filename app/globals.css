@@ -386,3 +386,25 @@ textarea::placeholder {
   background: #b5e01a;
   box-shadow: 0 1px 3px rgba(0,0,0,.18);
 }
+
+
+/* Ornamentos claymorphism do gráfico semanal — NutriFit 360 */
+.nf-reference-card.nf-weekly-progress{position:relative;overflow:hidden}
+.nf-chart-ornaments{position:absolute;right:13px;top:43px;width:112px;height:52px;pointer-events:none;z-index:2;opacity:.96}
+.nf-chart-ornament-bars{position:absolute;right:30px;top:9px;height:35px;display:flex;align-items:flex-end;gap:3px}
+.nf-chart-ornament-bars i{display:block;width:8px;border-radius:5px;background:linear-gradient(145deg,#e9ff8a 0%,#b5e01a 55%,#86a80b 100%);box-shadow:2px 3px 5px #71843f35,inset 1px 1px 2px #fff}
+.nf-chart-ornament-bars i:nth-child(1){height:14px}
+.nf-chart-ornament-bars i:nth-child(2){height:23px;background:linear-gradient(145deg,#fff,#d9d7d1 65%,#aaa69e)}
+.nf-chart-ornament-bars i:nth-child(3){height:31px}
+.nf-chart-ornament-bars i:nth-child(4){height:19px;background:linear-gradient(145deg,#fff,#d9d7d1 65%,#aaa69e)}
+.nf-chart-ornament-bars i:nth-child(5){height:27px}
+.nf-chart-ornament-bars i:nth-child(6){height:35px;background:linear-gradient(145deg,#fff,#d9d7d1 65%,#aaa69e)}
+.nf-chart-orb{position:absolute;display:block;width:7px;height:7px;border-radius:50%;box-shadow:2px 3px 5px #44382b30,inset 1px 1px 2px #fff9}
+.nf-chart-orb.orb-green{right:5px;top:8px;background:radial-gradient(circle at 30% 25%,#eaff9a,#9dc51b 72%)}
+.nf-chart-orb.orb-orange{right:14px;top:29px;width:6px;height:6px;background:radial-gradient(circle at 30% 25%,#ffd0a0,#f26a1b 72%)}
+.nf-chart-orb.orb-purple{right:1px;top:39px;width:5px;height:5px;background:radial-gradient(circle at 30% 25%,#e6c9ff,#9562c9 72%)}
+.nf-chart-star{position:absolute;line-height:1;text-shadow:1px 2px 3px #6e58352c}
+.nf-chart-star.star-yellow{right:4px;top:19px;color:#f5c84b;font-size:12px}
+.nf-chart-star.star-orange{right:83px;top:0;color:#f26a1b;font-size:10px}
+.nf-chart-arrow{position:absolute;right:0;top:-2px;color:#f26a1b;font-size:24px;font-weight:900;line-height:1;text-shadow:2px 3px 4px #a84c1b35;transform:rotate(-3deg)}
+@media(max-width:390px){.nf-chart-ornaments{right:9px;top:47px;transform:scale(.82);transform-origin:top right}.nf-reference-card-heading{padding-right:8px}}
