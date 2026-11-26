@@ -434,6 +434,159 @@ function DashboardContent() {
         }
 
 
+        /* Reconstrução da composição mobile NutriFit 360 — referência 390 × 844 */
+        .nf-reference-shell{
+          --nf-paper:#EEEDEA;
+          --nf-card:#F8F7F2;
+          min-height:100svh;
+          padding:12px 12px calc(84px + env(safe-area-inset-bottom));
+          background:radial-gradient(ellipse at 50% 0%,#FAF9F5 0%,#EEEDEA 58%,#E8E7E2 100%);
+          color:#292B25;
+          font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+        }
+        .nf-reference-header{
+          max-width:430px;min-height:72px;margin:0 auto 10px;padding:8px 11px;
+          gap:9px;border:1px solid rgba(255,255,255,.95);border-radius:24px;
+          background:linear-gradient(145deg,#FFFDF8 0%,#F3F1EB 100%);
+          box-shadow:8px 9px 18px rgba(91,86,72,.16),-6px -6px 14px rgba(255,255,255,.96),inset 1px 1px 2px #fff;
+        }
+        .nf-reference-greeting h1{font-size:18px;color:#272922}
+        .nf-reference-brandline{font-size:12px;color:#6F842C}
+        .nf-reference-actions{gap:5px}
+        .nf-reference-bell{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,#FFF,#ECEAE4);box-shadow:3px 4px 8px #77715c20,-2px -2px 5px #fff}
+        .nf-reference-main{max-width:430px}
+        .nf-dashboard-summary{gap:10px}
+        .nf-reference-toprow{grid-template-columns:minmax(0,1.55fr) minmax(112px,.86fr);gap:9px}
+        .nf-reference-metrics{
+          min-height:88px;border:1px solid #fff;border-radius:22px;
+          background:linear-gradient(145deg,#FFFDF8 0%,#F3F1EB 100%);
+          box-shadow:7px 8px 15px rgba(91,86,72,.15),-5px -5px 12px #fff,inset 1px 1px 2px #fff;
+        }
+        .nf-reference-metric{padding:9px 8px;gap:4px}
+        .nf-reference-metric-label{font-size:7.5px;letter-spacing:.35px;color:#77766D}
+        .nf-reference-metric strong{font-size:23px;color:#252820}
+        .nf-reference-metric small{font-size:7.5px;color:#88867D}
+        .nf-reference-metric+.nf-reference-metric{border-left:1px solid #DEDCD3}
+        .nf-weekly-ticket{
+          min-height:88px;padding:8px 9px;border:1px solid rgba(255,255,255,.75);border-radius:19px;
+          background:linear-gradient(145deg,#D8F52A 0%,#B5E01A 58%,#9FC80B 100%);
+          box-shadow:6px 8px 13px rgba(112,143,15,.28),-3px -3px 8px rgba(255,255,255,.72),inset 2px 2px 3px #F6FFB5,inset -2px -3px 5px #85A800;
+        }
+        .nf-weekly-ticket>span{font-size:7.5px;color:#34420D}
+        .nf-weekly-ticket>strong{font-size:25px;color:#28320D;text-shadow:0 1px 0 #F4FF9B}
+        .nf-weekly-ticket>small{font-size:7px;color:#3D4B16}
+        .nf-3d-scene{
+          height:274px;margin:0 -1px;border:1px solid rgba(255,255,255,.92);border-radius:28px;
+          background:linear-gradient(145deg,#F8F7F2 0%,#EEECE5 100%);
+          box-shadow:10px 12px 22px rgba(91,86,72,.15),-6px -6px 14px #fff,inset 1px 1px 3px #fff;
+          overflow:hidden;
+        }
+        .nf-3d-scene:before{
+          content:"";position:absolute;left:13%;right:8%;bottom:10px;height:30px;border-radius:50%;
+          background:rgba(73,69,53,.18);filter:blur(15px);z-index:0;
+        }
+        .nf-3d-scene:after{
+          content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+          background:linear-gradient(135deg,rgba(255,255,255,.32),transparent 38%,transparent 75%,rgba(125,115,91,.035));
+        }
+        .nf-gym-svg{
+          width:122%;max-width:none;height:auto;left:54%;bottom:-2px;transform:translateX(-50%);
+          z-index:1;filter:drop-shadow(0 11px 9px rgba(63,57,43,.25));
+        }
+        .nf-gym-svg g{filter:drop-shadow(1px 2px 2px rgba(63,57,43,.18))}
+        .nf-reference-side-pill{
+          left:8px;top:50%;transform:translateY(-50%);width:39px;height:154px;padding:6px 0;
+          border-radius:22px;background:linear-gradient(145deg,#FFFDF8,#EEECE6);
+          box-shadow:5px 7px 13px rgba(91,86,72,.18),-4px -4px 9px #fff;
+          border:1px solid #fff;
+        }
+        .nf-reference-side-pill button{width:28px;height:28px;border-radius:10px}
+        .nf-reference-side-pill button.active{
+          background:linear-gradient(145deg,#DFFF3B,#B5E01A);
+          box-shadow:inset 2px 2px 4px rgba(103,133,0,.25),2px 3px 6px rgba(78,96,23,.22);
+        }
+        .nf-reference-lower{grid-template-columns:minmax(0,1.12fr) minmax(0,.92fr);gap:9px}
+        .nf-reference-card{
+          min-height:132px;padding:11px 10px;border:1px solid rgba(255,255,255,.95);border-radius:23px;
+          background:linear-gradient(145deg,#FFFDF8 0%,#F1EFE9 100%);
+          box-shadow:8px 9px 17px rgba(91,86,72,.15),-5px -5px 12px #fff,inset 1px 1px 2px #fff;
+        }
+        .nf-reference-card h2{font-size:11px;color:#292B25}
+        .nf-reference-card-heading>span{color:#89877D}
+        .nf-reference-bars{height:68px;margin-top:4px}
+        .nf-reference-bar-column>span{
+          width:min(18px,76%);border-radius:9px 9px 7px 7px;
+          background:linear-gradient(145deg,#E5E3DE 0%,#C4C2BC 68%,#AAA9A4 100%);
+          box-shadow:3px 4px 7px rgba(81,78,70,.18),-2px -2px 4px #fff,inset 1px 1px 2px #fff;
+        }
+        .nf-reference-bar-column>span.has-value{
+          background:linear-gradient(145deg,#E3FA55 0%,#B5E01A 58%,#8DAF0A 100%);
+          box-shadow:3px 4px 7px rgba(113,145,12,.25),-2px -2px 4px #fff,inset 1px 1px 2px #F7FFBF;
+        }
+        .nf-reference-bar-column small{font-size:6px;color:#858378}
+        .nf-weekly-progress p{font-size:7px;color:#858378}
+        .nf-achievements{gap:6px}
+        .nf-achievement-pill{
+          height:23px;border-radius:14px;padding:0 6px;
+          background:linear-gradient(145deg,#FFFDF8,#EEECE6);
+          box-shadow:3px 4px 7px rgba(91,86,72,.14),-2px -2px 5px #fff,inset 1px 1px 2px #fff;
+        }
+        .nf-achievement-pill b{font-size:8px;color:#383A31}
+        .nf-reference-tip{
+          min-height:62px;margin:0 auto 7px;padding:8px 11px;gap:9px;
+          border:1px solid #fff;border-radius:21px;
+          background:linear-gradient(145deg,#FFFDF8,#F1EFE9);
+          box-shadow:8px 9px 17px rgba(91,86,72,.14),-5px -5px 12px #fff;
+        }
+        .nf-reference-tip-icon{
+          width:39px;height:39px;flex-basis:39px;border-radius:15px;
+          background:linear-gradient(145deg,#FFF2C9,#F3D47D);
+          box-shadow:3px 4px 7px rgba(135,103,35,.17),inset 1px 1px 3px #fff;
+        }
+        .nf-reference-tip h2{font-size:11px;color:#292B25}
+        .nf-reference-tip p{font-size:9px;color:#77766D}
+        .nf-reference-footer{color:#858378;font-size:7px}
+        .nf-reference-nav{
+          min-height:70px;padding:5px 7px calc(5px + env(safe-area-inset-bottom));
+          background:rgba(247,246,240,.97);border-top:1px solid #fff;
+          box-shadow:0 -7px 18px rgba(91,86,72,.13);
+        }
+        .nf-reference-nav button{height:56px;border-radius:16px;color:#77766D}
+        .nf-reference-nav button.active{color:#657C20}
+        .nf-reference-nav button span{font-size:9px}
+        .nf-reference-panel{
+          border:1px solid #fff;border-radius:25px;
+          background:linear-gradient(145deg,#FFFDF8,#F1EFE9);
+          box-shadow:8px 10px 20px rgba(91,86,72,.15),-6px -6px 14px #fff;
+        }
+        @media(max-width:560px){
+          .nf-reference-shell{padding:10px 10px calc(78px + env(safe-area-inset-bottom))}
+          .nf-reference-header{min-height:68px;margin-bottom:9px;padding:7px 9px}
+          .nf-reference-toprow{gap:7px}
+          .nf-reference-metrics,.nf-weekly-ticket{min-height:82px}
+          .nf-3d-scene{height:258px;border-radius:25px}
+          .nf-gym-svg{width:126%;left:55%;bottom:-1px}
+          .nf-reference-side-pill{left:6px;height:146px;width:37px}
+          .nf-reference-lower{gap:8px}
+          .nf-reference-card{min-height:126px;padding:10px 8px;border-radius:21px}
+          .nf-reference-bars{height:64px}
+          .nf-chart-ornaments{right:7px;top:39px;transform:scale(.68);transform-origin:top right}
+          .nf-weekly-progress .nf-reference-card-heading{padding-right:88px;min-height:25px}
+          .nf-weekly-progress .nf-reference-bars{margin-top:48px}
+          .nf-reference-tip{min-height:58px}
+        }
+        @media(max-width:370px){
+          .nf-reference-greeting h1{font-size:16px}
+          .nf-reference-brand{width:50px;height:50px;flex-basis:50px}
+          .nf-reference-metric{padding:7px 5px}
+          .nf-reference-metric-label{font-size:6.5px}
+          .nf-weekly-ticket>span{font-size:6.5px}
+          .nf-3d-scene{height:238px}
+          .nf-gym-svg{width:132%;left:56%}
+          .nf-reference-card h2{font-size:10px}
+        }
+
+
    `}</style>
   </main>
  );
