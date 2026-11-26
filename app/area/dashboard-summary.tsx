@@ -74,6 +74,12 @@ export default function DashboardSummary({onNavigate,children}:Props){
   <section className="nf-reference-lower">
    <article className="nf-reference-card nf-weekly-progress">
     <div className="nf-reference-card-heading"><h2>Evolução Semanal</h2><span>7 dias</span></div>
+    <div className="nf-chart-ornaments" aria-hidden="true">
+     <div className="nf-chart-ornament-bars"><i/><i/><i/><i/><i/><i/></div>
+     <span className="nf-chart-orb orb-green"/><span className="nf-chart-orb orb-orange"/><span className="nf-chart-orb orb-purple"/>
+     <span className="nf-chart-star star-yellow">✦</span><span className="nf-chart-star star-orange">✦</span>
+     <span className="nf-chart-arrow">↗</span>
+    </div>
     <div className="nf-reference-bars" role="img" aria-label={`Treinos registrados por dia: ${data.dailyWorkouts.join(", ")}`}>
      {data.dailyWorkouts.map((count,index)=><div className="nf-reference-bar-column" key={weekdays[index]}>
        <span className={count>0?"has-value":""} style={{height:`${count?Math.max(18,count/max*64):8}px`}} title={`${count} treinos`}/>
