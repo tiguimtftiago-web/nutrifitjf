@@ -47,7 +47,7 @@ function DashboardContent() {
     </div>
     <div className="nf-reference-actions">
      <button className="nf-reference-bell" type="button" aria-label="Notificações"><ClayIcon name="bell" tone="orange" size={17}/><i/></button>
-     <div className="nf-reference-avatar" aria-label="Perfil de {displayName}">👩🏾‍🦱<i/></div>
+     <div className="nf-reference-avatar" aria-label={`Perfil de ${displayName}`}>👩🏾‍🦱<i/></div>
     </div>
    </header>
 
