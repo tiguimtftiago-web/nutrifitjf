@@ -407,4 +407,12 @@ textarea::placeholder {
 .nf-chart-star.star-yellow{right:4px;top:19px;color:#f5c84b;font-size:12px}
 .nf-chart-star.star-orange{right:83px;top:0;color:#f26a1b;font-size:10px}
 .nf-chart-arrow{position:absolute;right:0;top:-2px;color:#f26a1b;font-size:24px;font-weight:900;line-height:1;text-shadow:2px 3px 4px #a84c1b35;transform:rotate(-3deg)}
-@media(max-width:390px){.nf-chart-ornaments{right:9px;top:47px;transform:scale(.82);transform-origin:top right}.nf-reference-card-heading{padding-right:8px}}
+/* Mantém os ornamentos fora da área útil do gráfico e do título */
+.nf-weekly-progress .nf-reference-card-heading{padding-right:118px;min-height:28px;position:relative;z-index:1}
+.nf-weekly-progress .nf-reference-bars{margin-top:58px;position:relative;z-index:1}
+.nf-weekly-progress .nf-chart-ornaments{right:14px;top:43px}
+@media(max-width:390px){
+ .nf-weekly-progress .nf-reference-card-heading{padding-right:104px}
+ .nf-weekly-progress .nf-reference-bars{margin-top:54px}
+ .nf-chart-ornaments{right:9px;top:43px;transform:scale(.76);transform-origin:top right}
+}
