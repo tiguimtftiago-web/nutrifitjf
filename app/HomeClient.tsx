@@ -3120,7 +3120,7 @@ export default function Home() {
               onClick={() => trackClick("whatsapp_contact_opened", "header")}
               aria-label="Fale com a Nutrifit pelo WhatsApp"
               title="Fale com a Nutrifit pelo WhatsApp"
-              className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-[#062b16] shadow-[0_3px_12px_rgba(37,211,102,.22)] transition hover:brightness-110 sm:h-11 sm:w-11"
+              className="inline-flex h-9 w-8 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-[#062b16] shadow-[0_3px_12px_rgba(37,211,102,.22)] transition hover:brightness-110 sm:h-11 sm:w-11 xl:w-auto xl:gap-2 xl:px-3"
             >
               <MessageCircle size={20} strokeWidth={2.4} />
               <span className="hidden xl:inline xl:ml-2 xl:whitespace-nowrap xl:text-xs xl:font-black">Fale conosco</span>
