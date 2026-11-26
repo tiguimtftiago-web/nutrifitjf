@@ -64,7 +64,7 @@ function DashboardContent() {
        </aside>
        <svg className="nf-gym-svg" viewBox="0 0 760 390" role="img" aria-label="Mini academia isométrica com pesos, banco, bicicleta ergométrica e pessoa treinando">
                 <defs>
-                  <linearGradient id="nfPlatformSide" x1="0" y1="0" x2="0.9" y2="1"><stop stopColor="#b8ce62"/><stop offset="1" stopColor="#718b36"/></linearGradient>
+                  <linearGradient id="nfPlatformSide" x1="0" y1="0" x2="0.9" y2="1"><stop stopColor="#c9ef35"/><stop offset="1" stopColor="#8eb600"/></linearGradient>
                   <linearGradient id="nfPlatformTop" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fffdf7"/><stop offset="1" stopColor="#e8ddcc"/></linearGradient>
                   <linearGradient id="nfMetal" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f5f2ed"/><stop offset=".5" stopColor="#77746f"/><stop offset="1" stopColor="#d8d3cb"/></linearGradient>
                   <linearGradient id="nfOrange" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ffb15f"/><stop offset="1" stopColor="#d76b2d"/></linearGradient>
@@ -72,7 +72,7 @@ function DashboardContent() {
                 </defs>
                 <ellipse cx="385" cy="324" rx="300" ry="34" fill="#8b795f" opacity=".18" filter="url(#nfShadow)"/>
                 <path d="M80 210 382 95 682 210 380 345Z" fill="url(#nfPlatformSide)"/>
-                <path d="M80 210 380 323 682 210 682 233 380 367 80 234Z" fill="#829d3f"/>
+                <path d="M80 210 380 323 682 210 682 233 380 367 80 234Z" fill="#91b900"/>
                 <path d="M100 198 382 91 662 198 380 310Z" fill="url(#nfPlatformTop)" stroke="#fff" strokeWidth="5"/>
                 <path d="M118 198 382 104 643 198 380 297Z" fill="none" stroke="#e5dac9" strokeWidth="2"/>
                 <g opacity=".95">
@@ -144,6 +144,25 @@ function DashboardContent() {
                 </g>
                 <path d="M226 93l8-14 8 14 14 8-14 8-8 14-8-14-14-8Z" fill="#ed8738" opacity=".9"/>
                 <circle cx="576" cy="65" r="7" fill="#a7b66a"/><circle cx="260" cy="56" r="5" fill="#ed8738"/>
+                <g aria-label="Cabelo cacheado preso em rabo de cavalo">
+                  <path d="M360 91q-7-25 15-29 23-3 27 19-7-7-15-7-8 0-13 6-7 9-14 11Z" fill="#65432f"/>
+                  <circle cx="360" cy="77" r="7" fill="#765039"/><circle cx="354" cy="70" r="6" fill="#765039"/><circle cx="367" cy="64" r="7" fill="#765039"/>
+                  <path d="M396 76q17-8 22 5-8 2-13 9" fill="none" stroke="#65432f" strokeWidth="7" strokeLinecap="round"/>
+                  <circle cx="420" cy="82" r="6" fill="#765039"/>
+                </g>
+                <g aria-label="Tapete de yoga verde enrolado">
+                  <ellipse cx="466" cy="252" rx="20" ry="9" fill="#8eaa35"/>
+                  <rect x="446" y="242" width="40" height="13" rx="6.5" fill="#b5e01a" stroke="#8eaa35" strokeWidth="2"/>
+                  <circle cx="447" cy="248.5" r="6.5" fill="#d5f35b" stroke="#8eaa35" strokeWidth="2"/>
+                  <circle cx="447" cy="248.5" r="2.5" fill="#789516"/>
+                </g>
+                <g aria-label="Balança digital">
+                  <path d="M518 253 545 243 570 253 543 265Z" fill="#d9d7d2" stroke="#aaa59c" strokeWidth="2"/>
+                  <path d="M543 265 570 253 570 260 543 272Z" fill="#aaa69e"/>
+                  <path d="M518 253 543 265 543 272 518 260Z" fill="#c4c0b8"/>
+                  <rect x="537" y="249" width="12" height="5" rx="1.5" fill="#7d8c65"/>
+                  <text x="543" y="253" textAnchor="middle" fontSize="3.5" fill="#f5f5ed">0.0</text>
+                </g>
               </svg>
        <span className="nf-scene-spark spark-one" aria-hidden="true">✦</span>
        <span className="nf-scene-spark spark-two" aria-hidden="true">●</span>
