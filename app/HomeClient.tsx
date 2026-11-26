@@ -4045,7 +4045,7 @@ export default function Home() {
       {!orderOpen && (
         <div className="fixed bottom-5 right-4 z-[90] flex flex-col items-end sm:bottom-6 sm:right-6">
           {contactMenuOpen && (
-            <div className="mb-3 w-[min( min( calc(100vw - 2rem), 19rem), 19rem)] overflow-hidden rounded-2xl border border-white/15 bg-[#10130d]/[.98] p-2.5 shadow-[0_16px_48px_rgba(0,0,0,.6)] backdrop-blur-xl" role="dialog" aria-label="Opções de atendimento">
+            <div className="mb-3 w-[min(19rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/15 bg-[#10130d]/[.98] p-2.5 shadow-[0_16px_48px_rgba(0,0,0,.6)] backdrop-blur-xl" role="dialog" aria-label="Opções de atendimento">
               <div className="flex items-center justify-between px-2 pb-2.5 pt-1">
                 <div>
                   <p className="text-sm font-black text-white">Como podemos ajudar?</p>
