@@ -6,6 +6,7 @@ import DashboardSummary from "./dashboard-summary";
 import NutritionTracker from "./nutrition-tracker";
 import TrainingTracker from "./training-tracker";
 import GoalTracker from "./goal-tracker";
+import ClayIcon from "./clay-icon";
 import { Activity, Bell, Dumbbell, Home, Salad, Settings, Target } from "lucide-react";
 
 type Tab = "inicio" | "treino" | "nutricao" | "evolucao" | "metas";
@@ -32,8 +33,8 @@ function DashboardContent() {
   }
   void loadName();return()=>{live=false;};
  },[]);
- const tabs: {id:Tab;label:string;icon:typeof Home}[]=[
-  {id:"inicio",label:"Início",icon:Home},{id:"treino",label:"Treino",icon:Dumbbell},{id:"nutricao",label:"Nutrição",icon:Salad},{id:"evolucao",label:"Evolução",icon:Activity},{id:"metas",label:"Metas",icon:Target}
+ const tabs: {id:Tab;label:string;icon:"home"|"dumbbell"|"apple"|"chart"|"target"}[]=[
+  {id:"inicio",label:"Início",icon:"home"},{id:"treino",label:"Treino",icon:"dumbbell"},{id:"nutricao",label:"Nutrição",icon:"apple"},{id:"evolucao",label:"Evolução",icon:"chart"},{id:"metas",label:"Metas",icon:"target"}
  ];
  return (
   <main className="nf-shell nf-reference-shell">
@@ -46,7 +47,7 @@ function DashboardContent() {
      <h1>Olá, {displayName}! <span>💪</span></h1>
     </div>
     <div className="nf-reference-actions">
-     <button className="nf-reference-bell" type="button" aria-label="Notificações"><Bell size={19}/><i/></button>
+     <button className="nf-reference-bell" type="button" aria-label="Notificações"><ClayIcon name="bell" tone="orange" size={17}/><i/></button>
      <div className="nf-reference-avatar" aria-label="Perfil de {displayName}">👩🏾‍🦱<i/></div>
     </div>
    </header>
@@ -57,10 +58,10 @@ function DashboardContent() {
       <section className="nf-3d-scene" aria-label="Academia isométrica NutriFit 360">
        <div className="nf-scene-caption"><b>Movimento também é cuidado.</b><span>Pequenos passos constroem grandes mudanças.</span></div>
        <aside className="nf-reference-side-pill" aria-label="Atalhos rápidos">
-        <button className="active" type="button" onClick={()=>setActiveTab("inicio")} aria-label="Início"><Home size={18}/></button>
-        <button type="button" onClick={()=>setActiveTab("treino")} aria-label="Treino"><Dumbbell size={17}/></button>
-        <button type="button" onClick={()=>setActiveTab("evolucao")} aria-label="Evolução"><Activity size={17}/></button>
-        <button type="button" onClick={()=>setActiveTab("metas")} aria-label="Configurações e metas"><Settings size={17}/></button>
+        <button className="active" type="button" onClick={()=>setActiveTab("inicio")} aria-label="Início"><ClayIcon name="home" tone="green" size={17}/></button>
+        <button type="button" onClick={()=>setActiveTab("treino")} aria-label="Treino"><ClayIcon name="dumbbell" tone="neutral" size={17}/></button>
+        <button type="button" onClick={()=>setActiveTab("evolucao")} aria-label="Evolução"><ClayIcon name="chart" tone="neutral" size={17}/></button>
+        <button type="button" onClick={()=>setActiveTab("metas")} aria-label="Configurações e metas"><ClayIcon name="settings" tone="neutral" size={17}/></button>
        </aside>
        <svg className="nf-gym-svg" viewBox="0 0 760 390" role="img" aria-label="Mini academia isométrica com pesos, banco, bicicleta ergométrica e pessoa treinando">
                 <defs>
@@ -150,20 +151,20 @@ function DashboardContent() {
       </section>
      </DashboardSummary>
      <section className="nf-reference-tip">
-      <div className="nf-reference-tip-icon">💡</div>
+      <div className="nf-reference-tip-icon"><ClayIcon name="lightbulb" tone="orange" size={22}/></div>
       <div><h2>Dica do Dia</h2><p>Beba água e mantenha sua alimentação equilibrada!</p></div>
      </section>
      <footer className="nf-reference-footer">O acompanhamento é informativo e não substitui orientação de nutricionista ou médico.<span>© NUTRIFIT 360°</span></footer>
     </> : <section className="nf-reference-panel">
-      {activeTab==="treino"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><Dumbbell size={20}/></div><TrainingTracker/></>}
-      {activeTab==="nutricao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ALIMENTAÇÃO</div><h3>Nutrição</h3></div><Salad size={20}/></div><NutritionTracker/></>}
-      {activeTab==="evolucao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Evolução</h3></div><Activity size={20}/></div><WeightTracker/></>}
-      {activeTab==="metas"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">OBJETIVOS PESSOAIS</div><h3>Metas</h3></div><Target size={20}/></div><GoalTracker/></>}
+      {activeTab==="treino"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">DESEMPENHO</div><h3>Treino</h3></div><ClayIcon name="dumbbell" tone="green" size={22}/></div><TrainingTracker/></>}
+      {activeTab==="nutricao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ALIMENTAÇÃO</div><h3>Nutrição</h3></div><ClayIcon name="apple" tone="orange" size={22}/></div><NutritionTracker/></>}
+      {activeTab==="evolucao"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">ACOMPANHAMENTO</div><h3>Evolução</h3></div><ClayIcon name="chart" tone="green" size={22}/></div><WeightTracker/></>}
+      {activeTab==="metas"&&<><div className="nf-panel-heading"><div><div className="nf-eyebrow">OBJETIVOS PESSOAIS</div><h3>Metas</h3></div><ClayIcon name="target" tone="orange" size={22}/></div><GoalTracker/></>}
     </section>}
    </div>
 
    <nav className="nf-reference-nav" aria-label="Navegação principal">
-    {tabs.map(({id,label,icon:Icon})=><button type="button" key={id} className={activeTab===id?"active":""} aria-current={activeTab===id?"page":undefined} onClick={()=>setActiveTab(id)}><Icon size={21}/><span>{label}</span></button>)}
+    {tabs.map(({id,label,icon})=><button type="button" key={id} className={activeTab===id?"active":""} aria-current={activeTab===id?"page":undefined} onClick={()=>setActiveTab(id)}><ClayIcon name={icon} tone={activeTab===id?"green":"neutral"} size={19}/><span>{label}</span></button>)}
    </nav>
    <style jsx>{`
         :global(*){box-sizing:border-box}
