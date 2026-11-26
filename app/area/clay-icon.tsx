@@ -32,7 +32,7 @@ export default function ClayIcon({
   className = "",
 }: {
   name: ClayIconName;
-  tone?: "green" | "orange" | "neutral";
+  tone?: "green" | "orange" | "neutral" | "blue" | "gold";
   size?: number;
   className?: string;
 }) {
