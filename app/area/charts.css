@@ -201,3 +201,100 @@
 .nf-dashboard-goals{margin-top:12px}
 @media(max-width:390px){.nf-home-panorama{padding:14px}.nf-home-ring svg{width:min(100%,96px)}.nf-home-ring-copy{margin-top:-63px;height:53px}.nf-home-ring-copy strong{font-size:17px}.nf-home-ring>b{font-size:9px}.nf-home-stats{gap:7px}.nf-home-stats article{padding:10px}}
 @media(prefers-reduced-motion:reduce){.nf-home-ring .value{transition:none}}
+
+
+/* NutriFit 360 — telas internas no mesmo acabamento claymorphism */
+.nf-reference-panel .nf-nutrition-tracker,
+.nf-reference-panel .nf-training-tracker,
+.nf-reference-panel .nf-goals { color:#34352f; }
+.nf-reference-panel .nf-nutrition-head h4,
+.nf-reference-panel .nf-training-head h4 { color:#303229; }
+.nf-reference-panel .nf-nutrition-head>span,
+.nf-reference-panel .nf-training-head>span,
+.nf-reference-panel .nf-nutrition-head button,
+.nf-reference-panel .nf-training-head button { color:#77796e; }
+.nf-reference-panel .nf-macro-layout,
+.nf-reference-panel .nf-meal-form,
+.nf-reference-panel .nf-training-form,
+.nf-reference-panel .nf-goal-form,
+.nf-reference-panel .nf-daily-goals,
+.nf-reference-panel .nf-chart-ring,
+.nf-reference-panel .nf-training-stats article,
+.nf-reference-panel .nf-goals-overview>div,
+.nf-reference-panel .nf-goal-card {
+  background:linear-gradient(145deg,#fffefa,#f1eee8)!important;
+  border:1px solid #fff!important;
+  border-radius:18px!important;
+  box-shadow:7px 8px 16px rgba(90,82,68,.13),-5px -5px 12px #fff!important;
+  color:#33352d!important;
+}
+.nf-reference-panel .nf-meal-form label,
+.nf-reference-panel .nf-training-form label,
+.nf-reference-panel .nf-goal-form label { color:#696b60; }
+.nf-reference-panel .nf-meal-form input,
+.nf-reference-panel .nf-meal-form select,
+.nf-reference-panel .nf-training-form input,
+.nf-reference-panel .nf-training-form select,
+.nf-reference-panel .nf-goal-form input,
+.nf-reference-panel .nf-goal-form select,
+.nf-reference-panel .nf-goal-form textarea {
+  background:#f4f2ed!important;color:#34352f!important;border:1px solid #fff!important;
+  border-radius:12px!important;box-shadow:inset 3px 3px 6px rgba(100,94,82,.10),inset -3px -3px 6px #fff!important;
+}
+.nf-reference-panel .nf-macro-center strong,
+.nf-reference-panel .nf-training-stats strong,
+.nf-reference-panel .nf-goals-overview strong,
+.nf-reference-panel .nf-goal-card h4 { color:#34352f!important; }
+.nf-reference-panel .nf-macro-center small,
+.nf-reference-panel .nf-macro-legend span,
+.nf-reference-panel .nf-training-stats small,
+.nf-reference-panel .nf-training-stats span,
+.nf-reference-panel .nf-training-caption,
+.nf-reference-panel .nf-nutrition-empty,
+.nf-reference-panel .nf-goal-form-title small,
+.nf-reference-panel .nf-goal-card-head small,
+.nf-reference-panel .nf-goal-progress>div:first-child,
+.nf-reference-panel .nf-goal-progress>small { color:#77796e!important; }
+.nf-reference-panel .nf-training-week,
+.nf-reference-panel .nf-exercise-fields,
+.nf-reference-panel .nf-goal-empty {
+  background:#f3f0e9!important;border:1px solid #fff!important;border-radius:15px!important;
+  box-shadow:inset 3px 3px 6px rgba(100,94,82,.08),inset -3px -3px 6px #fff!important;
+}
+.nf-reference-panel .nf-training-bar-track,
+.nf-reference-panel .nf-goal-track,
+.nf-reference-panel .nf-progress-track { background:#deded5!important; }
+.nf-reference-panel .nf-training-day b { color:#626658!important; }
+.nf-reference-panel .nf-training-day small { color:#888a7e!important; }
+.nf-reference-panel .nf-meal-row,
+.nf-reference-panel .nf-training-row { border-color:#e5e1d8!important; }
+.nf-reference-panel .nf-meal-row b,
+.nf-reference-panel .nf-training-row b,
+.nf-reference-panel .nf-training-row li { color:#3d4037!important; }
+.nf-reference-panel .nf-meal-row small,
+.nf-reference-panel .nf-meal-row p,
+.nf-reference-panel .nf-training-row small,
+.nf-reference-panel .nf-training-row p,
+.nf-reference-panel .nf-training-row li span { color:#77796e!important; }
+.nf-reference-panel .nf-chart-action,
+.nf-reference-panel .nf-goal-form>button {
+  background:linear-gradient(145deg,#ffad69,#f26a1b)!important;color:#fff!important;
+  border-radius:14px!important;box-shadow:4px 5px 9px rgba(170,88,32,.2),-3px -3px 7px #fff!important;
+}
+.nf-reference-panel .nf-food-add {
+  background:linear-gradient(145deg,#d8f52a,#b5e01a)!important;color:#394414!important;
+  border-radius:13px!important;box-shadow:4px 5px 9px rgba(103,133,23,.2),-3px -3px 7px #fff!important;
+}
+.nf-reference-panel .nf-food-kcal,
+.nf-reference-panel .nf-goal-status,
+.nf-reference-panel .nf-goal-progress>div:first-child b { color:#718c1d!important; }
+.nf-reference-panel .nf-goal-actions button {
+  background:linear-gradient(145deg,#fffefa,#eeece5)!important;color:#647b20!important;
+  border:1px solid #fff!important;border-radius:11px!important;box-shadow:3px 4px 8px rgba(90,82,68,.12),-2px -2px 5px #fff!important;
+}
+.nf-reference-panel .nf-goal-delete { color:#d66b42!important; }
+.nf-reference-panel .nf-goal-progress>div:first-child { color:#77796e!important; }
+.nf-reference-panel .nf-goal-track i { background:linear-gradient(90deg,#91b51e,#c5e62b)!important; }
+@media(prefers-reduced-motion:reduce){
+ .nf-reference-panel *{transition:none!important}
+}
