@@ -56,6 +56,7 @@ async function request(path:string, token:string, init:RequestInit={}) {
 }
 
 const money = (v:number) => `R$ ${Number(v||0).toFixed(2).replace(".",",")}`;
+const isInternalTestOrder = (order:Pick<Order,"customer_name">) => /\bteste\s+interno\b/i.test(String(order.customer_name||""));
 
 function orderStatusStyle(status:string) {
   const labelByStatus:Record<string,string> = {
@@ -163,7 +164,7 @@ export default function AdminPage() {
         request(`${URL}/rest/v1/b2b_contact_events?select=id,lead_id,recipient_email,subject,event_type,event_at,evidence_note&order=event_at.desc&limit=500`,t),
         request(`${URL}/rest/v1/delivery_orders?select=id,order_id,customer_name,delivery_date,status,meal_quantity,notes,created_at&order=delivery_date.desc&limit=1000`,t),
       ]);
-      setOrders(o||[]); setDeliveryRecords(deliveries||[]); setCustomers((c||[]).map((profile:Customer)=>{ const linked=(o||[]).filter((order:Order)=>order.customer_profile_id===profile.id && order.status!=="cancelado"); return {...profile,order_count:linked.length,total_spend:linked.reduce((sum:number,order:Order)=>sum+Number(order.total||0),0)}; })); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]); setContactEvents(events||[]);
+      const businessOrders=(o||[]).filter((order:Order)=>!isInternalTestOrder(order)); const businessOrderIds=new Set(businessOrders.map((order:Order)=>order.id)); setOrders(businessOrders); setDeliveryRecords((deliveries||[]).filter((delivery:DeliveryRecord)=>!delivery.order_id||businessOrderIds.has(delivery.order_id))); setCustomers((c||[]).map((profile:Customer)=>{ const linked=businessOrders.filter((order:Order)=>order.customer_profile_id===profile.id && order.status!=="cancelado"); return {...profile,order_count:linked.length,total_spend:linked.reduce((sum:number,order:Order)=>sum+Number(order.total||0),0)}; })); setMessages(m||[]); setLeads(l||[]); setInventory(i||[]); setPurchaseAlerts(a||[]); setContactEvents(events||[]);
     } catch (e) {
       console.error(e);
       if (!background) setError("Não foi possível carregar os dados. Confirme se sua conta tem acesso administrativo.");

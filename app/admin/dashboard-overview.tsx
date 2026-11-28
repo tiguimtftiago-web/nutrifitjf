@@ -19,6 +19,7 @@ type DailyPoint = { date:Date; label:string; revenue:number; orders:number };
 const URL=process.env.NEXT_PUBLIC_SUPABASE_URL||"https://xdllpyqrbofszvallzxf.supabase.co";
 const KEY=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY||"sb_publishable_txHW3n6PyIFEw7P4uLzETA_A4wSJHSJ";
 const money=(v:number)=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const isInternalTestOrder=(order:Pick<Order,"customer_name">)=>/\bteste\s+interno\b/i.test(String(order.customer_name||""));
 const dateKey=(d:Date)=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
 const cancelled=(s:string)=>["cancelado","cancelada","canceled","cancelled"].includes(String(s||"").toLowerCase());
 const statusOf=(s:string)=>{
@@ -157,7 +158,10 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const today=new Date(now);today.setHours(0,0,0,0);
   const periodStart=new Date(today);periodStart.setDate(periodStart.getDate()-(period-1));
   const previousStart=new Date(periodStart);previousStart.setDate(previousStart.getDate()-period);
-  const validOrders=sourceOrders.filter(o=>!cancelled(o.status));
+  const commercialOrders=sourceOrders.filter(o=>!isInternalTestOrder(o));
+  const validOrders=commercialOrders.filter(o=>!cancelled(o.status));
+  const commercialOrderIds=new Set(commercialOrders.map(o=>o.id));
+  const commercialDeliveries=deliveries.filter(d=>!d.order_id||commercialOrderIds.has(d.order_id));
   const currentOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=periodStart&&d<=now});
   const previousOrders=validOrders.filter(o=>{const d=new Date(o.created_at);return d>=previousStart&&d<periodStart});
   const sales=currentOrders.reduce((s,o)=>s+Number(o.total||0),0);
@@ -186,15 +190,15 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
   const todayBatches=production.filter(p=>dateKey(new Date(p.produced_at||p.created_at))===dateKey(today)&&!cancelled(p.status));
   const planned=todayBatches.reduce((s,p)=>s+Number(p.quantity||0),0);
   const produced=todayBatches.filter(p=>["concluida","concluido","finalizada","finalizado"].includes(String(p.status||"").toLowerCase())).reduce((s,p)=>s+Number(p.quantity||0),0);
-  const nextDeliveries=deliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
+  const nextDeliveries=commercialDeliveries.filter(d=>d.delivery_date&&new Date(d.delivery_date+"T00:00:00")>=today&&!["entregue","cancelado","concluido"].includes(String(d.status||"").toLowerCase())).sort((a,b)=>new Date(a.delivery_date||"").getTime()-new Date(b.delivery_date||"").getTime()).slice(0,4);
   const paidFinance=finance.filter(f=>["pago","paid","concluido"].includes(String(f.status||"").toLowerCase())&&new Date(f.paid_at||f.created_at)>=periodStart&&new Date(f.paid_at||f.created_at)<=now);
   const expenses=paidFinance.filter(f=>["despesa","expense"].includes(String(f.type||"").toLowerCase())).reduce((s,f)=>s+Number(f.amount||0),0);
   const inputExpenses=paidFinance.filter(f=>{const category=String(f.category||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();return ["despesa","expense"].includes(String(f.type||"").toLowerCase())&&(category.includes("insumo")||category.includes("materia prima"));}).reduce((s,f)=>s+Number(f.amount||0),0);
   const profit=sales-expenses;
   const inputMargin=sales>0&&inputExpenses>0?(sales-inputExpenses)/sales*100:null;
-  const actionNew=sourceOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
-  const actionDelivery=sourceOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
-  const pendingDeliveryByOrder=sourceOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:deliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
+  const actionNew=commercialOrders.filter(o=>statusOf(o.status)==="new"&&!cancelled(o.status)).length;
+  const actionDelivery=commercialOrders.filter(o=>statusOf(o.status)==="delivery"&&!cancelled(o.status)).length;
+  const pendingDeliveryByOrder=commercialOrders.filter(o=>!cancelled(o.status)).map(o=>({order:o,delivered:commercialDeliveries.filter(d=>d.order_id===o.id&&d.status==="entregue").reduce((sum,d)=>sum+Number(d.meal_quantity||0),0)})).map(x=>({...x,remaining:Math.max(0,Number(x.order.item_count||0)-x.delivered)})).filter(x=>x.remaining>0);
   const pendingMealCount=pendingDeliveryByOrder.reduce((sum,x)=>sum+x.remaining,0);
   const startLabel=periodStart.toLocaleDateString("pt-BR");
   const endLabel=now.toLocaleDateString("pt-BR");
@@ -252,7 +256,7 @@ export default function DashboardOverview({orders,inventory,purchaseAlerts,token
 
       <section className="nf-kpis" aria-label="Indicadores do período">
         <article className="nf-kpi orange"><div className="nf-kpi-top"><span>Vendas por pedidos</span><ShoppingBag size={19}/></div><strong>{money(sales)}</strong><Variation value={pctChange(sales,previousSales)}/></article>
-        <article className="nf-kpi green"><div className="nf-kpi-top"><span>Pedidos</span><ShoppingCart size={19}/></div><strong>{currentOrders.length}</strong><Variation value={pctChange(currentOrders.length,previousOrders.length)}/></article>
+        <article className="nf-kpi green"><div className="nf-kpi-top"><span>Pedidos no período</span><ShoppingCart size={19}/></div><strong>{currentOrders.length}</strong><Variation value={pctChange(currentOrders.length,previousOrders.length)}/></article>
         <article className="nf-kpi blue"><div className="nf-kpi-top"><span>Clientes ativos</span><Users size={19}/></div><strong>{activeCustomers}</strong><small className="nf-variation neutral">Com pedidos no período</small></article>
         <article className="nf-kpi yellow"><div className="nf-kpi-top"><span>Ticket médio</span><Coins size={19}/></div><strong>{money(avg)}</strong><small className="nf-variation neutral">Por pedido no período</small></article>
       </section>
